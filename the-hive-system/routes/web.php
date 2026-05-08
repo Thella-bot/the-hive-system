@@ -1,19 +1,21 @@
 <?php
 
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Intranet\AnnouncementController;
 use App\Http\Controllers\Intranet\AssignmentController;
 use App\Http\Controllers\Intranet\DocumentController;
 use App\Http\Controllers\Intranet\GradeController;
 use App\Http\Controllers\Intranet\ModuleController;
 use App\Http\Controllers\Intranet\SubmissionController;
+use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     // Admin module management
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
-    Route::post('/programmes', [ModuleController::class, 'storeProgramme'])->name('programmes.store');
-    Route::post('/modules', [ModuleController::class, 'storeModule'])->name('modules.store');
+        Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
+        Route::post('/programmes', [ModuleController::class, 'storeProgramme'])->name('programmes.store');
+        Route::post('/modules', [ModuleController::class, 'storeModule'])->name('modules.store');
     });
 
     // Assignments (accessible by instructors, admin, and students)
@@ -42,7 +44,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         ->name('documents.version.download');
 
     // Announcements
-    Route::resource('announcements', AnnouncementController::class)->names('intranet.announcements');
+    Route::resource('announcements', AnnouncementController::class)
+        ->except(['show'])
+        ->names('intranet.announcements');
 });
 // Public website
 Route::get('/', [PublicController::class, 'home'])->name('home');

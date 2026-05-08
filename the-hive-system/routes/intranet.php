@@ -4,9 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Intranet\DashboardController;
 use App\Http\Controllers\Intranet\Admin\UserApprovalController;
 use App\Http\Controllers\Intranet\Admin\ImportUsersController;
+use App\Http\Controllers\Intranet\LeaveRequestController;
+use App\Http\Controllers\Intranet\PayslipController;
+use App\Http\Controllers\Intranet\ProfileController;
 
 Route::domain('intranet.hbculinaryinstitute.co.ls')
-    ->middleware(['auth:sanctum', 'verified'])   // Jetstream uses 'auth:sanctum'
+    ->middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
     ->group(function () {
         // All intranet pages
         Route::get('/', [DashboardController::class, 'index'])->name('intranet.dashboard');
@@ -17,12 +20,16 @@ Route::domain('intranet.hbculinaryinstitute.co.ls')
             Route::post('/approve-users/{user}', [UserApprovalController::class, 'approve'])->name('approve-user');
             Route::get('/import-users', [ImportUsersController::class, 'show'])->name('import-users');
             Route::post('/import-users', [ImportUsersController::class, 'import'])->name('import-users.post');
+        });
+
         // Profile
         Route::get('/profile', [ProfileController::class, 'edit'])->name('intranet.profile.edit');
         Route::post('/profile', [ProfileController::class, 'update'])->name('intranet.profile.update');
 
         // Leave Requests
-        Route::resource('leaves', LeaveRequestController::class)->names('intranet.leaves');
+        Route::resource('leaves', LeaveRequestController::class)
+            ->only(['index', 'create', 'store'])
+            ->names('intranet.leaves');
         Route::post('leaves/{leave}', [LeaveRequestController::class, 'update'])->name('intranet.leaves.update');
 
         // Payslips
@@ -30,5 +37,6 @@ Route::domain('intranet.hbculinaryinstitute.co.ls')
         Route::get('/payslips/upload', [PayslipController::class, 'create'])->name('intranet.payslips.create');
         Route::post('/payslips', [PayslipController::class, 'store'])->name('intranet.payslips.store');
         Route::get('/payslips/{payslip}/download', [PayslipController::class, 'download'])->name('intranet.payslips.download');
-        });
+
+        Route::get('/transcript/{user}', [TranscriptController::class, 'show'])->name('intranet.transcript');
     });

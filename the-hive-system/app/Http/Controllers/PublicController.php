@@ -8,7 +8,8 @@ class PublicController extends Controller
     public function home()
     {
         $programmes = Programme::count();
-        $announcements = \App\Models\Announcement::visibleTo(auth()->user() ?? new \App\Models\User) // for guest, show all with null target
+        $announcements = \App\Models\Announcement::query()
+                             ->whereNull('target_roles')
                              ->where('is_pinned', true)
                              ->latest()
                              ->take(3)

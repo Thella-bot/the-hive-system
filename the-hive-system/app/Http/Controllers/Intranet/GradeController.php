@@ -16,7 +16,7 @@ class GradeController extends Controller
             $modules = $user->modules()->with(['gradeItems.studentGrades' => function($q) use ($user) {
                 $q->where('student_id', $user->id);
             }])->get();
-            return Inertia::render('Intranet/Grades/StudentIndex', ['modules' => $modules]);
+            return Inertia::render('Grades/StudentIndex', ['modules' => $modules]);
         } else {
             // Instructor/Admin: select module to manage
             $modules = $user->hasRole('admin') ? Module::all() : $user->instructedModules;

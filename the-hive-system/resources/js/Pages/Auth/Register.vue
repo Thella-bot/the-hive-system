@@ -8,10 +8,6 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
-<div class="mb-4 text-sm text-gray-600">
-    Registration is subject to admin approval. You will receive access after verification.
-</div>
-
 const form = useForm({
     name: '',
     email: '',
@@ -34,6 +30,10 @@ const submit = () => {
         <template #logo>
             <AuthenticationCardLogo />
         </template>
+
+        <div class="mb-4 text-sm text-gray-600">
+            Registration is subject to admin approval. You will receive access after verification.
+        </div>
 
         <form @submit.prevent="submit">
             <div>

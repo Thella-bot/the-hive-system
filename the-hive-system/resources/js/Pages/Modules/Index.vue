@@ -42,6 +42,6 @@ import IntranetLayout from '@/Layouts/IntranetLayout.vue';
 const props = defineProps({ programmes: Array });
 const programmeForm = useForm({ name: '', description: '', duration_years: 1 });
 const moduleForm = useForm({ programme_id: '', name: '', code: '', description: '', credits: 3 });
-const addProgramme = () => programmeForm.post(route('admin.modules.programmes.store'));
-const addModule = () => moduleForm.post(route('admin.modules.modules.store'));
+const addProgramme = () => programmeForm.post(route('admin.programmes.store'));
+const addModule = () => moduleForm.post(route('admin.modules.store'));
 </script>

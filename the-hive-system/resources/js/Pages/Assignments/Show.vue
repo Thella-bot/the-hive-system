@@ -54,7 +54,6 @@
 </template>
 <script setup>
 import { computed, ref } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
 import { useForm, usePage } from '@inertiajs/vue3';
 import IntranetLayout from '@/Layouts/IntranetLayout.vue';
 

@@ -11,7 +11,7 @@ class ModuleController extends Controller
     // Index – show list of programmes with modules
     public function index() {
         $programmes = Programme::with('modules')->get();
-        return Inertia::render('Intranet/Admin/Modules/Index', compact('programmes'));
+        return Inertia::render('Modules/Index', compact('programmes'));
     }
 
     // Store a programme
