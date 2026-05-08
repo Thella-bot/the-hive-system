@@ -23,15 +23,14 @@
   </IntranetLayout>
 </template>
 <script setup>
-import { Inertia } from '@inertiajs/inertia';
 import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import IntranetLayout from '@/Layouts/IntranetLayout.vue';
 
 const props = defineProps({ leaves: Array, balance: Number });
 const isHR = computed(() => usePage().props.user.roles.some(r => ['admin','hr_staff'].includes(r.name)));
 
 const update = (leaveId, status) => {
-  Inertia.post(route('intranet.leaves.update', leaveId), { status });
+  router.post(route('intranet.leaves.update', leaveId), { status });
 };
 </script>

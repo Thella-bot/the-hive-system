@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { Inertia } from '@inertiajs/inertia';
+import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import IntranetLayout from '@/Layouts/IntranetLayout.vue';
 
@@ -36,7 +36,7 @@ const selectedRoles = ref({});
 props.unapprovedUsers.forEach(u => selectedRoles.value[u.id] = 'student');
 
 const approve = (userId) => {
-  Inertia.post(route('admin.approve-user', userId), {
+  router.post(route('admin.approve-user', userId), {
     role: selectedRoles.value[userId]
   });
 };

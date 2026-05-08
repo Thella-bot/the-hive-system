@@ -28,7 +28,7 @@
 </template>
 <script setup>
 import { computed } from 'vue';
-import { Link, usePage, Inertia } from '@inertiajs/vue3'; // Inertia for manual delete
+import { Link, router, usePage } from '@inertiajs/vue3';
 import IntranetLayout from '@/Layouts/IntranetLayout.vue';
 
 const props = defineProps({ announcements: Array });
@@ -39,7 +39,7 @@ const canEdit = (ann) => {
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {
-    Inertia.delete(route('intranet.announcements.destroy', id));
+    router.delete(route('intranet.announcements.destroy', id));
   }
 };
 </script>

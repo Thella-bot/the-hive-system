@@ -20,11 +20,11 @@
   </IntranetLayout>
 </template>
 <script setup>
-import { Inertia } from '@inertiajs/inertia';
+import { router } from '@inertiajs/vue3';
 import IntranetLayout from '@/Layouts/IntranetLayout.vue';
 
 defineProps({ notifications: Array });
 
-const markRead = (id) => Inertia.post(route('notifications.read', id));
-const markAllRead = () => Inertia.post(route('notifications.readAll'));
+const markRead = (id) => router.post(route('notifications.read', id));
+const markAllRead = () => router.post(route('notifications.readAll'));
 </script>

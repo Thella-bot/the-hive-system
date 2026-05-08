@@ -11,7 +11,6 @@
 </template>
 
 <script setup>
-import { Inertia } from '@inertiajs/inertia';
 import { useForm } from '@inertiajs/vue3';
 import IntranetLayout from '@/Layouts/IntranetLayout.vue';
 
