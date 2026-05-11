@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers\Intranet;
+<?php namespace App\Http\Controllers\Hive;
 
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;

@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers\Intranet;
+<?php namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;

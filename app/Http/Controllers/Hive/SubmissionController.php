@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers\Intranet;
+<?php namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
@@ -11,11 +11,25 @@ class SubmissionController extends Controller
     public function store(Request $request, Assignment $assignment) {
         $this->authorize('create', Submission::class);
         $student = $request->user();
-        // Ensure student is enrolled in assignment's module
-        if (!$student->modules->contains($assignment->module_id)) {
+
+        // Ensure student is enrolled in assignment's module (avoid loading all modules)
+        $isEnrolled = $student->modules()->where('modules.id', $assignment->module_id)->exists();
+        if (! $isEnrolled) {
             abort(403);
         }
-        $request->validate(['file' => 'required|file|max:'.$assignment->max_file_size]);
+
+        $request->validate([
+            'file' => 'required|file|max:'.$assignment->max_file_size,
+        ]);
+
+        // Prevent duplicate submissions for the same student + assignment
+        // (Business rule: one submission per assignment; uploads should create a new version instead.)
+        if (Submission::where('assignment_id', $assignment->id)
+            ->where('student_id', $student->id)
+            ->exists()) {
+            return back()->withErrors(['file' => 'You have already submitted for this assignment.']);
+        }
+
         $file = $request->file('file');
         $path = $file->store('private/submissions/' . $assignment->id);
 

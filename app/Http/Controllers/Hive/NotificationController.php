@@ -1,4 +1,5 @@
-<?php namespace App\Http\Controllers\Intranet;
+
+<?php namespace App\Http\Controllers\Hive;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;

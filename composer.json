@@ -1,10 +1,17 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "the-hive",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "The Hive is a web-based intranet system for the Honey Bee Culinary Insitute (HBCI).",
+    "keywords": ["laravel", "framework", "intranet", "hive"],
+    "homepage": "https://hive.hbci.ac.ls",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "HBCI",
+            "email": "info@hbci.ac.ls"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "*",

@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers\Intranet;
+<?php namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
@@ -6,6 +6,7 @@ use App\Models\Submission;
 use App\Models\User;
 use App\Models\LeaveRequest;
 use App\Models\Announcement;
+
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -30,9 +31,13 @@ class DashboardController extends Controller
                 ->orderBy('due_date')
                 ->take(5)
                 ->get();
-            $data['recentSubmissions'] = Submission::whereIn('assignment_id', Assignment::where('instructor_id', $user->id)->pluck('id'))
-                ->whereNull('grade')
-                ->with('assignment','student')
+
+            // Avoid plucking assignment IDs into PHP; filter using a correlated subquery.
+            $data['recentSubmissions'] = Submission::whereNull('grade')
+                ->whereHas('assignment', function ($q) use ($user) {
+                    $q->where('instructor_id', $user->id);
+                })
+                ->with('assignment', 'student')
                 ->latest()
                 ->take(5)
                 ->get();

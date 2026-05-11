@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Intranet\Admin;
+namespace App\Http\Controllers\Hive\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;

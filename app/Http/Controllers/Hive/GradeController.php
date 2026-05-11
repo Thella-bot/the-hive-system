@@ -1,4 +1,4 @@
-<?php namespace App\Http\Controllers\Intranet;
+<?php namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\GradeItem;
@@ -26,8 +26,22 @@ class GradeController extends Controller
 
     // Show grade item management for a module
     public function manage(Module $module) {
-        $this->authorize('viewGrades', $module); // implement in policy? simple check
-        $module->load('gradeItems.studentGrades.student', 'students');
+        // authorize that the user can manage grades for this module
+        // If no grade items exist yet, use a lightweight check based on module instructors.
+        $hasGradeItems = $module->gradeItems()->exists();
+        if ($hasGradeItems) {
+            $gradeItem = $module->gradeItems()->first();
+            $this->authorize('update', $gradeItem);
+        } else {
+            // Only instructors of this module (or admin) can manage grading.
+            abort_unless(
+                auth()->user()->hasRole('admin') ||
+                (auth()->user()->hasRole('instructor') && $module->instructors()->where('user_id', auth()->id())->exists()),
+                403
+            );
+        }
+
+        $module->load('gradeItems.studentGrades.student');
         return Inertia::render('Intranet/Grades/Manage', ['module' => $module]);
     }
 
