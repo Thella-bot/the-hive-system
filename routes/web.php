@@ -1,13 +1,15 @@
 <?php
 
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\Intranet\AnnouncementController;
-use App\Http\Controllers\Intranet\AssignmentController;
-use App\Http\Controllers\Intranet\DocumentController;
-use App\Http\Controllers\Intranet\GradeController;
-use App\Http\Controllers\Intranet\ModuleController;
-use App\Http\Controllers\Intranet\SubmissionController;
+use App\Http\Controllers\Hive\AnnouncementController;
+use App\Http\Controllers\Hive\AssignmentController;
+use App\Http\Controllers\Hive\DocumentController;
+use App\Http\Controllers\Hive\GradeController;
+use App\Http\Controllers\Hive\ModuleController;
+use App\Http\Controllers\Hive\SubmissionController;
+
 use App\Http\Controllers\PublicController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
@@ -18,10 +20,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('/modules', [ModuleController::class, 'storeModule'])->name('modules.store');
     });
 
-    // Assignments (accessible by instructors, admin, and students)
+    // Assignments
     Route::resource('assignments', AssignmentController::class)
         ->only(['index', 'create', 'store', 'show'])
-        ->names('intranet.assignments');
+        ->names('hive.assignments');
 
     // Submission
     Route::post('/assignments/{assignment}/submit', [SubmissionController::class, 'store'])->name('submissions.store');
@@ -37,7 +39,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     // Documents
     Route::resource('documents', DocumentController::class)
         ->only(['index', 'create', 'store', 'show'])
-        ->names('intranet.documents');
+        ->names('hive.documents');
     Route::post('/documents/{document}/versions', [DocumentController::class, 'addVersion'])
         ->name('documents.versions.store');
     Route::get('/documents/version/{version}/download', [DocumentController::class, 'download'])
@@ -46,14 +48,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     // Announcements
     Route::resource('announcements', AnnouncementController::class)
         ->except(['show'])
-        ->names('intranet.announcements');
+        ->names('hive.announcements');
 });
 // Default dashboard route expected by Jetstream/Fortify tests
 // (When authenticated via the web guard)
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->get('/dashboard', function () {
-    // For this application, the intranet dashboard is tenant-scoped (domain-based).
-    // Redirect authenticated users to the intranet home.
-    return redirect()->route('intranet.dashboard');
+    // For this application, the hive dashboard is tenant-scoped (domain-based).
+    // Redirect authenticated users to the hive home.
+    return redirect()->route('hive.dashboard');
 })->name('dashboard');
 
 // Public website

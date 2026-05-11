@@ -18,16 +18,47 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $documents = Document::with('latestVersion', 'creator')
+        $roleNames = $user->roles->pluck('name')->toArray();
+
+        // Enforce DocumentPolicy visibility rules at the query level (avoid loading + filtering in PHP).
+        $documentsQuery = Document::query()
+            ->with('latestVersion', 'creator')
             ->where('is_published', true)
-            ->get()
-            ->filter(fn($doc) => $user->can('view', $doc)); // policy filter
+            ->where(function ($q) use ($roleNames) {
+                // public to all intranet users
+                $q->whereNull('visible_to_roles')
+                  // role restricted
+                  ->orWhere(function ($q) use ($roleNames) {
+                      foreach ($roleNames as $roleName) {
+                          $q->orWhereJsonContains('visible_to_roles', $roleName);
+                      }
+                  });
+            });
+
+
+        // admin can always view (policy returns true if no restrictions, and grants create/update elsewhere).
+        // For listing, the visibility query already covers unrestricted docs (visible_to_roles IS NULL).
+
+        $documents = $documentsQuery->latest()->get();
 
         return Inertia::render('Intranet/Documents/Index', [
             'documents' => $documents->values(),
-            'categories' => Document::distinct()->pluck('category'),
+            'categories' => Document::query()
+                ->where('is_published', true)
+                ->where(function ($q) use ($roleNames) {
+                    $q->whereNull('visible_to_roles')
+                      ->orWhere(function ($q) use ($roleNames) {
+                          foreach ($roleNames as $roleName) {
+                              $q->orWhereJsonContains('visible_to_roles', $roleName);
+                          }
+                      });
+                })
+                ->distinct()
+                ->pluck('category'),
         ]);
     }
+
+
 
     public function create()
     {

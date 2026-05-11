@@ -1,18 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Intranet\DashboardController;
-use App\Http\Controllers\Intranet\Admin\UserApprovalController;
-use App\Http\Controllers\Intranet\Admin\ImportUsersController;
-use App\Http\Controllers\Intranet\LeaveRequestController;
-use App\Http\Controllers\Intranet\PayslipController;
-use App\Http\Controllers\Intranet\ProfileController;
+use App\Http\Controllers\Hive\DashboardController;
+use App\Http\Controllers\Hive\Admin\UserApprovalController;
+use App\Http\Controllers\Hive\Admin\ImportUsersController;
+use App\Http\Controllers\Hive\LeaveRequestController;
+use App\Http\Controllers\Hive\PayslipController;
+use App\Http\Controllers\Hive\ProfileController;
+use App\Http\Controllers\Hive\TranscriptController;
 
-Route::domain('intranet.hbculinaryinstitute.co.ls')
+
+Route::domain('hive.hbci.ac.ls')
     ->middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
     ->group(function () {
-        // All intranet pages
-        Route::get('/', [DashboardController::class, 'index'])->name('intranet.dashboard');
+        // All Hive pages
+        Route::get('/', [DashboardController::class, 'index'])->name('hive.dashboard');
 
         // Admin only
         Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -23,20 +25,20 @@ Route::domain('intranet.hbculinaryinstitute.co.ls')
         });
 
         // Profile
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('intranet.profile.edit');
-        Route::post('/profile', [ProfileController::class, 'update'])->name('intranet.profile.update');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('hive.profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('hive.profile.update');
 
         // Leave Requests
         Route::resource('leaves', LeaveRequestController::class)
             ->only(['index', 'create', 'store'])
             ->names('intranet.leaves');
-        Route::post('leaves/{leave}', [LeaveRequestController::class, 'update'])->name('intranet.leaves.update');
+        Route::post('leaves/{leave}', [LeaveRequestController::class, 'update'])->name('hive.leaves.update');
 
         // Payslips
-        Route::get('/payslips', [PayslipController::class, 'index'])->name('intranet.payslips.index');
-        Route::get('/payslips/upload', [PayslipController::class, 'create'])->name('intranet.payslips.create');
-        Route::post('/payslips', [PayslipController::class, 'store'])->name('intranet.payslips.store');
-        Route::get('/payslips/{payslip}/download', [PayslipController::class, 'download'])->name('intranet.payslips.download');
+        Route::get('/payslips', [PayslipController::class, 'index'])->name('hive.payslips.index');
+        Route::get('/payslips/upload', [PayslipController::class, 'create'])->name('hive.payslips.create');
+        Route::post('/payslips', [PayslipController::class, 'store'])->name('hive.payslips.store');
+        Route::get('/payslips/{payslip}/download', [PayslipController::class, 'download'])->name('hive.payslips.download');
 
-        Route::get('/transcript/{user}', [TranscriptController::class, 'show'])->name('intranet.transcript');
+        Route::get('/transcript/{user}', [TranscriptController::class, 'show'])->name('hive.transcript');
     });

@@ -4,25 +4,40 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Module;
 use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Gate;
+
 use Inertia\Inertia;
 
 class AssignmentController extends Controller
 {
     public function __construct() {
         $this->authorizeResource(Assignment::class, 'assignment');
+        // Note: Authorization for index/list is handled via Gate::authorize('viewAny', ...)
+
     }
 
     // Instructor sees own assignments; student sees assignments of enrolled modules
     public function index(Request $request) {
+        // Ensure list access is covered by policy (viewAny)
+        Gate::authorize('viewAny', Assignment::class);
+
         $user = $request->user();
+
+
+
         if ($user->hasRole('instructor') || $user->hasRole('admin')) {
             $assignments = Assignment::with('module')
                 ->when($user->hasRole('instructor'), fn($q)=>$q->where('instructor_id', $user->id))
                 ->latest()->get();
         } else { // student
             $moduleIds = $user->modules()->pluck('id');
-            $assignments = Assignment::with('module')->whereIn('module_id', $moduleIds)->latest()->get();
+            $assignments = Assignment::with('module')
+                ->whereIn('module_id', $moduleIds)
+                ->latest()
+                ->get();
         }
+
         return Inertia::render('Intranet/Assignments/Index', compact('assignments'));
     }
 
@@ -54,5 +69,5 @@ class AssignmentController extends Controller
         return Inertia::render('Intranet/Assignments/Show', ['assignment' => $assignment]);
     }
 
-    // Edit (optional) – you may skip in Week 2
 }
+
