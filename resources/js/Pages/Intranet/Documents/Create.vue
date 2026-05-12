@@ -1,7 +1,7 @@
 <template>
   <IntranetLayout>
     <h1 class="text-2xl font-bold mb-4">Upload Document</h1>
-    <form @submit.prevent="form.post(route('intranet.documents.store'))" class="max-w-lg space-y-4">
+    <form @submit.prevent="form.post(route('hive.documents.store'))" class="max-w-lg space-y-4">
       <div>
         <label class="block text-sm">Title</label>
         <input v-model="form.title" class="w-full border rounded p-2" required />

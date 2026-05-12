@@ -2,7 +2,7 @@
   <IntranetLayout>
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Document Repository</h1>
-      <Link v-if="canCreate" :href="route('intranet.documents.create')"
+      <Link v-if="canCreate" :href="route('hive.documents.create')"
             class="bg-indigo-600 text-white px-4 py-2 rounded">Upload New</Link>
     </div>
     <div class="grid gap-4">

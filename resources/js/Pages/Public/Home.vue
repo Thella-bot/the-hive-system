@@ -1,27 +1,72 @@
 <template>
   <PublicLayout>
-    <div class="text-center py-12">
-      <h1 class="text-5xl font-bold text-orange-800">Welcome to HBCI</h1>
-      <p class="mt-4 text-lg">Professional culinary education in Lesotho</p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-6 mt-8">
-      <div class="bg-white p-6 shadow rounded">
-        <h2 class="text-xl font-semibold">Programmes</h2>
-        <p class="mt-2">{{ programmes_count }} diplomas offered</p>
-        <Link :href="route('programmes')" class="text-indigo-600 mt-4 inline-block">Learn more</Link>
+    <!-- Hero Section -->
+    <div class="relative h-[60vh] bg-cover bg-center" style="background-image: url('/images/hero-background.jpg');">
+      <div class="absolute inset-0 bg-black opacity-60"></div>
+      <div class="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-6">
+        <h1 class="text-4xl md:text-6xl font-bold leading-tight">The International Culinary and Hospitality Academy of Lesotho</h1>
+        <p class="mt-4 text-lg md:text-xl max-w-2xl">Your journey to culinary and hospitality excellence starts here. We are dedicated to providing world-class training and education.</p>
+        <Link :href="route('programmes')" class="mt-8 px-8 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition">Our Programmes</Link>
       </div>
-      <!-- more blocks if needed -->
     </div>
-    <div v-if="announcements.length" class="mt-12">
-      <h2 class="text-2xl font-bold mb-4">Announcements</h2>
-      <div v-for="a in announcements" :key="a.id" class="bg-white p-4 shadow rounded mb-2">
-        <h3>{{ a.title }}</h3>
-        <p>{{ a.body.substring(0, 150) }}...</p>
+
+    <!-- About Us Section -->
+    <div class="py-16 bg-white">
+      <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl font-bold text-orange-800">Welcome to Honey Bee Culinary Institute</h2>
+            <p class="mt-4 text-gray-600">The Honey Bee Culinary Institute (HBCI) is a premier culinary and hospitality training center in Lesotho. We are committed to providing our students with the highest quality education and practical skills needed to succeed in the dynamic and exciting world of culinary arts and hospitality management.</p>
+            <p class="mt-4 text-gray-600">Our state-of-the-art facilities, experienced instructors, and hands-on approach to learning ensure that our graduates are well-prepared for the challenges of the industry.</p>
+            <Link :href="route('about')" class="mt-6 inline-block text-orange-500 font-semibold hover:underline">Learn More About Us</Link>
+          </div>
+          <div>
+            <img src="/images/about-us-image.jpg" alt="Our Team" class="rounded-lg shadow-lg">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Our Programmes Section -->
+    <div class="py-16 bg-gray-50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-orange-800">Explore Our Programmes</h2>
+        <div class="grid md:grid-cols-3 gap-8 mt-8">
+          <div v-for="programme in programmes" :key="programme.id" class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition">
+            <img :src="programme.image_url || '/images/programme-placeholder.jpg'" :alt="programme.name" class="w-full h-48 object-cover">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold h-16">{{ programme.name }}</h3>
+              <p class="mt-2 text-gray-600">{{ programme.duration }}</p>
+              <Link :href="route('programmes')" class="mt-4 inline-block text-orange-500 font-semibold hover:underline">View Details</Link>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-8">
+          <Link :href="route('programmes')" class="px-8 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition">View All Programmes</Link>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="py-16 bg-white">
+      <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center text-orange-800">What Our Students Say</h2>
+        <div class="grid md:grid-cols-2 gap-8 mt-8">
+          <div class="bg-gray-100 p-6 rounded-lg">
+            <p class="text-gray-600">"The hands-on training at HBCI is second to none. I feel confident and prepared for my career as a chef."</p>
+            <p class="mt-4 font-semibold">- Lerato M.</p>
+          </div>
+          <div class="bg-gray-100 p-6 rounded-lg">
+            <p class="text-gray-600">"The instructors are amazing! They are so knowledgeable and supportive. I've learned so much during my time here."</p>
+            <p class="mt-4 font-semibold">- Thabo K.</p>
+          </div>
+        </div>
       </div>
     </div>
   </PublicLayout>
 </template>
 <script setup>
 import PublicLayout from '@/Layouts/PublicLayout.vue';
-defineProps({ programmes_count: Number, announcements: Array });
+import { Link } from '@inertiajs/vue3';
+defineProps({ programmes: Array, announcements: Array });
 </script>

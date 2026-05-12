@@ -13,6 +13,12 @@ use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        // For this application, the hive dashboard is tenant-scoped (domain-based).
+        // Redirect authenticated users to the hive home.
+        return redirect()->route('hive.dashboard');
+    })->name('dashboard');
+
     // Admin module management
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
@@ -50,13 +56,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         ->except(['show'])
         ->names('hive.announcements');
 });
-// Default dashboard route expected by Jetstream/Fortify tests
-// (When authenticated via the web guard)
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->get('/dashboard', function () {
-    // For this application, the hive dashboard is tenant-scoped (domain-based).
-    // Redirect authenticated users to the hive home.
-    return redirect()->route('hive.dashboard');
-})->name('dashboard');
 
 // Public website
 Route::get('/', [PublicController::class, 'home'])->name('home');
@@ -64,4 +63,3 @@ Route::get('/about', [PublicController::class, 'about'])->name('about');
 Route::get('/programmes', [PublicController::class, 'programmes'])->name('programmes');
 Route::get('/contact', [PublicController::class, 'contact'])->name('contact');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
-

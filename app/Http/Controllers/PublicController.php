@@ -7,14 +7,14 @@ class PublicController extends Controller
 {
     public function home()
     {
-        $programmes = Programme::count();
+        $programmes = Programme::query()->take(3)->get();
         $announcements = \App\Models\Announcement::query()
                              ->whereNull('target_roles')
                              ->where('is_pinned', true)
                              ->latest()
                              ->take(3)
                              ->get();
-        return Inertia::render('Public/Home', ['programmes_count' => $programmes, 'announcements' => $announcements]);
+        return Inertia::render('Public/Home', ['programmes' => $programmes, 'announcements' => $announcements]);
     }
 
     public function about()

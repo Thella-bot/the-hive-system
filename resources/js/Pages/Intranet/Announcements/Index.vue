@@ -2,7 +2,7 @@
   <IntranetLayout>
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Announcements</h1>
-      <Link v-if="canCreate" :href="route('intranet.announcements.create')"
+      <Link v-if="canCreate" :href="route('hive.announcements.create')"
             class="bg-indigo-600 text-white px-4 py-2 rounded">New Post</Link>
     </div>
     <div class="space-y-4">
@@ -19,7 +19,7 @@
           <span v-if="ann.expires_at">Expires: {{ new Date(ann.expires_at).toLocaleDateString() }}</span>
         </div>
         <div v-if="canEdit(ann)" class="mt-2 space-x-2">
-          <Link :href="route('intranet.announcements.edit', ann.id)" class="text-indigo-600 text-sm">Edit</Link>
+          <Link :href="route('hive.announcements.edit', ann.id)" class="text-indigo-600 text-sm">Edit</Link>
           <button @click="deleteAnn(ann.id)" class="text-red-600 text-sm">Delete</button>
         </div>
       </div>
@@ -39,7 +39,7 @@ const canEdit = (ann) => {
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {
-    router.delete(route('intranet.announcements.destroy', id));
+    router.delete(route('hive.announcements.destroy', id));
   }
 };
 </script>

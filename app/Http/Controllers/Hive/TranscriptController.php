@@ -1,5 +1,8 @@
-<?php namespace App\Http\Controllers\Hive;
+<?php
 
+namespace App\Http\Controllers\Hive;
+
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 
