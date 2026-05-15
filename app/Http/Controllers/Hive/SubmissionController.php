@@ -1,50 +1,54 @@
 <?php namespace App\Http\Controllers\Hive;
 
-use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Submission;
+use App\Notifications\SubmissionGraded;
+use App\Notifications\SubmissionReceived;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
 {
-    public function store(Request $request, Assignment $assignment) {
-        $this->authorize('create', Submission::class);
+    public function __construct()
+    {
+        $this->authorizeResource(Submission::class, 'submission');
+    }
+
+    public function store(Request $request, Assignment $assignment)
+    {
+        $this->authorize('create', [Submission::class, $assignment]);
         $student = $request->user();
 
-        // Ensure student is enrolled in assignment's module (avoid loading all modules)
-        $isEnrolled = $student->modules()->where('modules.id', $assignment->module_id)->exists();
-        if (! $isEnrolled) {
-            abort(403);
-        }
-
         $request->validate([
-            'file' => 'required|file|max:'.$assignment->max_file_size,
+            'file' => [
+                'required',
+                'file',
+                'max:' . $assignment->max_file_size,
+                'mimes:' . $assignment->allowed_types,
+            ],
         ]);
 
-        // Prevent duplicate submissions for the same student + assignment
-        // (Business rule: one submission per assignment; uploads should create a new version instead.)
-        if (Submission::where('assignment_id', $assignment->id)
-            ->where('student_id', $student->id)
-            ->exists()) {
-            return back()->withErrors(['file' => 'You have already submitted for this assignment.']);
-        }
+        $submission = Submission::updateOrCreate(
+            [
+                'assignment_id' => $assignment->id,
+                'student_id' => $student->id,
+            ],
+            [
+                'file_path' => $request->file('file')->store('private/submissions/' . $assignment->id),
+                'submitted_at' => now(),
+                'is_late' => now()->gt($assignment->due_date),
+            ]
+        );
 
-        $file = $request->file('file');
-        $path = $file->store('private/submissions/' . $assignment->id);
+        $assignment->instructor->notify(new SubmissionReceived($submission));
 
-        Submission::create([
-            'assignment_id' => $assignment->id,
-            'student_id' => $student->id,
-            'file_path' => $path,
-            'submitted_at' => now(),
-            'is_late' => now()->gt($assignment->due_date),
-        ]);
-        return back()->with('success', 'Submission uploaded.');
+        return back()->with('success', 'Submission uploaded successfully.');
     }
 
     // Instructors grade a submission
-    public function update(Request $request, Submission $submission) {
+    public function update(Request $request, Submission $submission)
+    {
         $this->authorize('update', $submission);
         $data = $request->validate([
             'grade' => 'nullable|numeric|min:0',
@@ -54,11 +58,15 @@ class SubmissionController extends Controller
             'graded_at' => now(),
             'graded_by' => auth()->id(),
         ]));
+
+        $submission->student->notify(new SubmissionGraded($submission));
+
         return back();
     }
 
     // Serve file securely
-    public function download(Submission $submission) {
+    public function download(Submission $submission)
+    {
         $this->authorize('view', $submission);
         return Storage::download($submission->file_path);
     }

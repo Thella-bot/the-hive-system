@@ -3,19 +3,31 @@
 use App\Http\Controllers\Controller;
 use App\Models\LeaveRequest;
 use App\Models\User;
+use App\Notifications\LeaveRequestSubmitted;
+use App\Notifications\LeaveRequestUpdated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class LeaveRequestController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(LeaveRequest::class, 'leave_request');
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
-        if ($user->hasAnyRole(['hr_staff', 'admin'])) {
-            $leaves = LeaveRequest::with('user')->latest()->get();
-        } else {
-            $leaves = $user->leaveRequests()->latest()->get();
-        }
+        // Policy scope would be better, but for now, this simplifies the if/else
+        $leaves = LeaveRequest::query()
+            ->with('user')
+            ->when(!$user->hasAnyRole(['hr_staff', 'admin']), function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->latest()
+            ->get();
+
         return Inertia::render('Intranet/Leaves/Index', [
             'leaves' => $leaves,
             'balance' => $user->profile?->leave_balance ?? 0,
@@ -47,7 +59,11 @@ class LeaveRequestController extends Controller
         }
 
         $leave = $user->leaveRequests()->create($data);
-        // Optionally notify HR
+
+        // Notify HR staff and admins
+        $hrUsers = User::role(['hr_staff', 'admin'])->get();
+        Notification::send($hrUsers, new LeaveRequestSubmitted($leave));
+
         return redirect()->route('intranet.leaves.index')->with('success', 'Leave request submitted.');
     }
 
@@ -69,6 +85,9 @@ class LeaveRequestController extends Controller
                 $profile->decrement('leave_balance', min($days, $profile->leave_balance));
             }
         }
+
+        // Notify the user who submitted the request
+        $leave->user->notify(new LeaveRequestUpdated($leave));
 
         return back()->with('success', 'Leave request '.$request->status.'.');
     }

@@ -5,12 +5,12 @@
         <Link :href="route('home')" class="text-2xl font-bold">Honey Bee Culinary Institute</Link>
         <div class="space-x-4">
           <Link :href="route('home')" class="hover:underline">Home</Link>
-          <Link :href="route('about')" class="hover:underline">About</Link>
           <Link :href="route('programmes')" class="hover:underline">Programmes</Link>
+          <Link :href="route('about')" class="hover:underline">About</Link>
           <Link :href="route('contact')" class="hover:underline">Contact</Link>
           <!-- Login/Register -->
           <span v-if="$page.props.user">
-            <Link :href="route('intranet.dashboard')" class="hover:underline">Intranet</Link>
+            <Link :href="route('hive.dashboard')" class="hover:underline">The Hive</Link>
           </span>
           <span v-else>
             <Link :href="route('login')" class="hover:underline">Login</Link>

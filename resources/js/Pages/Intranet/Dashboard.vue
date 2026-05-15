@@ -21,7 +21,7 @@
       <div class="bg-blue-100 p-6 shadow-lg rounded-lg">
         <p class="text-4xl font-bold text-blue-600">{{ pendingApprovals }}</p>
         <p class="text-gray-500 mt-2">Pending Approvals</p>
-        <a :href="route('admin.approve-users')" class="text-blue-500 hover:underline mt-4 inline-block">Manage</a>
+        <a :href="route('hive.admin.approve-users')" class="text-blue-500 hover:underline mt-4 inline-block">Manage</a>
       </div>
       <div class="bg-yellow-100 p-6 shadow-lg rounded-lg">
         <p class="text-4xl font-bold text-yellow-600">{{ pendingLeaveRequests }}</p>
@@ -73,24 +73,50 @@
       </div>
     </div>
 
-    <!-- Student -->
-    <div v-if="isStudent">
-      <h2 class="text-xl font-semibold">Upcoming Deadlines</h2>
-      <ul>
-        <li v-for="a in data.upcomingDeadlines" :key="a.id">
-          {{ a.title }} – due {{ new Date(a.due_date).toLocaleDateString() }}
-        </li>
-      </ul>
-      <h2 class="text-xl font-semibold mt-4">Recent Grades</h2>
-      <ul>
-        <li v-for="s in data.recentGrades" :key="s.id">
-          {{ s.assignment?.title }} – {{ s.grade }}% ({{ s.assignment?.module?.name }})
-        </li>
-      </ul>
-      <h2 class="text-xl font-semibold mt-4">Announcements</h2>
-      <div v-for="a in data.announcements" :key="a.id" class="bg-white p-3 shadow rounded mt-2">
-        <strong>{{ a.title }}</strong>
-        <p>{{ a.body.substring(0, 100) }}...</p>
+    <!-- Student Dashboard -->
+    <div v-if="isStudent" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Left Column -->
+      <div class="md:col-span-2 space-y-6">
+        <!-- Upcoming Deadlines -->
+        <div class="bg-white p-6 shadow-lg rounded-lg">
+          <h3 class="text-xl font-semibold text-gray-700">Upcoming Deadlines</h3>
+          <ul v-if="upcomingDeadlines.length" class="mt-4 space-y-2">
+            <li v-for="a in upcomingDeadlines" :key="a.id" class="flex justify-between items-center">
+              <span>{{ a.title }}</span>
+              <span class="text-sm text-gray-500">Due: {{ new Date(a.due_date).toLocaleDateString() }}</span>
+            </li>
+          </ul>
+          <p v-else class="text-gray-500 mt-4">No upcoming deadlines.</p>
+        </div>
+
+        <!-- Recent Grades -->
+        <div class="bg-white p-6 shadow-lg rounded-lg">
+          <h3 class="text-xl font-semibold text-gray-700">Recent Grades</h3>
+          <ul v-if="recentGrades.length" class="mt-4 space-y-2">
+            <li v-for="s in recentGrades" :key="s.id" class="flex justify-between items-center">
+              <div>
+                <p>{{ s.assignment?.title }} ({{ s.assignment?.module?.name }})</p>
+              </div>
+              <span class="font-semibold" :class="{ 'text-green-600': s.grade >= 50, 'text-red-600': s.grade < 50 }">{{ s.grade }}%</span>
+            </li>
+          </ul>
+          <p v-else class="text-gray-500 mt-4">No recent grades.</p>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="space-y-6">
+        <!-- Announcements -->
+        <div class="bg-white p-6 shadow-lg rounded-lg">
+          <h3 class="text-xl font-semibold text-gray-700">Announcements</h3>
+          <div v-if="announcements.length" class="mt-4 space-y-4">
+            <div v-for="a in announcements" :key="a.id" class="border-b pb-2">
+              <h4 class="font-semibold">{{ a.title }}</h4>
+              <p class="text-sm text-gray-600 mt-1">{{ a.body.substring(0, 100) }}...</p>
+            </div>
+          </div>
+          <p v-else class="text-gray-500 mt-4">No announcements.</p>
+        </div>
       </div>
     </div>
   </IntranetLayout>

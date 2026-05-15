@@ -3,9 +3,11 @@
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Module;
+use App\Notifications\NewAssignment;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 
 use Inertia\Inertia;
 
@@ -60,7 +62,11 @@ class AssignmentController extends Controller
             'allowed_types'=>'nullable|string',
         ]);
         $data['instructor_id'] = auth()->id();
-        Assignment::create($data);
+        $assignment = Assignment::create($data);
+
+        $students = $assignment->module->students;
+        Notification::send($students, new NewAssignment($assignment));
+
         return redirect()->route('intranet.assignments.index')->with('success','Assignment created');
     }
 

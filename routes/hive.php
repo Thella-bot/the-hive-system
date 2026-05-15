@@ -1,44 +1,46 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Hive\DashboardController;
-use App\Http\Controllers\Hive\Admin\UserApprovalController;
-use App\Http\Controllers\Hive\Admin\ImportUsersController;
-use App\Http\Controllers\Hive\LeaveRequestController;
-use App\Http\Controllers\Hive\PayslipController;
+use App\Http\Controllers\Hive\UserController;
 use App\Http\Controllers\Hive\ProfileController;
+use App\Http\Controllers\Hive\PayslipController;
+use App\Http\Controllers\Hive\DashboardController;
+use App\Http\Controllers\Hive\LeaveRequestController;
 use App\Http\Controllers\Hive\TranscriptController;
 
+/*
+|--------------------------------------------------------------------------
+| Hive Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
 
-Route::domain('hive.hbci.ac.ls')
-    ->middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
+    ->name('hive.')
+    ->prefix('hive')
     ->group(function () {
         // All Hive pages
-        Route::get('/', [DashboardController::class, 'index'])->name('hive.dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // Admin only
-        Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-            Route::get('/approve-users', [UserApprovalController::class, 'index'])->name('approve-users');
-            Route::post('/approve-users/{user}', [UserApprovalController::class, 'approve'])->name('approve-user');
-            Route::get('/import-users', [ImportUsersController::class, 'show'])->name('import-users');
-            Route::post('/import-users', [ImportUsersController::class, 'import'])->name('import-users.post');
+        Route::middleware(['role:admin'])->name('admin.')->prefix('admin')->group(function () {
+            Route::get('approve-users', [UserController::class, 'approve_users'])->name('approve-users');
         });
 
         // Profile
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('hive.profile.edit');
-        Route::post('/profile', [ProfileController::class, 'update'])->name('hive.profile.update');
+        Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
 
         // Leave Requests
-        Route::resource('leaves', LeaveRequestController::class)
-            ->only(['index', 'create', 'store'])
-            ->names('intranet.leaves');
-        Route::post('leaves/{leave}', [LeaveRequestController::class, 'update'])->name('hive.leaves.update');
+        Route::resource('leave-requests', LeaveRequestController::class)->middleware('can:view-leave-requests');
 
         // Payslips
-        Route::get('/payslips', [PayslipController::class, 'index'])->name('hive.payslips.index');
-        Route::get('/payslips/upload', [PayslipController::class, 'create'])->name('hive.payslips.create');
-        Route::post('/payslips', [PayslipController::class, 'store'])->name('hive.payslips.store');
-        Route::get('/payslips/{payslip}/download', [PayslipController::class, 'download'])->name('hive.payslips.download');
+        Route::get('payslips', [PayslipController::class, 'index'])->name('payslips.index')->middleware('can:view-payslips');
+        Route::get('payslips/{payslip}', [PayslipController::class, 'show'])->name('payslips.show')->middleware('can:view-payslips');
 
-        Route::get('/transcript/{user}', [TranscriptController::class, 'show'])->name('hive.transcript');
+        // Transcript
+        Route::get('transcript', [TranscriptController::class, 'index'])->name('transcript.index')->middleware('can:view-transcript');
     });

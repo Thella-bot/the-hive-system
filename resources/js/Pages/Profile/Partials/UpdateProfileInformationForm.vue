@@ -18,6 +18,9 @@ const form = useForm({
     name: props.user.name,
     email: props.user.email,
     photo: null,
+    bio: props.user.profile.bio,
+    twitter_handle: props.user.profile.twitter_handle,
+    linkedin_profile: props.user.profile.linkedin_profile,
 });
 
 const verificationLinkSent = ref(null);
@@ -174,6 +177,44 @@ const clearPhotoFileInput = () => {
                         A new verification link has been sent to your email address.
                     </div>
                 </div>
+            </div>
+
+            <!-- Bio -->
+            <div class="col-span-6 sm:col-span-4">
+                <InputLabel for="bio" value="Bio" />
+                <textarea
+                    id="bio"
+                    v-model="form.bio"
+                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    rows="3"
+                />
+                <InputError :message="form.errors.bio" class="mt-2" />
+            </div>
+
+            <!-- Twitter Handle -->
+            <div class="col-span-6 sm:col-span-4">
+                <InputLabel for="twitter_handle" value="Twitter" />
+                <TextInput
+                    id="twitter_handle"
+                    v-model="form.twitter_handle"
+                    type="text"
+                    class="mt-1 block w-full"
+                    autocomplete="twitter"
+                />
+                <InputError :message="form.errors.twitter_handle" class="mt-2" />
+            </div>
+
+            <!-- LinkedIn Profile -->
+            <div class="col-span-6 sm:col-span-4">
+                <InputLabel for="linkedin_profile" value="LinkedIn" />
+                <TextInput
+                    id="linkedin_profile"
+                    v-model="form.linkedin_profile"
+                    type="text"
+                    class="mt-1 block w-full"
+                    autocomplete="linkedin"
+                />
+                <InputError :message="form.errors.linkedin_profile" class="mt-2" />
             </div>
         </template>
 

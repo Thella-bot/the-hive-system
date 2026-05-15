@@ -1,65 +1,33 @@
 <?php
 
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\Hive\AnnouncementController;
-use App\Http\Controllers\Hive\AssignmentController;
-use App\Http\Controllers\Hive\DocumentController;
-use App\Http\Controllers\Hive\GradeController;
-use App\Http\Controllers\Hive\ModuleController;
-use App\Http\Controllers\Hive\SubmissionController;
-
-use App\Http\Controllers\PublicController;
-
+use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\CohortController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        // For this application, the hive dashboard is tenant-scoped (domain-based).
-        // Redirect authenticated users to the hive home.
-        return redirect()->route('hive.dashboard');
-    })->name('dashboard');
+// --- Public auth routes (handled by Jetstream) ---
+// Login, password reset, etc. are registered by Jetstream automatically.
 
-    // Admin module management
-    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
-        Route::post('/programmes', [ModuleController::class, 'storeProgramme'])->name('programmes.store');
-        Route::post('/modules', [ModuleController::class, 'storeModule'])->name('modules.store');
-    });
+// --- Authenticated routes ---
+Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Assignments
-    Route::resource('assignments', AssignmentController::class)
-        ->only(['index', 'create', 'store', 'show'])
-        ->names('hive.assignments');
+    // Dashboard
+    Route::get('/', DashboardController::class)->name('dashboard');
 
-    // Submission
-    Route::post('/assignments/{assignment}/submit', [SubmissionController::class, 'store'])->name('submissions.store');
-    Route::post('/submissions/{submission}/grade', [SubmissionController::class, 'update'])->name('submissions.grade');
-    Route::get('/submissions/{submission}/download', [SubmissionController::class, 'download'])->name('submissions.download');
+    // School Structure
+    Route::resource('departments', DepartmentController::class)
+        ->middleware('can:view-departments');
 
-    // Grades
-    Route::get('/grades', [GradeController::class, 'index'])->name('grades.index');
-    Route::get('/grades/manage/{module}', [GradeController::class, 'manage'])->name('grades.manage');
-    Route::post('/grades/items/{module}', [GradeController::class, 'storeItem'])->name('grades.items.store');
-    Route::post('/grades/student/{gradeItem}', [GradeController::class, 'storeStudentGrade'])->name('grades.student.store');
+    Route::resource('academic-years', AcademicYearController::class)
+        ->except('show')
+        ->middleware('can:view-academic-years');
 
-    // Documents
-    Route::resource('documents', DocumentController::class)
-        ->only(['index', 'create', 'store', 'show'])
-        ->names('hive.documents');
-    Route::post('/documents/{document}/versions', [DocumentController::class, 'addVersion'])
-        ->name('documents.versions.store');
-    Route::get('/documents/version/{version}/download', [DocumentController::class, 'download'])
-        ->name('documents.version.download');
+    Route::resource('cohorts', CohortController::class)
+        ->middleware('can:view-cohorts');
 
-    // Announcements
-    Route::resource('announcements', AnnouncementController::class)
-        ->except(['show'])
-        ->names('hive.announcements');
+    // People
+    Route::resource('users', UserController::class)
+        ->middleware('can:view-users');
 });
-
-// Public website
-Route::get('/', [PublicController::class, 'home'])->name('home');
-Route::get('/about', [PublicController::class, 'about'])->name('about');
-Route::get('/programmes', [PublicController::class, 'programmes'])->name('programmes');
-Route::get('/contact', [PublicController::class, 'contact'])->name('contact');
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');

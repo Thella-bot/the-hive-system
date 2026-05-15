@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ImportUsersJob;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class ImportUsersController extends Controller
 {
@@ -22,7 +23,12 @@ class ImportUsersController extends Controller
 
         $path = $request->file('csv_file')->store('imports');
 
-        ImportUsersJob::dispatch($path, auth()->user());
+        ImportUsersJob::dispatch($path, $request->user());
+
+        Log::info('import_users.controller_queued', [
+            'path' => $path,
+            'user_id' => $request->user()->id,
+        ]);
 
         return back()->with('success', 'Import job queued. Users will be notified by email.');
     }

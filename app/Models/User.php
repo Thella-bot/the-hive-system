@@ -3,57 +3,71 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, HasRoles, Notifiable, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, HasRoles;
 
     protected $fillable = [
-        'name', 'email', 'password', 'approved_at',
+        'name',
+        'email',
+        'password',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'approved_at' => 'datetime',
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
     ];
 
-    public function isApproved(): bool
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    protected function casts(): array
     {
-        return !is_null($this->approved_at);
+        return [
+            'email_verified_at' => 'datetime',
+            'password'          => 'hashed',
+        ];
     }
 
-    public function enrollments() {
-    return $this->hasMany(Enrollment::class);
-    }
-    
-    public function modules() {
-        return $this->belongsToMany(Module::class, 'enrollments')
-                    ->withPivot('academic_year', 'semester')
-                    ->withTimestamps();
-    }
-    public function instructedModules() {
-    return $this->belongsToMany(Module::class, 'module_instructor');
-    }
-    public function profile()
+    // --- Relationships ---
+
+    public function profile(): MorphTo
     {
-        return $this->hasOne(Profile::class);
+        return $this->morphTo();
     }
 
-    public function leaveRequests()
+    public function headOfDepartment(): HasOne
     {
-        return $this->hasMany(LeaveRequest::class);
+        return $this->hasOne(Department::class, 'head_user_id');
     }
 
-    public function payslips()
+    // --- Helpers ---
+
+    public function isStaff(): bool
     {
-        return $this->hasMany(Payslip::class);
+        return $this->hasRole(['super-admin', 'school-admin', 'department-head', 'chef-instructor']);
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->hasRole('student');
+    }
+
+    public function getTypeAttribute(): string
+    {
+        if ($this->isStaff()) return 'staff';
+        if ($this->isStudent()) return 'student';
+        return 'unknown';
     }
 }

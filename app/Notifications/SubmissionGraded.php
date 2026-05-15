@@ -1,37 +1,48 @@
-<?php namespace App\Notifications;
+<?php
+
+namespace App\Notifications;
 
 use App\Models\Submission;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
-class SubmissionGraded extends Notification
+class SubmissionGraded extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Submission $submission) {}
+    protected Submission $submission;
 
-    public function via($notifiable): array
+    public function __construct(Submission $submission)
     {
-        return ['database', 'mail'];
+        $this->submission = $submission;
     }
 
-    public function toDatabase($notifiable): array
+    public function via($notifiable)
+    {
+        return ['mail', 'database'];
+    }
+
+    public function toMail($notifiable)
+    {
+        $assignment = $this->submission->assignment;
+        $url = route('intranet.assignments.show', $assignment);
+
+        return (new MailMessage)
+                    ->subject("Your submission for {$assignment->title} has been graded")
+                    ->line("Your submission for the assignment '{$assignment->title}' has been graded.")
+                    ->line("Grade: {$this->submission->grade}")
+                    ->line("Feedback: {$this->submission->feedback}")
+                    ->action('View Submission', $url);
+    }
+
+    public function toArray($notifiable)
     {
         return [
-            'submission_id' => $this->submission->id,
-            'assignment_title' => $this->submission->assignment->title,
-            'grade' => $this->submission->grade,
+            'title' => 'Submission Graded',
             'message' => "Your submission for '{$this->submission->assignment->title}' has been graded.",
+            'link' => route('intranet.assignments.show', $this->submission->assignment),
         ];
-    }
-
-    public function toMail($notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->subject('Submission Graded: ' . $this->submission->assignment->title)
-            ->line('Your grade: ' . $this->submission->grade . '%')
-            ->line('Feedback: ' . ($this->submission->feedback ?: 'None'))
-            ->action('View', route('intranet.assignments.show', $this->submission->assignment_id));
     }
 }

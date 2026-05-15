@@ -37,7 +37,7 @@ const lcaLogoUrl = ref('/images/lca-logo.png');
           </div>
           <div>
             <h3 class="text-lg font-semibold">Contact Us</h3>
-            <p class="mt-2 text-gray-400">Email: info@hbculinaryinstitute.co.ls</p>
+            <p class="mt-2 text-gray-400">Email: info@hbci.ac.ls</p>
             <p class="text-gray-400">Phone: +266 5888 1234</p>
           </div>
           <div>

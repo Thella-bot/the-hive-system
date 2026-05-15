@@ -21,6 +21,9 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'bio' => ['nullable', 'string'],
+            'twitter_handle' => ['nullable', 'string', 'max:255'],
+            'linkedin_profile' => ['nullable', 'string', 'max:255'],
         ])->validateWithBag('updateProfileInformation');
 
         if (isset($input['photo'])) {
@@ -36,6 +39,12 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 'email' => $input['email'],
             ])->save();
         }
+
+        $user->profile->forceFill([
+            'bio' => $input['bio'],
+            'twitter_handle' => $input['twitter_handle'],
+            'linkedin_profile' => $input['linkedin_profile'],
+        ])->save();
     }
 
     /**
