@@ -9,11 +9,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Laravel\Scout\Searchable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, HasRoles, Searchable;
 
     protected $fillable = [
         'name',
@@ -69,5 +70,13 @@ class User extends Authenticatable
         if ($this->isStaff()) return 'staff';
         if ($this->isStudent()) return 'student';
         return 'unknown';
+    }
+
+    public function toSearchableArray(): array
+    {
+        return [
+            'name' => $this->name,
+            'email' => $this->email,
+        ];
     }
 }

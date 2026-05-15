@@ -17,7 +17,6 @@
           <p class="text-xs text-gray-400 mt-0.5">Culinary Institute</p>
         </div>
       </div>
-
       <!-- Navigation -->
       <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
 
@@ -29,6 +28,26 @@
             </svg>
           </template>
           Dashboard
+        </NavItem>
+
+        <NavItem :href="route('events.index')" :active="isActive('events')">
+          <template #icon>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </template>
+          Calendar
+        </NavItem>
+
+        <NavItem :href="route('events.index')" :active="isActive('events')">
+          <template #icon>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </template>
+          Calendar
         </NavItem>
 
         <!-- School Management -->
@@ -128,9 +147,12 @@
 
       <!-- Top bar -->
       <header class="flex-shrink-0 bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
-        <div>
-          <h1 class="text-xl font-semibold text-gray-900">{{ title }}</h1>
-          <p v-if="description" class="text-sm text-gray-500 mt-0.5">{{ description }}</p>
+        <div class="flex items-center gap-4">
+          <div>
+            <h1 class="text-xl font-semibold text-gray-900">{{ title }}</h1>
+            <p v-if="description" class="text-sm text-gray-500 mt-0.5">{{ description }}</p>
+          </div>
+          <SearchInput />
         </div>
         <slot name="header-actions" />
       </header>
@@ -162,9 +184,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import NavItem from '@/Components/NavItem.vue'
+import SearchInput from '@/Components/SearchInput.vue'
+import { useToast } from 'vue-toastification'
 
 defineProps({
   title: { type: String, default: '' },
@@ -172,6 +196,16 @@ defineProps({
 })
 
 const page = usePage()
+const toast = useToast()
+
+onMounted(() => {
+  window.Echo.private(`App.Models.User.${page.props.auth.user.id}`)
+    .notification((notification) => {
+      toast.info(notification.message, {
+        title: notification.title,
+      });
+    });
+});
 
 const can = (permission) => {
   return page.props.auth.user?.permissions?.includes(permission) ?? false

@@ -4,8 +4,15 @@ use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\CohortController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+// --- Public routes ---
+Route::get('/', [\App\Http\Controllers\PublicController::class, 'home'])
+    ->name('home');
 
 // --- Public auth routes (handled by Jetstream) ---
 // Login, password reset, etc. are registered by Jetstream automatically.
@@ -14,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard
-    Route::get('/', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     // School Structure
     Route::resource('departments', DepartmentController::class)
@@ -30,4 +37,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // People
     Route::resource('users', UserController::class)
         ->middleware('can:view-users');
+
+    // Search
+    Route::get('search', [SearchController::class, 'index'])->name('search.index');
+
+    // Calendar
+    Route::resource('events', EventController::class)->except(['show', 'create', 'edit']);
 });
+

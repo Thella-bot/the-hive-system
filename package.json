@@ -5,6 +5,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "tests": "php artisan test",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -17,14 +18,24 @@
     "axios": "^1.11.0",
     "concurrently": "^9.0.1",
     "husky": "^9.0.11",
+    "laravel-echo": "^2.3.4",
     "laravel-vite-plugin": "^2.0.0",
     "lint-staged": "^15.2.7",
     "postcss": "^8.4.32",
+    "pusher-js": "^8.5.0",
     "tailwindcss": "^3.4.0",
     "vite": "^7.0.7",
-    "vue": "^3.3.13"
+    "vue": "^3.3.13",
+    "vue-toastification": "^2.0.0-rc.5"
   },
   "lint-staged": {
     "*.php": "php artisan pint"
+  },
+  "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/timegrid": "^6.1.20",
+    "@fullcalendar/vue3": "^6.1.20"
   }
 }

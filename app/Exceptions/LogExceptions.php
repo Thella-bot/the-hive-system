@@ -9,8 +9,10 @@ use Throwable;
 
 class LogExceptions
 {
-    public function __invoke(Throwable $e, Request $request): void
+    public function __invoke(Throwable $e): void
     {
+        $request = request();
+
         Log::error('exception.reported', [
             'message' => $e->getMessage(),
             'exception' => get_class($e),
@@ -23,4 +25,3 @@ class LogExceptions
         ]);
     }
 }
-
