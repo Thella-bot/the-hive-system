@@ -1,15 +1,17 @@
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50">
-    <nav class="bg-orange-700 text-white p-4">
+    <nav class="bg-amber-800 text-white p-4">
       <div class="container mx-auto flex justify-between items-center">
-        <Link :href="route('home')" class="text-2xl font-bold">Honey Bee Culinary Institute</Link>
+        <Link :href="route('home')">
+          <img src="/images/hbci-logo.png" alt="HBCI Logo" class="h-10">
+        </Link>
         <div class="space-x-4">
           <Link :href="route('home')" class="hover:underline">Home</Link>
           <Link :href="route('programmes')" class="hover:underline">Programmes</Link>
           <Link :href="route('about')" class="hover:underline">About</Link>
           <Link :href="route('contact')" class="hover:underline">Contact</Link>
           <!-- Login/Register -->
-          <span v-if="$page.props.user">
+          <span v-if="$page.props.auth?.user">
             <Link :href="route('hive.dashboard')" class="hover:underline">The Hive</Link>
           </span>
           <span v-else>

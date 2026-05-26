@@ -40,7 +40,7 @@ class AssignmentController extends Controller
                 ->get();
         }
 
-        return Inertia::render('Intranet/Assignments/Index', compact('assignments'));
+        return Inertia::render('Hive/Assignments/Index', compact('assignments'));
     }
 
     // Show form to create
@@ -49,7 +49,7 @@ class AssignmentController extends Controller
         $modules = auth()->user()->hasRole('admin')
             ? Module::all()
             : auth()->user()->instructedModules;
-        return Inertia::render('Intranet/Assignments/Create', ['modules' => $modules]);
+        return Inertia::render('Hive/Assignments/Create', ['modules' => $modules]);
     }
 
     public function store(Request $request) {
@@ -67,12 +67,12 @@ class AssignmentController extends Controller
         $students = $assignment->module->students;
         Notification::send($students, new NewAssignment($assignment));
 
-        return redirect()->route('intranet.assignments.index')->with('success','Assignment created');
+        return redirect()->route('hive.assignments.index')->with('success','Assignment created');
     }
 
     public function show(Assignment $assignment) {
         $assignment->load('module', 'submissions.student');
-        return Inertia::render('Intranet/Assignments/Show', ['assignment' => $assignment]);
+        return Inertia::render('Hive/Assignments/Show', ['assignment' => $assignment]);
     }
 
 }

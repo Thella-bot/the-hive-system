@@ -40,16 +40,6 @@
           Calendar
         </NavItem>
 
-        <NavItem :href="route('events.index')" :active="isActive('events')">
-          <template #icon>
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-          </template>
-          Calendar
-        </NavItem>
-
         <!-- School Management -->
         <div v-if="can('view-departments') || can('view-cohorts') || can('view-academic-years')">
           <p class="px-3 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -158,15 +148,15 @@
       </header>
 
       <!-- Flash messages -->
-      <div v-if="$page.props.flash.success || $page.props.flash.error" class="px-8 pt-4">
-        <div v-if="$page.props.flash.success"
+      <div v-if="$page.props.flash?.success || $page.props.flash?.error" class="px-8 pt-4">
+        <div v-if="$page.props.flash?.success"
           class="flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 text-sm">
           <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
           {{ $page.props.flash.success }}
         </div>
-        <div v-if="$page.props.flash.error"
+        <div v-if="$page.props.flash?.error"
           class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 text-sm">
           <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -199,6 +189,10 @@ const page = usePage()
 const toast = useToast()
 
 onMounted(() => {
+  if (!window.Echo || !page.props.auth?.user?.id) {
+    return
+  }
+
   window.Echo.private(`App.Models.User.${page.props.auth.user.id}`)
     .notification((notification) => {
       toast.info(notification.message, {

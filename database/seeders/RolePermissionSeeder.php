@@ -130,7 +130,5 @@ class RolePermissionSeeder extends Seeder
             ]
         );
         $admin->assignRole('super-admin');
-
-        $this->command->info('Roles, permissions, and admin user seeded.');
     }
 }

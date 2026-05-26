@@ -76,7 +76,7 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
 
         $this->actingAs($studentA);
 
-        $response = $this->post(route('submissions.grade', ['submission' => $submission->id]), [
+        $response = $this->post(route('hive.submissions.grade', ['submission' => $submission->id]), [
 
             'grade' => 80,
             'feedback' => 'ok',
@@ -101,7 +101,8 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
         $instructor->assignRole('instructor');
 
         $document = Document::create([
-
+            'title' => 'Instructor Handbook',
+            'category' => 'general',
             'is_published' => true,
             'visible_to_roles' => ['instructor'],
             'created_by' => $instructor->id,
@@ -118,7 +119,7 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
         ]);
 
         $this->actingAs($admin);
-        $response = $this->get(route('documents.version.download', ['version' => $version1->id]));
+        $response = $this->get(route('hive.documents.version.download', ['version' => $version1->id]));
         $response->assertStatus(200);
 
         // user without the allowed role should be blocked
@@ -126,7 +127,7 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
         $student->assignRole('student');
 
         $this->actingAs($student);
-        $response2 = $this->get(route('documents.version.download', ['version' => $version1->id]));
+        $response2 = $this->get(route('hive.documents.version.download', ['version' => $version1->id]));
         $response2->assertStatus(403);
     }
 }

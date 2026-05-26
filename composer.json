@@ -2,8 +2,8 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "hbci/the-hive",
     "type": "project",
-    "description": "The Hive is a web-based intranet system for the Honey Bee Culinary Insitute (HBCI).",
-    "keywords": ["laravel", "framework", "intranet", "hive"],
+    "description": "The Hive is a web-based Hive system for the Honey Bee Culinary Insitute (HBCI).",
+    "keywords": ["laravel", "framework", "Hive", "hive"],
     "homepage": "https://www.hbci.ac.ls",
     "license": "MIT",
     "authors": [

@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers\Hive;
 
+use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Submission;
 use App\Notifications\SubmissionGraded;

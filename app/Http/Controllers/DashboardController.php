@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AcademicYear;
 use App\Models\Cohort;
 use App\Models\Department;
-use App\Models\StaffProfile;
-use App\Models\StudentProfile;
+use App\Models\Profile;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,8 +16,10 @@ class DashboardController extends Controller
         $stats = [
             'departments'     => Department::active()->count(),
             'active_cohorts'  => Cohort::active()->count(),
-            'active_students' => StudentProfile::active()->count(),
-            'staff'           => StaffProfile::count(),
+            'active_students' => Profile::whereNotNull('student_number')
+                ->where('status', 'active')
+                ->count(),
+            'staff'           => Profile::whereNotNull('employee_number')->count(),
         ];
 
         $currentYear = AcademicYear::current()->first();

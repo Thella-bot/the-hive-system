@@ -13,7 +13,7 @@ class LeaveRequestController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(LeaveRequest::class, 'leave_request');
+        $this->authorizeResource(LeaveRequest::class, 'leave');
     }
 
     public function index(Request $request)
@@ -28,7 +28,7 @@ class LeaveRequestController extends Controller
             ->latest()
             ->get();
 
-        return Inertia::render('Intranet/Leaves/Index', [
+        return Inertia::render('Hive/Leaves/Index', [
             'leaves' => $leaves,
             'balance' => $user->profile?->leave_balance ?? 0,
         ]);
@@ -36,7 +36,7 @@ class LeaveRequestController extends Controller
 
     public function create()
     {
-        return Inertia::render('Intranet/Leaves/Create');
+        return Inertia::render('Hive/Leaves/Create');
     }
 
     public function store(Request $request)
@@ -64,7 +64,7 @@ class LeaveRequestController extends Controller
         $hrUsers = User::role(['hr_staff', 'admin'])->get();
         Notification::send($hrUsers, new LeaveRequestSubmitted($leave));
 
-        return redirect()->route('intranet.leaves.index')->with('success', 'Leave request submitted.');
+        return redirect()->route('hive.leaves.index')->with('success', 'Leave request submitted.');
     }
 
     public function update(Request $request, LeaveRequest $leave)

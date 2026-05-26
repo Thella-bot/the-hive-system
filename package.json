@@ -5,6 +5,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "test": "php artisan test",
     "tests": "php artisan test",
     "prepare": "husky"
   },

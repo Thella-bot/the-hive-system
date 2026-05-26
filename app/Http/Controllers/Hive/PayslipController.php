@@ -16,14 +16,14 @@ class PayslipController extends Controller
             ? Payslip::with('user')->latest()->get()
             : $user->payslips()->latest()->get();
 
-        return Inertia::render('Intranet/Payslips/Index', ['payslips' => $payslips]);
+        return Inertia::render('Hive/Payslips/Index', ['payslips' => $payslips]);
     }
 
     public function create()
     {
         $this->authorize('create', Payslip::class);
         $users = User::role(['instructor','hr_staff','admin'])->get(); // staff only
-        return Inertia::render('Intranet/Payslips/Upload', ['users' => $users]);
+        return Inertia::render('Hive/Payslips/Upload', ['users' => $users]);
     }
 
     public function store(Request $request)
@@ -42,7 +42,7 @@ class PayslipController extends Controller
             'file_path' => $filePath,
             'uploaded_by' => $request->user()->id,
         ]);
-        return redirect()->route('intranet.payslips.index')->with('success', 'Payslip uploaded.');
+        return redirect()->route('hive.payslips.index')->with('success', 'Payslip uploaded.');
     }
 
     public function download(Payslip $payslip)

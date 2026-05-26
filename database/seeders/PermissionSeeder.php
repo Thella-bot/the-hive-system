@@ -18,7 +18,7 @@ class PermissionSeeder extends Seeder
 
         // Create permissions
         $permissions = [
-            'access intranet',
+            'access hive',
         ];
 
         foreach ($permissions as $permission) {

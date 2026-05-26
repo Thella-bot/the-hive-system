@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Profile extends Model
 {
@@ -30,9 +30,14 @@ class Profile extends Model
         'dietary_restrictions' => 'array',
     ];
 
-    public function user(): MorphOne
+    public function profileable(): MorphTo
     {
-        return $this->morphOne(User::class, 'profileable');
+        return $this->morphTo();
+    }
+
+    public function user(): MorphTo
+    {
+        return $this->profileable();
     }
 
     public function department()

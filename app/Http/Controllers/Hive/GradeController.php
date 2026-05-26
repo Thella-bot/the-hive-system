@@ -16,11 +16,11 @@ class GradeController extends Controller
             $modules = $user->modules()->with(['gradeItems.studentGrades' => function($q) use ($user) {
                 $q->where('student_id', $user->id);
             }])->get();
-            return Inertia::render('Grades/StudentIndex', ['modules' => $modules]);
+            return Inertia::render('Hive/Grades/StudentIndex', ['modules' => $modules]);
         } else {
             // Instructor/Admin: select module to manage
             $modules = $user->hasRole('admin') ? Module::all() : $user->instructedModules;
-            return Inertia::render('Intranet/Grades/InstructorIndex', ['modules' => $modules]);
+            return Inertia::render('Hive/Grades/InstructorIndex', ['modules' => $modules]);
         }
     }
 
@@ -42,7 +42,7 @@ class GradeController extends Controller
         }
 
         $module->load('gradeItems.studentGrades.student');
-        return Inertia::render('Intranet/Grades/Manage', ['module' => $module]);
+        return Inertia::render('Hive/Grades/Manage', ['module' => $module]);
     }
 
     // Store a grade item

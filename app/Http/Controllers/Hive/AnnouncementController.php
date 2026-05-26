@@ -22,14 +22,14 @@ class AnnouncementController extends Controller
             ->get()
             ->filter(fn($ann) => $user->can('view', $ann)); // double-check
 
-        return Inertia::render('Intranet/Announcements/Index', [
+        return Inertia::render('Hive/Announcements/Index', [
             'announcements' => $announcements->values(),
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Intranet/Announcements/Create');
+        return Inertia::render('Hive/Announcements/Create');
     }
 
     public function store(Request $request)
@@ -48,12 +48,12 @@ class AnnouncementController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        return redirect()->route('intranet.announcements.index')->with('success', 'Announcement created.');
+        return redirect()->route('hive.announcements.index')->with('success', 'Announcement created.');
     }
 
     public function edit(Announcement $announcement)
     {
-        return Inertia::render('Intranet/Announcements/Edit', ['announcement' => $announcement]);
+        return Inertia::render('Hive/Announcements/Edit', ['announcement' => $announcement]);
     }
 
     public function update(Request $request, Announcement $announcement)
@@ -68,7 +68,7 @@ class AnnouncementController extends Controller
         ]);
 
         $announcement->update($attrs);
-        return redirect()->route('intranet.announcements.index')->with('success', 'Updated.');
+        return redirect()->route('hive.announcements.index')->with('success', 'Updated.');
     }
 
     public function destroy(Announcement $announcement)

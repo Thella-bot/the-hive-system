@@ -30,7 +30,7 @@ class DashboardController extends Controller
             $data = array_merge($data, $this->getStudentDashboardData($user));
         }
 
-        return Inertia::render('Intranet/Dashboard', array_merge($data, ['user' => $user]));
+        return Inertia::render('Hive/Dashboard', array_merge($data, ['user' => $user]));
     }
 
     private function getAdminDashboardData(): array

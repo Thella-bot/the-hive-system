@@ -13,6 +13,14 @@ use Inertia\Inertia;
 // --- Public routes ---
 Route::get('/', [\App\Http\Controllers\PublicController::class, 'home'])
     ->name('home');
+Route::get('/about', [\App\Http\Controllers\PublicController::class, 'about'])
+    ->name('about');
+Route::get('/programmes', [\App\Http\Controllers\PublicController::class, 'programmes'])
+    ->name('programmes');
+Route::get('/contact', [\App\Http\Controllers\PublicController::class, 'contact'])
+    ->name('contact');
+Route::post('/contact', [\App\Http\Controllers\PublicController::class, 'sendContact'])
+    ->name('contact.store');
 
 // --- Public auth routes (handled by Jetstream) ---
 // Login, password reset, etc. are registered by Jetstream automatically.
@@ -44,4 +52,3 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Calendar
     Route::resource('events', EventController::class)->except(['show', 'create', 'edit']);
 });
-

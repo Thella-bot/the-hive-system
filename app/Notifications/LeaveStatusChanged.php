@@ -33,6 +33,6 @@ class LeaveStatusChanged extends Notification
             ->subject('Leave Request ' . ucfirst($this->leave->status))
             ->line('Your leave request has been ' . $this->leave->status . '.')
             ->line('Period: ' . $this->leave->start_date->format('d M') . ' - ' . $this->leave->end_date->format('d M'))
-            ->action('View', route('intranet.leaves.index'));
+            ->action('View', route('hive.leaves.index'));
     }
 }

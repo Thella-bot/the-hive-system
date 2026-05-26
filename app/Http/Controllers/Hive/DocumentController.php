@@ -25,7 +25,7 @@ class DocumentController extends Controller
             ->with('latestVersion', 'creator')
             ->where('is_published', true)
             ->where(function ($q) use ($roleNames) {
-                // public to all intranet users
+                // public to all Hive users
                 $q->whereNull('visible_to_roles')
                   // role restricted
                   ->orWhere(function ($q) use ($roleNames) {
@@ -41,7 +41,7 @@ class DocumentController extends Controller
 
         $documents = $documentsQuery->latest()->get();
 
-        return Inertia::render('Intranet/Documents/Index', [
+        return Inertia::render('Hive/Documents/Index', [
             'documents' => $documents->values(),
             'categories' => Document::query()
                 ->where('is_published', true)
@@ -62,7 +62,7 @@ class DocumentController extends Controller
 
     public function create()
     {
-        return Inertia::render('Intranet/Documents/Create');
+        return Inertia::render('Hive/Documents/Create');
     }
 
     public function store(Request $request)
@@ -93,14 +93,14 @@ class DocumentController extends Controller
             'uploaded_by' => $request->user()->id,
         ]);
 
-        return redirect()->route('intranet.documents.index')->with('success', 'Document uploaded.');
+        return redirect()->route('hive.documents.index')->with('success', 'Document uploaded.');
     }
 
     // Show document details (list versions)
     public function show(Document $document)
     {
         $document->load('versions.uploader', 'creator');
-        return Inertia::render('Intranet/Documents/Show', ['document' => $document]);
+        return Inertia::render('Hive/Documents/Show', ['document' => $document]);
     }
 
     // Upload a new version

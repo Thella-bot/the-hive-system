@@ -16,7 +16,7 @@ class ProfileController extends Controller
         $user = $request->user()->load('profile');
         $this->authorize('view', $user->profile);
 
-        return Inertia::render('Intranet/Profile/Edit', [
+        return Inertia::render('Hive/Profile/Edit', [
             'profile'     => $user->profile,
             'departments' => Department::active()->select('id', 'name')->get(),
             'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),

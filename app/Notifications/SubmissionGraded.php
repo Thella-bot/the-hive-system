@@ -27,7 +27,7 @@ class SubmissionGraded extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $assignment = $this->submission->assignment;
-        $url = route('intranet.assignments.show', $assignment);
+        $url = route('hive.assignments.show', $assignment);
 
         return (new MailMessage)
                     ->subject("Your submission for {$assignment->title} has been graded")
@@ -42,7 +42,7 @@ class SubmissionGraded extends Notification implements ShouldQueue
         return [
             'title' => 'Submission Graded',
             'message' => "Your submission for '{$this->submission->assignment->title}' has been graded.",
-            'link' => route('intranet.assignments.show', $this->submission->assignment),
+            'link' => route('hive.assignments.show', $this->submission->assignment),
         ];
     }
 }

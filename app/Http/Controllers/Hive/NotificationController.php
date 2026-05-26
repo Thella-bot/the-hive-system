@@ -1,6 +1,6 @@
-
 <?php namespace App\Http\Controllers\Hive;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -9,7 +9,7 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $notifications = $request->user()->notifications()->latest()->paginate(20);
-        return Inertia::render('Intranet/Notifications/Index', ['notifications' => $notifications]);
+        return Inertia::render('Hive/Notifications/Index', ['notifications' => $notifications]);
     }
 
     public function markRead(Request $request, $id)

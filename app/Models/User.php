@@ -3,18 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, HasRoles, Searchable;
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, HasRoles, Searchable, TwoFactorAuthenticatable;
 
     protected $fillable = [
         'name',
@@ -43,14 +45,34 @@ class User extends Authenticatable
 
     // --- Relationships ---
 
-    public function profile(): MorphTo
+    public function profile(): MorphOne
     {
-        return $this->morphTo();
+        return $this->morphOne(Profile::class, 'profileable');
     }
 
     public function headOfDepartment(): HasOne
     {
         return $this->hasOne(Department::class, 'head_user_id');
+    }
+
+    public function leaveRequests(): HasMany
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function payslips(): HasMany
+    {
+        return $this->hasMany(Payslip::class);
+    }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(Submission::class, 'student_id');
     }
 
     // --- Helpers ---

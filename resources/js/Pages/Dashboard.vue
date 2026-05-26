@@ -18,27 +18,27 @@
         </template>
       </StatCard>
 
-      <StatCard label="Active Cohorts" :value="stats.active_cohorts" sub="Currently running" icon-bg="bg-blue-100">
+      <StatCard label="Active Cohorts" :value="stats.active_cohorts" sub="Currently running" icon-bg="bg-amber-100">
         <template #icon>
-          <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
         </template>
       </StatCard>
 
-      <StatCard label="Students" :value="stats.active_students" sub="Currently enrolled" icon-bg="bg-green-100">
+      <StatCard label="Students" :value="stats.active_students" sub="Currently enrolled" icon-bg="bg-amber-100">
         <template #icon>
-          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
           </svg>
         </template>
       </StatCard>
 
-      <StatCard label="Staff" :value="stats.staff" sub="Instructors & admin" icon-bg="bg-purple-100">
+      <StatCard label="Staff" :value="stats.staff" sub="Instructors & admin" icon-bg="bg-amber-100">
         <template #icon>
-          <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
           </svg>

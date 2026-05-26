@@ -28,7 +28,7 @@ class SubmissionReceived extends Notification implements ShouldQueue
     {
         $student = $this->submission->student;
         $assignment = $this->submission->assignment;
-        $url = route('intranet.assignments.show', $assignment);
+        $url = route('hive.assignments.show', $assignment);
 
         return (new MailMessage)
                     ->subject("New Submission for {$assignment->title}")
@@ -41,7 +41,7 @@ class SubmissionReceived extends Notification implements ShouldQueue
         return [
             'title' => 'New Submission',
             'message' => "{$this->submission->student->name} has submitted their work for '{$this->submission->assignment->title}'.",
-            'link' => route('intranet.assignments.show', $this->submission->assignment),
+            'link' => route('hive.assignments.show', $this->submission->assignment),
         ];
     }
 }

@@ -26,7 +26,7 @@ class NewAssignment extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
-        $url = route('intranet.assignments.show', $this->assignment);
+        $url = route('hive.assignments.show', $this->assignment);
 
         return (new MailMessage)
                     ->subject("New Assignment: {$this->assignment->title}")
@@ -41,7 +41,7 @@ class NewAssignment extends Notification implements ShouldQueue
         return [
             'title' => 'New Assignment',
             'message' => "A new assignment, '{$this->assignment->title}', has been posted.",
-            'link' => route('intranet.assignments.show', $this->assignment),
+            'link' => route('hive.assignments.show', $this->assignment),
         ];
     }
 }

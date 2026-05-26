@@ -34,15 +34,15 @@ class AnnualLeaveDeductionTest extends TestCase
 
         $leave = $staffUser->leaveRequests()->create([
             'type' => 'annual',
-            'start_date' => now()->addDay(),
-            'end_date' => now()->addDays(2),
+            'start_date' => today()->addDay(),
+            'end_date' => today()->addDays(3),
             'reason' => 'test',
             'status' => 'pending',
         ]);
 
         $this->actingAs($hrStaff);
 
-        $response = $this->put(route('intranet.leaves.update', ['leave' => $leave->id]), [
+        $response = $this->put(route('hive.leaves.update', ['leave' => $leave->id]), [
             'status' => 'approved',
         ]);
 

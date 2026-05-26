@@ -1,6 +1,10 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use App\Models\Programme;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PublicController extends Controller
@@ -32,5 +36,16 @@ class PublicController extends Controller
     public function contact()
     {
         return Inertia::render('Public/Contact');
+    }
+
+    public function sendContact(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'message' => ['required', 'string', 'max:5000'],
+        ]);
+
+        return back()->with('success', 'Your message has been sent.');
     }
 }

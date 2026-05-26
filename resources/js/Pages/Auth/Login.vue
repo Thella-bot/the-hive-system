@@ -32,7 +32,7 @@ const submit = () => {
                 </Link>
             </div>
 
-            <h2 class="text-2xl font-bold text-center text-orange-800 mb-6">Welcome Back</h2>
+            <h2 class="text-2xl font-bold text-center text-amber-800 mb-6">Welcome Back</h2>
 
             <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
                 {{ status }}
@@ -74,7 +74,7 @@ const submit = () => {
                 </div>
 
                 <div class="flex items-center justify-end mt-4">
-                    <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-amber-800 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                         Forgot your password?
                     </Link>
 

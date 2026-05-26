@@ -176,7 +176,7 @@ class UserController extends Controller
         $user->syncRoles([$data['role']]);
 
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
-        $user->profile()->updateOrCreate(['user_id' => $user->id], $profileData);
+        $user->profile()->updateOrCreate([], $profileData);
 
         return redirect()->route('users.show', $user)
             ->with('success', 'User updated successfully.');

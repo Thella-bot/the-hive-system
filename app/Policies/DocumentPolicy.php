@@ -9,11 +9,15 @@ class DocumentPolicy
 
     public function view(User $user, Document $document)
     {
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
         // If document has visibility restriction, check user's roles
         if ($document->visible_to_roles) {
             return $user->hasAnyRole($document->visible_to_roles);
         }
-        return true; // public to all intranet users
+        return true; // public to all Hive users
     }
 
     public function create(User $user)

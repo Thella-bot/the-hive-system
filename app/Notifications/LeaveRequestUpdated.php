@@ -27,7 +27,7 @@ class LeaveRequestUpdated extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $status = $this->leaveRequest->status;
-        $url = route('intranet.leaves.index');
+        $url = route('hive.leaves.index');
 
         return (new MailMessage)
                     ->subject("Your Leave Request has been {$status}")
@@ -40,7 +40,7 @@ class LeaveRequestUpdated extends Notification implements ShouldQueue
         return [
             'title' => 'Leave Request Updated',
             'message' => "Your leave request has been {$this->leaveRequest->status}.",
-            'link' => route('intranet.leaves.index'),
+            'link' => route('hive.leaves.index'),
         ];
     }
 }

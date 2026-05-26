@@ -12,7 +12,7 @@ class ImportUsersController extends Controller
 {
     public function show()
     {
-        return Inertia::render('Intranet/Admin/ImportUsers');
+        return Inertia::render('Hive/Admin/ImportUsers');
     }
 
     public function import(Request $request)

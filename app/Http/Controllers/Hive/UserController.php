@@ -18,7 +18,7 @@ class UserController extends Controller
     {
         $unapprovedUsers = User::role('unapproved')->get();
 
-        return Inertia::render('Intranet/Admin/ApproveUsers', [
+        return Inertia::render('Hive/Admin/ApproveUsers', [
             'users' => $unapprovedUsers,
         ]);
     }

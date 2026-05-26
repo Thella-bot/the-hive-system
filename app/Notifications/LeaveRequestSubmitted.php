@@ -43,7 +43,7 @@ class LeaveRequestSubmitted extends Notification implements ShouldQueue
         return [
             'title' => 'New Leave Request',
             'message' => "A new leave request has been submitted by {$this->leaveRequest->user->name}.",
-            'link' => route('intranet.leaves.index'),
+            'link' => route('hive.leaves.index'),
         ];
     }
 }

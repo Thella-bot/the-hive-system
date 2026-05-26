@@ -34,6 +34,6 @@ class AssignmentCreated extends Notification
             ->subject('New Assignment: ' . $this->assignment->title)
             ->line('A new assignment has been posted in ' . $this->assignment->module->name)
             ->line('Due date: ' . $this->assignment->due_date->format('d M Y'))
-            ->action('View Assignment', route('intranet.assignments.show', $this->assignment->id));
+            ->action('View Assignment', route('hive.assignments.show', $this->assignment->id));
     }
 }

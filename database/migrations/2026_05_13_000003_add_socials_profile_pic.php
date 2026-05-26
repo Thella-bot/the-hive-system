@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('profile_picture_path')->nullable()->after('profileable_id');
             $table->string('twitter_handle')->nullable()->after('bio');
             $table->string('linkedin_profile')->nullable()->after('twitter_handle');
-            $table->text('bio')->change();
+            $table->text('bio')->nullable()->change();
         });
     }
 
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->dropColumn('profile_picture_path');
             $table->dropColumn('twitter_handle');
             $table->dropColumn('linkedin_profile');
-            $table->string('bio')->change();
+            $table->string('bio')->nullable()->change();
         });
     }
 };

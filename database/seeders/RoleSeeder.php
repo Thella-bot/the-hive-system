@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 use App\Models\User;
@@ -15,13 +16,14 @@ class RoleSeeder extends Seeder
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         // Create roles
-        $roles = ['admin', 'instructor', 'student', 'hr_staff', 'unapproved'];
+        $roles = ['admin', 'chef_instructor', 'student', 'staff', 'unapproved'];
         foreach ($roles as $role) {
-            Role::create(['name' => $role]);
+            Role::firstOrCreate(['name' => $role]);
         }
 
-        // Assign "access intranet" permission to "unapproved" role
-        Role::findByName('unapproved')->givePermissionTo('access intranet');
+        // Assign "access hive" permission to "unapproved" role
+        Permission::firstOrCreate(['name' => 'access hive']);
+        Role::findByName('unapproved')->givePermissionTo('access hive');
 
         // Create one admin user
         $admin = User::create([
