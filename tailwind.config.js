@@ -17,6 +17,15 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                'hbci-gold': {
+                    DEFAULT: '#d3a102',
+                    'dark': '#b8860b',
+                },
+                'hbci-gray': {
+                    DEFAULT: '#4a4a4a',
+                },
+            },
         },
     },
 

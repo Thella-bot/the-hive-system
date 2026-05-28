@@ -19,10 +19,19 @@ class PermissionSeeder extends Seeder
         // Create permissions
         $permissions = [
             'access hive',
+            'view-dashboard',
+            'view-applications',
+            'view-departments',
+            'view-programmes',
+            'view-courses',
+            'view-academic-years',
+            'view-cohorts',
+            'view-users',
+            'view-events',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::updateOrCreate(['name' => $permission]);
         }
     }
 }

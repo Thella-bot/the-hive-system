@@ -1,26 +1,18 @@
 <template>
   <div class="flex h-screen bg-gray-50 overflow-hidden">
 
-    <!-- Sidebar -->
-    <aside class="w-64 flex-shrink-0 flex flex-col bg-gray-900 text-white">
+    <aside class="w-64 flex-shrink-0 flex flex-col bg-hbci-gray text-white">
 
       <!-- Brand -->
-      <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-700">
-        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
-          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 3C8 3 4 6 4 10c0 2.5 1.5 4.8 3.8 6.2L9 21h6l1.2-4.8C18.5 14.8 20 12.5 20 10c0-4-4-7-8-7z"/>
-          </svg>
-        </div>
-        <div>
-          <p class="font-bold text-sm leading-none">The Hive</p>
-          <p class="text-xs text-gray-400 mt-0.5">Culinary Institute</p>
-        </div>
+      <div class="p-4">
+        <Link :href="route('hive.dashboard')">
+          <img src="/images/hbci-logo-no-text.png" alt="The Hive" class="h-16 w-auto mx-auto" />
+        </Link>
       </div>
       <!-- Navigation -->
       <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3">
 
-        <NavItem :href="route('dashboard')" :active="isActive('dashboard')">
+        <NavItem :href="route('hive.dashboard')" active="hive.dashboard">
           <template #icon>
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -30,7 +22,7 @@
           Dashboard
         </NavItem>
 
-        <NavItem :href="route('events.index')" :active="isActive('events')">
+        <NavItem :href="route('hive.events.index')" active="hive.events.">
           <template #icon>
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -40,6 +32,22 @@
           Calendar
         </NavItem>
 
+        <!-- Admissions -->
+        <div v-if="can('view-applications')">
+          <p class="px-3 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Admissions
+          </p>
+
+          <NavItem :href="route('hive.applications.index')" active="hive.applications.">
+            <template #icon>
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </template>
+            Applications
+          </NavItem>
+        </div>
+
         <!-- School Management -->
         <div v-if="can('view-departments') || can('view-cohorts') || can('view-academic-years')">
           <p class="px-3 pt-4 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -47,8 +55,8 @@
           </p>
 
           <NavItem v-if="can('view-departments')"
-            :href="route('departments.index')"
-            :active="isActive('departments')">
+            :href="route('hive.departments.index')"
+            active="hive.departments.">
             <template #icon>
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -58,9 +66,22 @@
             Departments
           </NavItem>
 
+          <NavItem v-if="can('view-programmes')"
+                     :href="route('hive.programmes.index')"
+                     active="hive.programmes.">
+            <template #icon>
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+              </svg>
+            </template>
+            Programmes
+          </NavItem>
+
+
           <NavItem v-if="can('view-academic-years')"
-            :href="route('academic-years.index')"
-            :active="isActive('academic-years')">
+            :href="route('hive.academic-years.index')"
+            active="hive.academic-years.">
             <template #icon>
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -71,8 +92,8 @@
           </NavItem>
 
           <NavItem v-if="can('view-cohorts')"
-            :href="route('cohorts.index')"
-            :active="isActive('cohorts')">
+            :href="route('hive.cohorts.index')"
+            active="hive.cohorts.">
             <template #icon>
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -89,7 +110,7 @@
             People
           </p>
 
-          <NavItem :href="route('users.index')" :active="isActive('users')">
+          <NavItem :href="route('hive.users.index')" active="hive.users.">
             <template #icon>
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -113,7 +134,7 @@
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium truncate">{{ $page.props.auth.user.name }}</p>
             <p class="text-xs text-gray-400 truncate capitalize">
-              {{ $page.props.auth.user.roles[0]?.replace('-', ' ') ?? 'User' }}
+              {{ $page.props.auth.user.role?.replace('-', ' ') ?? 'User' }}
             </p>
           </div>
           <Link
@@ -174,8 +195,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { onMounted } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import NavItem from '@/Components/NavItem.vue'
 import SearchInput from '@/Components/SearchInput.vue'
 import { useToast } from 'vue-toastification'
@@ -203,9 +224,5 @@ onMounted(() => {
 
 const can = (permission) => {
   return page.props.auth.user?.permissions?.includes(permission) ?? false
-}
-
-const isActive = (name) => {
-  return route().current(name + '*')
 }
 </script>

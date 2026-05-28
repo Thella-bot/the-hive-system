@@ -22,7 +22,7 @@ class LeaveRequestController extends Controller
         // Policy scope would be better, but for now, this simplifies the if/else
         $leaves = LeaveRequest::query()
             ->with('user')
-            ->when(!$user->hasAnyRole(['hr_staff', 'admin']), function ($query) use ($user) {
+            ->when(!$user->hasAnyRole(['super-admin', 'school-admin']), function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
             ->latest()
@@ -61,7 +61,7 @@ class LeaveRequestController extends Controller
         $leave = $user->leaveRequests()->create($data);
 
         // Notify HR staff and admins
-        $hrUsers = User::role(['hr_staff', 'admin'])->get();
+        $hrUsers = User::role(['super-admin', 'school-admin'])->get();
         Notification::send($hrUsers, new LeaveRequestSubmitted($leave));
 
         return redirect()->route('hive.leaves.index')->with('success', 'Leave request submitted.');

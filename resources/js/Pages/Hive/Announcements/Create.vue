@@ -16,14 +16,28 @@
           <option value="general">General</option>
           <option value="academic">Academic</option>
           <option value="event">Event</option>
+          <option value="module">Module</option>
+          <option value="staff">Staff</option>
           <option value="hr">HR</option>
+          <option value="administrative">Administrative</option>
+          <option value="financial">Financial</option>
+          <option value="health_safety">Health & Safety</option>
         </select>
       </div>
       <div>
         <label class="block text-sm">Target Roles (leave empty for all)</label>
         <div class="flex gap-2">
-          <label v-for="role in ['student','instructor','hr_staff','admin']" :key="role">
+          <label v-for="role in ['student','academic_staff','non_academic_staff','school-admin','super-admin']" :key="role">
             <input type="checkbox" :value="role" v-model="form.target_roles" /> {{ role }}
+          </label>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm">Target Modules (optional)</label>
+        <div class="border rounded p-2 max-h-40 overflow-y-auto">
+          <label v-for="mod in modules" :key="mod.id" class="flex items-center gap-2 py-1">
+            <input type="checkbox" :value="mod.id" v-model="form.target_modules" />
+            <span>{{ mod.code }} - {{ mod.name }}</span>
           </label>
         </div>
       </div>
@@ -42,11 +56,16 @@
 import { useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
+defineProps({
+  modules: Array,
+});
+
 const form = useForm({
   title: '',
   body: '',
   category: 'general',
   target_roles: [],
+  target_modules: [],
   is_pinned: false,
   expires_at: '',
 });

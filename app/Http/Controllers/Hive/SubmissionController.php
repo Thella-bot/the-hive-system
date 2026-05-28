@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-use App\Models\Assignment;
+use App\Models\Gradable;
 use App\Models\Submission;
 use App\Notifications\SubmissionGraded;
 use App\Notifications\SubmissionReceived;
@@ -16,35 +16,64 @@ class SubmissionController extends Controller
         $this->authorizeResource(Submission::class, 'submission');
     }
 
-    public function store(Request $request, Assignment $assignment)
+    public function store(Request $request, Gradable $gradable)
     {
-        $this->authorize('create', [Submission::class, $assignment]);
+        $this->authorize('create', [Submission::class, $gradable]);
         $student = $request->user();
 
         $request->validate([
             'file' => [
                 'required',
                 'file',
-                'max:' . $assignment->max_file_size,
-                'mimes:' . $assignment->allowed_types,
+                'max:' . $gradable->max_file_size,
+                'mimes:' . $gradable->allowed_types,
             ],
         ]);
 
         $submission = Submission::updateOrCreate(
             [
-                'assignment_id' => $assignment->id,
+                'gradable_id' => $gradable->id,
                 'student_id' => $student->id,
             ],
             [
-                'file_path' => $request->file('file')->store('private/submissions/' . $assignment->id),
+                'file_path' => $request->file('file')->store('private/submissions/' . $gradable->id),
                 'submitted_at' => now(),
-                'is_late' => now()->gt($assignment->due_date),
+                'is_late' => now()->gt($gradable->due_date),
             ]
         );
 
-        $assignment->instructor->notify(new SubmissionReceived($submission));
+        $gradable->instructor->notify(new SubmissionReceived($submission));
 
         return back()->with('success', 'Submission uploaded successfully.');
+    }
+
+    public function grade(Submission $submission)
+    {
+        $this->authorize('grade', $submission);
+
+        $submission->load('gradable.module', 'student');
+
+        return Inertia::render('Hive/Submissions/Grade', [
+            'submission' => $submission,
+        ]);
+    }
+
+    public function storeGrade(Request $request, Submission $submission)
+    {
+        $this->authorize('grade', $submission);
+
+        $request->validate([
+            'grade' => ['required', 'numeric', 'min:0', 'max:100'],
+            'feedback' => ['nullable', 'string'],
+        ]);
+
+        $submission->update([
+            'grade' => $request->grade,
+            'feedback' => $request->feedback,
+            'graded_at' => now(),
+        ]);
+
+        return redirect()->route('hive.dashboard')->with('success', 'Grade submitted successfully.');
     }
 
     // Instructors grade a submission

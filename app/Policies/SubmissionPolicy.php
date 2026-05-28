@@ -6,10 +6,8 @@ use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class SubmissionPolicy
+class SubmissionPolicy extends BasePolicy
 {
-    use HandlesAuthorization;
-
     public function viewAny(User $user)
     {
         return true;
@@ -17,21 +15,21 @@ class SubmissionPolicy
 
     public function view(User $user, Submission $submission)
     {
-        return $user->id === $submission->student_id || $user->id === $submission->assignment->instructor_id || $user->hasRole('admin');
+        return $user->id === $submission->student_id || $user->id === $submission->gradable->instructor_id;
     }
 
     public function create(User $user)
     {
-        return $user->hasRole('student');
+        return $user->can('create-submissions');
     }
 
     public function update(User $user, Submission $submission)
     {
-        return $user->id === $submission->assignment->instructor_id || $user->hasRole('admin');
+        return $user->id === $submission->gradable->instructor_id;
     }
 
     public function delete(User $user, Submission $submission)
     {
-        return $user->id === $submission->assignment->instructor_id || $user->hasRole('admin');
+        return $user->id === $submission->gradable->instructor_id;
     }
 }

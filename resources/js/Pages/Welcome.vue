@@ -52,13 +52,13 @@
       <div class="xl:col-span-2 bg-white rounded-xl border border-gray-200">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-900">Active Cohorts</h2>
-          <Link :href="route('cohorts.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+          <Link :href="route('hive.cohorts.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
             View all →
           </Link>
         </div>
         <div class="divide-y divide-gray-50">
           <div v-if="recentCohorts.length === 0" class="px-6 py-10 text-center text-gray-400 text-sm">
-            No cohorts yet. <Link :href="route('cohorts.create')" class="text-amber-600 hover:underline">Create one.</Link>
+            No cohorts yet. <Link :href="route('hive.cohorts.create')" class="text-amber-600 hover:underline">Create one.</Link>
           </div>
           <div v-for="cohort in recentCohorts" :key="cohort.id"
             class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors">
@@ -74,7 +74,7 @@
               <p class="text-sm font-semibold text-gray-900">{{ cohort.students_count }}</p>
               <p class="text-xs text-gray-400">/ {{ cohort.max_students }}</p>
             </div>
-            <Link :href="route('cohorts.show', cohort.id)"
+            <Link :href="route('hive.cohorts.show', cohort.id)"
               class="text-gray-400 hover:text-amber-600 transition-colors">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -88,7 +88,7 @@
       <div class="bg-white rounded-xl border border-gray-200">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 class="font-semibold text-gray-900">Departments</h2>
-          <Link :href="route('departments.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+          <Link :href="route('hive.departments.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
             View all →
           </Link>
         </div>

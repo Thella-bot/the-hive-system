@@ -106,21 +106,21 @@ function handleEventDrop(dropInfo) {
     start: dropInfo.event.startStr,
     end: dropInfo.event.endStr,
   };
-  useForm(eventData).put(route('events.update', eventData.id), {
+  useForm(eventData).put(route('hive.events.update', eventData.id), {
     preserveScroll: true,
   });
 }
 
 function submit() {
   if (form.id) {
-    form.put(route('events.update', form.id), {
+    form.put(route('hive.events.update', form.id), {
       onSuccess: () => {
         showModal.value = false;
         form.reset();
       },
     });
   } else {
-    form.post(route('events.store'), {
+    form.post(route('hive.events.store'), {
       onSuccess: () => {
         showModal.value = false;
         form.reset();
@@ -130,7 +130,7 @@ function submit() {
 }
 
 function destroy() {
-  form.delete(route('events.destroy', form.id), {
+  form.delete(route('hive.events.destroy', form.id), {
     onSuccess: () => {
       showModal.value = false;
       form.reset();

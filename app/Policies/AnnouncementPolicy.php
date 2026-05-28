@@ -3,7 +3,7 @@
 use App\Models\Announcement;
 use App\Models\User;
 
-class AnnouncementPolicy
+class AnnouncementPolicy extends BasePolicy
 {
     public function viewAny(User $user) { return true; }
 
@@ -17,16 +17,16 @@ class AnnouncementPolicy
 
     public function create(User $user)
     {
-        return $user->hasAnyRole(['admin', 'instructor', 'hr_staff']);
+        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']);
     }
 
     public function update(User $user, Announcement $announcement)
     {
-        return $user->hasRole('admin') || $user->id === $announcement->created_by;
+        return $user->hasAnyRole(['super-admin', 'school-admin']) || $user->id === $announcement->created_by;
     }
 
     public function delete(User $user, Announcement $announcement)
     {
-        return $user->hasRole('admin');
+        return $user->hasAnyRole(['super-admin', 'school-admin']) || $user->id === $announcement->created_by;
     }
 }

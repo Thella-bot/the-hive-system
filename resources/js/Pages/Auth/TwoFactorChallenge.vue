@@ -19,7 +19,7 @@ const recoveryCodeInput = ref(null);
 const codeInput = ref(null);
 
 const toggleRecovery = async () => {
-    recovery.value ^= true;
+    recovery.value = ! recovery.value;
 
     await nextTick();
 
@@ -34,6 +34,12 @@ const toggleRecovery = async () => {
 
 const submit = () => {
     form.post(route('two-factor.login'));
+};
+</script>
+
+<script>
+export default {
+  layout: null,
 };
 </script>
 

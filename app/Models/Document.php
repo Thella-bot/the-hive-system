@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class Document extends Model
 {
     protected $fillable = [
-        'title', 'description', 'category', 'visible_to_roles', 'is_published', 'created_by'
+        'title', 'description', 'category', 'visible_to_roles', 'is_published', 'created_by', 'module_id'
     ];
 
     protected $casts = [
@@ -26,5 +26,10 @@ class Document extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function module()
+    {
+        return $this->belongsTo(Module::class);
     }
 }

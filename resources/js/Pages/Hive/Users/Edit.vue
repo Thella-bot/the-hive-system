@@ -1,0 +1,211 @@
+<template>
+  <HiveLayout :title="`Edit: ${managedUser.name}`" description="Update user account and profile">
+    <template #header-actions>
+      <Link :href="route('hive.users.show', managedUser.id)" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
+        ← Back to Profile
+      </Link>
+    </template>
+
+    <div class="max-w-2xl">
+      <form @submit.prevent="submit" class="space-y-5">
+
+        <!-- Account -->
+        <div class="bg-white rounded-xl border border-gray-200">
+          <div class="p-6 space-y-5">
+            <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Account</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Full Name</label>
+                <input v-model="form.name" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
+                  :class="{ 'border-red-400': form.errors.name }" />
+                <p v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <input v-model="form.email" type="email"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
+                  :class="{ 'border-red-400': form.errors.email }" />
+                <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
+                <select v-model="form.role"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option v-for="role in roles" :key="role.id" :value="role.name">{{ formatRole(role.name) }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">New Password <span class="text-gray-400 font-normal">(leave blank to keep)</span></label>
+                <input v-model="form.password" type="password"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Confirm Password</label>
+                <input v-model="form.password_confirmation" type="password"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff profile -->
+        <div v-if="isStaffRole" class="bg-white rounded-xl border border-gray-200">
+          <div class="p-6 space-y-5">
+            <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Staff Details</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Employee Number</label>
+                <input v-model="form.employee_number" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
+                <select v-model="form.department_id"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option :value="null">— None —</option>
+                  <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Designation</label>
+                <input v-model="form.designation" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Specialization</label>
+                <input v-model="form.specialization" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student profile -->
+        <div v-if="isStudentRole" class="bg-white rounded-xl border border-gray-200">
+          <div class="p-6 space-y-5">
+            <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Student Details</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Student Number</label>
+                <input v-model="form.student_number" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Cohort</label>
+                <select v-model="form.cohort_id"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option :value="null">— None —</option>
+                  <option v-for="c in cohorts" :key="c.id" :value="c.id">{{ c.name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+                <select v-model="form.status"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option value="active">Active</option>
+                  <option value="graduated">Graduated</option>
+                  <option value="on_leave">On Leave</option>
+                  <option value="suspended">Suspended</option>
+                  <option value="withdrawn">Withdrawn</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Expected Graduation</label>
+                <input v-model="form.expected_graduation_date" type="date"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between">
+          <button v-if="can('delete-users') && !isSelf" type="button" @click="confirmDelete = true"
+            class="text-sm text-red-500 hover:text-red-700 font-medium">Delete user</button>
+          <span v-else></span>
+          <div class="flex gap-3">
+            <Link :href="route('hive.users.show', managedUser.id)"
+              class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              Cancel
+            </Link>
+            <button type="submit" :disabled="form.processing"
+              class="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
+              Save Changes
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Delete confirmation -->
+    <div v-if="confirmDelete" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete User?</h3>
+        <p class="text-sm text-gray-500 mb-6">
+          This will permanently delete <strong>{{ managedUser.name }}</strong>'s account and all associated profile data.
+        </p>
+        <div class="flex justify-end gap-3">
+          <button @click="confirmDelete = false"
+            class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-100">Cancel</button>
+          <Link :href="route('hive.users.destroy', managedUser.id)" method="delete" as="button"
+            class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg">Delete</Link>
+        </div>
+      </div>
+    </div>
+  </HiveLayout>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { Link, useForm, usePage } from '@inertiajs/vue3'
+import HiveLayout from '@/Layouts/HiveLayout.vue'
+
+const props = defineProps({
+  managedUser: { type: Object, required: true },
+  roles:       { type: Array, default: () => [] },
+  departments: { type: Array, default: () => [] },
+  cohorts:     { type: Array, default: () => [] },
+})
+
+const page = usePage()
+const can = (p) => page.props.auth.user?.permissions?.includes(p) ?? false
+const isSelf = computed(() => page.props.auth.user?.id === props.managedUser.id)
+const confirmDelete = ref(false)
+
+const staffRoles = ['super-admin', 'school-admin', 'department-head', 'chef-instructor', 'academic-staff', 'non-academic-staff']
+const sp = props.managedUser.staff_profile
+const stp = props.managedUser.student_profile
+
+const form = useForm({
+  name: props.managedUser.name, email: props.managedUser.email,
+  password: '', password_confirmation: '',
+  role: props.managedUser.roles?.[0]?.name ?? '',
+  // Staff
+  employee_number: sp?.employee_number ?? '', department_id: sp?.department_id ?? null,
+  designation: sp?.designation ?? '', specialization: sp?.specialization ?? '',
+  phone: sp?.phone ?? '', hire_date: sp?.hire_date ?? '',
+  // Student
+  student_number: stp?.student_number ?? '', cohort_id: stp?.cohort_id ?? null,
+  enrollment_date: stp?.enrollment_date ?? '', expected_graduation_date: stp?.expected_graduation_date ?? '',
+  status: stp?.status ?? 'active',
+  emergency_contact_name: stp?.emergency_contact_name ?? '',
+  emergency_contact_phone: stp?.emergency_contact_phone ?? '',
+  emergency_contact_relationship: stp?.emergency_contact_relationship ?? '',
+})
+
+const isStaffRole = computed(() => staffRoles.includes(form.role))
+const isStudentRole = computed(() => form.role === 'student')
+
+const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
+const submit = () => form.put(route('hive.users.update', props.managedUser.id))
+</script>

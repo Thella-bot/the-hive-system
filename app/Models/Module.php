@@ -1,12 +1,19 @@
-<?php namespace App\Models;
+<?php 
+
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
+
 class Module extends Model
 {
-    protected $fillable = ['programme_id', 'name', 'code', 'description', 'credits'];
+    protected $fillable = ['programme_id', 'name', 'code', 'description', 'credits', 'department_id'];
     public function programme() { return $this->belongsTo(Programme::class); }
-    public function assignments() { return $this->hasMany(Assignment::class); }
-    public function gradeItems() { return $this->hasMany(GradeItem::class); }
-    public function students() {
+    public function department() { return $this->belongsTo(Department::class); }
+    /**
+     * The students that are enrolled in the module.
+     */
+    public function students()
+    {
         return $this->belongsToMany(User::class, 'enrollments')
                     ->withPivot('academic_year', 'semester')
                     ->withTimestamps();

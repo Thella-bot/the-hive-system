@@ -136,7 +136,7 @@ const props = defineProps({
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 
-const isStaff = computed(() => user.value.roles.some(role => role.name === 'staff'));
+const isStaff = computed(() => user.value.roles.some(role => role.name === 'academic_staff' || role.name === 'non_academic_staff'));
 const isStudent = computed(() => user.value.roles.some(role => role.name === 'student'));
 
 const form = useForm({

@@ -18,6 +18,12 @@ const submit = () => {
 const verificationLinkSent = computed(() => props.status === 'verification-link-sent');
 </script>
 
+<script>
+export default {
+  layout: null,
+};
+</script>
+
 <template>
     <Head title="Email Verification" />
 

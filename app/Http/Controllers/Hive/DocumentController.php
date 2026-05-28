@@ -3,6 +3,7 @@
 use App\Http\Controllers\Controller;
 use App\Models\Document;
 use App\Models\DocumentVersion;
+use App\Models\Module;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,26 @@ class DocumentController extends Controller
         $this->authorizeResource(Document::class, 'document');
     }
 
+    /**
+     * Display module selection page for documents.
+     */
+    public function moduleSelect(): \Inertia\Response
+    {
+        $user = auth()->user();
+
+        if ($user->hasRole('student')) {
+            $modules = $user->modules()->with('programme')->get();
+        } elseif ($user->hasRole('academic_staff')) {
+            $modules = $user->instructedModules()->with('programme')->get();
+        } else {
+            $modules = Module::with('programme')->get();
+        }
+
+        return Inertia::render('Hive/Documents/ModuleSelect', [
+            'modules' => $modules,
+        ]);
+    }
+
     // List documents the user is allowed to see
     public function index(Request $request)
     {
@@ -22,7 +43,7 @@ class DocumentController extends Controller
 
         // Enforce DocumentPolicy visibility rules at the query level (avoid loading + filtering in PHP).
         $documentsQuery = Document::query()
-            ->with('latestVersion', 'creator')
+            ->with('latestVersion', 'creator', 'module')
             ->where('is_published', true)
             ->where(function ($q) use ($roleNames) {
                 // public to all Hive users
@@ -35,6 +56,15 @@ class DocumentController extends Controller
                   });
             });
 
+        // Filter by module if provided
+        if ($request->has('module_id')) {
+            $documentsQuery->where('module_id', $request->module_id);
+        }
+
+        // Filter by category if provided
+        if ($request->filled('category')) {
+            $documentsQuery->where('category', $request->category);
+        }
 
         // admin can always view (policy returns true if no restrictions, and grants create/update elsewhere).
         // For listing, the visibility query already covers unrestricted docs (visible_to_roles IS NULL).
@@ -62,7 +92,19 @@ class DocumentController extends Controller
 
     public function create()
     {
-        return Inertia::render('Hive/Documents/Create');
+        $user = auth()->user();
+
+        if ($user->hasRole('student')) {
+            $modules = collect(); // Students can't upload documents for specific modules
+        } elseif ($user->hasRole('academic_staff')) {
+            $modules = $user->instructedModules()->get();
+        } else {
+            $modules = Module::all();
+        }
+
+        return Inertia::render('Hive/Documents/Create', [
+            'modules' => $modules,
+        ]);
     }
 
     public function store(Request $request)
@@ -71,6 +113,7 @@ class DocumentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|string',
+            'module_id' => 'nullable|exists:modules,id',
             'visible_to_roles' => 'nullable|array',
             'file' => 'required|file|max:20480', // 20 MB max
         ]);
@@ -79,6 +122,7 @@ class DocumentController extends Controller
             'title' => $attrs['title'],
             'description' => $attrs['description'] ?? '',
             'category' => $attrs['category'],
+            'module_id' => $attrs['module_id'] ?? null,
             'visible_to_roles' => $attrs['visible_to_roles'] ?? null,
             'is_published' => true,
             'created_by' => $request->user()->id,

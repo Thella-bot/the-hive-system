@@ -1,79 +1,92 @@
-<?php namespace App\Http\Controllers\Hive;
+<?php
+
+namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+
 use App\Models\Announcement;
+use App\Models\Module;
+use App\Models\User;
+use App\Notifications\NewAnnouncement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class AnnouncementController extends Controller
 {
-    public function __construct()
+    public function index()
     {
-        $this->authorizeResource(Announcement::class, 'announcement');
-    }
-
-    public function index(Request $request)
-    {
-        $user = $request->user();
-        $announcements = Announcement::with('creator')
-            ->visibleTo($user)
-            ->orderBy('is_pinned', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->filter(fn($ann) => $user->can('view', $ann)); // double-check
-
+        $announcements = Announcement::latest()->get();
         return Inertia::render('Hive/Announcements/Index', [
-            'announcements' => $announcements->values(),
+            'announcements' => $announcements,
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Hive/Announcements/Create');
-    }
-
-    public function store(Request $request)
-    {
-        $attrs = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'category' => 'required|string',
-            'target_roles' => 'nullable|array',
-            'is_pinned' => 'boolean',
-            'expires_at' => 'nullable|date',
+        return Inertia::render('Hive/Announcements/Create', [
+            'modules' => Module::all(['id', 'name', 'code']),
         ]);
-
-        Announcement::create([
-            ...$attrs,
-            'created_by' => $request->user()->id,
-        ]);
-
-        return redirect()->route('hive.announcements.index')->with('success', 'Announcement created.');
     }
 
     public function edit(Announcement $announcement)
     {
-        return Inertia::render('Hive/Announcements/Edit', ['announcement' => $announcement]);
+        return Inertia::render('Hive/Announcements/Edit', [
+            'announcement' => $announcement->load('targetModules'),
+            'modules' => Module::all(['id', 'name', 'code']),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'category' => 'nullable|string|max:50',
+            'target_roles' => 'nullable|array',
+            'target_modules' => 'nullable|array',
+            'target_modules.*' => 'exists:modules,id',
+            'is_pinned' => 'nullable|boolean',
+            'expires_at' => 'nullable|date',
+        ]);
+
+        $announcement = Announcement::create($validated);
+
+        if (!empty($validated['target_modules'])) {
+            $announcement->targetModules()->attach($validated['target_modules']);
+        }
+
+        $usersToNotify = User::where('id', '!=', $request->user()->id)->get();
+        Notification::send($usersToNotify, new NewAnnouncement($announcement));
+
+        return redirect()->back()->with('success', 'Announcement created and users notified.');
     }
 
     public function update(Request $request, Announcement $announcement)
     {
-        $attrs = $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'body' => 'required|string',
-            'category' => 'required|string',
+            'category' => 'nullable|string|max:50',
             'target_roles' => 'nullable|array',
-            'is_pinned' => 'boolean',
+            'target_modules' => 'nullable|array',
+            'target_modules.*' => 'exists:modules,id',
+            'is_pinned' => 'nullable|boolean',
             'expires_at' => 'nullable|date',
         ]);
 
-        $announcement->update($attrs);
-        return redirect()->route('hive.announcements.index')->with('success', 'Updated.');
+        $announcement->update($validated);
+
+        if (isset($validated['target_modules'])) {
+            $announcement->targetModules()->sync($validated['target_modules']);
+        }
+
+        return redirect()->back()->with('success', 'Announcement updated.');
     }
 
     public function destroy(Announcement $announcement)
     {
         $announcement->delete();
-        return back()->with('success', 'Announcement removed.');
+        return redirect()->back()->with('success', 'Announcement deleted.');
     }
 }

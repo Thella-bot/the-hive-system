@@ -1,70 +1,66 @@
-<?php namespace App\Http\Controllers\Hive;
+<?php
+
+namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-use App\Models\GradeItem;
-use App\Models\StudentGrade;
+use App\Models\Gradable;
 use App\Models\Module;
+use App\Models\Submission;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class GradeController extends Controller
 {
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $user = $request->user();
+
         if ($user->hasRole('student')) {
-            // Show grades for enrolled modules
-            $modules = $user->modules()->with(['gradeItems.studentGrades' => function($q) use ($user) {
-                $q->where('student_id', $user->id);
-            }])->get();
+            // Student: Show enrolled modules with gradables and their grades
+            $moduleIds = $user->modules()->pluck('module_id')->toArray();
+
+            $modules = Module::with(['gradables' => function ($query) {
+                $query->orderBy('due_date', 'desc');
+            }])->whereIn('id', $moduleIds)->get();
+
+            // Attach submissions for each gradable
+            foreach ($modules as $module) {
+                foreach ($module->gradables as $gradable) {
+                    $submission = Submission::where('gradable_id', $gradable->id)
+                        ->where('student_id', $user->id)
+                        ->first();
+                    $gradable->submission = $submission;
+                }
+            }
+
             return Inertia::render('Hive/Grades/StudentIndex', ['modules' => $modules]);
         } else {
-            // Instructor/Admin: select module to manage
-            $modules = $user->hasRole('admin') ? Module::all() : $user->instructedModules;
+            // Instructor/Admin: select module to manage grades
+            $isAdmin = $user->hasAnyRole(['super-admin', 'school-admin']);
+
+            if ($isAdmin) {
+                $modules = Module::with(['programme', 'gradables.submissions'])->get();
+            } else {
+                $modules = $user->instructedModules()->with(['programme', 'gradables.submissions'])->get();
+            }
+
             return Inertia::render('Hive/Grades/InstructorIndex', ['modules' => $modules]);
         }
     }
 
-    // Show grade item management for a module
-    public function manage(Module $module) {
-        // authorize that the user can manage grades for this module
-        // If no grade items exist yet, use a lightweight check based on module instructors.
-        $hasGradeItems = $module->gradeItems()->exists();
-        if ($hasGradeItems) {
-            $gradeItem = $module->gradeItems()->first();
-            $this->authorize('update', $gradeItem);
-        } else {
-            // Only instructors of this module (or admin) can manage grading.
-            abort_unless(
-                auth()->user()->hasRole('admin') ||
-                (auth()->user()->hasRole('instructor') && $module->instructors()->where('user_id', auth()->id())->exists()),
-                403
-            );
-        }
+    // Show grade management for a module
+    public function manage(Module $module)
+    {
+        $user = auth()->user();
+        $isAdmin = $user->hasAnyRole(['super-admin', 'school-admin']);
 
-        $module->load('gradeItems.studentGrades.student');
-        return Inertia::render('Hive/Grades/Manage', ['module' => $module]);
-    }
-
-    // Store a grade item
-    public function storeItem(Request $request, Module $module) {
-        $data = $request->validate([
-            'name'=>'required','type'=>'required','max_marks'=>'required|numeric','weight'=>'required|numeric'
-        ]);
-        $module->gradeItems()->create($data);
-        return back();
-    }
-
-    // Enter/update student grade
-    public function storeStudentGrade(Request $request, GradeItem $gradeItem) {
-        $request->validate([
-            'student_id'=>'required|exists:users,id',
-            'marks'=>'required|numeric|max:'.$gradeItem->max_marks,
-            'comments'=>'nullable|string'
-        ]);
-        StudentGrade::updateOrCreate(
-            ['grade_item_id'=>$gradeItem->id,'student_id'=>$request->student_id],
-            ['marks'=>$request->marks,'comments'=>$request->comments]
+        abort_unless(
+            $isAdmin || $module->instructors()->where('user_id', $user->id)->exists(),
+            403
         );
-        return back();
+
+        $module->load(['gradables.submissions.student']);
+
+        return Inertia::render('Hive/Grades/ModuleGrades', ['module' => $module]);
     }
 }

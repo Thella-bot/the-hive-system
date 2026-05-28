@@ -60,7 +60,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 const props = defineProps({ assignment: Object });
 const user = usePage().props.user;
 const isStudent = user.roles.some(r => r.name === 'student');
-const isInstructor = user.roles.some(r => ['admin','instructor'].includes(r.name)) && (user.id === props.assignment.instructor_id || user.roles.some(r=>r.name==='admin'));
+const isInstructor = user.roles.some(r => ['super-admin','school-admin', 'academic_staff'].includes(r.name)) && (user.id === props.assignment.instructor_id || user.roles.some(r=>r.name==='super-admin' || r.name==='school-admin'));
 
 const existingSubmission = computed(() => props.assignment.submissions?.find(s => s.student_id === user.id) ?? null);
 

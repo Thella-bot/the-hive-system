@@ -6,10 +6,8 @@ use App\Models\LeaveRequest;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class LeaveRequestPolicy
+class LeaveRequestPolicy extends BasePolicy
 {
-    use HandlesAuthorization;
-
     /**
      * Determine whether the user can view any models.
      */
@@ -23,8 +21,8 @@ class LeaveRequestPolicy
      */
     public function view(User $user, LeaveRequest $leaveRequest): bool
     {
-        // HR/Admin can view any request, users can only view their own.
-        return $user->hasAnyRole(['hr_staff', 'admin']) || $user->id === $leaveRequest->user_id;
+        // HR can view any request, users can only view their own.
+        return $user->can('edit-leave-requests') || $user->id === $leaveRequest->user_id;
     }
 
     /**
@@ -32,8 +30,8 @@ class LeaveRequestPolicy
      */
     public function create(User $user): bool
     {
-        // All staff can create leave requests, but http://127.0.0.1:8000/loginstudents cannot.
-        return $user->hasAnyRole(['instructor', 'staff', 'hr_staff', 'admin']);
+        // All staff (academic and non-academic) and admins can create leave requests, but students cannot.
+        return $user->hasAnyRole(['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin', 'department-head', 'chef-instructor']);
     }
 
     /**
@@ -41,8 +39,8 @@ class LeaveRequestPolicy
      */
     public function update(User $user, LeaveRequest $leaveRequest): bool
     {
-        // HR/Admin can only update requests that are still pending.
-        return $user->hasAnyRole(['hr_staff', 'admin']) && $leaveRequest->status === 'pending';
+        // HR can only update requests that are still pending.
+        return $user->can('edit-leave-requests') && $leaveRequest->status === 'pending';
     }
 
     /**
@@ -50,6 +48,6 @@ class LeaveRequestPolicy
      */
     public function delete(User $user, LeaveRequest $leaveRequest): bool
     {
-        return $user->hasAnyRole(['hr_staff', 'admin']);
+        return $user->can('delete-leave-requests');
     }
 }

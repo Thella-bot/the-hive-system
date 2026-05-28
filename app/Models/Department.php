@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -56,9 +57,30 @@ class Department extends Model
         return $this->hasMany(Cohort::class);
     }
 
-    public function staff(): HasMany
+    public function programmes(): HasMany
     {
-        return $this->hasMany(Profile::class)->where('profileable_type', User::class);
+        return $this->hasMany(Programme::class);
+    }
+
+    public function shortCourses(): MorphMany
+    {
+        return $this->morphMany(ShortCourse::class, 'courseable');
+    }
+
+    public function staff()
+    {
+        return $this->hasManyThrough(
+            User::class,
+            Profile::class,
+            'department_id', // profiles.department_id -> departments.id
+            'id', // users.id = profiles.profileable_id
+            'id', // departments.id
+            'profileable_id' // profileable_id on profiles
+        )
+        ->where('profiles.profileable_type', User::class)
+        ->whereHas('roles', function ($query) {
+            $query->where('name', 'academic_staff')->orWhere('name', 'non_academic_staff');
+        });
     }
 
     // --- Scopes ---

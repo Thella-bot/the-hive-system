@@ -1,3 +1,9 @@
+<script>
+export default {
+  layout: null,
+};
+</script>
+
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
@@ -7,6 +13,10 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+
+defineProps({
+    status: String,
+});
 
 const form = useForm({
     email: '',
@@ -74,7 +84,7 @@ const submit = () => {
                 </div>
 
                 <div class="flex items-center justify-end mt-4">
-                    <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-amber-800 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                    <Link :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-amber-800 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
                         Forgot your password?
                     </Link>
 

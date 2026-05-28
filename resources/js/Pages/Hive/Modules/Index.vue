@@ -1,47 +1,53 @@
+<script setup>
+import { computed } from 'vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import HiveLayout from '@/Layouts/HiveLayout.vue';
+
+const props = defineProps({
+  modules: Array,
+});
+
+const page = usePage();
+const canManage = computed(() => {
+  const roles = page.props.auth?.user?.roles || [];
+  return roles.includes('super-admin') || roles.includes('school-admin');
+});
+</script>
+
 <template>
-  <HiveLayout>
-    <h1 class="text-2xl font-bold mb-4">Programmes & Modules</h1>
-    <div class="flex gap-4">
-      <div class="w-1/2">
-        <h2>Add Programme</h2>
-        <form @submit.prevent="addProgramme" class="space-y-2">
-          <input v-model="programmeForm.name" placeholder="Name" class="w-full border p-2" required />
-          <textarea v-model="programmeForm.description" placeholder="Description" class="w-full border p-2"></textarea>
-          <input type="number" v-model="programmeForm.duration_years" placeholder="Duration (years)" class="w-full border p-2" />
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-        </form>
-      </div>
-      <div class="w-1/2">
-        <h2>Add Module</h2>
-        <form @submit.prevent="addModule" class="space-y-2">
-          <select v-model="moduleForm.programme_id" class="w-full border p-2">
-            <option v-for="p in programmes" :value="p.id">{{ p.name }}</option>
-          </select>
-          <input v-model="moduleForm.name" placeholder="Module name" class="w-full border p-2" required />
-          <input v-model="moduleForm.code" placeholder="Code" class="w-full border p-2" required />
-          <textarea v-model="moduleForm.description" placeholder="Description" class="w-full border p-2"></textarea>
-          <input type="number" v-model="moduleForm.credits" placeholder="Credits" class="w-full border p-2" />
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-        </form>
-      </div>
+  <HiveLayout title="Modules" description="A list of all the modules in the system.">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Modules</h1>
+      <Link v-if="canManage" :href="route('hive.modules.create')" class="btn-primary">
+        Create Module
+      </Link>
     </div>
-    <div class="mt-6">
-      <h2>Existing Programmes</h2>
-      <div v-for="p in programmes" :key="p.id" class="mb-2">
-        <strong>{{ p.name }}</strong> ({{ p.duration_years }} years)
-        <ul class="ml-4 list-disc">
-          <li v-for="m in p.modules" :key="m.id">{{ m.name }} ({{ m.code }})</li>
-        </ul>
-      </div>
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+      <table class="w-full whitespace-no-wrap">
+        <tr class="text-left font-bold">
+          <th class="px-6 pt-6 pb-4">Name</th>
+          <th class="px-6 pt-6 pb-4">Code</th>
+          <th class="px-6 pt-6 pb-4">Department</th>
+          <th class="px-6 pt-6 pb-4">Programme</th>
+          <th class="px-6 pt-6 pb-4">Actions</th>
+        </tr>
+        <tr v-for="module in modules" :key="module.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+          <td class="border-t px-6 py-4">
+            <span class="text-gray-900">{{ module.name }}</span>
+          </td>
+          <td class="border-t px-6 py-4">{{ module.code }}</td>
+          <td class="border-t px-6 py-4">{{ module.department?.name }}</td>
+          <td class="border-t px-6 py-4">{{ module.programme?.name }}</td>
+          <td class="border-t px-6 py-4">
+            <Link v-if="canManage" :href="route('hive.modules.edit', module.id)" class="text-indigo-600 hover:text-indigo-900">
+              Edit
+            </Link>
+          </td>
+        </tr>
+        <tr v-if="modules.length === 0">
+          <td class="border-t px-6 py-4" colspan="5">No modules found.</td>
+        </tr>
+      </table>
     </div>
   </HiveLayout>
 </template>
-<script setup>
-import { useForm } from '@inertiajs/vue3';
-import HiveLayout from '@/Layouts/HiveLayout.vue';
-const props = defineProps({ programmes: Array });
-const programmeForm = useForm({ name: '', description: '', duration_years: 1 });
-const moduleForm = useForm({ programme_id: '', name: '', code: '', description: '', credits: 3 });
-const addProgramme = () => programmeForm.post(route('hive.programmes.store'));
-const addModule = () => moduleForm.post(route('hive.modules.store'));
-</script>

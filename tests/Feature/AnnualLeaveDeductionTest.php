@@ -19,7 +19,7 @@ class AnnualLeaveDeductionTest extends TestCase
         $hrStaff->assignRole('admin');
 
         $staffUser = User::factory()->create();
-        $staffUser->assignRole('instructor');
+        $staffUser->assignRole('academic_staff');
 
         // ensure profile exists with sufficient balance
         $profile = $staffUser->profile()->create([
@@ -58,4 +58,3 @@ class AnnualLeaveDeductionTest extends TestCase
         ]);
     }
 }
-

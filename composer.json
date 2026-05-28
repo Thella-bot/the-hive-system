@@ -2,13 +2,13 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "hbci/the-hive",
     "type": "project",
-    "description": "The Hive is a web-based Hive system for the Honey Bee Culinary Insitute (HBCI).",
+    "description": "The Hive is a web-based Intranet for the Honey Bee Culinary Insitute.",
     "keywords": ["laravel", "framework", "Hive", "hive"],
     "homepage": "https://www.hbci.ac.ls",
     "license": "MIT",
     "authors": [
         {
-            "name": "HBCI",
+            "name": "Honey Bee Culinary Institute",
             "email": "info@hbci.ac.ls"
         }
     ],
@@ -18,9 +18,12 @@
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/jetstream": "^5.5",
+        "laravel/reverb": "@beta",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^11.1",
+        "laravel/telescope": "*",
         "laravel/tinker": "^2.10.1",
+        "opcodesio/log-viewer": "*",
         "spatie/laravel-permission": "^6.25",
         "tightenco/ziggy": "^2.0"
     },

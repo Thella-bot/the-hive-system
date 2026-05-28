@@ -1,5 +1,5 @@
 <template>
-  <HiveLayout>
+  <HiveLayout title="Announcements" description="Institute notices, reminders, and pinned updates.">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Announcements</h1>
       <Link v-if="canCreate" :href="route('hive.announcements.create')"
@@ -32,10 +32,11 @@ import { Link, router, usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 const props = defineProps({ announcements: Array });
-const canCreate = computed(() => usePage().props.user.roles.some(r => ['admin','instructor','hr_staff'].includes(r.name)));
+const roles = computed(() => usePage().props.auth.user?.roles || []);
+const canCreate = computed(() => roles.value.some(r => ['super-admin','school-admin', 'academic_staff', 'non_academic_staff'].includes(r)));
 const canEdit = (ann) => {
-  const user = usePage().props.user;
-  return user.roles.some(r => r.name === 'admin') || user.id === ann.created_by;
+  const user = usePage().props.auth.user;
+  return roles.value.some(r => ['super-admin', 'school-admin'].includes(r)) || user?.id === ann.created_by;
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {

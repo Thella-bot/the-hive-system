@@ -1,5 +1,5 @@
 <template>
-  <HiveLayout>
+  <HiveLayout title="Document Repository" description="Academic materials, recipes, schedules, and institute resources.">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Document Repository</h1>
       <Link v-if="canCreate" :href="route('hive.documents.create')"
@@ -29,5 +29,5 @@ import { Link, usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 defineProps({ documents: Array, categories: Array });
-const canCreate = computed(() => usePage().props.user.roles.some(r => ['admin','hr_staff','instructor'].includes(r.name)));
+const canCreate = computed(() => usePage().props.auth.user?.roles.some(r => ['super-admin','school-admin', 'academic_staff', 'non_academic_staff'].includes(r)));
 </script>

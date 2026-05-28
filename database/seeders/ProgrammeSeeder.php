@@ -107,7 +107,7 @@ class ProgrammeSeeder extends Seeder
                 unset($programme['uniform_fee']);
             }
 
-            Programme::create($programme);
+            Programme::updateOrCreate($programme);
         }
     }
 }

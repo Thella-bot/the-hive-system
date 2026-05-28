@@ -1,54 +1,29 @@
 <?php
 
-use App\Http\Controllers\AcademicYearController;
-use App\Http\Controllers\CohortController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\SearchController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // --- Public routes ---
-Route::get('/', [\App\Http\Controllers\PublicController::class, 'home'])
-    ->name('home');
-Route::get('/about', [\App\Http\Controllers\PublicController::class, 'about'])
-    ->name('about');
-Route::get('/programmes', [\App\Http\Controllers\PublicController::class, 'programmes'])
-    ->name('programmes');
-Route::get('/contact', [\App\Http\Controllers\PublicController::class, 'contact'])
-    ->name('contact');
-Route::post('/contact', [\App\Http\Controllers\PublicController::class, 'sendContact'])
-    ->name('contact.store');
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('hive.dashboard');
+    }
+    return app(PublicController::class)->home();
+})->name('home');
+
+Route::get('/about', [PublicController::class, 'about'])->name('about');
+Route::get('/programmes', [PublicController::class, 'programmes'])->name('programmes');
+Route::get('/contact', [PublicController::class, 'contact'])->name('contact');
+Route::get('/apply', [PublicController::class, 'apply'])->name('apply');
+Route::post('/apply', [ApplicationController::class, 'store'])->name('public.apply.store');
+Route::post('/contact', [PublicController::class, 'sendContact'])->name('contact.store');
 
 // --- Public auth routes (handled by Jetstream) ---
-// Login, password reset, etc. are registered by Jetstream automatically.
-
-// --- Authenticated routes ---
-Route::middleware(['auth', 'verified'])->group(function () {
-
-    // Dashboard
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
-
-    // School Structure
-    Route::resource('departments', DepartmentController::class)
-        ->middleware('can:view-departments');
-
-    Route::resource('academic-years', AcademicYearController::class)
-        ->except('show')
-        ->middleware('can:view-academic-years');
-
-    Route::resource('cohorts', CohortController::class)
-        ->middleware('can:view-cohorts');
-
-    // People
-    Route::resource('users', UserController::class)
-        ->middleware('can:view-users');
-
-    // Search
-    Route::get('search', [SearchController::class, 'index'])->name('search.index');
-
-    // Calendar
-    Route::resource('events', EventController::class)->except(['show', 'create', 'edit']);
-});
+Route::get('/login', fn () => Inertia::render('Auth/Login'))->name('login');
+Route::get('/forgot-password', fn () => Inertia::render('Auth/ForgotPassword'))->name('password.request');
+Route::get('/reset-password/{token}', fn (string $token) => Inertia::render('Auth/ResetPassword', [
+    'token' => $token,
+    'email' => request('email'),
+]))->name('password.reset');

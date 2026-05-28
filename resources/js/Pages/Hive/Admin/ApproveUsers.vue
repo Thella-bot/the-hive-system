@@ -11,8 +11,10 @@
             <td>
               <select v-model="selectedRoles[user.id]" class="border rounded">
                 <option value="student">Student</option>
-                <option value="instructor">Instructor</option>
-                <option value="hr_staff">HR Staff</option>
+                <option value="academic_staff">Academic Staff</option>
+                <option value="non_academic_staff">Non-Academic Staff</option>
+                <option value="department-head">Department Head</option>
+                <option value="chef-instructor">Chef Instructor</option>
               </select>
             </td>
             <td>

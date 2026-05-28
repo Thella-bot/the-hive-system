@@ -21,7 +21,7 @@ class UserApprovalController extends Controller
     public function approve(User $user, Request $request)
     {
         $request->validate([
-            'role' => 'required|in:student,instructor,hr_staff',
+            'role' => 'required|in:student,academic_staff,non_academic_staff,department-head,chef-instructor',
         ]);
 
         $user->syncRoles([$request->role]);

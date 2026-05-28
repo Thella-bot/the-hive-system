@@ -6,10 +6,8 @@ use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class ProfilePolicy
+class ProfilePolicy extends BasePolicy
 {
-    use HandlesAuthorization;
-
     public function view(User $user, Profile $profile)
     {
         return $user->id === $profile->user_id;

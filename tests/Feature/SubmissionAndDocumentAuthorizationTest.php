@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\Assignment;
 use App\Models\Document;
 use App\Models\DocumentVersion;
+use App\Models\Gradable;
 use App\Models\Module;
 use App\Models\Submission;
 use App\Models\User;
@@ -56,7 +56,7 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
         }
 
 
-        $assignment = Assignment::create([
+        $gradable = Gradable::create([
             'module_id' => $module->id,
             'instructor_id' => $instructor->id,
             'title' => 'Test Assignment',
@@ -67,7 +67,7 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
 
 
         $submission = Submission::create([
-            'assignment_id' => $assignment->id,
+            'gradable_id' => $gradable->id,
             'student_id' => $studentB->id,
             'file_path' => 'private/submissions/dummy.pdf',
             'submitted_at' => now(),
@@ -131,4 +131,3 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
         $response2->assertStatus(403);
     }
 }
-
