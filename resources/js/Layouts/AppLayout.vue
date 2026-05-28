@@ -1,7 +1,7 @@
 <template>
-  <div class="flex h-screen bg-gray-50 overflow-hidden">
+  <div class="flex h-screen bg-gray-50 overflow-hidden dark:bg-gray-900">
 
-    <aside class="w-64 flex-shrink-0 flex flex-col bg-hbci-gray text-white">
+    <aside class="w-64 flex-shrink-0 flex flex-col bg-hbci-gray text-white dark:bg-gray-800">
 
       <!-- Brand -->
       <div class="p-4">
@@ -157,28 +157,31 @@
     <div class="flex-1 flex flex-col overflow-hidden">
 
       <!-- Top bar -->
-      <header class="flex-shrink-0 bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+      <header class="flex-shrink-0 bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between dark:bg-gray-800 dark:border-gray-700">
         <div class="flex items-center gap-4">
           <div>
-            <h1 class="text-xl font-semibold text-gray-900">{{ title }}</h1>
-            <p v-if="description" class="text-sm text-gray-500 mt-0.5">{{ description }}</p>
+            <h1 class="text-xl font-semibold text-gray-900 dark:text-white">{{ title }}</h1>
+            <p v-if="description" class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ description }}</p>
           </div>
           <SearchInput />
         </div>
-        <slot name="header-actions" />
+        <div class="flex items-center gap-3">
+          <ThemeToggle />
+          <slot name="header-actions" />
+        </div>
       </header>
 
       <!-- Flash messages -->
       <div v-if="$page.props.flash?.success || $page.props.flash?.error" class="px-8 pt-4">
         <div v-if="$page.props.flash?.success"
-          class="flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 text-sm">
+          class="flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200 rounded-lg px-4 py-3 text-sm">
           <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
           </svg>
           {{ $page.props.flash.success }}
         </div>
         <div v-if="$page.props.flash?.error"
-          class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3 text-sm">
+          class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200 rounded-lg px-4 py-3 text-sm">
           <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
@@ -187,7 +190,7 @@
       </div>
 
       <!-- Page content -->
-      <main class="flex-1 overflow-y-auto px-8 py-6">
+      <main class="flex-1 overflow-y-auto px-8 py-6 dark:bg-gray-900">
         <slot />
       </main>
     </div>
@@ -199,6 +202,7 @@ import { onMounted } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import NavItem from '@/Components/NavItem.vue'
 import SearchInput from '@/Components/SearchInput.vue'
+import ThemeToggle from '@/Components/ThemeToggle.vue'
 import { useToast } from 'vue-toastification'
 
 defineProps({

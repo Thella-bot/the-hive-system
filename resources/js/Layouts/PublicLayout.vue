@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import ThemeToggle from '@/Components/ThemeToggle.vue';
 
 const mobileMenuOpen = ref(false);
 const currentYear = new Date().getFullYear();
@@ -22,9 +23,9 @@ const isActive = (href) => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-sans bg-gray-50">
+  <div class="min-h-screen flex flex-col font-sans bg-gray-50 dark:bg-gray-900">
     <!-- Sticky Modern Header -->
-    <header class="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-100">
+    <header class="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16 lg:h-20">
           <!-- Logo -->
@@ -49,6 +50,7 @@ const isActive = (href) => {
 
           <!-- CTA + Desktop Login -->
           <div class="hidden lg:flex items-center gap-3">
+            <ThemeToggle />
             <Link
               :href="route('apply')"
               class="px-5 py-2.5 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition shadow-sm"
@@ -119,7 +121,7 @@ const isActive = (href) => {
     </main>
 
     <!-- Modern Footer -->
-    <footer class="bg-gray-900 text-white">
+    <footer class="bg-gray-900 text-white dark:bg-gray-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           <!-- Brand Column -->

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50">
+  <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     <div
       v-if="sidebarOpen"
       class="fixed inset-0 z-30 bg-gray-900/50 lg:hidden"
@@ -103,7 +103,7 @@
     </aside>
 
     <div class="flex min-w-0 flex-1 flex-col">
-      <header class="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
+      <header class="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-4 sm:px-6 lg:px-8 dark:bg-gray-800 dark:border-gray-700">
         <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div class="flex min-w-0 items-center gap-4">
             <button
@@ -115,8 +115,8 @@
               <Bars3Icon class="h-5 w-5" />
             </button>
             <div class="min-w-0">
-              <h1 class="truncate text-xl font-semibold text-gray-900">{{ title }}</h1>
-              <p v-if="description" class="mt-0.5 text-sm text-gray-500">{{ description }}</p>
+              <h1 class="truncate text-xl font-semibold text-gray-900 dark:text-white">{{ title }}</h1>
+              <p v-if="description" class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ description }}</p>
             </div>
           </div>
 
@@ -133,22 +133,23 @@
             </form>
 
             <div class="flex items-center justify-end gap-2">
+              <ThemeToggle />
               <Link
                 :href="route('hive.notifications.index')"
-                class="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
+                class="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 title="Notifications"
               >
                 <BellIcon class="h-5 w-5" />
                 <span
                   v-if="$page.props.unreadNotificationsCount > 0"
-                  class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white ring-2 ring-white"
+                  class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-900"
                 >
                   {{ $page.props.unreadNotificationsCount > 9 ? '9+' : $page.props.unreadNotificationsCount }}
                 </span>
               </Link>
               <Link
                 :href="route('hive.profile.edit')"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 title="Profile"
               >
                 <UserCircleIcon class="h-5 w-5" />
@@ -162,21 +163,21 @@
       <div v-if="$page.props.flash?.success || $page.props.flash?.error" class="px-4 pt-4 sm:px-6 lg:px-8">
         <div
           v-if="$page.props.flash?.success"
-          class="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          class="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200"
         >
           <CheckCircleIcon class="h-5 w-5 flex-shrink-0 text-green-500" />
           {{ $page.props.flash.success }}
         </div>
         <div
           v-if="$page.props.flash?.error"
-          class="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200"
         >
           <ExclamationCircleIcon class="h-5 w-5 flex-shrink-0 text-red-500" />
           {{ $page.props.flash.error }}
         </div>
       </div>
 
-      <main class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+      <main class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 dark:bg-gray-900">
         <slot />
       </main>
     </div>
@@ -187,6 +188,7 @@
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
 import NavItem from '@/Components/NavItem.vue';
+import ThemeToggle from '@/Components/ThemeToggle.vue';
 import {
   AcademicCapIcon,
   ArrowRightOnRectangleIcon,
