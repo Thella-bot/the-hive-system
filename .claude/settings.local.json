@@ -11,7 +11,9 @@
       "Bash(rm -f \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/bootstrap/cache/\"*.tmp)",
       "Bash(php -d opcache.enable=0 vendor/bin/phpunit --filter AnnualLeaveDeductionTest)",
       "Bash(php -l bootstrap/app.php)",
-      "Bash(php -d \"memory_limit=256M\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/vendor/bin/phpunit\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/AnnualLeaveDeductionTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/SubmissionAndDocumentAuthorizationTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/PasswordConfirmationTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/RegistrationTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/UpdatePasswordTest.php\")"
+      "Bash(php -d \"memory_limit=256M\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/vendor/bin/phpunit\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/AnnualLeaveDeductionTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/SubmissionAndDocumentAuthorizationTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/PasswordConfirmationTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/RegistrationTest.php\" \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/tests/Feature/UpdatePasswordTest.php\")",
+      "Bash(php \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/artisan\" migrate)",
+      "Bash(npm run dev)"
     ]
   }
 }
