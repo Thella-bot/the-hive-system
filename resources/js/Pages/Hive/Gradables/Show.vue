@@ -46,10 +46,14 @@
                     </div>
 
                     <!-- Details Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                         <div class="bg-gray-50 rounded-lg p-4">
                             <p class="text-xs text-gray-500 uppercase tracking-wide">Due Date</p>
                             <p class="text-sm font-semibold text-gray-900 mt-1">{{ formatDate(gradable.due_date) }}</p>
+                        </div>
+                        <div v-if="gradable.duration_minutes" class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Duration</p>
+                            <p class="text-sm font-semibold text-gray-900 mt-1">{{ gradable.duration_minutes }} min</p>
                         </div>
                         <div class="bg-gray-50 rounded-lg p-4">
                             <p class="text-xs text-gray-500 uppercase tracking-wide">Max Marks</p>

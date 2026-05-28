@@ -12,6 +12,11 @@ const canManage = computed(() => {
   const roles = page.props.auth?.user?.roles || [];
   return roles.includes('super-admin') || roles.includes('school-admin');
 });
+
+const isStudent = computed(() => {
+  const roles = page.props.auth?.user?.roles || [];
+  return roles.includes('student');
+});
 </script>
 
 <template>
@@ -41,6 +46,9 @@ const canManage = computed(() => {
           <td class="border-t px-6 py-4">
             <Link v-if="canManage" :href="route('hive.modules.edit', module.id)" class="text-indigo-600 hover:text-indigo-900">
               Edit
+            </Link>
+            <Link v-if="isStudent" :href="route('hive.enrollment.destroy', module.id)" method="delete" as="button" class="text-red-600 hover:text-red-900 ml-4">
+              Deregister
             </Link>
           </td>
         </tr>

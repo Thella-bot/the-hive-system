@@ -38,6 +38,13 @@ return new class extends Migration
             $table->string('emergency_contact_relationship')->nullable();
             $table->timestamps();
         });
+
+        Schema::table('profiles', function (Blueprint $table) {
+            $table->string('profile_picture_path')->nullable()->after('profileable_id');
+            $table->string('twitter_handle')->nullable()->after('bio');
+            $table->string('linkedin_profile')->nullable()->after('twitter_handle');
+            $table->text('bio')->nullable()->change();
+        });
     }
 
     public function down(): void

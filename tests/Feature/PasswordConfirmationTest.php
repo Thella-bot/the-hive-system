@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Fortify\Features;
 use Tests\TestCase;
 
 class PasswordConfirmationTest extends TestCase
@@ -12,6 +13,11 @@ class PasswordConfirmationTest extends TestCase
 
     public function test_confirm_password_screen_can_be_rendered(): void
     {
+        // Password confirmation is enabled via twoFactorAuthentication with confirmPassword => true
+        if (! Features::enabled(Features::twoFactorAuthentication()) || ! config('fortify.views')) {
+            $this->markTestSkipped('Password confirmation view is not enabled.');
+        }
+
         $user = User::factory()->withPersonalTeam()->create();
 
         $response = $this->actingAs($user)->get('/user/confirm-password');

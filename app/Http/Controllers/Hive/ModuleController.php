@@ -11,10 +11,21 @@ use Inertia\Inertia;
 
 class ModuleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Module::class);
-        $modules = Module::with('department', 'programme')->get();
+
+        $user = $request->user();
+        $query = Module::with(['department', 'programme']);
+
+        if ($user->isStudent()) {
+            $query->whereIn('id', $user->modules()->pluck('id'));
+        } elseif ($user->hasRole('academic_staff')) {
+            $query->whereIn('id', $user->instructedModules()->pluck('id'));
+        }
+
+        $modules = $query->get();
+
         return Inertia::render('Hive/Modules/Index', ['modules' => $modules]);
     }
 

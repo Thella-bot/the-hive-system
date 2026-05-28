@@ -6,14 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('submissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assignment_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('gradable_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->string('file_path');
             $table->timestamp('submitted_at');
@@ -23,16 +20,23 @@ return new class extends Migration
             $table->timestamp('graded_at')->nullable();
             $table->foreignId('graded_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
+            $table->unique(['gradable_id', 'student_id']);
+        });
 
-            $table->unique(['assignment_id', 'student_id']);
+        Schema::create('student_grades', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('gradable_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
+            $table->decimal('marks', 5, 2);
+            $table->text('comments')->nullable();
+            $table->timestamps();
+            $table->unique(['gradable_id', 'student_id']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::dropIfExists('student_grades');
         Schema::dropIfExists('submissions');
     }
 };

@@ -24,6 +24,10 @@
                     <input type="datetime-local" v-model="form.due_date" id="due_date" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 </div>
                 <div class="mb-6">
+                    <label for="duration_minutes" class="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+                    <input type="number" v-model="form.duration_minutes" id="duration_minutes" min="0" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div class="mb-6">
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                     <textarea v-model="form.description" id="description" rows="4" class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
                 </div>
@@ -51,6 +55,7 @@ const form = useForm({
     type: '',
     module_id: '',
     due_date: '',
+    duration_minutes: '',
     description: '',
 });
 

@@ -7,6 +7,7 @@ use App\Mail\AcceptanceLetter;
 use App\Models\Application;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\IdGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -29,16 +30,32 @@ class ApplicationController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+        $filter = $request->query('filter', 'pending');
 
-        $applications = Application::with(['user', 'programme', 'variant'])
-            ->when(! $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']), function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
+        $paginatedApplications = Application::with(['user', 'programme', 'variant'])
+            ->when($filter !== 'all', fn($q) => $q->where('status', $filter))
+            ->when(! $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']), fn($q) => $q->where('user_id', $user->id))
             ->latest()
             ->paginate(12);
 
+        $applicationsArray = $paginatedApplications->toArray();
+
         return Inertia::render('Hive/Applications/Index', [
-            'applications' => $applications,
+            'applications' => [
+                'data' => $applicationsArray['data'],
+                'links' => $applicationsArray['links'],
+                'meta' => [
+                    'current_page' => $applicationsArray['current_page'],
+                    'from' => $applicationsArray['from'],
+                    'last_page' => $applicationsArray['last_page'],
+                    'path' => $applicationsArray['path'],
+                    'per_page' => $applicationsArray['per_page'],
+                    'to' => $applicationsArray['to'],
+                    'total' => $applicationsArray['total'],
+                ],
+            ],
+            'canUpdate' => $user->hasAnyRole(['super-admin', 'school-admin', 'non_academic_staff']),
+            'filter' => $filter,
         ]);
     }
 
@@ -89,18 +106,78 @@ class ApplicationController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $wasApproved = $application->status === 'approved';
+        $wasAdmitted = $application->isAdmitted();
+        $becomingAdmitted = $data['status'] === 'approved' && ! $wasAdmitted;
+        $wasNoLongerAdmitted = $wasAdmitted && $data['status'] !== 'approved';
 
-        DB::transaction(function () use ($application, $data, $wasApproved) {
+        DB::transaction(function () use ($application, $data, $becomingAdmitted, $wasNoLongerAdmitted) {
             $application->update($data);
 
-            if ($data['status'] === 'approved' && ! $wasApproved) {
+            if ($becomingAdmitted) {
+                // Set admitted_at timestamp
+                $application->forceFill(['admitted_at' => now()])->save();
+
+                // Create user account (but no modules yet - that's after registration)
                 $student = $this->ensureStudentAccount($application->fresh(['programme', 'variant', 'user']));
-                $this->sendAcceptanceWelcomePack($application->fresh(['programme', 'variant', 'user']), $student);
+                $this->sendAdmissionEmail($application->fresh(['programme', 'variant', 'user']), $student);
+            } elseif ($wasNoLongerAdmitted) {
+                // Revoke admitted status if status changes away from approved
+                $application->forceFill(['admitted_at' => null])->save();
             }
         });
 
         return redirect()->route('hive.applications.show', $application)->with('success', 'Application updated successfully.');
+    }
+
+    // Called by admin to mark registration as complete (after payment proof is verified)
+    public function completeRegistration(Request $request, Application $application): RedirectResponse
+    {
+        abort_unless($request->user()->hasAnyRole(['super-admin', 'school-admin', 'non_academic_staff']), 403);
+
+        $application->forceFill([
+            'registration_status' => 'completed',
+            'registered_at' => now(),
+            'payment_verified_at' => now(),
+        ])->save();
+
+        // Now assign modules and create student account (if not already created)
+        if ($application->user) {
+            $student = $application->user;
+        } else {
+            $student = User::firstOrCreate(
+                ['email' => $application->email],
+                [
+                    'name' => $application->name,
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                ]
+            );
+            $application->forceFill(['user_id' => $student->id])->save();
+        }
+
+        // Sync modules from programme
+        $programme = $application->programme;
+        if ($programme && $programme->modules()->exists()) {
+            $student->modules()->sync($programme->modules()->pluck('id'));
+        }
+
+        // Ensure student role
+        if (Role::where('name', 'student')->exists() && ! $student->hasRole('student')) {
+            $student->assignRole('student');
+        }
+
+        // Assign programme
+        if (Schema::hasColumn('users', 'programme_id')) {
+            $student->forceFill(['programme_id' => $application->programme_id])->save();
+        }
+
+        // Generate student number if applicable
+        if (Schema::hasColumn('users', 'student_number') && empty($student->student_number)) {
+            $student->forceFill(['student_number' => $this->generateStudentNumber($programme)])->save();
+        }
+
+        return redirect()->route('hive.applications.show', $application)
+            ->with('success', 'Registration completed. Student now has full access.');
     }
 
     private function ensureStudentAccount(Application $application): User
@@ -109,7 +186,7 @@ class ApplicationController extends Controller
             ['email' => $application->email],
             [
                 'name' => $application->name,
-                'password' => Hash::make(Str::password(32)),
+                'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ],
         );
@@ -120,28 +197,20 @@ class ApplicationController extends Controller
             $updates['name'] = $application->name;
         }
 
-        $needsModuleSync = false;
-
+        // Set programme (but DO NOT sync modules - that's done after registration is completed)
         if (Schema::hasColumn('users', 'programme_id') && ! $student->programme_id) {
             $updates['programme_id'] = $application->programme_id;
-            $needsModuleSync = true;
         }
 
         if (Schema::hasColumn('users', 'student_number') && empty($student->student_number)) {
-            $updates['student_number'] = $this->generateStudentNumber();
+            $updates['student_number'] = $this->generateStudentNumber($application->programme);
         }
 
         if ($updates) {
             $student->forceFill($updates)->save();
         }
 
-        if ($needsModuleSync) {
-            $programme = Programme::find($application->programme_id);
-            if ($programme && $programme->modules()->exists()) {
-                $student->modules()->sync($programme->modules()->pluck('id'));
-            }
-        }
-
+        // Assign student role (so they can log in and see registration page)
         if (Role::where('name', 'student')->exists() && ! $student->hasRole('student')) {
             $student->assignRole('student');
         }
@@ -153,7 +222,7 @@ class ApplicationController extends Controller
         return $student->refresh();
     }
 
-    private function sendAcceptanceWelcomePack(Application $application, User $student): void
+    private function sendAdmissionEmail(Application $application, User $student): void
     {
         $token = Password::createToken($student);
         $passwordResetUrl = url(route('password.reset', [
@@ -164,15 +233,10 @@ class ApplicationController extends Controller
         Mail::to($student->email)->send(new AcceptanceLetter($application, $student, $passwordResetUrl));
     }
 
-    private function generateStudentNumber(): string
+    private function generateStudentNumber(?Programme $programme): string
     {
-        $prefix = 'HBCI' . now()->format('Y');
-        $lastNumber = User::query()
-            ->where('student_number', 'like', $prefix . '%')
-            ->max('student_number');
+        $departmentId = $programme?->department_id ?? 0;
 
-        $sequence = $lastNumber ? ((int) substr($lastNumber, strlen($prefix))) + 1 : 1;
-
-        return $prefix . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+        return IdGenerator::generateStudentId($departmentId);
     }
 }

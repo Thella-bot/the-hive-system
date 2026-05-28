@@ -1,7 +1,7 @@
 <template>
-  <div v-if="links.length > 3" class="flex items-center justify-between mt-6">
+  <div v-if="links?.length > 3" class="flex items-center justify-between mt-6">
     <p class="text-sm text-gray-500">
-      Showing {{ meta.from }}–{{ meta.to }} of {{ meta.total }} results
+      Showing {{ meta?.from ?? 1 }}–{{ meta?.to ?? 0 }} of {{ meta?.total ?? 0 }} results
     </p>
     <div class="flex items-center gap-1">
       <template v-for="link in links" :key="link.label">
@@ -30,6 +30,6 @@ import { Link } from '@inertiajs/vue3'
 
 defineProps({
   links: { type: Array, required: true },
-  meta:  { type: Object, required: true },
+  meta:  { type: Object, default: () => ({}) },
 })
 </script>

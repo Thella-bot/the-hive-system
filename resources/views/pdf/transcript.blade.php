@@ -125,7 +125,7 @@
             </tr>
             <tr>
                 <td class="label">Student ID:</td>
-                <td>{{ $student->id }}</td>
+                <td>{{ $student->student_number ?? $student->id }}</td>
             </tr>
             <tr>
                 <td class="label">Date Issued:</td>
@@ -148,20 +148,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($module->gradeItems as $item)
+                    @forelse ($module->gradables as $gradable)
                         <tr>
-                            <td>{{ $item->name }}</td>
+                            <td>{{ $gradable->title }}</td>
                             <td>
                                 @php
-                                    $studentGrade = $item->studentGrades->first();
+                                    $submission = $gradable->submissions->first();
                                 @endphp
-                                {{ $studentGrade ? $studentGrade->marks . ' / ' . $item->max_marks : 'N/A' }}
+                                {{ $submission && $submission->grade !== null ? $submission->grade . ' / ' . $gradable->max_marks : 'N/A' }}
                             </td>
-                            <td>{{ $item->weight * 100 }}%</td>
+                            <td>{{ $gradable->weight * 100 }}%</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="no-grades">No grade items recorded for this module.</td>
+                            <td colspan="3" class="no-grades">No assessments recorded for this module.</td>
                         </tr>
                     @endforelse
                 </tbody>

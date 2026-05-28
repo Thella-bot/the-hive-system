@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('gradables', function (Blueprint $table) {
@@ -19,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->timestamp('due_date')->nullable();
+            $table->unsignedInteger('duration_minutes')->nullable();
             $table->unsignedInteger('max_file_size')->nullable();
             $table->string('allowed_types')->nullable();
             $table->unsignedInteger('max_marks')->nullable();
@@ -27,9 +25,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('gradables');

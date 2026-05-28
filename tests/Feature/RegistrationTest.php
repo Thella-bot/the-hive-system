@@ -13,8 +13,8 @@ class RegistrationTest extends TestCase
 
     public function test_registration_screen_can_be_rendered(): void
     {
-        if (! Features::enabled(Features::registration())) {
-            $this->markTestSkipped('Registration support is not enabled.');
+        if (! Features::enabled(Features::registration()) || ! config('fortify.views')) {
+            $this->markTestSkipped('Registration view is not enabled (Fortify views disabled).');
         }
 
         $response = $this->get('/register');

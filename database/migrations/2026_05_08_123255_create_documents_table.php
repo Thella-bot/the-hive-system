@@ -16,12 +16,24 @@ return new class extends Migration
             $table->json('visible_to_roles')->nullable();
             $table->boolean('is_published')->default(false);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('module_id')->nullable()->after('created_by')->constrained('modules')->cascadeOnDelete();
             $table->timestamps();
+        });
+
+        Schema::create('document_versions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('document_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('version_number');
+            $table->string('file_path');
+            $table->foreignId('uploaded_by')->constrained('users')->cascadeOnDelete();
+            $table->timestamps();
+            $table->unique(['document_id', 'version_number']);
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('document_versions');
         Schema::dropIfExists('documents');
     }
 };

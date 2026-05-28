@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Programme;
 use App\Models\Department;
+use App\Models\ProgrammeVariant;
+use App\Models\Module;
 use Illuminate\Support\Facades\Schema;
 
 class ProgrammeSeeder extends Seeder
@@ -107,7 +109,95 @@ class ProgrammeSeeder extends Seeder
                 unset($programme['uniform_fee']);
             }
 
-            Programme::updateOrCreate($programme);
+            $created = Programme::updateOrCreate($programme);
+
+            // 4. Create default variants for each programme
+            $variants = [
+                [
+                    'label' => 'Full Programme',
+                    'duration' => $created->duration,
+                    'total_price' => $created->total_price,
+                    'monthly_fee' => $created->monthly_fee,
+                    'is_active' => true,
+                ],
+            ];
+
+            // Add installment variant for paid programmes
+            if ($created->total_price > 0) {
+                $variants[] = [
+                    'label' => 'Monthly Installments',
+                    'duration' => $created->duration,
+                    'total_price' => $created->total_price,
+                    'monthly_fee' => max(500, $created->monthly_fee),
+                    'is_active' => true,
+                ];
+            }
+
+            foreach ($variants as $variant) {
+                ProgrammeVariant::firstOrCreate([
+                    'programme_id' => $created->id,
+                    'label' => $variant['label'],
+                ], $variant);
+            }
+
+            // Seed default modules for each programme
+            $this->seedProgrammeModules($created);
+        }
+    }
+
+    private function seedProgrammeModules(Programme $programme): void
+    {
+        if ($programme->modules()->exists()) {
+            return; // Skip if modules already exist
+        }
+
+        $department = $programme->department;
+        if (! $department) {
+            return;
+        }
+
+        $moduleTemplates = [
+            'hospitality-management' => [
+                ['code' => 'HM101', 'name' => 'Introduction to Hospitality', 'description' => 'Foundations of hospitality management'],
+                ['code' => 'HM102', 'name' => 'Front Office Operations', 'description' => 'Hotel front office management'],
+                ['code' => 'HM103', 'name' => 'Food & Beverage Management', 'description' => 'Managing food and beverage operations'],
+                ['code' => 'HM104', 'name' => 'Housekeeping Operations', 'description' => 'Hotel housekeeping management'],
+            ],
+            'patisseries' => [
+                ['code' => 'PB101', 'name' => 'Introduction to Baking', 'description' => 'Fundamentals of baking and pastry'],
+                ['code' => 'PB102', 'name' => 'Breads and Doughs', 'description' => 'Artisan bread making'],
+                ['code' => 'PB103', 'name' => 'Cakes and Decorations', 'description' => 'Cake decorating techniques'],
+                ['code' => 'PB104', 'name' => 'Chocolate and Confectionery', 'description' => 'Chocolate work and confectionery'],
+            ],
+            'contemporary-gastronomy' => [
+                ['code' => 'CG101', 'name' => 'Introduction to Culinary Arts', 'description' => 'Fundamentals of cooking'],
+                ['code' => 'CG102', 'name' => 'Food Safety & Hygiene', 'description' => 'HACCP and food safety'],
+                ['code' => 'CG103', 'name' => 'Baking & Patisserie Basics', 'description' => 'Introduction to baking'],
+                ['code' => 'CG104', 'name' => 'Global Cuisines', 'description' => 'Culinary traditions worldwide'],
+            ],
+            'global-cuisines' => [
+                ['code' => 'GC101', 'name' => 'Culinary Foundations', 'description' => 'Basic culinary techniques'],
+                ['code' => 'GC102', 'name' => 'Knife Skills', 'description' => 'Professional knife skills'],
+                ['code' => 'GC103', 'name' => 'Stocks, Sauces and Soups', 'description' => 'Classical stocks and sauces'],
+                ['code' => 'GC104', 'name' => 'Global Cuisines', 'description' => 'International culinary traditions'],
+                ['code' => 'GC105', 'name' => 'Kitchen Operations', 'description' => 'Commercial kitchen management'],
+            ],
+        ];
+
+        $slug = $department->slug;
+        $modules = $moduleTemplates[$slug] ?? [];
+
+        foreach ($modules as $index => $moduleData) {
+            $code = $moduleData['code'];
+            Module::firstOrCreate(
+                ['code' => $code],
+                [
+                    'name' => $moduleData['name'],
+                    'description' => $moduleData['description'],
+                    'programme_id' => $programme->id,
+                    'department_id' => $department->id,
+                ]
+            );
         }
     }
 }

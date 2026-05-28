@@ -3,6 +3,7 @@
 namespace App\Actions\Hive;
 
 use App\Models\User;
+use App\Services\IdGenerator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -28,16 +29,25 @@ class CreateNewStaff
                 Rule::unique(User::class),
             ],
             'role_id' => ['required', 'exists:roles,id'],
+            'department_id' => ['nullable', 'exists:departments,id'],
         ])->validate();
 
         $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
-            'password' => Hash::make('password'), // Default password
+            'password' => Hash::make('password'),
         ]);
 
         $role = Role::findById($input['role_id']);
         $user->assignRole($role);
+
+        if (!empty($input['department_id'])) {
+            $employeeId = IdGenerator::generateEmployeeId($input['department_id']);
+            $user->profile()->create([
+                'employee_number' => $employeeId,
+                'department_id' => $input['department_id'],
+            ]);
+        }
 
         return $user;
     }

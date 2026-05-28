@@ -14,3 +14,4 @@ class StudentDashboard extends Component
         return view('livewire.student-dashboard', $data);
     }
 }
+

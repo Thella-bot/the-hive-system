@@ -31,6 +31,16 @@
               </span>
             </div>
             <div>
+              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Admitted</h3>
+              <p class="text-gray-900">{{ application.admitted_at ? new Date(application.admitted_at).toLocaleDateString() : '—' }}</p>
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Registration</h3>
+              <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full" :class="registrationStatusClass(application.registration_status)">
+                {{ application.registration_status || 'pending' }}
+              </span>
+            </div>
+            <div>
               <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Applied On</h3>
               <p class="text-gray-900">{{ new Date(application.created_at).toLocaleDateString() }}</p>
             </div>
@@ -38,6 +48,50 @@
               <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Notes</h3>
               <p class="text-gray-700 text-sm">{{ application.notes }}</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registration Status (for admitted) -->
+      <div v-if="application.admitted_at" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+          <h2 class="text-lg font-semibold text-gray-900">Registration</h2>
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Status</h3>
+              <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full" :class="registrationStatusClass(application.registration_status)">
+                {{ application.registration_status || 'pending' }}
+              </span>
+            </div>
+            <div v-if="application.registered_at">
+              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Completed On</h3>
+              <p class="text-gray-900">{{ new Date(application.registered_at).toLocaleDateString() }}</p>
+            </div>
+            <div v-if="application.payment_verified_at">
+              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Payment Verified</h3>
+              <p class="text-gray-900">{{ new Date(application.payment_verified_at).toLocaleDateString() }}</p>
+            </div>
+          </div>
+
+          <!-- Payment proof -->
+          <div v-if="application.payment_proof_path" class="p-4 bg-gray-50 rounded-lg">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Payment Proof</h3>
+            <a :href="'/storage/' + application.payment_proof_path" target="_blank"
+              class="inline-flex items-center gap-2 text-sm text-amber-600 hover:text-amber-700 font-medium">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              View Payment Proof
+            </a>
+          </div>
+
+          <!-- Admin complete registration -->
+          <div v-if="canUpdate && application.registration_status !== 'completed'" class="pt-4 border-t border-gray-100">
+            <p class="text-sm text-gray-500 mb-3">Once payment proof is verified, complete the registration to grant full student access.</p>
+            <button @click="completeRegistration"
+              class="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition">
+              Complete Registration
+            </button>
           </div>
         </div>
       </div>
@@ -80,7 +134,7 @@
 <script setup>
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, router } from '@inertiajs/vue3';
 
 const props = defineProps({
   application: Object,
@@ -102,12 +156,27 @@ const submit = () => {
   form.patch(route('hive.applications.update', props.application.id));
 };
 
+const completeRegistration = () => {
+  if (confirm('Complete registration for this student? They will gain full access to modules.')) {
+    router.post(route('hive.applications.complete-registration', props.application.id));
+  }
+};
+
 const statusClass = (status) => {
   switch (status) {
     case 'pending': return 'bg-yellow-100 text-yellow-800';
     case 'approved': return 'bg-green-100 text-green-800';
     case 'rejected': return 'bg-red-100 text-red-800';
     default: return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const registrationStatusClass = (status) => {
+  switch (status) {
+    case 'completed': return 'bg-emerald-100 text-emerald-800';
+    case 'submitted': return 'bg-blue-100 text-blue-800';
+    case 'pending': return 'bg-gray-100 text-gray-600';
+    default: return 'bg-gray-100 text-gray-600';
   }
 };
 </script>

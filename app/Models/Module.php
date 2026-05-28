@@ -21,4 +21,8 @@ class Module extends Model
     public function instructors() {
     return $this->belongsToMany(User::class, 'module_instructor');
     }
+    public function gradables()
+    {
+        return $this->hasMany(Gradable::class);
+    }
 }

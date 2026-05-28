@@ -59,6 +59,7 @@ class InstructorDashboardData implements DashboardData
 
             // Class Performance Snapshot
             'classAverage' => $this->calculateClassAverage($user),
+            'classAverages' => $this->getClassAverages($user),
         ];
     }
 
@@ -67,5 +68,17 @@ class InstructorDashboardData implements DashboardData
         return Submission::whereHas('gradable', fn($q) => $q->where('instructor_id', $user->id))
             ->whereNotNull('grade')
             ->avg('grade');
+    }
+
+    private function getClassAverages(User $user)
+    {
+        return Submission::query()
+            ->join('gradables', 'submissions.gradable_id', '=', 'gradables.id')
+            ->join('modules', 'gradables.module_id', '=', 'modules.id')
+            ->where('gradables.instructor_id', $user->id)
+            ->whereNotNull('submissions.grade')
+            ->select('modules.name', \DB::raw('AVG(submissions.grade) as average_grade'))
+            ->groupBy('modules.name')
+            ->pluck('average_grade', 'modules.name');
     }
 }

@@ -212,17 +212,12 @@ class UserController extends Controller
 
     private function generateUniqueNumber(bool $isStudent, ?int $departmentId): string
     {
-        // Use '00' as a placeholder if department ID is not available.
-        $departmentCode = str_pad($departmentId ?? 0, 2, '0', STR_PAD_LEFT);
+        if (!$departmentId) {
+            $departmentId = 0;
+        }
 
-        $prefix = ($isStudent ? 'S' : 'E') . date('y') . $departmentCode;
-        $column = $isStudent ? 'student_number' : 'employee_number';
-
-        do {
-            // Generate a 4-digit random number
-            $number = $prefix . str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
-        } while (Profile::where($column, $number)->exists());
-
-        return $number;
+        return $isStudent
+            ? \App\Services\IdGenerator::generateStudentId($departmentId)
+            : \App\Services\IdGenerator::generateEmployeeId($departmentId);
     }
 }

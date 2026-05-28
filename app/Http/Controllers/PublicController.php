@@ -72,6 +72,7 @@ class PublicController extends Controller
     {
         $programmes = Programme::with(['variants' => fn($q) => $q->where('is_active', true)])
             ->whereHas('variants', fn($q) => $q->where('is_active', true))
+            ->where('name', '!=', 'Short Courses and Cooking Sessions')
             ->get();
 
         return Inertia::render('Public/Apply', [

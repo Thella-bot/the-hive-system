@@ -19,6 +19,7 @@ class Gradable extends Model
         'title',
         'description',
         'due_date',
+        'duration_minutes',
         'max_file_size',
         'allowed_types',
         'max_marks',

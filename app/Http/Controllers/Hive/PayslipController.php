@@ -317,7 +317,7 @@ class PayslipController extends Controller
                     'gross_salary' => $grossSalary,
                     'deductions' => $totalDeductions,
                     'net_salary' => $netSalary,
-                    'earnings' => $eardings,
+                    'earnings' => $earnings,
                     'deductions_breakdown' => $deductionsBreakdown,
                     'leave_deducted' => $leaveDetail['deduction'],
                     'leave_days_taken' => $leaveDetail['days_taken'],

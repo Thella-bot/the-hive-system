@@ -17,6 +17,9 @@ class StudentDashboardData implements DashboardData
         $moduleIds = DB::table('module_user')->where('user_id', $user->id)->pluck('module_id')->toArray();
 
         return [
+            // Student's Program
+            'programme' => $user->programme ? $user->programme()->with('modules')->first() : null,
+
             // Student Stats
             'totalModules' => count($moduleIds),
             'totalSubmissions' => Submission::where('student_id', $user->id)->count(),
@@ -26,24 +29,7 @@ class StudentDashboardData implements DashboardData
                 ->count(),
 
             // Upcoming Assessments
-            'upcomingAssessments' => count($moduleIds) > 0
-                ? Gradable::whereIn('module_id', $moduleIds)
-                    ->where('due_date', '>', now())
-                    ->orderBy('due_date')
-                    ->with('module')
-                    ->take(5)
-                    ->get()
-                : collect(),
-
-            // Due Soon (within 7 days)
-            'dueSoon' => count($moduleIds) > 0
-                ? Gradable::whereIn('module_id', $moduleIds)
-                    ->whereBetween('due_date', [now(), now()->addDays(7)])
-                    ->orderBy('due_date')
-                    ->with('module')
-                    ->take(5)
-                    ->get()
-                : collect(),
+            'upcomingAssessments' => $this->getUpcomingAssessments($moduleIds),
 
             // Recent Grades
             'recentGrades' => Submission::where('student_id', $user->id)
@@ -68,8 +54,8 @@ class StudentDashboardData implements DashboardData
                 ->get(),
 
             // Upcoming Events
-            'upcomingEvents' => Event::where('start_date', '>', now())
-                ->orderBy('start_date')
+            'upcomingEvents' => Event::where('start', '>', now())
+                ->orderBy('start')
                 ->take(5)
                 ->get(),
 
@@ -77,6 +63,26 @@ class StudentDashboardData implements DashboardData
             'averageGrade' => $this->calculateAverageGrade($user),
             'completedModules' => $this->getCompletedModulesCount($user, $moduleIds),
         ];
+    }
+
+private function getUpcomingAssessments(array $moduleIds)
+    {
+        if (empty($moduleIds)) {
+            return collect();
+        }
+
+        $assessments = Gradable::whereIn('module_id', $moduleIds)
+            ->where('due_date', '>', now())
+            ->orderBy('due_date')
+            ->with('module')
+            ->take(5)
+            ->get();
+
+        $assessments->each(function ($assessment) {
+            $assessment->is_due_soon = $assessment->due_date->isBefore(now()->addDays(7));
+        });
+
+        return $assessments;
     }
 
     private function calculateAverageGrade(User $user)
@@ -94,13 +100,9 @@ class StudentDashboardData implements DashboardData
             return 0;
         }
 
-        return DB::table('modules')
-            ->join('gradables', 'modules.id', '=', 'gradables.module_id')
-            ->join('submissions', 'gradables.id', '=', 'submissions.gradable_id')
-            ->where('submissions.student_id', $user->id)
-            ->where('submissions.grade', '>=', 0)
-            ->whereIn('modules.id', $moduleIds)
-            ->distinct('modules.id')
-            ->count('modules.id');
+        return Gradable::whereIn('module_id', $moduleIds)
+            ->whereHas('submissions', fn($q) => $q->where('student_id', $user->id)->whereNotNull('grade'))
+            ->distinct('module_id')
+            ->count('module_id');
     }
 }

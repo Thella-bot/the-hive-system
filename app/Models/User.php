@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -92,6 +93,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Module::class, 'module_user');
     }
 
+    public function programme(): BelongsTo
+    {
+        return $this->belongsTo(Programme::class);
+    }
+
     public function instructedModules(): BelongsToMany
     {
         return $this->belongsToMany(Module::class, 'module_instructor', 'user_id', 'module_id');
@@ -107,6 +113,23 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->hasRole('student');
+    }
+
+    public function needsRegistration(): bool
+    {
+        return $this->applications()
+            ->where('status', 'approved')
+            ->whereNotNull('admitted_at')
+            ->where(function ($q) {
+                $q->where('registration_status', '!=', 'completed')
+                    ->orWhereNull('registration_status');
+            })
+            ->exists();
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(\App\Models\Application::class);
     }
 
     public function getTypeAttribute(): string

@@ -19,7 +19,55 @@ class Application extends Model
         'variant_id',
         'status',
         'notes',
+        'admitted_at',
+        'registration_status',
+        'registered_at',
+        'payment_proof_path',
+        'payment_verified_at',
+        'registration_notes',
     ];
+
+    protected $casts = [
+        'admitted_at' => 'datetime',
+        'registered_at' => 'datetime',
+        'payment_verified_at' => 'datetime',
+    ];
+
+    // --- Admission ---
+
+    public function isAdmitted(): bool
+    {
+        return $this->status === 'approved' && $this->admitted_at !== null;
+    }
+
+    // --- Registration ---
+
+    public function isRegistrationPending(): bool
+    {
+        return $this->isAdmitted() && $this->registration_status === 'pending';
+    }
+
+    public function isRegistrationSubmitted(): bool
+    {
+        return $this->registration_status === 'submitted';
+    }
+
+    public function isRegistrationCompleted(): bool
+    {
+        return $this->registration_status === 'completed';
+    }
+
+    public function isRegistered(): bool
+    {
+        return $this->isRegistrationCompleted();
+    }
+
+    public function needsRegistration(): bool
+    {
+        return $this->isAdmitted() && ! $this->isRegistered() && ! $this->isRegistrationSubmitted();
+    }
+
+    // --- Relationships ---
 
     public function user(): BelongsTo
     {

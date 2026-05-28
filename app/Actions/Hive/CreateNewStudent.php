@@ -48,9 +48,11 @@ class CreateNewStudent
                 $user->modules()->sync($moduleIds);
 
                 // Create profile with a student number
-                $department = $programme->modules->first()->department ?? null;
+                $department = $programme->department
+                    ?? $programme->modules->first()?->department
+                    ?? null;
                 if ($department) {
-                    $studentId = IdGenerator::generate('student', $department->id);
+                    $studentId = IdGenerator::generateStudentId($department->id);
                     $user->profile()->create(['student_number' => $studentId]);
                 }
             }

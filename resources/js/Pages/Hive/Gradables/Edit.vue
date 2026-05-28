@@ -62,6 +62,17 @@
                     <p v-if="errors.due_date" class="mt-1 text-sm text-red-600">{{ errors.due_date }}</p>
                 </div>
 
+                <div class="mb-6">
+                    <label for="duration_minutes" class="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+                    <input
+                        type="number"
+                        v-model="form.duration_minutes"
+                        id="duration_minutes"
+                        min="0"
+                        class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                    />
+                </div>
+
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
                         <label for="max_marks" class="block text-sm font-medium text-gray-700 mb-2">Max Marks</label>
@@ -133,6 +144,7 @@ const form = useForm({
     type: props.gradable.type instanceof Object ? props.gradable.type.value : props.gradable.type,
     module_id: props.gradable.module_id,
     due_date: props.gradable.due_date ? props.gradable.due_date.slice(0, 16) : '',
+    duration_minutes: props.gradable.duration_minutes || '',
     description: props.gradable.description || '',
     max_marks: props.gradable.max_marks || '',
     weight: props.gradable.weight || '',

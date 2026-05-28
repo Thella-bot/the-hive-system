@@ -125,6 +125,14 @@
               <BookOpenIcon class="h-5 w-5 text-amber-600 mr-3"/>
               <span class="text-sm font-medium">Create Assessment</span>
             </Link>
+            <Link v-if="isSuperAdmin" :href="route('log-viewer')" target="_blank" class="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition">
+              <RectangleStackIcon class="h-5 w-5 text-orange-600 mr-3"/>
+              <span class="text-sm font-medium">View System Logs</span>
+            </Link>
+            <Link v-if="isSuperAdmin" :href="route('hive.admin.approve-users')" class="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition">
+              <UsersIcon class="h-5 w-5 text-orange-600 mr-3"/>
+              <span class="text-sm font-medium">Pending Approvals</span>
+            </Link>
           </div>
         </div>
 
@@ -146,6 +154,15 @@
           </div>
           <p v-else class="text-gray-500 text-sm">No recent activity</p>
         </div>
+      </div>
+
+      <div class="mt-8 bg-white p-6 rounded-xl shadow-sm">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">User Distribution</h3>
+        <UserDistributionChart 
+            :totalStudents="totalStudents"
+            :totalInstructors="totalInstructors"
+            :totalStaff="totalStaff"
+        />
       </div>
     </div>
 
@@ -171,7 +188,7 @@
               <UsersIcon class="h-5 w-5 text-white"/>
             </div>
             <div class="ml-3">
-              <p class="text-2xl font-bold text-orange-700">{{ totalStudents || 0 }}</p>
+              <p class="text-2xl font-bold text-orange-700">{{ myStudents || 0 }}</p>
               <p class="text-xs text-orange-600">Students</p>
             </div>
           </div>
@@ -212,6 +229,74 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Data Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Upcoming Assessments -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Upcoming Assessments</h3>
+            <Link :href="route('hive.gradables.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">View all</Link>
+          </div>
+          <div v-if="upcomingAssessments && upcomingAssessments.length" class="space-y-3">
+            <div v-for="assessment in upcomingAssessments" :key="assessment.id" class="p-3 bg-gray-50 rounded-lg">
+              <p class="font-medium text-gray-800 text-sm">{{ assessment.title }}</p>
+              <p class="text-xs text-gray-500">{{ assessment.module.name }} - Due: {{ formatDate(assessment.due_date) }}</p>
+            </div>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4">No upcoming assessments.</p>
+        </div>
+
+        <!-- Recent Grades -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Recent Grades</h3>
+            <Link :href="route('hive.grades.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">View all</Link>
+          </div>
+          <div v-if="recentGrades && recentGrades.length" class="space-y-3">
+            <div v-for="submission in recentGrades" :key="submission.id" class="p-3 bg-gray-50 rounded-lg">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-medium text-gray-800 text-sm">{{ submission.gradable.title }}</p>
+                  <p class="text-xs text-gray-500">{{ submission.gradable.module.name }}</p>
+                </div>
+                <span class="font-bold text-gray-800">{{ submission.grade }}%</span>
+              </div>
+            </div>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4">No recent grades.</p>
+        </div>
+
+        <!-- My Modules -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">My Modules</h3>
+            <Link :href="route('hive.modules.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">View all</Link>
+          </div>
+          <div v-if="programme && programme.modules.length" class="space-y-3">
+            <Link v-for="module in programme.modules" :key="module.id" :href="route('hive.modules.show', module.id)" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
+              <p class="font-medium text-gray-800 text-sm">{{ module.name }}</p>
+              <p class="text-xs text-gray-500">{{ module.code }}</p>
+            </Link>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4">You are not enrolled in any modules.</p>
+        </div>
+      </div>
+
+      <!-- Announcements -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Latest Announcements</h3>
+          <Link :href="route('hive.announcements.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">View all</Link>
+        </div>
+        <div v-if="announcements && announcements.length" class="space-y-3">
+          <div v-for="announcement in announcements" :key="announcement.id" class="p-3 bg-gray-50 rounded-lg">
+            <p class="font-medium text-gray-800 text-sm">{{ announcement.title }}</p>
+            <p class="text-xs text-gray-500">{{ formatDate(announcement.created_at) }}</p>
+          </div>
+        </div>
+        <p v-else class="text-gray-500 text-sm text-center py-4">No recent announcements.</p>
       </div>
 
       <!-- Two Columns: Submissions + Upcoming -->
@@ -325,6 +410,12 @@
           <ChartBarIcon class="h-5 w-5 mr-2 text-amber-600"/>Full Gradebook
         </Link>
       </div>
+
+      <!-- Class Averages Chart -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Class Averages</h3>
+        <ClassAveragesChart :classAverages="classAverages" />
+      </div>
     </div>
 
     <!-- Non-Academic Staff Dashboard -->
@@ -377,6 +468,12 @@
             </div>
           </div>
         </Link>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Leave Requests Overview</h3>
+        <LeaveRequestsChart v-if="leaveRequestsByType" :leave-requests-by-type="leaveRequestsByType" />
+        <p v-else class="text-gray-500 text-sm py-4 text-center">No leave request data available.</p>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -470,7 +567,7 @@
     <!-- Student Dashboard -->
     <div v-if="isStudent" class="space-y-6">
       <!-- Stats Row -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-xl">
           <div class="flex items-center">
             <div class="p-3 bg-amber-600 rounded-lg">
@@ -507,17 +604,29 @@
           </div>
         </div>
 
-        <Link :href="route('hive.transcript.download', { student: currentUser.id })" class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl block hover:shadow-lg transition-shadow">
+        <a :href="route('hive.transcript.download', { student: currentUser.id })" download class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl block hover:shadow-lg transition-shadow">
           <div class="flex items-center">
-            <div class="p-3 bg-orange-600 rounded-lg">
+            <div class="p-3 bg-green-600 rounded-lg">
               <DocumentIcon class="h-6 w-6 text-white"/>
             </div>
             <div class="ml-4">
-              <p class="text-lg font-bold text-orange-700">Transcript</p>
-              <p class="text-sm text-orange-600">Download PDF</p>
+              <p class="text-lg font-bold text-green-700">Transcript</p>
+              <p class="text-sm text-green-600">Download PDF</p>
             </div>
           </div>
-        </Link>
+        </a>
+
+        <a :href="route('hive.registration.proof')" download class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl block hover:shadow-lg transition-shadow">
+          <div class="flex items-center">
+            <div class="p-3 bg-green-600 rounded-lg">
+              <ClipboardDocumentCheckIcon class="h-6 w-6 text-white"/>
+            </div>
+            <div class="ml-4">
+              <p class="text-lg font-bold text-green-700">Registration</p>
+              <p class="text-sm text-green-600">Proof of Reg.</p>
+            </div>
+          </div>
+        </a>
       </div>
 
       <!-- Main Content -->
@@ -579,7 +688,7 @@
             <div class="space-y-3">
               <div v-for="e in upcomingEvents.slice(0, 3)" :key="e.id" class="p-3 bg-amber-50 rounded-lg">
                 <p class="font-medium text-gray-800 text-sm">{{ e.title }}</p>
-                <p class="text-xs text-gray-500 mt-1">{{ formatDate(e.start_date) }}</p>
+                <p class="text-xs text-gray-500 mt-1">{{ formatDate(e.start) }}</p>
               </div>
             </div>
           </div>
@@ -593,6 +702,9 @@
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import LeaveRequestsChart from './LeaveRequestsChart.vue';
+import ClassAveragesChart from './ClassAveragesChart.vue';
+import UserDistributionChart from './UserDistributionChart.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
@@ -634,7 +746,7 @@ const props = defineProps({
 
     // Instructor
     myModulesCount: Number,
-    totalStudents: Number,
+    myStudents: Number,
     totalAssessments: Number,
     upcomingAssessments: {
         type: Array,
@@ -643,8 +755,10 @@ const props = defineProps({
     recentlyGraded: Array,
     recentDocuments: Array,
     classAverage: Number,
+    classAverages: Object,
 
     // Non-academic staff
+    leaveRequestsByType: Object,
     staffLeaveBalance: Number,
     staffPendingLeaveRequests: Number,
     staffApprovedLeaveRequests: Number,
@@ -660,8 +774,14 @@ const props = defineProps({
     pendingSubmissions: Number,
     averageGrade: Number,
     completedModules: Number,
-    upcomingEvents: Array,
-    pendingSubmissionsList: Array,
+    upcomingEvents: {
+        type: Array,
+        default: () => [],
+    },
+    pendingSubmissionsList: {
+        type: Array,
+        default: () => [],
+    },
 
     // Common
     recentGrades: {

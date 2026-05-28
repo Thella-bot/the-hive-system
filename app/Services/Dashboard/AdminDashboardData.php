@@ -61,6 +61,24 @@ class AdminDashboardData implements DashboardData
             'pendingGrades' => Submission::whereNull('grade')
                 ->whereNotNull('submitted_at')
                 ->count(),
+            'newStudentsByMonth' => $this->getNewStudentsByMonth(),
         ];
+    }
+
+    private function getNewStudentsByMonth()
+    {
+        $students = User::role('student')
+            ->whereYear('created_at', now()->year)
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
+
+        $months = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $months[Carbon::create(null, $i)->format('F')] = $students[$i] ?? 0;
+        }
+
+        return $months;
     }
 }

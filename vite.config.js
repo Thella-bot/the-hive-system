@@ -24,6 +24,13 @@ export default defineConfig({
         },
     },
     server: {
+        host: 'localhost',
+        port: 5173,
+        cors: {
+            origin: '*',
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-XSRF-TOKEN'],
+        },
         watch: {
             ignored: [
                 "**/.idea/**",

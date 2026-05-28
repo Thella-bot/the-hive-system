@@ -21,14 +21,14 @@ You have been admitted to **Honey Bee Culinary Institute**. Welcome to The Hive.
 
 ## Your Welcome Pack
 
-Your attached acceptance letter confirms your admission. Please keep it for registration and onboarding.
+Your attached acceptance letter confirms your admission to {{ $application->programme?->name ?? 'your selected programme' }}. Please keep it for your records.
 
 Your next steps:
 
-1. Set your password and log in to The Hive.
-2. Review your profile details.
-3. Watch for orientation, registration, uniform, fees, and timetable updates from the institute.
-4. Bring your acceptance letter and identification when requested by Admissions.
+1. **Set your password** and log in to The Hive using the button below.
+2. **Complete your registration** — upload your proof of payment to finalise your enrollment.
+3. Once your registration is verified, you'll receive full access to your modules and learning materials.
+4. Watch for orientation, uniform collection, and timetable updates from the institute.
 
 <x-mail::button :url="$passwordResetUrl">
 Set Password & Access The Hive

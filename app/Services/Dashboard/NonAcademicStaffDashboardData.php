@@ -62,6 +62,17 @@ class NonAcademicStaffDashboardData implements DashboardData
                 ->orderBy('start')
                 ->take(5)
                 ->get(),
+            'leaveRequestsByType' => $this->getLeaveRequestsByType(),
         ];
+    }
+
+    private function getLeaveRequestsByType()
+    {
+        return LeaveRequest::query()
+            ->where('status', 'pending')
+            ->selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->pluck('count', 'type')
+            ->toArray();
     }
 }

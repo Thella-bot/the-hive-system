@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Submission extends Model
 {
+    protected $table = 'submissions';
     protected $fillable = ['gradable_id', 'student_id', 'file_path', 'submitted_at', 'is_late', 'grade', 'feedback', 'graded_at', 'graded_by'];
     protected $casts = [
         'submitted_at' => 'datetime',

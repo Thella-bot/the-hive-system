@@ -11,8 +11,10 @@ class ApplicationPolicy extends BasePolicy
 
     public function view(User $user, Application $application)
     {
-        // Own application or admin can view
+        // Own application by user_id or email
         if ($user->id === $application->user_id) return true;
+        if ($user->email === $application->email) return true;
+        if ($user->can('view-applications')) return true;
         return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']);
     }
 
@@ -20,8 +22,8 @@ class ApplicationPolicy extends BasePolicy
 
     public function update(User $user, Application $application)
     {
-        // Admins and school-admin can update status/notes
-        if ($user->hasAnyRole(['super-admin', 'school-admin'])) return true;
+        // All admin roles can update status/notes
+        if ($user->hasAnyRole(['super-admin', 'school-admin', 'non_academic_staff'])) return true;
         return false;
     }
 

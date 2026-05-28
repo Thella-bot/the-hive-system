@@ -25,7 +25,7 @@ use App\Http\Controllers\Hive\StaffController;
 use App\Http\Controllers\Hive\StudentController;
 use App\Http\Controllers\Hive\SubmissionController;
 use App\Http\Controllers\Hive\ChatController;
-use App\Http\Controllers\Hive\TestController;
+use App\Http\Controllers\Hive\RegistrationController;
 use App\Http\Controllers\Hive\TranscriptController;
 use App\Http\Controllers\Hive\UserController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +41,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             Route::post('approve-users/{user}', [UserApprovalController::class, 'approve'])->name('approve-users.approve');
             Route::get('import-users', [ImportUsersController::class, 'show'])->name('import-users');
             Route::post('import-users', [ImportUsersController::class, 'import'])->name('import-users.store');
+
+            // Log Viewer
+            Route::get('logs', fn() => redirect('/log-viewer'))->name('logs');
         });
 
         Route::resource('users', UserController::class)->middleware('role:super-admin|school-admin');
@@ -50,8 +53,15 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         Route::resource('announcements', AnnouncementController::class)->except(['show']);
         Route::resource('applications', ApplicationController::class)->except(['create', 'destroy']);
-        Route::get('documents/modules', [DocumentController::class, 'moduleSelect'])->name('documents.module-select');
+        Route::post('applications/{application}/complete-registration', [ApplicationController::class, 'completeRegistration'])->name('applications.complete-registration');
+
+        // Registration (for admitted students)
+        Route::get('registration', [RegistrationController::class, 'index'])->name('registration.index');
+        Route::post('registration', [RegistrationController::class, 'store'])->name('registration.store');
+        Route::patch('registration/{application}', [RegistrationController::class, 'update'])->name('registration.update')->middleware('role:super-admin|school-admin|non_academic_staff');
+        Route::get('registration/proof', [RegistrationController::class, 'downloadProof'])->name('registration.proof')->middleware('registered');
         Route::resource('documents', DocumentController::class)->only(['index', 'create', 'store', 'show']);
+        Route::get('documents/modules', [DocumentController::class, 'moduleSelect'])->name('documents.module-select');
         Route::post('documents/{document}/versions', [DocumentController::class, 'addVersion'])->name('documents.versions.store');
         Route::get('document-versions/{version}/download', [DocumentController::class, 'download'])->name('documents.version.download');
 
@@ -60,12 +70,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             ->names('leaves')
             ->except(['create']);
 
+        Route::get('leave-requests/create', [LeaveRequestController::class, 'create'])->name('leaves.create');
+
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
         Route::post('programmes', [ModuleController::class, 'storeProgramme'])->name('programmes.store');
-        Route::resource('modules', ModuleController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])->middleware('role:super-admin|school-admin');
+        Route::resource('modules', ModuleController::class)->only(['create', 'store', 'edit', 'update', 'destroy'])->middleware('role:super-admin|school-admin');
 
-        Route::get('grades', [GradeController::class, 'index'])->name('grades.index');
-        Route::get('modules/{module}/grades', [GradeController::class, 'manage'])->name('grades.manage');
+        Route::get('grades', [GradeController::class, 'index'])->name('grades.index')->middleware('registered');
+        Route::get('modules/{module}/grades', [GradeController::class, 'manage'])->name('grades.manage')->middleware('registered');
 
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
@@ -81,8 +93,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('payslips/generate-batch', [PayslipController::class, 'generateBatch'])->name('payslips.generate.batch');
         Route::get('payslips/{payslip}/download', [PayslipController::class, 'download'])->name('payslips.download');
 
-        Route::get('submissions/{submission}/download', [SubmissionController::class, 'download'])->name('submissions.download');
-        Route::post('submissions/{gradable}', [SubmissionController::class, 'store'])->name('submissions.store');
+        Route::get('submissions/{submission}/download', [SubmissionController::class, 'download'])->name('submissions.download')->middleware('registered');
+        Route::post('submissions/{gradable}', [SubmissionController::class, 'store'])->name('submissions.store')->middleware('registered');
         Route::post('submissions/{submission}/grade', [SubmissionController::class, 'update'])->name('submissions.grade');
 
         Route::get('transcript', [TranscriptController::class, 'index'])->name('transcript.index');
@@ -100,15 +112,15 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         // Academic Resources
         Route::get('gradables/{type}/modules', [GradableController::class, 'moduleSelect'])->name('gradables.module-select');
-        Route::resource('gradables', GradableController::class)->only(['index', 'show']);
+        Route::resource('gradables', GradableController::class)->only(['index', 'show'])->middleware('registered');
         Route::middleware('role:super-admin|school-admin|academic_staff')->group(function () {
             Route::resource('gradables', GradableController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
         });
 
         // Enrollment (for students)
-        Route::get('enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index');
-        Route::post('enrollment', [EnrollmentController::class, 'store'])->name('enrollment.store');
-        Route::delete('enrollment/{module}', [EnrollmentController::class, 'destroy'])->name('enrollment.destroy');
+        Route::get('enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index')->middleware('registered');
+        Route::post('enrollment', [EnrollmentController::class, 'store'])->name('enrollment.store')->middleware('registered');
+        Route::delete('enrollment/{module}', [EnrollmentController::class, 'destroy'])->name('enrollment.destroy')->middleware('registered');
 
         // Search
         Route::get('search', SearchController::class)->name('search');
@@ -116,10 +128,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         // Events Calendar
         Route::resource('events', EventController::class);
 
-        // Tests
-        Route::get('tests', [TestController::class, 'index'])->name('tests.index');
+        // Assessments - redirect tests to gradables
+        Route::redirect('tests', 'gradables?type=test')->name('tests.index');
 
         // Chat
-        Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
-        Route::get('chat/{module}', [ChatController::class, 'show'])->name('chat.show');
+        Route::get('chat', [ChatController::class, 'index'])->name('chat.index')->middleware('registered');
+        Route::get('chat/{module}', [ChatController::class, 'show'])->name('chat.show')->middleware('registered');
     });

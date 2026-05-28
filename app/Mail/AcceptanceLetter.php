@@ -28,7 +28,7 @@ class AcceptanceLetter extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Honey Bee Culinary Institute Acceptance & Welcome Pack',
+            subject: 'You Have Been Admitted to HBCI — Next Steps Inside',
         );
     }
 
