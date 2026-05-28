@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('registration', [RegistrationController::class, 'store'])->name('registration.store');
         Route::patch('registration/{application}', [RegistrationController::class, 'update'])->name('registration.update')->middleware('role:super-admin|school-admin|non_academic_staff');
         Route::get('registration/proof', [RegistrationController::class, 'downloadProof'])->name('registration.proof')->middleware('registered');
-        Route::resource('documents', DocumentController::class)->only(['index', 'create', 'store', 'show']);
+        Route::resource('documents', DocumentController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
         Route::get('documents/modules', [DocumentController::class, 'moduleSelect'])->name('documents.module-select');
         Route::post('documents/{document}/versions', [DocumentController::class, 'addVersion'])->name('documents.versions.store');
         Route::get('document-versions/{version}/download', [DocumentController::class, 'download'])->name('documents.version.download');
@@ -115,6 +115,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::resource('gradables', GradableController::class)->only(['index', 'show'])->middleware('registered');
         Route::middleware('role:super-admin|school-admin|academic_staff')->group(function () {
             Route::resource('gradables', GradableController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+            // Attachment routes
+            Route::post('gradables/{gradable}/attachments', [GradableController::class, 'uploadAttachment'])->name('gradables.attachments.store');
+            Route::delete('gradables/{gradable}/attachments/{attachment}', [GradableController::class, 'deleteAttachment'])->name('gradables.attachments.destroy');
+            Route::get('gradables/{gradable}/attachments/{attachment}/download', [GradableController::class, 'downloadAttachment'])->name('gradables.attachments.download');
         });
 
         // Enrollment (for students)

@@ -739,16 +739,7 @@ const formatType = (type) => {
     return labels[type] || type;
 };
 
-const getTypeClass = (type) => {
-    const classes = {
-        quiz: 'bg-amber-100 text-amber-700',
-        test: 'bg-orange-100 text-orange-700',
-        assignment: 'bg-amber-200 text-amber-800',
-        mid_term_exam: 'bg-orange-200 text-orange-800',
-        final_exam: 'bg-amber-300 text-amber-900',
-    };
-    return classes[type] || 'bg-gray-100 text-gray-700';
-};
+
 
 const getApplicationStatusClass = (status) => {
     const classes = {

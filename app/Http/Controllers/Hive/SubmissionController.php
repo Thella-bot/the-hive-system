@@ -21,14 +21,16 @@ class SubmissionController extends Controller
         $this->authorize('create', [Submission::class, $gradable]);
         $student = $request->user();
 
-        $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'max:' . $gradable->max_file_size,
-                'mimes:' . $gradable->allowed_types,
-            ],
-        ]);
+        // Build validation rules dynamically
+        $rules = ['required', 'file'];
+        if ($gradable->max_file_size) {
+            $rules[] = 'max:' . $gradable->max_file_size;
+        }
+        if ($gradable->allowed_types) {
+            $rules[] = 'mimes:' . $gradable->allowed_types;
+        }
+
+        $request->validate(['file' => $rules]);
 
         $submission = Submission::updateOrCreate(
             [

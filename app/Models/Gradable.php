@@ -45,4 +45,9 @@ class Gradable extends Model
     {
         return $this->hasMany(Submission::class);
     }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(GradableAttachment::class);
+    }
 }

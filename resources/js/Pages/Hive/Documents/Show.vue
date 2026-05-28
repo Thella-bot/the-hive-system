@@ -1,43 +1,137 @@
 <template>
-  <HiveLayout>
-    <h1 class="text-2xl font-bold mb-2">{{ document.title }}</h1>
-    <p class="text-sm text-gray-600">{{ document.description }}</p>
-    <p class="text-sm mb-4">Category: {{ document.category }} | Created by {{ document.creator.name }}</p>
+  <HiveLayout :title="document.title" :description="`${document.category} - ${document.module?.name || 'General'} `">
+    <div class="max-w-4xl mx-auto space-y-6">
+      <!-- Document Details Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ document.title }}</h1>
+              <span class="px-3 py-1 text-sm rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                {{ document.category }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Module: {{ document.module?.name || 'General' }} | Created by {{ document.creator?.name || 'Unknown' }}
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <Link v-if="canUpdate"
+              :href="route('hive.documents.edit', document.id)"
+              class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 transition">
+              Edit
+            </Link>
+            <button v-if="canDelete"
+              @click="deleteDocument"
+              class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 transition">
+              Delete
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <p v-if="document.description" class="text-gray-600 dark:text-gray-300">{{ document.description }}</p>
+          <p v-else class="text-gray-400 dark:text-gray-500 italic">No description provided.</p>
+        </div>
+      </div>
 
-    <div v-if="canUpdate" class="mb-6">
-      <h2 class="font-semibold">Upload New Version</h2>
-      <form @submit.prevent="uploadVersion" class="flex gap-2 items-end">
-        <input type="file" @input="newVersionForm.file = $event.target.files[0]" required />
-        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Upload Version</button>
-      </form>
+      <!-- Version History -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Version History</h3>
+          <span class="text-sm text-gray-500 dark:text-gray-400">{{ document.versions?.length || 0 }} versions</span>
+        </div>
+
+        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+          <div v-for="version in document.versions" :key="version.id"
+            class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                <span class="text-amber-700 dark:text-amber-300 font-bold text-sm">v{{ version.version_number }}</span>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900 dark:text-white">Version {{ version.version_number }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  Uploaded by {{ version.uploader?.name || 'Unknown' }} on {{ formatDate(version.created_at) }}
+                </p>
+              </div>
+            </div>
+            <a :href="route('hive.documents.version.download', version.id)"
+              class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200">
+              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Download
+            </a>
+          </div>
+        </div>
+
+        <!-- Upload New Version -->
+        <div v-if="canUpdate" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/30">
+          <h4 class="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">Upload New Version</h4>
+          <form @submit.prevent="uploadVersion" class="flex gap-3">
+            <input type="file" @input="newVersionForm.file = $event.target.files[0]" required
+              class="flex-1 text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 dark:file:bg-amber-900/30 dark:file:text-amber-300 hover:file:bg-amber-100">
+            <button type="submit" :disabled="newVersionForm.processing"
+              class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 disabled:opacity-50 transition">
+              {{ newVersionForm.processing ? 'Uploading...' : 'Upload Version' }}
+            </button>
+          </form>
+          <p v-if="newVersionForm.error" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ newVersionForm.error }}</p>
+        </div>
+      </div>
     </div>
-
-    <h2 class="text-lg font-semibold mt-6">Version History</h2>
-    <table class="w-full mt-2">
-      <thead><tr><th>Version</th><th>Uploaded by</th><th>Date</th><th>Action</th></tr></thead>
-      <tbody>
-        <tr v-for="version in document.versions" :key="version.id">
-          <td>{{ version.version_number }}</td>
-          <td>{{ version.uploader.name }}</td>
-          <td>{{ new Date(version.created_at).toLocaleDateString() }}</td>
-          <td>
-            <a :href="route('hive.documents.version.download', version.id)" class="text-blue-600 underline">Download</a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </HiveLayout>
 </template>
+
 <script setup>
-import { computed } from 'vue';
-import { useForm, usePage } from '@inertiajs/vue3';
+import { computed, reactive } from 'vue';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import dayjs from 'dayjs';
 
 const props = defineProps({ document: Object });
+const page = usePage();
+
 const canUpdate = computed(() => {
-  const user = usePage().props.user;
-  return user.roles.some(r => r.name === 'admin') || user.id === props.document.created_by;
+  const user = page.props.auth?.user;
+  if (!user) return false;
+  return user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name)) ||
+         user.id === props.document.created_by;
 });
-const newVersionForm = useForm({ file: null });
-const uploadVersion = () => newVersionForm.post(route('hive.documents.versions.store', props.document.id));
+
+const canDelete = computed(() => {
+  const user = page.props.auth?.user;
+  if (!user) return false;
+  return user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
+});
+
+const newVersionForm = reactive({ file: null, processing: false, error: '' });
+
+const formatDate = (date) => dayjs(date).format('MMM D, YYYY');
+
+const uploadVersion = async () => {
+  if (!newVersionForm.file) return;
+  newVersionForm.processing = true;
+  newVersionForm.error = '';
+
+  const data = new FormData();
+  data.append('file', newVersionForm.file);
+
+  try {
+    await router.post(route('hive.documents.versions.store', props.document.id), data, {
+      forceFormData: true,
+    });
+    newVersionForm.file = null;
+  } catch (e) {
+    newVersionForm.error = 'Failed to upload version';
+  } finally {
+    newVersionForm.processing = false;
+  }
+};
+
+const deleteDocument = () => {
+  if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+    router.delete(route('hive.documents.destroy', props.document.id));
+  }
+};
 </script>

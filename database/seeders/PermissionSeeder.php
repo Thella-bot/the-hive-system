@@ -28,6 +28,11 @@ class PermissionSeeder extends Seeder
             'view-cohorts',
             'view-users',
             'view-events',
+            'create-submissions',
+            'grade-submissions',
+            'upload-documents',
+            'create-announcements',
+            'manage-leaves',
         ];
 
         foreach ($permissions as $permission) {

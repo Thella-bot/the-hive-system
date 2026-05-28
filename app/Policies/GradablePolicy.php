@@ -4,15 +4,12 @@ namespace App\Policies;
 
 use App\Models\Gradable;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
-class GradablePolicy
+class GradablePolicy extends BasePolicy
 {
-    use HandlesAuthorization;
-
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
+        return true;
     }
 
     public function view(User $user, Gradable $gradable): bool

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\Gradable;
+use App\Models\GradableAttachment;
 use App\Models\Module;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class GradableController extends Controller
 {
@@ -33,7 +35,7 @@ class GradableController extends Controller
             'quiz' => 'Quizzes',
             'test' => 'Tests',
             'assignment' => 'Assignments',
-            'mid-term_exam' => 'Mid-Term Exams',
+            'mid_term_exam' => 'Mid-Term Exams',
             'final_exam' => 'Final Exams',
         ];
 
@@ -120,11 +122,32 @@ class GradableController extends Controller
             'description' => 'nullable|string',
             'max_marks' => 'nullable|numeric|min:0',
             'weight' => 'nullable|numeric|min:0|max:100',
+            'max_file_size' => 'nullable|integer|min:1|max:102400', // KB, max 100MB
+            'allowed_types' => 'nullable|string',
+            'attachments' => 'nullable|array',
+            'attachments.*.title' => 'required|string|max:255',
+            'attachments.*.file' => 'required|file|max:51200', // 50MB max per file
         ]);
 
         $validated['instructor_id'] = auth()->id();
 
-        Gradable::create($validated);
+        $gradable = Gradable::create($validated);
+
+        // Handle attachments
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $idx => $file) {
+                $title = $request->input("attachments.{$idx}.title") ?? $file->getClientOriginalName();
+                $path = $file->store('private/gradables/' . $gradable->id);
+
+                $gradable->attachments()->create([
+                    'title' => $title,
+                    'file_path' => $path,
+                    'file_size' => $file->getSize(),
+                    'mime_type' => $file->getMimeType(),
+                    'uploaded_by' => auth()->id(),
+                ]);
+            }
+        }
 
         return redirect()->route('hive.gradables.index')->with('success', 'Assessment created successfully.');
     }
@@ -136,7 +159,7 @@ class GradableController extends Controller
     {
         $this->authorize('view', $gradable);
 
-        $gradable->load(['module', 'instructor', 'submissions']);
+        $gradable->load(['module', 'instructor', 'submissions', 'attachments.uploader']);
 
         $user = auth()->user();
         $isInstructor = $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
@@ -172,6 +195,7 @@ class GradableController extends Controller
         }
 
         $gradableTypes = \App\Enums\GradableType::cases();
+        $gradable->load('attachments');
 
         return Inertia::render('Hive/Gradables/Edit', [
             'gradable' => $gradable,
@@ -196,6 +220,8 @@ class GradableController extends Controller
             'description' => 'nullable|string',
             'max_marks' => 'nullable|numeric|min:0',
             'weight' => 'nullable|numeric|min:0|max:100',
+            'max_file_size' => 'nullable|integer|min:1|max:102400',
+            'allowed_types' => 'nullable|string',
         ]);
 
         $gradable->update($validated);
@@ -210,8 +236,70 @@ class GradableController extends Controller
     {
         $this->authorize('delete', $gradable);
 
+        // Delete attachment files
+        foreach ($gradable->attachments as $attachment) {
+            Storage::delete($attachment->file_path);
+        }
+
         $gradable->delete();
 
         return redirect()->route('hive.gradables.index')->with('success', 'Assessment deleted.');
+    }
+
+    /**
+     * Upload an attachment to a gradable.
+     */
+    public function uploadAttachment(Request $request, Gradable $gradable): RedirectResponse
+    {
+        $this->authorize('update', $gradable);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'file' => 'required|file|max:51200', // 50MB
+        ]);
+
+        $file = $request->file('file');
+        $path = $file->store('private/gradables/' . $gradable->id);
+
+        $gradable->attachments()->create([
+            'title' => $request->input('title'),
+            'file_path' => $path,
+            'file_size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
+            'uploaded_by' => auth()->id(),
+        ]);
+
+        return back()->with('success', 'Attachment uploaded.');
+    }
+
+    /**
+     * Delete an attachment.
+     */
+    public function deleteAttachment(Gradable $gradable, GradableAttachment $attachment): RedirectResponse
+    {
+        $this->authorize('update', $gradable);
+
+        if ($attachment->gradable_id !== $gradable->id) {
+            abort(403);
+        }
+
+        Storage::delete($attachment->file_path);
+        $attachment->delete();
+
+        return back()->with('success', 'Attachment deleted.');
+    }
+
+    /**
+     * Download an attachment.
+     */
+    public function downloadAttachment(Gradable $gradable, GradableAttachment $attachment)
+    {
+        $this->authorize('view', $gradable);
+
+        if ($attachment->gradable_id !== $gradable->id) {
+            abort(403);
+        }
+
+        return Storage::download($attachment->file_path, $attachment->title);
     }
 }

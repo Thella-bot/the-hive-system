@@ -34,7 +34,7 @@
 
       <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         <template v-for="item in singleItems" :key="item.name">
-          <NavItem :href="item.href" :active="item.active" @click="sidebarOpen = false">
+          <NavItem :href="item.href" :active="item.isActive ? item.isActive() : item.active" @click="sidebarOpen = false">
             <template #icon>
               <component :is="item.icon" v-if="item.icon" class="h-4 w-4" />
             </template>
@@ -65,7 +65,7 @@
                 :key="child.name"
                 :href="child.href"
                 :target="child.target"
-                :active="child.active"
+                :active="child.isActive ? child.isActive() : child.active"
                 class="pl-9"
                 @click="sidebarOpen = false"
               >
@@ -240,6 +240,12 @@ const displayRole = computed(() => {
 });
 
 const isActive = (pattern) => (pattern ? route().current(pattern) : false);
+
+// Helper to check if a specific gradable type (module-select) is active
+const isGradableTypeActive = (type) => {
+  if (!route().current('hive.gradables.module-select')) return false;
+  return route().params()?.type === type;
+};
 
 const toggleCategory = (categoryName) => {
   expandedCategories.value = expandedCategories.value.includes(categoryName)
@@ -454,20 +460,20 @@ const resourceLinks = () => {
 };
 
 const studentAssessmentLinks = () => [
-  { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), active: 'hive.gradables.*', roles: ['student'] },
-  { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), active: 'hive.gradables.*', roles: ['student'] },
-  { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), active: 'hive.gradables.*', roles: ['student'] },
-  { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), active: 'hive.gradables.*', roles: ['student'] },
-  { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), active: 'hive.gradables.*', roles: ['student'] },
+  { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz'), roles: ['student'] },
+  { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), isActive: () => isGradableTypeActive('test'), roles: ['student'] },
+  { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), isActive: () => isGradableTypeActive('assignment'), roles: ['student'] },
+  { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), isActive: () => isGradableTypeActive('mid-term_exam'), roles: ['student'] },
+  { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), isActive: () => isGradableTypeActive('final_exam'), roles: ['student'] },
 ];
 
 const staffAssessmentLinks = () => [
   { name: 'All Assessments', href: route('hive.gradables.index'), active: 'hive.gradables.index', roles: ['super-admin', 'school-admin', 'academic_staff'] },
-  { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), active: 'hive.gradables.module-select', roles: ['super-admin', 'school-admin', 'academic_staff'] },
-  { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), active: 'hive.gradables.module-select', roles: ['super-admin', 'school-admin', 'academic_staff'] },
-  { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), active: 'hive.gradables.module-select', roles: ['super-admin', 'school-admin', 'academic_staff'] },
-  { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), active: 'hive.gradables.module-select', roles: ['super-admin', 'school-admin', 'academic_staff'] },
-  { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), active: 'hive.gradables.module-select', roles: ['super-admin', 'school-admin', 'academic_staff'] },
+  { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz'), roles: ['super-admin', 'school-admin', 'academic_staff'] },
+  { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), isActive: () => isGradableTypeActive('test'), roles: ['super-admin', 'school-admin', 'academic_staff'] },
+  { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), isActive: () => isGradableTypeActive('assignment'), roles: ['super-admin', 'school-admin', 'academic_staff'] },
+  { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), isActive: () => isGradableTypeActive('mid-term_exam'), roles: ['super-admin', 'school-admin', 'academic_staff'] },
+  { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), isActive: () => isGradableTypeActive('final_exam'), roles: ['super-admin', 'school-admin', 'academic_staff'] },
 ];
 
 const singleItems = computed(() => navigation.value.filter((item) => item.single));

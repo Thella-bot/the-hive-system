@@ -4,6 +4,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Document;
 use App\Models\DocumentVersion;
 use App\Models\Module;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -66,9 +67,6 @@ class DocumentController extends Controller
             $documentsQuery->where('category', $request->category);
         }
 
-        // admin can always view (policy returns true if no restrictions, and grants create/update elsewhere).
-        // For listing, the visibility query already covers unrestricted docs (visible_to_roles IS NULL).
-
         $documents = $documentsQuery->latest()->get();
 
         return Inertia::render('Hive/Documents/Index', [
@@ -88,8 +86,6 @@ class DocumentController extends Controller
         ]);
     }
 
-
-
     public function create()
     {
         $user = auth()->user();
@@ -99,7 +95,7 @@ class DocumentController extends Controller
         } elseif ($user->hasRole('academic_staff')) {
             $modules = $user->instructedModules()->get();
         } else {
-            $modules = Module::all();
+            $modules = Module::with('programme')->get();
         }
 
         return Inertia::render('Hive/Documents/Create', [
@@ -113,7 +109,7 @@ class DocumentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|string',
-            'module_id' => 'nullable|exists:modules,id',
+            'module_id' => 'required|exists:modules,id',
             'visible_to_roles' => 'nullable|array',
             'file' => 'required|file|max:20480', // 20 MB max
         ]);
@@ -122,7 +118,7 @@ class DocumentController extends Controller
             'title' => $attrs['title'],
             'description' => $attrs['description'] ?? '',
             'category' => $attrs['category'],
-            'module_id' => $attrs['module_id'] ?? null,
+            'module_id' => $attrs['module_id'],
             'visible_to_roles' => $attrs['visible_to_roles'] ?? null,
             'is_published' => true,
             'created_by' => $request->user()->id,
@@ -143,8 +139,63 @@ class DocumentController extends Controller
     // Show document details (list versions)
     public function show(Document $document)
     {
+        $this->authorize('view', $document);
         $document->load('versions.uploader', 'creator');
         return Inertia::render('Hive/Documents/Show', ['document' => $document]);
+    }
+
+    // Edit form
+    public function edit(Document $document)
+    {
+        $this->authorize('update', $document);
+        $user = auth()->user();
+
+        if ($user->hasRole('academic_staff')) {
+            $modules = $user->instructedModules()->get();
+        } else {
+            $modules = Module::with('programme')->get();
+        }
+
+        return Inertia::render('Hive/Documents/Edit', [
+            'document' => $document,
+            'modules' => $modules,
+        ]);
+    }
+
+    // Update document metadata
+    public function update(Request $request, Document $document)
+    {
+        $this->authorize('update', $document);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'category' => 'required|string',
+            'module_id' => 'nullable|exists:modules,id',
+            'visible_to_roles' => 'nullable|array',
+            'is_published' => 'nullable|boolean',
+        ]);
+
+        $document->update($validated);
+
+        return redirect()->route('hive.documents.show', $document->id)
+            ->with('success', 'Document updated.');
+    }
+
+    // Delete document
+    public function destroy(Document $document)
+    {
+        $this->authorize('delete', $document);
+
+        // Delete all version files
+        foreach ($document->versions as $version) {
+            Storage::delete($version->file_path);
+        }
+
+        $document->delete();
+
+        return redirect()->route('hive.documents.index')
+            ->with('success', 'Document deleted.');
     }
 
     // Upload a new version
