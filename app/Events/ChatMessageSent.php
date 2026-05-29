@@ -15,30 +15,33 @@ class ChatMessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * The message that was sent.
-     *
-     * @var \App\Models\Message
-     */
-    public $message;
+    public Message $message;
 
-    /**
-     * Create a new event instance.
-     */
     public function __construct(Message $message)
     {
         $this->message = $message;
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('module.'.$this->message->module_id),
-        ];
+        $channel = $this->message->chatChannel;
+
+        if (!$channel) {
+            // Legacy module-only messages fall back to the old channel
+            return [new PrivateChannel('module.' . $this->message->module_id)];
+        }
+
+        return match ($channel->channel_type) {
+            'module' => [new PrivateChannel('chat.module.' . $channel->channel_id)],
+            'department' => [new PrivateChannel('chat.department.' . $channel->channel_id)],
+            'general' => [new PrivateChannel('chat.general')],
+            'direct' => [new PrivateChannel('chat.direct.' . $channel->id)],
+            default => [new PrivateChannel('module.' . $this->message->module_id)],
+        };
+    }
+
+    public function broadcastWith(): array
+    {
+        return ['message' => $this->message->load('user')];
     }
 }

@@ -9,6 +9,15 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    // Legacy module-scoped chat
     Route::get('/modules/{module}/messages', [ChatMessageController::class, 'index'])->name('messages.index');
-    Route::post('/modules/{module}/messages', [ChatMessageController::class, 'store'])->name('messages.store');
+    Route::post('/modules/{module}/messages', [ChatMessageController::class, 'store'])
+        ->middleware('throttle:60,1')
+        ->name('messages.store');
+
+    // New channel-scoped chat
+    Route::get('/channels/{channel}/messages', [ChatMessageController::class, 'indexChannel'])->name('channels.messages.index');
+    Route::post('/channels/{channel}/messages', [ChatMessageController::class, 'storeChannel'])
+        ->middleware('throttle:60,1')
+        ->name('channels.messages.store');
 });

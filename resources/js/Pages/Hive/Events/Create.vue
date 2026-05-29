@@ -25,6 +25,13 @@
             </div>
 
             <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+              <input v-model="form.location" type="text"
+                     class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500"
+                     placeholder="e.g. Kitchen Lab 1, Main Hall" />
+            </div>
+
+            <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
               <select v-model="form.category" class="w-full rounded border-gray-300 border px-3 py-2">
                 <option value="event">Event</option>
@@ -58,8 +65,8 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">End Date & Time</label>
-                <input v-model="form.end" type="datetime-local" required
+                <label class="block text-sm font-medium text-gray-700 mb-1">End Date & Time <span class="text-gray-400">(optional)</span></label>
+                <input v-model="form.end" type="datetime-local"
                        class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500" />
                 <p v-if="errors.end" class="text-red-500 text-sm mt-1">{{ errors.end }}</p>
               </div>
@@ -93,6 +100,7 @@ defineProps({
 const form = useForm({
   title: '',
   description: '',
+  location: '',
   start: '',
   end: '',
   category: 'event',

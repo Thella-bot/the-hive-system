@@ -3,20 +3,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
-    protected $fillable = ['user_id', 'type', 'start_date', 'end_date', 'reason', 'status', 'approved_by', 'approved_at'];
+    protected $fillable = [
+        'user_id', 'type', 'half_day', 'start_date', 'end_date',
+        'reason', 'status', 'approved_by', 'approved_at',
+        'rejection_reason', 'is_cancelled', 'cancelled_at',
+    ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
         'approved_at' => 'datetime',
+        'cancelled_at' => 'datetime',
+        'half_day' => 'boolean',
+        'is_cancelled' => 'boolean',
     ];
 
     public function user() { return $this->belongsTo(User::class); }
     public function approvedBy() { return $this->belongsTo(User::class, 'approved_by'); }
 
-    public function days(): int
+    public function days(): float
     {
-        return $this->start_date->diffInDays($this->end_date) + 1;
+        $days = $this->start_date->diffInDays($this->end_date) + 1;
+        return $this->half_day ? 0.5 : $days;
     }
 
     public function hasSufficientBalance(): bool
@@ -36,5 +44,25 @@ class LeaveRequest extends Model
                 $profile->decrement('leave_balance', min($this->days(), $profile->leave_balance));
             }
         }
+    }
+
+    public function restoreBalance(): void
+    {
+        if ($this->type === 'annual') {
+            $profile = $this->user->profile;
+            if ($profile) {
+                $profile->increment('leave_balance', $this->days());
+            }
+        }
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending')->where('is_cancelled', false);
+    }
+
+    public function scopeCancelled($query)
+    {
+        return $query->where('is_cancelled', true);
     }
 }

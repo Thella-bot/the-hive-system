@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\EventRsvp;
 use App\Models\Module;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,9 +18,6 @@ class EventController extends Controller
         $this->authorizeResource(Event::class, 'event');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(): Response
     {
         $events = Event::orderByDesc('start')->paginate(15);
@@ -29,9 +27,6 @@ class EventController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): Response
     {
         return Inertia::render('Hive/Events/Create', [
@@ -42,26 +37,29 @@ class EventController extends Controller
     public function edit(Event $event): Response
     {
         return Inertia::render('Hive/Events/Edit', [
-            'event' => $event->load('targetModules'),
+            'event' => $event->load(['targetModules', 'rsvps.user']),
             'modules' => Module::all(['id', 'name', 'code']),
         ]);
     }
 
     public function show(Event $event): Response
     {
-        return $this->edit($event);
+        $userRsvp = $event->rsvpFor(auth()->user());
+        return Inertia::render('Hive/Events/Edit', [
+            'event' => $event->load(['targetModules', 'rsvps.user']),
+            'userRsvp' => $userRsvp,
+            'modules' => Module::all(['id', 'name', 'code']),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
             'start' => 'required|date',
-            'end' => 'required|date|after_or_equal:start',
+            'end' => 'nullable|date|after_or_equal:start',
             'category' => 'nullable|string|max:50',
             'target_modules' => 'nullable|array',
             'target_modules.*' => 'exists:modules,id',
@@ -76,16 +74,14 @@ class EventController extends Controller
         return redirect()->route('hive.events.index')->with('success', 'Event created successfully.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Event $event): RedirectResponse
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
             'start' => 'required|date',
-            'end' => 'required|date|after_or_equal:start',
+            'end' => 'nullable|date|after_or_equal:start',
             'category' => 'nullable|string|max:50',
             'target_modules' => 'nullable|array',
             'target_modules.*' => 'exists:modules,id',
@@ -100,13 +96,40 @@ class EventController extends Controller
         return redirect()->route('hive.events.index')->with('success', 'Event updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Event $event): RedirectResponse
     {
         $event->delete();
-
         return redirect()->route('hive.events.index')->with('success', 'Event deleted.');
+    }
+
+    public function rsvp(Request $request, Event $event)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:attending,maybe,declined',
+        ]);
+
+        EventRsvp::updateOrCreate(
+            ['event_id' => $event->id, 'user_id' => auth()->id()],
+            ['status' => $validated['status']]
+        );
+
+        return back()->with('success', 'RSVP updated.');
+    }
+
+    public function exportICal(Event $event)
+    {
+        $content = $event->toICal();
+        $filename = preg_replace('/[^a-z0-9]/i', '_', $event->title) . '.ics';
+
+        return response($content, 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
+    public function qrCode(Event $event)
+    {
+        $code = "EVENT-{$event->id}";
+        return response()->json(['code' => $code]);
     }
 }

@@ -1,6 +1,7 @@
 <?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Document extends Model
 {
@@ -13,7 +14,7 @@ class Document extends Model
         'is_published' => 'boolean',
     ];
 
-    public function versions()
+    public function versions(): HasMany
     {
         return $this->hasMany(DocumentVersion::class)->orderBy('version_number', 'desc');
     }
@@ -31,5 +32,15 @@ class Document extends Model
     public function module()
     {
         return $this->belongsTo(Module::class);
+    }
+
+    public function acknowledgements(): HasMany
+    {
+        return $this->hasMany(DocumentAcknowledgement::class);
+    }
+
+    public function isAcknowledgedBy(User $user): bool
+    {
+        return $this->acknowledgements()->where('user_id', $user->id)->exists();
     }
 }

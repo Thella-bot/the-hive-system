@@ -51,7 +51,14 @@
           </p>
           <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-3">
             <span>{{ doc.module?.name || 'General' }}</span>
-            <span>v{{ doc.latest_version?.version_number || 1 }}</span>
+            <span class="flex items-center gap-2">
+              <span v-if="doc.acknowledgements_count" class="text-green-600">✓ {{ doc.acknowledgements_count }}</span>
+              <span>v{{ doc.latest_version?.version_number || 1 }}</span>
+            </span>
+          </div>
+          <div v-if="doc.is_acknowledged" class="flex items-center gap-1 text-xs text-green-600 mb-2">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Acknowledged
           </div>
           <div class="flex gap-2">
             <a v-if="doc.latest_version"

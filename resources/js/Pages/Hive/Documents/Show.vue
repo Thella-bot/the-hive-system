@@ -10,12 +10,25 @@
               <span class="px-3 py-1 text-sm rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                 {{ document.category }}
               </span>
+              <!-- Acknowledged badge -->
+              <span v-if="isAcknowledged" class="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 flex items-center gap-1">
+                ✓ Acknowledged
+              </span>
             </div>
             <p class="text-sm text-gray-500 dark:text-gray-400">
               Module: {{ document.module?.name || 'General' }} | Created by {{ document.creator?.name || 'Unknown' }}
             </p>
           </div>
           <div class="flex gap-2">
+            <button @click="acknowledge" v-if="!isAcknowledged"
+              class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 transition">
+              ✓ Acknowledge Read
+            </button>
+            <Link v-if="canSeeAcknowledgements"
+              :href="route('hive.documents.acknowledgements', document.id)"
+              class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              👁 {{ acknowledgementCount }} acknowledged
+            </Link>
             <Link v-if="canUpdate"
               :href="route('hive.documents.edit', document.id)"
               class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 transition">
@@ -84,13 +97,16 @@
 </template>
 
 <script setup>
-import { computed, reactive } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
 
 const props = defineProps({ document: Object });
 const page = usePage();
+
+const isAcknowledged = computed(() => props.document.is_acknowledged || false);
+const acknowledgementCount = computed(() => props.document.acknowledgements_count || 0);
 
 const canUpdate = computed(() => {
   const user = page.props.auth?.user;
@@ -105,9 +121,19 @@ const canDelete = computed(() => {
   return user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
 });
 
+const canSeeAcknowledgements = computed(() => {
+  const user = page.props.auth?.user;
+  if (!user) return false;
+  return user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
+});
+
 const newVersionForm = reactive({ file: null, processing: false, error: '' });
 
 const formatDate = (date) => dayjs(date).format('MMM D, YYYY');
+
+const acknowledge = () => {
+  router.post(route('hive.documents.acknowledge', props.document.id));
+};
 
 const uploadVersion = async () => {
   if (!newVersionForm.file) return;

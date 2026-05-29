@@ -12,14 +12,24 @@ class Gradable extends Model
 {
     use HasFactory;
 
+    public const SUBMISSION_TYPE_FILE_UPLOAD = 'file_upload';
+    public const SUBMISSION_TYPE_ONLINE_FILLABLE = 'online_fillable';
+    public const SUBMISSION_TYPE_ONLINE_MCQ = 'online_multiple_choice';
+
     protected $fillable = [
         'type',
+        'submission_type',
         'module_id',
         'instructor_id',
         'title',
         'description',
         'due_date',
         'duration_minutes',
+        'time_limit_minutes',
+        'max_attempts',
+        'show_correct_answers',
+        'shuffle_questions',
+        'shuffle_options',
         'max_file_size',
         'allowed_types',
         'max_marks',
@@ -29,6 +39,9 @@ class Gradable extends Model
     protected $casts = [
         'type' => GradableType::class,
         'due_date' => 'datetime',
+        'show_correct_answers' => 'boolean',
+        'shuffle_questions' => 'boolean',
+        'shuffle_options' => 'boolean',
     ];
 
     public function module(): BelongsTo
@@ -49,5 +62,33 @@ class Gradable extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(GradableAttachment::class);
+    }
+
+    public function questions(): HasMany
+    {
+        return $this->hasMany(GradableQuestion::class)->orderBy('sort_order');
+    }
+
+    public function answers(): HasMany
+    {
+        return $this->hasMany(GradableAnswer::class);
+    }
+
+    public function isOnlineAssessment(): bool
+    {
+        return in_array($this->submission_type, [
+            self::SUBMISSION_TYPE_ONLINE_FILLABLE,
+            self::SUBMISSION_TYPE_ONLINE_MCQ,
+        ]);
+    }
+
+    public function isMcqAssessment(): bool
+    {
+        return $this->submission_type === self::SUBMISSION_TYPE_ONLINE_MCQ;
+    }
+
+    public function isFileUpload(): bool
+    {
+        return $this->submission_type === self::SUBMISSION_TYPE_FILE_UPLOAD || empty($this->submission_type);
     }
 }

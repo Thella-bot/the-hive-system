@@ -69,6 +69,12 @@ class DocumentController extends Controller
 
         $documents = $documentsQuery->latest()->get();
 
+        // Add acknowledgement counts
+        $documents->each(function ($doc) {
+            $doc->acknowledgements_count = $doc->acknowledgements()->count();
+            $doc->is_acknowledged = $doc->isAcknowledgedBy(auth()->user());
+        });
+
         return Inertia::render('Hive/Documents/Index', [
             'documents' => $documents->values(),
             'categories' => Document::query()
@@ -141,6 +147,8 @@ class DocumentController extends Controller
     {
         $this->authorize('view', $document);
         $document->load('versions.uploader', 'creator');
+        $document->is_acknowledged = $document->isAcknowledgedBy(auth()->user());
+        $document->acknowledgements_count = $document->acknowledgements()->count();
         return Inertia::render('Hive/Documents/Show', ['document' => $document]);
     }
 
@@ -224,5 +232,34 @@ class DocumentController extends Controller
     {
         $this->authorize('view', $version->document);
         return Storage::download($version->file_path);
+    }
+
+    // Mark document as acknowledged/read
+    public function acknowledge(Request $request, Document $document)
+    {
+        $this->authorize('view', $document);
+
+        $document->acknowledgements()->updateOrCreate(
+            ['user_id' => $request->user()->id],
+            ['acknowledged_at' => now()]
+        );
+
+        return back()->with('success', 'Document acknowledged.');
+    }
+
+    // View acknowledgement stats (admin only)
+    public function acknowledgements(Document $document)
+    {
+        $this->authorize('view', $document);
+
+        $acknowledgements = $document->acknowledgements()
+            ->with('user')
+            ->orderBy('acknowledged_at', 'desc')
+            ->get();
+
+        return Inertia::render('Hive/Documents/Acknowledgements', [
+            'document' => $document,
+            'acknowledgements' => $acknowledgements,
+        ]);
     }
 }

@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Enums\PostCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
@@ -14,6 +16,7 @@ class Event extends Model
     protected $fillable = [
         'title',
         'description',
+        'location',
         'start',
         'end',
         'category',
@@ -30,5 +33,38 @@ class Event extends Model
     public function targetModules(): BelongsToMany
     {
         return $this->belongsToMany(Module::class, 'event_module');
+    }
+
+    public function rsvps(): HasMany
+    {
+        return $this->hasMany(EventRsvp::class);
+    }
+
+    public function rsvpFor(User $user): ?EventRsvp
+    {
+        return $this->rsvps()->where('user_id', $user->id)->first();
+    }
+
+    public function toICal(): string
+    {
+        $start = $this->start->format('Ymd\THis');
+        $end = $this->end ? $this->end->format('Ymd\THis') : $this->start->format('Ymd\THis');
+        $location = addslashes($this->location ?? '');
+        $description = addslashes($this->description ?? '');
+
+        return implode("\r\n", [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//HBCI//The Hive//EN',
+            'BEGIN:VEVENT',
+            "UID:event-{$this->id}@hbci.edu",
+            "DTSTART:{$start}",
+            "DTEND:{$end}",
+            "SUMMARY:{$this->title}",
+            "DESCRIPTION:{$description}",
+            "LOCATION:{$location}",
+            'END:VEVENT',
+            'END:VCALENDAR',
+        ]) . "\r\n";
     }
 }

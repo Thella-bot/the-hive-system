@@ -25,6 +25,13 @@
             </div>
 
             <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+              <input v-model="form.location" type="text"
+                     class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500"
+                     placeholder="e.g. Kitchen Lab 1, Main Hall" />
+            </div>
+
+            <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
               <select v-model="form.category" class="w-full rounded border-gray-300 border px-3 py-2">
                 <option value="event">Event</option>
@@ -58,11 +65,25 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">End Date & Time</label>
-                <input v-model="form.end" type="datetime-local" required
+                <label class="block text-sm font-medium text-gray-700 mb-1">End Date & Time <span class="text-gray-400">(optional)</span></label>
+                <input v-model="form.end" type="datetime-local"
                        class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500" />
                 <p v-if="errors.end" class="text-red-500 text-sm mt-1">{{ errors.end }}</p>
               </div>
+            </div>
+          </div>
+
+          <!-- Attendee list for admins -->
+          <div v-if="event.rsvps && event.rsvps.length" class="mt-6 p-4 bg-gray-50 rounded border">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2">Attendees ({{ event.rsvps.length }})</h3>
+            <div class="flex flex-wrap gap-2">
+              <span v-for="rsvp in event.rsvps" :key="rsvp.id"
+                    :class="['px-2 py-0.5 text-xs rounded-full',
+                      rsvp.status === 'attending' ? 'bg-green-100 text-green-800' :
+                      rsvp.status === 'maybe' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800']">
+                {{ rsvp.user?.name }} ({{ rsvp.status }})
+              </span>
             </div>
           </div>
 
@@ -71,6 +92,10 @@
                     class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 disabled:opacity-50">
               {{ processing ? 'Updating...' : 'Update Event' }}
             </button>
+            <a :href="route('hive.events.ical', event.id)" target="_blank"
+               class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded">
+              📅 Export .ics
+            </a>
             <Link :href="route('hive.events.index')" class="px-4 py-2 text-gray-600 hover:text-gray-800">
               Cancel
             </Link>
@@ -94,8 +119,9 @@ const props = defineProps({
 const form = useForm({
   title: props.event.title,
   description: props.event.description,
+  location: props.event.location || '',
   start: props.event.start,
-  end: props.event.end,
+  end: props.event.end || '',
   category: props.event.category || 'event',
   target_modules: props.event.target_modules || [],
 });

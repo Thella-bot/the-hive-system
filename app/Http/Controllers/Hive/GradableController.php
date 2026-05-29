@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\Gradable;
 use App\Models\GradableAttachment;
+use App\Models\GradableQuestion;
+use App\Models\GradableQuestionOption;
 use App\Models\Module;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -99,10 +101,16 @@ class GradableController extends Controller
         }
 
         $gradableTypes = \App\Enums\GradableType::cases();
+        $submissionTypes = [
+            ['value' => Gradable::SUBMISSION_TYPE_FILE_UPLOAD, 'label' => 'File Upload'],
+            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_FILLABLE, 'label' => 'Online (Fill in the Blank / Short Answer)'],
+            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_MCQ, 'label' => 'Online (Multiple Choice)'],
+        ];
 
         return Inertia::render('Hive/Gradables/Create', [
             'modules' => $modules,
             'gradableTypes' => array_map(fn($type) => $type->value, $gradableTypes),
+            'submissionTypes' => $submissionTypes,
         ]);
     }
 
@@ -116,9 +124,15 @@ class GradableController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|string',
+            'submission_type' => 'required|string|in:file_upload,online_fillable,online_multiple_choice',
             'module_id' => 'required|exists:modules,id',
             'due_date' => 'required|date',
             'duration_minutes' => 'nullable|integer|min:0',
+            'time_limit_minutes' => 'nullable|integer|min:1',
+            'max_attempts' => 'nullable|integer|min:1',
+            'show_correct_answers' => 'nullable|boolean',
+            'shuffle_questions' => 'nullable|boolean',
+            'shuffle_options' => 'nullable|boolean',
             'description' => 'nullable|string',
             'max_marks' => 'nullable|numeric|min:0',
             'weight' => 'nullable|numeric|min:0|max:100',
@@ -130,6 +144,11 @@ class GradableController extends Controller
         ]);
 
         $validated['instructor_id'] = auth()->id();
+
+        // Convert boolean strings
+        $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
+        $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
+        $validated['shuffle_options'] = $request->boolean('shuffle_options');
 
         $gradable = Gradable::create($validated);
 
@@ -149,7 +168,7 @@ class GradableController extends Controller
             }
         }
 
-        return redirect()->route('hive.gradables.index')->with('success', 'Assessment created successfully.');
+        return redirect()->route('hive.gradables.edit', $gradable->id)->with('success', 'Assessment created. Now add your questions.');
     }
 
     /**
@@ -159,23 +178,42 @@ class GradableController extends Controller
     {
         $this->authorize('view', $gradable);
 
-        $gradable->load(['module', 'instructor', 'submissions', 'attachments.uploader']);
-
         $user = auth()->user();
         $isInstructor = $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
+        $isStudent = $user->hasRole('student');
+
+        // Load appropriate relations
+        $relations = ['module', 'instructor', 'attachments.uploader'];
+        if ($isInstructor) {
+            $relations[] = 'questions.options';
+            $relations[] = 'submissions.student';
+        }
+
+        $gradable->load($relations);
 
         // Get student's submission if exists (for students)
         $studentSubmission = null;
-        if ($user->hasRole('student')) {
+        $studentAnswers = [];
+        if ($isStudent) {
             $studentSubmission = $gradable->submissions()
                 ->where('student_id', $user->id)
                 ->first();
+
+            // Get student's answers for online assessments
+            if ($gradable->isOnlineAssessment()) {
+                $studentAnswers = $gradable->answers()
+                    ->where('student_id', $user->id)
+                    ->get()
+                    ->keyBy('gradable_question_id');
+            }
         }
 
         return Inertia::render('Hive/Gradables/Show', [
             'gradable' => $gradable,
             'isInstructor' => $isInstructor,
+            'isStudent' => $isStudent,
             'studentSubmission' => $studentSubmission,
+            'studentAnswers' => $studentAnswers,
         ]);
     }
 
@@ -195,12 +233,19 @@ class GradableController extends Controller
         }
 
         $gradableTypes = \App\Enums\GradableType::cases();
-        $gradable->load('attachments');
+        $submissionTypes = [
+            ['value' => Gradable::SUBMISSION_TYPE_FILE_UPLOAD, 'label' => 'File Upload'],
+            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_FILLABLE, 'label' => 'Online (Fill in the Blank / Short Answer)'],
+            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_MCQ, 'label' => 'Online (Multiple Choice)'],
+        ];
+
+        $gradable->load('attachments', 'questions.options');
 
         return Inertia::render('Hive/Gradables/Edit', [
             'gradable' => $gradable,
             'modules' => $modules,
             'gradableTypes' => array_map(fn($type) => $type->value, $gradableTypes),
+            'submissionTypes' => $submissionTypes,
         ]);
     }
 
@@ -214,9 +259,15 @@ class GradableController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'required|string',
+            'submission_type' => 'required|string|in:file_upload,online_fillable,online_multiple_choice',
             'module_id' => 'required|exists:modules,id',
             'due_date' => 'required|date',
             'duration_minutes' => 'nullable|integer|min:0',
+            'time_limit_minutes' => 'nullable|integer|min:1',
+            'max_attempts' => 'nullable|integer|min:1',
+            'show_correct_answers' => 'nullable|boolean',
+            'shuffle_questions' => 'nullable|boolean',
+            'shuffle_options' => 'nullable|boolean',
             'description' => 'nullable|string',
             'max_marks' => 'nullable|numeric|min:0',
             'weight' => 'nullable|numeric|min:0|max:100',
@@ -224,9 +275,13 @@ class GradableController extends Controller
             'allowed_types' => 'nullable|string',
         ]);
 
+        $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
+        $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
+        $validated['shuffle_options'] = $request->boolean('shuffle_options');
+
         $gradable->update($validated);
 
-        return redirect()->route('hive.gradables.index')->with('success', 'Assessment updated successfully.');
+        return back()->with('success', 'Assessment updated.');
     }
 
     /**
@@ -244,6 +299,115 @@ class GradableController extends Controller
         $gradable->delete();
 
         return redirect()->route('hive.gradables.index')->with('success', 'Assessment deleted.');
+    }
+
+    /**
+     * Store a question for an online assessment.
+     */
+    public function storeQuestion(Request $request, Gradable $gradable): RedirectResponse
+    {
+        $this->authorize('update', $gradable);
+
+        if (!$gradable->isOnlineAssessment()) {
+            return back()->with('error', 'Questions can only be added to online assessments.');
+        }
+
+        $validated = $request->validate([
+            'type' => 'required|string|in:multiple_choice,fill_in_blank,short_answer,essay',
+            'question_text' => 'required|string',
+            'points' => 'nullable|integer|min:1',
+            'is_required' => 'nullable|boolean',
+            'explanation' => 'nullable|string',
+            'options' => 'nullable|array',
+            'options.*.option_text' => 'required|string',
+            'options.*.is_correct' => 'nullable|boolean',
+        ]);
+
+        $question = $gradable->questions()->create([
+            'type' => $validated['type'],
+            'question_text' => $validated['question_text'],
+            'points' => $validated['points'] ?? 1,
+            'is_required' => $request->boolean('is_required', true),
+            'explanation' => $validated['explanation'] ?? null,
+            'sort_order' => $gradable->questions()->max('sort_order') + 1,
+        ]);
+
+        // Handle options for MCQ
+        if ($validated['type'] === 'multiple_choice' && !empty($validated['options'])) {
+            foreach ($validated['options'] as $idx => $option) {
+                $question->options()->create([
+                    'option_text' => $option['option_text'],
+                    'is_correct' => !empty($option['is_correct']),
+                    'sort_order' => $idx,
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Question added.');
+    }
+
+    /**
+     * Update a question.
+     */
+    public function updateQuestion(Request $request, Gradable $gradable, GradableQuestion $question): RedirectResponse
+    {
+        $this->authorize('update', $gradable);
+
+        if ($question->gradable_id !== $gradable->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'type' => 'required|string|in:multiple_choice,fill_in_blank,short_answer,essay',
+            'question_text' => 'required|string',
+            'points' => 'nullable|integer|min:1',
+            'is_required' => 'nullable|boolean',
+            'explanation' => 'nullable|string',
+            'options' => 'nullable|array',
+            'options.*.option_text' => 'required|string',
+            'options.*.is_correct' => 'nullable|boolean',
+        ]);
+
+        $question->update([
+            'type' => $validated['type'],
+            'question_text' => $validated['question_text'],
+            'points' => $validated['points'] ?? 1,
+            'is_required' => $request->boolean('is_required', true),
+            'explanation' => $validated['explanation'] ?? null,
+        ]);
+
+        // Update options for MCQ
+        if ($validated['type'] === 'multiple_choice' && !empty($validated['options'])) {
+            // Delete old options
+            $question->options()->delete();
+
+            foreach ($validated['options'] as $idx => $option) {
+                $question->options()->create([
+                    'option_text' => $option['option_text'],
+                    'is_correct' => !empty($option['is_correct']),
+                    'sort_order' => $idx,
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Question updated.');
+    }
+
+    /**
+     * Delete a question.
+     */
+    public function deleteQuestion(Gradable $gradable, GradableQuestion $question): RedirectResponse
+    {
+        $this->authorize('update', $gradable);
+
+        if ($question->gradable_id !== $gradable->id) {
+            abort(403);
+        }
+
+        $question->options()->delete();
+        $question->delete();
+
+        return back()->with('success', 'Question deleted.');
     }
 
     /**
@@ -301,5 +465,75 @@ class GradableController extends Controller
         }
 
         return Storage::download($attachment->file_path, $attachment->title);
+    }
+
+    /**
+     * Submit answers for an online assessment.
+     */
+    public function submitOnline(Request $request, Gradable $gradable): RedirectResponse
+    {
+        $user = auth()->user();
+
+        if (!$user->hasRole('student')) {
+            abort(403, 'Only students can submit online assessments.');
+        }
+
+        if (!$gradable->isOnlineAssessment()) {
+            return back()->with('error', 'This assessment does not accept online submissions.');
+        }
+
+        if ($gradable->due_date && now()->gt($gradable->due_date)) {
+            return back()->with('error', 'The deadline for this assessment has passed.');
+        }
+
+        $validated = $request->validate([
+            'answers' => 'required|array',
+            'answers.*.question_id' => 'required|exists:gradable_questions,id',
+            'answers.*.option_id' => 'nullable|exists:gradable_question_options,id',
+            'answers.*.answer_text' => 'nullable|string',
+        ]);
+
+        foreach ($validated['answers'] as $answerData) {
+            $question = GradableQuestion::find($answerData['question_id']);
+
+            // Auto-grade MCQ
+            $isCorrect = null;
+            $pointsAwarded = 0;
+
+            if ($question->type === 'multiple_choice' && !empty($answerData['option_id'])) {
+                $selectedOption = GradableQuestionOption::find($answerData['option_id']);
+                $isCorrect = $selectedOption && $selectedOption->is_correct;
+                $pointsAwarded = $isCorrect ? $question->points : 0;
+            }
+
+            GradableAnswer::updateOrCreate(
+                [
+                    'gradable_id' => $gradable->id,
+                    'student_id' => $user->id,
+                    'gradable_question_id' => $question->id,
+                ],
+                [
+                    'gradable_question_option_id' => $answerData['option_id'] ?? null,
+                    'answer_text' => $answerData['answer_text'] ?? null,
+                    'is_correct' => $isCorrect,
+                    'points_awarded' => $pointsAwarded,
+                    'answered_at' => now(),
+                ]
+            );
+        }
+
+        // Create submission record
+        Submission::updateOrCreate(
+            [
+                'gradable_id' => $gradable->id,
+                'student_id' => $user->id,
+            ],
+            [
+                'submitted_at' => now(),
+                'is_late' => now()->gt($gradable->due_date),
+            ]
+        );
+
+        return back()->with('success', 'Answers submitted successfully!');
     }
 }

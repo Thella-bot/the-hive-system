@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatChannel;
+use App\Models\Department;
 use App\Models\Module;
 use Illuminate\Http\Request;
 
@@ -12,21 +14,59 @@ class ChatController extends Controller
     {
         $user = auth()->user();
 
-        // Get modules the user is enrolled in (for students) or teaching (for instructors)
-        $modules = $user->isStudent()
+        $moduleChannels = $user->isStudent()
             ? $user->modules()->with('instructors')->get()
             : $user->instructedModules()->with('programme')->get();
 
+        $generalChannel = ChatChannel::firstOrCreate(
+            ['channel_type' => 'general', 'channel_id' => null],
+            ['name' => 'All Staff']
+        );
+
+        $deptChannels = null;
+        if ($user->profile?->department_id) {
+            $dept = Department::find($user->profile->department_id);
+            if ($dept) {
+                $deptChannels = ChatChannel::firstOrCreate(
+                    ['channel_type' => 'department', 'channel_id' => $dept->id],
+                    ['name' => $dept->name]
+                );
+            }
+        }
+
         return inertia('Hive/Modules/ChatIndex', [
-            'modules' => $modules,
+            'moduleChannels' => $moduleChannels,
+            'generalChannel' => $generalChannel,
+            'deptChannels' => $deptChannels,
         ]);
     }
 
-    public function show(Module $module)
+    public function showChannel(ChatChannel $channel)
     {
         $user = auth()->user();
 
-        // Check if user is enrolled in this module or is an instructor
+        $canAccess = match ($channel->channel_type) {
+            'module' => $user->modules()->where('module_id', $channel->channel_id)->exists()
+                        || $user->instructedModules()->where('module_id', $channel->channel_id)->exists()
+                        || $user->hasAnyRole(['super-admin', 'school-admin']),
+            'department' => $user->profile?->department_id == $channel->channel_id
+                           || $user->hasAnyRole(['super-admin', 'school-admin']),
+            'general' => $user->hasAnyRole(['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin']),
+            'direct' => in_array((string) $user->id, $channel->participants ?? []),
+            default => false,
+        };
+
+        if (!$canAccess) {
+            abort(403);
+        }
+
+        return inertia('Hive/Modules/Chat', ['channel' => $channel]);
+    }
+
+    public function showModule(Module $module)
+    {
+        $user = auth()->user();
+
         $isEnrolled = $user->modules()->where('module_id', $module->id)->exists();
         $isInstructor = $module->instructors()->where('user_id', $user->id)->exists();
         $isAdmin = $user->hasAnyRole(['super-admin', 'school-admin']);
@@ -35,8 +75,14 @@ class ChatController extends Controller
             abort(403, 'You are not enrolled in this module.');
         }
 
+        $channel = ChatChannel::firstOrCreate(
+            ['channel_type' => 'module', 'channel_id' => $module->id],
+            ['name' => $module->name]
+        );
+
         return inertia('Hive/Modules/Chat', [
             'module' => $module,
+            'channel' => $channel,
         ]);
     }
 }

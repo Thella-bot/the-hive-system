@@ -52,6 +52,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
 
         Route::resource('announcements', AnnouncementController::class)->except(['show']);
+        Route::get('announcements/{announcement}/attachments/{attachment}/download', [AnnouncementController::class, 'downloadAttachment'])
+            ->name('announcements.attachments.download');
         Route::resource('applications', ApplicationController::class)->except(['create', 'destroy']);
         Route::post('applications/{application}/complete-registration', [ApplicationController::class, 'completeRegistration'])->name('applications.complete-registration');
 
@@ -64,6 +66,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::get('documents/modules', [DocumentController::class, 'moduleSelect'])->name('documents.module-select');
         Route::post('documents/{document}/versions', [DocumentController::class, 'addVersion'])->name('documents.versions.store');
         Route::get('document-versions/{version}/download', [DocumentController::class, 'download'])->name('documents.version.download');
+        Route::post('documents/{document}/acknowledge', [DocumentController::class, 'acknowledge'])->name('documents.acknowledge');
+        Route::get('documents/{document}/acknowledgements', [DocumentController::class, 'acknowledgements'])->name('documents.acknowledgements');
 
         Route::resource('leave-requests', LeaveRequestController::class)
             ->parameters(['leave-requests' => 'leave'])
@@ -119,7 +123,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             Route::post('gradables/{gradable}/attachments', [GradableController::class, 'uploadAttachment'])->name('gradables.attachments.store');
             Route::delete('gradables/{gradable}/attachments/{attachment}', [GradableController::class, 'deleteAttachment'])->name('gradables.attachments.destroy');
             Route::get('gradables/{gradable}/attachments/{attachment}/download', [GradableController::class, 'downloadAttachment'])->name('gradables.attachments.download');
+            // Question routes
+            Route::post('gradables/{gradable}/questions', [GradableController::class, 'storeQuestion'])->name('gradables.questions.store');
+            Route::put('gradables/{gradable}/questions/{question}', [GradableController::class, 'updateQuestion'])->name('gradables.questions.update');
+            Route::delete('gradables/{gradable}/questions/{question}', [GradableController::class, 'deleteQuestion'])->name('gradables.questions.destroy');
         });
+
+        // Student answer submission for online assessments (requires registered middleware)
+        Route::post('gradables/{gradable}/submit-online', [GradableController::class, 'submitOnline'])->name('gradables.submit-online')->middleware('registered');
 
         // Enrollment (for students)
         Route::get('enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index')->middleware('registered');
@@ -131,11 +142,51 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         // Events Calendar
         Route::resource('events', EventController::class);
+        Route::post('events/{event}/rsvp', [EventController::class, 'rsvp'])->name('events.rsvp');
+        Route::get('events/{event}/ical', [EventController::class, 'exportICal'])->name('events.ical');
+        Route::get('events/{event}/qrcode', [EventController::class, 'qrCode'])->name('events.qrcode');
 
         // Assessments - redirect tests to gradables
         Route::redirect('tests', 'gradables?type=test')->name('tests.index');
 
         // Chat
         Route::get('chat', [ChatController::class, 'index'])->name('chat.index')->middleware('registered');
-        Route::get('chat/{module}', [ChatController::class, 'show'])->name('chat.show')->middleware('registered');
+        Route::get('chat/channel/{channel}', [ChatController::class, 'showChannel'])->name('chat.channel')->middleware('registered');
+        Route::get('chat/module/{module}', [ChatController::class, 'showModule'])->name('chat.module')->middleware('registered');
+
+        // Achievements (leaderboard)
+        Route::resource('achievements', AchievementController::class)->only(['index', 'store', 'destroy']);
+
+        // Polls & surveys
+        Route::resource('polls', PollController::class)->only(['index', 'store', 'destroy']);
+        Route::post('polls/{poll}/vote', [PollController::class, 'vote'])->name('polls.vote');
+
+        // Programme waitlist
+        Route::get('waitlist', [WaitlistController::class, 'index'])->name('waitlist.index');
+        Route::post('waitlist', [WaitlistController::class, 'join'])->name('waitlist.join');
+        Route::delete('waitlist/{waitlist}', [WaitlistController::class, 'leave'])->name('waitlist.leave');
+
+        // Keys & access management
+        Route::resource('keys', KeyController::class)->only(['index', 'store']);
+        Route::post('keys/{key}/issue', [KeyController::class, 'issue'])->name('keys.issue');
+        Route::post('keys/{key}/return', [KeyController::class, 'return'])->name('keys.return');
+        Route::post('keys/{key}/report-lost', [KeyController::class, 'reportLost'])->name('keys.report-lost');
+
+        // Attendance / QR check-in
+        Route::get('attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
+        Route::post('attendance/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin');
+
+        // Visitor log
+        Route::resource('visitor-logs', VisitorLogController::class)->only(['index', 'store']);
+        Route::post('visitor-logs/{log}/checkout', [VisitorLogController::class, 'checkOut'])->name('visitor-logs.checkout');
+
+        // Suppliers
+        Route::resource('suppliers', SupplierController::class);
+
+        // Uniform requests
+        Route::resource('uniform-requests', UniformRequestController::class)->only(['index', 'store']);
+        Route::post('uniform-requests/{uniform_request}/review', [UniformRequestController::class, 'review'])->name('uniform-requests.review');
+
+        // Student ID card
+        Route::get('student-id', [StudentIdController::class, 'show'])->name('student-id');
     });

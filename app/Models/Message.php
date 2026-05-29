@@ -12,6 +12,7 @@ class Message extends Model
     protected $fillable = [
         'user_id',
         'module_id',
+        'chat_channel_id',
         'message',
     ];
 
@@ -23,5 +24,10 @@ class Message extends Model
     public function module()
     {
         return $this->belongsTo(Module::class);
+    }
+
+    public function chatChannel()
+    {
+        return $this->belongsTo(ChatChannel::class);
     }
 }

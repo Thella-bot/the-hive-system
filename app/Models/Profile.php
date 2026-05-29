@@ -49,4 +49,9 @@ class Profile extends Model
     {
         return $this->belongsTo(Cohort::class);
     }
+
+    public function hasSufficientBalanceFor(float $days): bool
+    {
+        return $this->leave_balance >= $days;
+    }
 }

@@ -32,6 +32,55 @@
                         </select>
                     </div>
 
+                    <!-- Submission Type -->
+                    <div>
+                        <label for="submission_type" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Submission Type *</label>
+                        <select v-model="form.submission_type" id="submission_type" required
+                            class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
+                            <option value="" disabled>Select submission type</option>
+                            <option v-for="st in submissionTypes" :key="st.value" :value="st.value">{{ st.label }}</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            <span v-if="form.submission_type === 'file_upload'">Students will upload files as their submission.</span>
+                            <span v-else-if="form.submission_type === 'online_fillable'">Students answer fill-in-the-blank and short answer questions online.</span>
+                            <span v-else-if="form.submission_type === 'online_multiple_choice'">Students answer multiple choice questions online.</span>
+                        </p>
+                    </div>
+
+                    <!-- Online Assessment Options (shown when submission_type is online) -->
+                    <div v-if="form.submission_type && form.submission_type !== 'file_upload'" class="space-y-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-200">Online Assessment Options</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="time_limit_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Time Limit (minutes)</label>
+                                <input type="number" v-model="form.time_limit_minutes" id="time_limit_minutes" min="1" placeholder="No limit"
+                                    class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="max_attempts" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Max Attempts</label>
+                                <input type="number" v-model="form.max_attempts" id="max_attempts" min="1" placeholder="Unlimited"
+                                    class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" v-model="form.shuffle_questions"
+                                    class="rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700" />
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Shuffle questions for each student</span>
+                            </label>
+                            <label v-if="form.submission_type === 'online_multiple_choice'" class="inline-flex items-center">
+                                <input type="checkbox" v-model="form.shuffle_options"
+                                    class="rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700" />
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Shuffle options for each question</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" v-model="form.show_correct_answers"
+                                    class="rounded border-gray-300 dark:border-gray-600 text-amber-600 focus:ring-amber-500 dark:bg-gray-700" />
+                                <span class="ml-2 text-sm text-gray-700 dark:text-gray-200">Show correct answers after submission</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Due Date -->
                     <div>
                         <label for="due_date" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Due Date *</label>
@@ -58,22 +107,21 @@
                         <label for="weight" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Weight (% of total grade)</label>
                         <input type="number" v-model="form.weight" id="weight" min="0" max="100" step="0.01" placeholder="e.g. 25"
                             class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Percentage this assessment contributes to final grade</p>
                     </div>
 
-                    <!-- Two Column Row: Max File Size + Allowed Types -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="max_file_size" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Max File Size (KB)</label>
-                            <input type="number" v-model="form.max_file_size" id="max_file_size" min="1" max="102400" placeholder="e.g. 20480"
-                                class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Leave blank for default</p>
-                        </div>
-                        <div>
-                            <label for="allowed_types" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Allowed File Types</label>
-                            <input type="text" v-model="form.allowed_types" id="allowed_types" placeholder="pdf,doc,docx"
-                                class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Comma-separated, e.g. pdf,doc,docx</p>
+                    <!-- File Upload Options (shown for file_upload type) -->
+                    <div v-if="form.submission_type === 'file_upload'" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="max_file_size" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Max File Size (KB)</label>
+                                <input type="number" v-model="form.max_file_size" id="max_file_size" min="1" max="102400" placeholder="e.g. 20480"
+                                    class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="allowed_types" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Allowed File Types</label>
+                                <input type="text" v-model="form.allowed_types" id="allowed_types" placeholder="pdf,doc,docx"
+                                    class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm">
+                            </div>
                         </div>
                     </div>
 
@@ -82,32 +130,6 @@
                         <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Description / Instructions</label>
                         <textarea v-model="form.description" id="description" rows="4" placeholder="Add any instructions or details..."
                             class="block w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white sm:text-sm"></textarea>
-                    </div>
-
-                    <!-- Attachments -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Attachments</label>
-                        <div class="space-y-3">
-                            <div v-for="(attachment, index) in attachments" :key="index" class="flex items-center gap-3">
-                                <input type="text" v-model="attachment.title" :placeholder="'File ' + (index + 1) + ' title'"
-                                    class="flex-1 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white text-sm">
-                                <input type="file" @change="handleFileChange($event, index)"
-                                    class="flex-1 text-sm text-gray-500 dark:text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 dark:file:bg-amber-900/30 dark:file:text-amber-300 hover:file:bg-amber-100 dark:hover:file:bg-amber-900/50">
-                                <button type="button" @click="removeAttachment(index)"
-                                    class="p-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <button type="button" @click="addAttachment"
-                            class="mt-3 inline-flex items-center px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200">
-                            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            Add Attachment
-                        </button>
                     </div>
 
                     <!-- Error Messages -->
@@ -133,23 +155,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 const props = defineProps({
     modules: Array,
     gradableTypes: Array,
+    submissionTypes: Array,
 });
-
-const attachments = ref([]);
 
 const form = useForm({
     title: '',
     type: '',
+    submission_type: '',
     module_id: '',
     due_date: '',
     duration_minutes: '',
+    time_limit_minutes: '',
+    max_attempts: '',
+    show_correct_answers: false,
+    shuffle_questions: false,
+    shuffle_options: false,
     description: '',
     max_marks: '',
     weight: '',
@@ -161,42 +187,7 @@ const formatType = (type) => {
     return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
 
-const addAttachment = () => {
-    attachments.value.push({ title: '', file: null });
-};
-
-const removeAttachment = (index) => {
-    attachments.value.splice(index, 1);
-};
-
-const handleFileChange = (event, index) => {
-    attachments.value[index].file = event.target.files[0];
-};
-
 const submit = () => {
-    const data = new FormData();
-    data.append('title', form.title);
-    data.append('type', form.type);
-    data.append('module_id', form.module_id);
-    data.append('due_date', form.due_date);
-
-    if (form.duration_minutes) data.append('duration_minutes', form.duration_minutes);
-    if (form.description) data.append('description', form.description);
-    if (form.max_marks) data.append('max_marks', form.max_marks);
-    if (form.weight) data.append('weight', form.weight);
-    if (form.max_file_size) data.append('max_file_size', form.max_file_size);
-    if (form.allowed_types) data.append('allowed_types', form.allowed_types);
-
-    attachments.value.forEach((attachment, index) => {
-        if (attachment.file) {
-            data.append(`attachments[${index}][title]`, attachment.title || attachment.file.name);
-            data.append(`attachments[${index}][file]`, attachment.file);
-        }
-    });
-
-    form.post(route('hive.gradables.store'), {
-        data,
-        forceFormData: true,
-    });
+    form.post(route('hive.gradables.store'));
 };
 </script>

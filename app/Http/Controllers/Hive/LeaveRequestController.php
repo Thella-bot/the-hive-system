@@ -19,14 +19,13 @@ class LeaveRequestController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        // Policy scope would be better, but for now, this simplifies the if/else
         $leaves = LeaveRequest::query()
             ->with('user')
             ->when(!$user->hasAnyRole(['super-admin', 'school-admin']), function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
             ->latest()
-            ->get();
+            ->paginate(20);
 
         return Inertia::render('Hive/Leaves/Index', [
             'leaves' => $leaves,
@@ -45,22 +44,23 @@ class LeaveRequestController extends Controller
         $this->authorize('create', LeaveRequest::class);
 
         $data = $request->validate([
-            'type' => 'required|in:annual,sick,other',
+            'type' => 'required|in:annual,sick,maternity,paternity,compassionate,study,other',
+            'half_day' => 'nullable|boolean',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'nullable|string',
         ]);
 
-        // Check balance (if annual leave)
-        $days = (new \DateTime($data['start_date']))->diff(new \DateTime($data['end_date']))->days + 1;
         $profile = $user->profile;
-        if ($data['type'] === 'annual' && $profile && $profile->leave_balance < $days) {
+
+        // Check balance (if annual leave)
+        $leave = new LeaveRequest($data);
+        if ($data['type'] === 'annual' && $profile && $profile->leave_balance < $leave->days()) {
             return back()->withErrors(['start_date' => 'Insufficient leave balance.']);
         }
 
         $leave = $user->leaveRequests()->create($data);
 
-        // Notify HR staff and admins
         $hrUsers = User::role(['super-admin', 'school-admin'])->get();
         Notification::send($hrUsers, new LeaveRequestSubmitted($leave));
 
@@ -70,25 +70,40 @@ class LeaveRequestController extends Controller
     public function update(Request $request, LeaveRequest $leave)
     {
         $this->authorize('update', $leave);
-        $request->validate(['status' => 'required|in:approved,rejected']);
+
+        $validated = $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'rejection_reason' => 'nullable|string|max:500',
+        ]);
+
         $leave->update([
-            'status' => $request->status,
+            'status' => $validated['status'],
             'approved_by' => $request->user()->id,
             'approved_at' => now(),
         ]);
 
-        // If approved, deduct balance
-        if ($request->status === 'approved' && $leave->type === 'annual') {
-            $profile = $leave->user->profile;
-            if ($profile) {
-                $days = $leave->days();
-                $profile->decrement('leave_balance', min($days, $profile->leave_balance));
-            }
+        if ($validated['status'] === 'approved') {
+            $leave->deductFromBalance();
+        } elseif ($validated['status'] === 'rejected' && !empty($validated['rejection_reason'])) {
+            $leave->update(['rejection_reason' => $validated['rejection_reason']]);
         }
 
-        // Notify the user who submitted the request
         $leave->user->notify(new LeaveRequestUpdated($leave));
 
-        return back()->with('success', 'Leave request '.$request->status.'.');
+        return back()->with('success', 'Leave request ' . $validated['status'] . '.');
+    }
+
+    public function destroy(Request $request, LeaveRequest $leave)
+    {
+        if ($leave->user_id !== $request->user()->id) {
+            abort(403);
+        }
+        if ($leave->status !== 'pending' || $leave->is_cancelled) {
+            abort(403, 'Only pending requests can be cancelled.');
+        }
+
+        $leave->update(['is_cancelled' => true, 'cancelled_at' => now()]);
+
+        return back()->with('success', 'Leave request cancelled.');
     }
 }

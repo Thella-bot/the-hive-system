@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import InputError from '@/Components/InputError.vue';
@@ -10,7 +10,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
 const props = defineProps({
-    module: Object,
+    module: { type: Object, default: null },
+    channel: { type: Object, required: true },
 });
 
 const page = usePage();
@@ -20,6 +21,14 @@ const newMessage = ref('');
 const formError = ref(null);
 const messageContainer = ref(null);
 
+const channelTitle = computed(() => {
+    if (props.module) return `Module: ${props.module.name}`;
+    if (props.channel.channel_type === 'general') return 'All Staff Chat';
+    if (props.channel.channel_type === 'department') return `${props.channel.name} Department`;
+    if (props.channel.channel_type === 'direct') return 'Direct Message';
+    return props.channel.name;
+});
+
 const scrollToBottom = () => {
     nextTick(() => {
         if (messageContainer.value) {
@@ -28,9 +37,24 @@ const scrollToBottom = () => {
     });
 };
 
+const echoChannelName = computed(() => {
+    if (props.module) return `module.${props.module.id}`;
+    if (props.channel.channel_type === 'module') return `chat.module.${props.channel.channel_id}`;
+    if (props.channel.channel_type === 'department') return `chat.department.${props.channel.channel_id}`;
+    if (props.channel.channel_type === 'general') return 'chat.general';
+    if (props.channel.channel_type === 'direct') return `chat.direct.${props.channel.id}`;
+    return `module.${props.module?.id}`;
+});
+
 const fetchMessages = async () => {
     try {
-        const response = await axios.get(route('messages.index', { module: props.module.id }));
+        let url;
+        if (props.module) {
+            url = route('messages.index', { module: props.module.id });
+        } else {
+            url = route('channels.messages.index', { channel: props.channel.id });
+        }
+        const response = await axios.get(url);
         messages.value = response.data;
         scrollToBottom();
     } catch (error) {
@@ -46,14 +70,18 @@ const sendMessage = async () => {
 
     try {
         formError.value = null;
-        await axios.post(route('messages.store', { module: props.module.id }), {
-            message: newMessage.value,
-        });
+        let url;
+        if (props.module) {
+            url = route('messages.store', { module: props.module.id });
+        } else {
+            url = route('channels.messages.store', { channel: props.channel.id });
+        }
+        await axios.post(url, { message: newMessage.value });
         newMessage.value = '';
         scrollToBottom();
     } catch (error) {
         console.error('Error sending message:', error);
-        if (error.response && error.response.data.errors) {
+        if (error.response?.data?.errors?.message) {
             formError.value = error.response.data.errors.message[0];
         } else {
             formError.value = 'An unexpected error occurred.';
@@ -66,9 +94,8 @@ let echoChannel = null;
 onMounted(() => {
     fetchMessages();
 
-    // Listen for new messages via Echo (Laravel Broadcasting)
     if (window.Echo) {
-        echoChannel = window.Echo.private(`module.${props.module.id}`)
+        echoChannel = window.Echo.private(echoChannelName.value)
             .listen('ChatMessageSent', (e) => {
                 messages.value.push(e.message);
                 scrollToBottom();
@@ -84,18 +111,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <HiveLayout title="Chat" :description="`Module: ${module.name}`">
+    <HiveLayout :title="channelTitle">
         <div class="max-w-4xl mx-auto">
             <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <!-- Module Header -->
+                    <!-- Channel Header -->
                     <div class="mb-4 pb-4 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-800">
-                            Chat Room: {{ module.name }}
-                        </h2>
-                        <p class="text-sm text-gray-500 mt-1">
-                            Code: {{ module.code }} | Discuss with your classmates and instructors
-                        </p>
+                        <h2 class="text-xl font-semibold text-gray-800">{{ channelTitle }}</h2>
+                        <p class="text-sm text-gray-500 mt-1" v-if="module">{{ module.code }} | Discuss with your classmates and instructors</p>
                     </div>
 
                     <!-- Messages Container -->
@@ -137,12 +160,7 @@ onUnmounted(() => {
                                 placeholder="Type your message..."
                                 autocomplete="off"
                             />
-                            <PrimaryButton
-                                class="px-6"
-                                :disabled="!newMessage.trim()"
-                            >
-                                Send
-                            </PrimaryButton>
+                            <PrimaryButton class="px-6" :disabled="!newMessage.trim()">Send</PrimaryButton>
                         </div>
                         <InputError :message="formError" class="mt-2" />
                     </form>

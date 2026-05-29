@@ -1,5 +1,26 @@
 <template>
   <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Emergency Broadcast Modal -->
+    <Transition name="fade">
+      <div v-if="emergencyAlert" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90">
+        <div class="mx-4 w-full max-w-lg rounded-2xl border-2 border-red-500 bg-white p-8 shadow-2xl">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-5xl">🚨</span>
+            <div>
+              <h2 class="text-2xl font-bold text-red-600 uppercase tracking-wide">Emergency Alert</h2>
+              <p class="text-sm text-gray-500">{{ formatDateTime(emergencyAlert.created_at) }}</p>
+            </div>
+          </div>
+          <h3 class="mb-3 text-xl font-bold text-gray-900">{{ emergencyAlert.title }}</h3>
+          <p class="mb-6 whitespace-pre-line text-gray-700">{{ emergencyAlert.body }}</p>
+          <button @click="emergencyAlert = null"
+            class="w-full rounded-lg bg-red-600 px-4 py-3 font-semibold text-white hover:bg-red-700 transition">
+            I Have Read This — Dismiss
+          </button>
+        </div>
+      </div>
+    </Transition>
+
     <div
       v-if="sidebarOpen"
       class="fixed inset-0 z-30 bg-gray-900/50 lg:hidden"
@@ -223,6 +244,22 @@ const page = usePage();
 const sidebarOpen = ref(false);
 const expandedCategories = ref([]);
 const searchQuery = ref('');
+const emergencyAlert = ref(null);
+
+const formatDateTime = (iso) => {
+  return new Date(iso).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+};
+
+onMounted(() => {
+  autoExpandActiveCategory();
+
+  if (window.Echo) {
+    window.Echo.private('emergency')
+      .listen('EmergencyAlert', (e) => {
+        emergencyAlert.value = e;
+      });
+  }
+});
 
 const currentUser = computed(() => page.props.auth?.user);
 const userRoles = computed(() => currentUser.value?.roles || []);
@@ -317,6 +354,8 @@ const navigation = computed(() => {
           icon: ChatBubbleLeftRightIcon,
           children: [
             { name: 'Chat', href: route('hive.chat.index'), active: 'hive.chat.*', roles: ['student'] },
+            { name: 'Polls', href: route('hive.polls.index'), active: 'hive.polls.*', roles: ['student'] },
+            { name: 'Student ID Card', href: route('hive.student-id'), active: 'hive.student-id', roles: ['student'] },
           ],
         },
       );
@@ -360,6 +399,8 @@ const navigation = computed(() => {
           { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*', roles: ['super-admin', 'school-admin'] },
           { name: 'Cohorts', href: route('hive.cohorts.index'), active: 'hive.cohorts.*', roles: ['super-admin', 'school-admin'] },
           { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*', roles: ['super-admin', 'school-admin'] },
+          { name: 'Waitlist', href: route('hive.waitlist.index'), active: 'hive.waitlist.*', roles: ['super-admin', 'school-admin'] },
+          { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*', roles: ['super-admin', 'school-admin'] },
         ],
       },
       {
@@ -370,6 +411,7 @@ const navigation = computed(() => {
           { name: 'Students', href: route('hive.students.index'), active: 'hive.students.*', roles: ['super-admin', 'school-admin'] },
           { name: 'Staff', href: route('hive.staff.index'), active: 'hive.staff.*', roles: ['super-admin', 'school-admin'] },
           { name: 'Pending Approvals', href: route('hive.admin.approve-users'), active: 'hive.admin.approve-users', roles: ['super-admin', 'school-admin'] },
+          { name: 'Achievements', href: route('hive.achievements.index'), active: 'hive.achievements.*', roles: ['super-admin', 'school-admin'] },
         ],
       },
     );
@@ -384,6 +426,7 @@ const navigation = computed(() => {
           { name: 'My Modules', href: route('hive.modules.index'), active: 'hive.modules.*', roles: ['super-admin', 'school-admin', 'academic_staff'] },
           { name: 'Gradebook', href: route('hive.grades.index'), active: 'hive.grades.*', roles: ['super-admin', 'school-admin', 'academic_staff'] },
           { name: 'Module Chat', href: route('hive.chat.index'), active: 'hive.chat.*', roles: ['super-admin', 'school-admin', 'academic_staff'] },
+          { name: 'QR Check-In', href: route('hive.attendance.scan'), active: 'hive.attendance.*', roles: ['super-admin', 'school-admin', 'academic_staff'] },
         ],
       },
       {
@@ -401,6 +444,9 @@ const navigation = computed(() => {
       children: [
         { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*' },
         { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*' },
+        { name: 'Visitor Logs', href: route('hive.visitor-logs.index'), active: 'hive.visitor-logs.*' },
+        { name: 'Suppliers', href: route('hive.suppliers.index'), active: 'hive.suppliers.*' },
+        { name: 'Keys', href: route('hive.keys.index'), active: 'hive.keys.*' },
         { name: 'Upload Document', href: route('hive.documents.create'), active: 'hive.documents.create' },
       ],
     });
@@ -413,6 +459,8 @@ const navigation = computed(() => {
       children: [
         { name: 'Leave Requests', href: route('hive.leaves.index'), active: 'hive.leaves.*', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
         { name: 'Payslips', href: route('hive.payslips.index'), active: 'hive.payslips.*', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
+        { name: 'Polls & Surveys', href: route('hive.polls.index'), active: 'hive.polls.*', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
+        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*' },
       ],
     });
   }
@@ -487,8 +535,6 @@ const autoExpandActiveCategory = () => {
     }
   });
 };
-
-onMounted(autoExpandActiveCategory);
 
 watch(
   () => page.url,

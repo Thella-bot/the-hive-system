@@ -39,15 +39,15 @@ class SearchController extends Controller
                     ->where(function ($builder) use ($like) {
                         $builder->where('name', 'like', $like)
                             ->orWhere('email', 'like', $like)
-                            ->orWhere('student_number', 'like', $like);
+                            ->orWhereHas('profile', fn($q) => $q->where('student_number', 'like', $like));
                     })
                     ->latest()
                     ->limit(8)
-                    ->get(['id', 'name', 'email', 'student_number'])
+                    ->get()
                     ->map(fn (User $person) => [
                         'id' => $person->id,
                         'title' => $person->name,
-                        'meta' => $person->student_number ?: $person->email,
+                        'meta' => $person->profile?->student_number ?: $person->email,
                         'url' => route('hive.users.show', $person),
                     ]);
             }

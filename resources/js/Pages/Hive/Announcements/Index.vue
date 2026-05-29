@@ -13,8 +13,26 @@
           </h2>
           <span class="text-xs text-gray-500">{{ new Date(ann.created_at).toLocaleDateString() }}</span>
         </div>
-        <p class="text-sm text-gray-700 mt-1">{{ ann.body.substring(0, 200) }}...</p>
-        <div class="mt-2 text-xs text-gray-500">
+
+        <!-- Announcement body: render HTML if available, otherwise plain text -->
+        <div v-if="ann.body_html" class="mt-2 text-sm text-gray-700 prose max-w-none" v-html="ann.body_html"></div>
+        <p v-else class="text-sm text-gray-700 mt-1">{{ ann.body.substring(0, 200) }}{{ ann.body.length > 200 ? '...' : '' }}</p>
+
+        <!-- Attachments -->
+        <div v-if="ann.attachments && ann.attachments.length" class="mt-2 flex flex-wrap gap-2">
+          <a
+            v-for="att in ann.attachments"
+            :key="att.id"
+            :href="route('hive.announcements.attachments.download', { announcement: ann.id, attachment: att.id })"
+            class="inline-flex items-center gap-1 text-xs text-amber-600 hover:text-amber-800 bg-amber-50 px-2 py-1 rounded border border-amber-200"
+            target="_blank"
+          >
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            {{ att.name }}
+          </a>
+        </div>
+
+        <div class="mt-2 text-xs text-gray-500 flex flex-wrap gap-2 items-center">
           <span class="bg-gray-100 px-2 py-0.5 rounded">{{ ann.category }}</span>
           <span v-if="ann.expires_at">Expires: {{ new Date(ann.expires_at).toLocaleDateString() }}</span>
         </div>
@@ -26,6 +44,7 @@
     </div>
   </HiveLayout>
 </template>
+
 <script setup>
 import { computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
