@@ -33,6 +33,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { Html5Qrcode } from 'html5-qrcode';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 const scanResult = ref('');

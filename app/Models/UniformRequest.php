@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class UniformRequest extends Model
 {
     protected $fillable = [
-        'user_id', 'item_type', 'size', 'quantity', 'status', 'reviewed_by', 'reviewed_at',
+        'user_id', 'item_type', 'size', 'quantity', 'status', 'reviewed_by', 'reviewed_at', 'rejection_reason',
     ];
 
     protected $casts = [

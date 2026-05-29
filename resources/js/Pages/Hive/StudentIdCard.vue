@@ -66,7 +66,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
-import QRCode from 'qrcode';
 
 const page = usePage();
 const studentId = computed(() => page.props.student_id || {});
@@ -74,11 +73,11 @@ const currentYear = new Date().getFullYear();
 const qrCanvas = ref(null);
 
 onMounted(async () => {
-  if (qrCanvas.value && studentId.value.qr_data) {
-    await QRCode.toCanvas(qrCanvas.value, String(studentId.value.qr_data), {
-      width: 112,
-      color: { dark: '#92400E', light: '#FFFFFF' },
-    });
-  }
+  if (typeof window === 'undefined' || !qrCanvas.value || !studentId.value.qr_data) return;
+  const QRCode = (await import('qrcode')).default;
+  await QRCode.toCanvas(qrCanvas.value, String(studentId.value.qr_data), {
+    width: 112,
+    color: { dark: '#92400E', light: '#FFFFFF' },
+  });
 });
 </script>

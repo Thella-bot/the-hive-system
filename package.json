@@ -42,6 +42,7 @@
     "@fullcalendar/vue3": "^6.1.20",
     "chart.js": "^4.5.1",
     "dayjs": "^1.11.20",
+    "html5-qrcode": "^2.3.2",
     "qrcode": "^1.5.4",
     "vue-chartjs": "^5.3.3"
   }

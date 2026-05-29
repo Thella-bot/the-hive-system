@@ -40,12 +40,14 @@ class UniformRequestController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|in:approved,issued,rejected',
+            'rejection_reason' => 'nullable|string|max:500|required_if:status,rejected',
         ]);
 
         $request_->update([
             'status' => $validated['status'],
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
+            'rejection_reason' => $validated['status'] === 'rejected' ? ($validated['rejection_reason'] ?? null) : null,
         ]);
 
         return back()->with('success', "Request {$validated['status']}.");

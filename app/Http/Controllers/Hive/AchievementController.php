@@ -27,6 +27,8 @@ class AchievementController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Achievement::class);
+
         $data = $request->validate([
             'user_id' => 'required|exists:users,id',
             'type' => 'required|string|max:50',

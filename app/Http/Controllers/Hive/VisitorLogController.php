@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\VisitorLog;
+use App\Models\User;
+use App\Notifications\VisitorArrivedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class VisitorLogController extends Controller
@@ -32,7 +35,15 @@ class VisitorLogController extends Controller
             'arrived_at' => 'required|date',
         ]);
 
-        VisitorLog::create($data);
+        $log = VisitorLog::create($data);
+
+        if ($log->host_user_id) {
+            $host = User::find($log->host_user_id);
+            if ($host) {
+                Notification::send($host, new VisitorArrivedNotification($log));
+            }
+        }
+
         return back()->with('success', 'Visitor checked in.');
     }
 

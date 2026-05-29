@@ -44,7 +44,6 @@ class NonAcademicStaffDashboardData implements DashboardData
                 ->where('is_published', true)
                 ->where(function ($query) use ($roleNames) {
                     $query->whereNull('visible_to_roles');
-
                     foreach ($roleNames as $roleName) {
                         $query->orWhereJsonContains('visible_to_roles', $roleName);
                     }

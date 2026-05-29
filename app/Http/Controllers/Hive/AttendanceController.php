@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -29,13 +30,12 @@ class AttendanceController extends Controller
             $event = Event::find($eventId);
             if (!$event) return back()->withErrors(['code' => 'Event not found.']);
 
-            Attendance::firstOrCreate([
-                'user_id' => auth()->id(),
-                'event_id' => $eventId,
-            ], [
-                'checked_in_at' => now(),
-                'method' => $validated['method'] ?? 'qr',
-            ]);
+            DB::transaction(function () use ($eventId, $validated) {
+                Attendance::firstOrCreate(
+                    ['user_id' => auth()->id(), 'event_id' => $eventId],
+                    ['checked_in_at' => now(), 'method' => $validated['method'] ?? 'qr']
+                );
+            });
 
             return back()->with('success', 'Checked in for ' . $event->title);
         }

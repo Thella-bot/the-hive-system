@@ -19,7 +19,8 @@
       "Bash(php artisan route:list)",
       "Bash(php \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/artisan\" migrate --force)",
       "Bash(php \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/artisan\" route:list --name=hive.gradables)",
-      "Bash(php artisan test)"
+      "Bash(php artisan test)",
+      "Bash(npm run build)"
     ]
   }
 }
