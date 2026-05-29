@@ -44,6 +44,7 @@ class AchievementController extends Controller
 
     public function destroy(Achievement $achievement)
     {
+        $this->authorize('delete', $achievement);
         $achievement->delete();
         return back()->with('success', 'Achievement removed.');
     }

@@ -40,9 +40,13 @@ class Announcement extends Model
 
     public function scopeVisibleTo($query, User $user)
     {
-        return $query->where(function ($q) use ($user) {
-            $q->whereNull('target_roles')
-              ->orWhereJsonContains('target_roles', $user->roles->pluck('name')->toArray());
-        });
+        return $query
+            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->where(function ($q) use ($user) {
+                $q->whereNull('target_roles');
+                foreach ($user->roles->pluck('name') as $role) {
+                    $q->orWhereJsonContains('target_roles', $role);
+                }
+            });
     }
 }

@@ -8,6 +8,7 @@ use App\Models\EventRsvp;
 use App\Models\Module;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -45,7 +46,7 @@ class EventController extends Controller
     public function show(Event $event): Response
     {
         $userRsvp = $event->rsvpFor(auth()->user());
-        return Inertia::render('Hive/Events/Edit', [
+        return Inertia::render('Hive/Events/Show', [
             'event' => $event->load(['targetModules', 'rsvps.user']),
             'userRsvp' => $userRsvp,
             'modules' => Module::all(['id', 'name', 'code']),
@@ -108,10 +109,12 @@ class EventController extends Controller
             'status' => 'required|in:attending,maybe,declined',
         ]);
 
-        EventRsvp::updateOrCreate(
-            ['event_id' => $event->id, 'user_id' => auth()->id()],
-            ['status' => $validated['status']]
-        );
+        DB::transaction(function () use ($event, $validated) {
+            EventRsvp::updateOrCreate(
+                ['event_id' => $event->id, 'user_id' => auth()->id()],
+                ['status' => $validated['status']]
+            );
+        });
 
         return back()->with('success', 'RSVP updated.');
     }

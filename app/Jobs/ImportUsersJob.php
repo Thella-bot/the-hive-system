@@ -59,6 +59,12 @@ class ImportUsersJob implements ShouldQueue
                 foreach ($rows as $row) {
                      if (empty(array_filter($row))) { continue; }
 
+                    if (count($row) < 4) {
+                        $this->failureCount++;
+                        $this->errors[] = 'Row ' . (array_search($row, $rows) + 2) . ': Expected at least 4 columns (first_name, last_name, email, role).';
+                        continue;
+                    }
+
                     [$firstName, $lastName, $email, $role] = $row;
 
                     $password = Str::random(10);

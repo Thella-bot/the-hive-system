@@ -5,9 +5,42 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Inertia\Inertia;
 
 class TranscriptController extends Controller
 {
+    public function index()
+    {
+        $student = auth()->user();
+
+        $modules = $student->modules()
+            ->with(['gradables.submissions' => fn($q) => $q->where('student_id', $student->id)])
+            ->get()
+            ->map(fn($module) => $this->enrichModule($module, $student));
+
+        return Inertia::render('Hive/Transcript/Index', [
+            'student' => $student,
+            'modules' => $modules,
+        ]);
+    }
+
+    private function enrichModule($module, User $student)
+    {
+        $totalWeight = 0;
+        $totalMarks = 0;
+        foreach ($module->gradables as $gradable) {
+            $submission = $gradable->submissions->first();
+            if ($submission && $submission->grade !== null && $gradable->max_marks > 0) {
+                $totalMarks += ($submission->grade / $gradable->max_marks) * 100 * $gradable->weight;
+                $totalWeight += $gradable->weight;
+            }
+        }
+        $module->totalGradables = $module->gradables->count();
+        $module->gradedCount = $module->gradables->filter(fn($g) => $g->submissions->first()?->grade !== null)->count();
+        $module->averageGrade = $totalWeight > 0 ? round($totalMarks / $totalWeight, 1) : null;
+        return $module;
+    }
+
     public function show(User $student)
     {
         $user = auth()->user();

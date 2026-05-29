@@ -231,7 +231,8 @@ class DocumentController extends Controller
     public function download(DocumentVersion $version)
     {
         $this->authorize('view', $version->document);
-        return Storage::download($version->file_path);
+        $filename = ($version->document->title ?: 'document') . '.pdf';
+        return Storage::download($version->file_path, $filename);
     }
 
     // Mark document as acknowledged/read

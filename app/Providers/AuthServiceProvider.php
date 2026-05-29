@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AcademicYear;
+use App\Models\Achievement;
 use App\Models\Application;
 use App\Models\Cohort;
 use App\Models\Department;
@@ -15,6 +16,7 @@ use App\Models\Programme;
 use App\Models\Profile;
 use App\Models\Submission;
 use App\Policies\AcademicYearPolicy;
+use App\Policies\AchievementPolicy;
 use App\Policies\ApplicationPolicy;
 use App\Policies\CohortPolicy;
 use App\Policies\DepartmentPolicy;
@@ -44,6 +46,7 @@ class AuthServiceProvider extends ServiceProvider
         Module::class => ModulePolicy::class,
         Payslip::class => PayslipPolicy::class,
         Application::class => ApplicationPolicy::class,
+        Achievement::class => AchievementPolicy::class,
     ];
 
     public function boot()

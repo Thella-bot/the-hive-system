@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProgrammeWaitlist;
 use App\Models\Programme;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class WaitlistController extends Controller
@@ -37,7 +38,11 @@ class WaitlistController extends Controller
             return back()->withErrors(['programme_id' => 'You are already on this waitlist.']);
         }
 
-        $position = ProgrammeWaitlist::where('programme_id', $data['programme_id'])->max('position') + 1;
+        $position = DB::transaction(function () use ($data) {
+            return (int) ProgrammeWaitlist::where('programme_id', $data['programme_id'])
+                ->lockForUpdate()
+                ->max('position') + 1;
+        });
 
         ProgrammeWaitlist::create([
             'programme_id' => $data['programme_id'],

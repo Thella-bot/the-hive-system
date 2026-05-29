@@ -89,8 +89,6 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update']);
-
 const tasks = ref(props.initialTasks);
 const showAddForm = ref(false);
 const newTask = ref({ title: '', due_date: '' });
@@ -101,29 +99,63 @@ const completionPercentage = computed(() => {
   return Math.round((completedCount.value / tasks.value.length) * 100);
 });
 
-const addTask = () => {
+const addTask = async () => {
   if (!newTask.value.title.trim()) return;
 
-  tasks.value.push({
-    id: Date.now(),
-    title: newTask.value.title,
-    due_date: newTask.value.due_date,
-    completed: false
-  });
+  try {
+    const res = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
+      body: JSON.stringify({ title: newTask.value.title, due_date: newTask.value.due_date }),
+      credentials: 'include',
+    });
+    if (res.ok) {
+      const task = await res.json();
+      tasks.value.unshift(task);
+    }
+  } catch (e) {
+    // fail silently
+  }
 
   newTask.value = { title: '', due_date: '' };
   showAddForm.value = false;
-  emit('update', tasks.value);
 };
 
-const toggleTask = (task) => {
-  task.completed = !task.completed;
-  emit('update', tasks.value);
+const toggleTask = async (task) => {
+  const wasCompleted = task.completed;
+  task.completed = !wasCompleted; // optimistic update
+
+  try {
+    const res = await fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
+      body: JSON.stringify({ completed: task.completed }),
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      task.completed = wasCompleted; // revert on failure
+    }
+  } catch (e) {
+    task.completed = wasCompleted; // revert on failure
+  }
 };
 
-const deleteTask = (task) => {
+const deleteTask = async (task) => {
+  const original = [...tasks.value];
   tasks.value = tasks.value.filter(t => t.id !== task.id);
-  emit('update', tasks.value);
+
+  try {
+    const res = await fetch(`/api/tasks/${task.id}`, {
+      method: 'DELETE',
+      headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      tasks.value = original; // revert on failure
+    }
+  } catch (e) {
+    tasks.value = original; // revert on failure
+  }
 };
 
 const formatDate = (date) => dayjs(date).format('MMM D');

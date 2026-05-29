@@ -123,6 +123,12 @@ class ApplicationController extends Controller
             } elseif ($wasNoLongerAdmitted) {
                 // Revoke admitted status if status changes away from approved
                 $application->forceFill(['admitted_at' => null])->save();
+
+                // Revoke the student role so they lose access to student-only routes
+                $student = $application->user;
+                if ($student && $student->hasRole('student')) {
+                    $student->removeRole('student');
+                }
             }
         });
 
@@ -152,6 +158,7 @@ class ApplicationController extends Controller
                     'email_verified_at' => now(),
                 ]
             );
+            // If the user already existed (firstOrCreate matched), do NOT overwrite their password
             $application->forceFill(['user_id' => $student->id])->save();
         }
 

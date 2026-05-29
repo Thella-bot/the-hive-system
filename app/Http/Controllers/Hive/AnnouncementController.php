@@ -21,7 +21,7 @@ class AnnouncementController extends Controller
         $announcements = Announcement::visibleTo($request->user())
             ->latest()
             ->with('attachments')
-            ->get();
+            ->paginate(20);
 
         return Inertia::render('Hive/Announcements/Index', [
             'announcements' => $announcements,
