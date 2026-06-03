@@ -156,14 +156,6 @@
         </div>
       </div>
 
-      <div class="mt-8 bg-white p-6 rounded-xl shadow-sm dark:bg-gray-800">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">User Distribution</h3>
-        <UserDistributionChart
-            :totalStudents="totalStudents"
-            :totalInstructors="totalInstructors"
-            :totalStaff="totalStaff"
-        />
-      </div>
     </div>
 
     <!-- Instructor Dashboard -->

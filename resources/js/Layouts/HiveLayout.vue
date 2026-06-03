@@ -310,8 +310,6 @@ const submitSearch = () => {
 
 // ─── Navigation helper ────────────────────────────────────────────────────────
 
-// Deduplicates children across the entire nav by href, keeping the first occurrence.
-// Call once at the end after all categories are built.
 const buildNav = (allItems) => {
   const seenHrefs = new Set();
 
@@ -536,6 +534,7 @@ const systemNav = () => {
     name: 'System',
     icon: RectangleStackIcon,
     children: [
+      { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*' },
       { name: 'System Logs', href: route('log-viewer'), target: '_blank' },
     ],
   }];

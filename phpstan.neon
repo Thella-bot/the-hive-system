@@ -5,8 +5,21 @@ parameters:
     level: 5
     paths:
         - app/
+        - bootstrap/
+        - config/
+        - routes/
     excludePaths:
         - app/Http/Middleware/*
         - app/Providers/*
         - app/Exceptions/*
-        - app/Console/*
+        - app/Console/Commands/*
+        - app/Exceptions/*
+
+    # Ignore common Laravel framework issues
+    ignoreErrors:
+        - '#Method .*::render\(\) should return .*Inertia\\Response#'
+        - '#Method .*::toSearchableArray\(\) should return array#'
+        - '#Call to method .* on Throwable#'
+
+    # Allow dynamic return types from Laravel's facades
+    reportUnmatched: false

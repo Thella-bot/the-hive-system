@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GradableViewData;
+use App\Http\Requests\StoreGradableRequest;
+use App\Http\Requests\UpdateGradableRequest;
+use App\Http\Requests\SubmitOnlineAssessmentRequest;
 use App\Models\Gradable;
 use App\Models\GradableAttachment;
+use App\Models\GradableAnswer;
 use App\Models\GradableQuestion;
 use App\Models\GradableQuestionOption;
 use App\Models\Module;
@@ -17,21 +22,13 @@ use Illuminate\Support\Facades\Storage;
 
 class GradableController extends Controller
 {
+    use GradableViewData;
     /**
      * Display module selection page for assessments.
      */
     public function moduleSelect(Request $request, string $type): Response
     {
         $user = auth()->user();
-
-        // Get modules based on user role
-        if ($user->hasRole('student')) {
-            $modules = $user->modules()->with('programme')->get();
-        } elseif ($user->hasRole('academic_staff')) {
-            $modules = $user->instructedModules()->with('programme')->get();
-        } else {
-            $modules = Module::with('programme')->get();
-        }
 
         $typeLabels = [
             'quiz' => 'Quizzes',
@@ -42,7 +39,7 @@ class GradableController extends Controller
         ];
 
         return Inertia::render('Hive/Gradables/ModuleSelect', [
-            'modules' => $modules,
+            'modules' => $this->getModulesForUser($user),
             'type' => $type,
             'typeLabel' => $typeLabels[$type] ?? ucfirst(str_replace('_', ' ', $type)),
         ]);
@@ -92,63 +89,20 @@ class GradableController extends Controller
 
         $user = auth()->user();
 
-        // Instructors see only their assigned modules
-        if ($user->hasRole('academic_staff')) {
-            $modules = $user->instructedModules()->get();
-        } else {
-            // Admins see all modules
-            $modules = Module::with('programme')->get();
-        }
-
-        $gradableTypes = \App\Enums\GradableType::cases();
-        $submissionTypes = [
-            ['value' => Gradable::SUBMISSION_TYPE_FILE_UPLOAD, 'label' => 'File Upload'],
-            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_FILLABLE, 'label' => 'Online (Fill in the Blank / Short Answer)'],
-            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_MCQ, 'label' => 'Online (Multiple Choice)'],
-        ];
-
         return Inertia::render('Hive/Gradables/Create', [
-            'modules' => $modules,
-            'gradableTypes' => array_map(fn($type) => $type->value, $gradableTypes),
-            'submissionTypes' => $submissionTypes,
+            'modules' => $this->getModulesForUser($user),
+            'gradableTypes' => $this->getGradableTypeOptions(),
+            'submissionTypes' => $this->getSubmissionTypes(),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreGradableRequest $request): RedirectResponse
     {
-        $this->authorize('create', Gradable::class);
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'type' => 'required|string',
-            'submission_type' => 'required|string|in:file_upload,online_fillable,online_multiple_choice',
-            'module_id' => 'required|exists:modules,id',
-            'due_date' => 'required|date',
-            'duration_minutes' => 'nullable|integer|min:0',
-            'time_limit_minutes' => 'nullable|integer|min:1',
-            'max_attempts' => 'nullable|integer|min:1',
-            'show_correct_answers' => 'nullable|boolean',
-            'shuffle_questions' => 'nullable|boolean',
-            'shuffle_options' => 'nullable|boolean',
-            'description' => 'nullable|string',
-            'max_marks' => 'nullable|numeric|min:0',
-            'weight' => 'nullable|numeric|min:0|max:100',
-            'max_file_size' => 'nullable|integer|min:1|max:102400', // KB, max 100MB
-            'allowed_types' => 'nullable|string',
-            'attachments' => 'nullable|array',
-            'attachments.*.title' => 'required|string|max:255',
-            'attachments.*.file' => 'required|file|max:51200', // 50MB max per file
-        ]);
-
+        $validated = $request->validated();
         $validated['instructor_id'] = auth()->id();
-
-        // Convert boolean strings
-        $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
-        $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
-        $validated['shuffle_options'] = $request->boolean('shuffle_options');
 
         $gradable = Gradable::create($validated);
 
@@ -226,60 +180,22 @@ class GradableController extends Controller
 
         $user = auth()->user();
 
-        if ($user->hasRole('academic_staff')) {
-            $modules = $user->instructedModules()->get();
-        } else {
-            $modules = Module::with('programme')->get();
-        }
-
-        $gradableTypes = \App\Enums\GradableType::cases();
-        $submissionTypes = [
-            ['value' => Gradable::SUBMISSION_TYPE_FILE_UPLOAD, 'label' => 'File Upload'],
-            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_FILLABLE, 'label' => 'Online (Fill in the Blank / Short Answer)'],
-            ['value' => Gradable::SUBMISSION_TYPE_ONLINE_MCQ, 'label' => 'Online (Multiple Choice)'],
-        ];
-
         $gradable->load('attachments', 'questions.options');
 
         return Inertia::render('Hive/Gradables/Edit', [
             'gradable' => $gradable,
-            'modules' => $modules,
-            'gradableTypes' => array_map(fn($type) => $type->value, $gradableTypes),
-            'submissionTypes' => $submissionTypes,
+            'modules' => $this->getModulesForUser($user),
+            'gradableTypes' => $this->getGradableTypeOptions(),
+            'submissionTypes' => $this->getSubmissionTypes(),
         ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Gradable $gradable): RedirectResponse
+    public function update(UpdateGradableRequest $request, Gradable $gradable): RedirectResponse
     {
-        $this->authorize('update', $gradable);
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'type' => 'required|string',
-            'submission_type' => 'required|string|in:file_upload,online_fillable,online_multiple_choice',
-            'module_id' => 'required|exists:modules,id',
-            'due_date' => 'required|date',
-            'duration_minutes' => 'nullable|integer|min:0',
-            'time_limit_minutes' => 'nullable|integer|min:1',
-            'max_attempts' => 'nullable|integer|min:1',
-            'show_correct_answers' => 'nullable|boolean',
-            'shuffle_questions' => 'nullable|boolean',
-            'shuffle_options' => 'nullable|boolean',
-            'description' => 'nullable|string',
-            'max_marks' => 'nullable|numeric|min:0',
-            'weight' => 'nullable|numeric|min:0|max:100',
-            'max_file_size' => 'nullable|integer|min:1|max:102400',
-            'allowed_types' => 'nullable|string',
-        ]);
-
-        $validated['show_correct_answers'] = $request->boolean('show_correct_answers');
-        $validated['shuffle_questions'] = $request->boolean('shuffle_questions');
-        $validated['shuffle_options'] = $request->boolean('shuffle_options');
-
-        $gradable->update($validated);
+        $gradable->update($request->validated());
 
         return back()->with('success', 'Assessment updated.');
     }
@@ -470,13 +386,9 @@ class GradableController extends Controller
     /**
      * Submit answers for an online assessment.
      */
-    public function submitOnline(Request $request, Gradable $gradable): RedirectResponse
+    public function submitOnline(SubmitOnlineAssessmentRequest $request, Gradable $gradable): RedirectResponse
     {
         $user = auth()->user();
-
-        if (!$user->hasRole('student')) {
-            abort(403, 'Only students can submit online assessments.');
-        }
 
         if (!$gradable->isOnlineAssessment()) {
             return back()->with('error', 'This assessment does not accept online submissions.');
@@ -486,12 +398,7 @@ class GradableController extends Controller
             return back()->with('error', 'The deadline for this assessment has passed.');
         }
 
-        $validated = $request->validate([
-            'answers' => 'required|array',
-            'answers.*.question_id' => 'required|exists:gradable_questions,id',
-            'answers.*.option_id' => 'nullable|exists:gradable_question_options,id',
-            'answers.*.answer_text' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         foreach ($validated['answers'] as $answerData) {
             $question = GradableQuestion::find($answerData['question_id']);

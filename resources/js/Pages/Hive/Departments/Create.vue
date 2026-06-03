@@ -1,7 +1,7 @@
 <template>
   <HiveLayout title="New Department" description="Create a new culinary department">
     <template #header-actions>
-      <Link :href="route('departments.index')"
+      <Link :href="route('hive.departments.index')"
         class="text-sm text-gray-500 hover:text-gray-700 font-medium flex items-center gap-1">
         ← Back to Departments
       </Link>
@@ -95,7 +95,7 @@
 
         <!-- Actions -->
         <div class="px-6 py-4 bg-gray-50 flex items-center justify-end gap-3 rounded-b-xl">
-          <Link :href="route('departments.index')"
+          <Link :href="route('hive.departments.index')"
             class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 font-medium rounded-lg hover:bg-gray-100 transition-colors">
             Cancel
           </Link>
