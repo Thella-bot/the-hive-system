@@ -2,7 +2,7 @@
   <HiveLayout title="Leave Requests" :description="`Leave Balance: ${balance} days`">
     <template #header-actions>
       <Link v-if="!isAdmin" :href="route('hive.leaves.create')"
-        class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
@@ -107,7 +107,7 @@ const pendingRejectId = ref(null);
 
 const approve = (leaveId) => {
   if (confirm('Approve this leave request?')) {
-    router.post(route('hive.leaves.update', leaveId), { status: 'approved' });
+    router.patch(route('hive.leaves.update', { leave: leaveId }), { status: 'approved' });
   }
 };
 
@@ -118,13 +118,13 @@ const openRejectModal = (leaveId) => {
 };
 
 const confirmReject = () => {
-  router.post(route('hive.leaves.update', pendingRejectId.value), { status: 'rejected', rejection_reason: rejectReason.value });
+  router.patch(route('hive.leaves.update', { leave: pendingRejectId.value }), { status: 'rejected', rejection_reason: rejectReason.value });
   showRejectModal.value = false;
 };
 
 const cancel = (leaveId) => {
   if (confirm('Cancel this leave request?')) {
-    router.delete(route('hive.leaves.destroy', leaveId));
+    router.delete(route('hive.leaves.destroy', { leave: leaveId }));
   }
 };
 

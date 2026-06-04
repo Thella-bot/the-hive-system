@@ -8,13 +8,13 @@ defineProps({
 
 const approve = (application) => {
     if (confirm('Are you sure you want to approve this application?')) {
-        router.put(route('hive.applications.update', application.id), { status: 'approved' });
+        router.put(route('hive.applications.update', { application: application.id }), { status: 'approved' });
     }
 };
 
 const reject = (application) => {
     if (confirm('Are you sure you want to reject this application?')) {
-        router.delete(route('hive.applications.destroy', application.id));
+        router.delete(route('hive.applications.destroy', { application: application.id }));
     }
 };
 </script>

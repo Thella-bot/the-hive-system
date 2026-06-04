@@ -72,7 +72,7 @@
                                     <span v-else class="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">Open</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <Link :href="route('hive.gradables.show', gradable.id)"
+                                    <Link :href="route('hive.gradables.show', { gradable: gradable.id })"
                                         class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300 font-medium">
                                         {{ canCreate ? 'Manage' : 'View' }}
                                     </Link>

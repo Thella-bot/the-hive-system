@@ -60,7 +60,7 @@
             <td class="px-6 py-4 text-gray-500 hidden md:table-cell">{{ formatDate(application.created_at) }}</td>
             <td class="px-6 py-4">
               <Link
-                :href="route('hive.applications.show', application.id)"
+                :href="route('hive.applications.show', { application: application.id })"
                 class="text-amber-600 hover:text-amber-700 font-medium text-xs"
               >
                 View

@@ -17,7 +17,7 @@ const form = useForm({});
 
 const deleteStaff = (id) => {
     if (confirm('Are you sure you want to delete this staff member?')) {
-        form.delete(route('hive.staff.destroy', id));
+        form.delete(route('hive.staff.destroy', { staff: id }));
     }
 };
 
@@ -33,7 +33,7 @@ const getRoleName = (roles) => {
     <HiveLayout title="Staff" description="Manage staff members">
         <template #header-actions>
             <Link v-if="isAdmin" :href="route('hive.staff.create')"
-                class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -69,7 +69,7 @@ const getRoleName = (roles) => {
                         <td class="px-6 py-4 text-gray-700 hidden md:table-cell">{{ getRoleName(staffMember.roles) }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-3">
-                                <Link :href="route('hive.staff.edit', staffMember.id)"
+                                <Link :href="route('hive.staff.edit', { staff: staffMember.id })"
                                     class="text-amber-600 hover:text-amber-700 font-medium text-xs">Edit</Link>
                                 <button v-if="isAdmin" @click="deleteStaff(staffMember.id)"
                                     class="text-red-600 hover:text-red-700 font-medium text-xs">Delete</button>

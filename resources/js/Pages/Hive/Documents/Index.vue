@@ -62,14 +62,14 @@
           </div>
           <div class="flex gap-2">
             <a v-if="doc.latest_version"
-              :href="route('hive.documents.version.download', doc.latest_version.id)"
+              :href="route('hive.documents.version.download', { version: doc.latest_version.id })"
               class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-xs font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition">
               <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
               Download
             </a>
-            <Link :href="route('hive.documents.show', doc.id)"
+            <Link :href="route('hive.documents.show', { document: doc.id })"
               class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
               Details
             </Link>

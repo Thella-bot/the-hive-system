@@ -99,6 +99,6 @@ const submitLog = () => {
 };
 
 const checkOut = (id) => {
-  router.post(route('hive.visitor-logs.checkout', id));
+  router.post(route('hive.visitor-logs.checkout', { log: id }));
 };
 </script>

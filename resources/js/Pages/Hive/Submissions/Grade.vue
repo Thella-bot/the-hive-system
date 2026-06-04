@@ -70,7 +70,7 @@ const form = useForm({
 const formatDate = (date) => dayjs(date).format('MMMM D, YYYY h:mm A');
 
 const submitGrade = () => {
-  form.post(route('hive.submissions.grade.store', props.submission.id), {
+  form.post(route('hive.submissions.grade.store', { submission: props.submission.id }), {
     preserveScroll: true,
   });
 };

@@ -79,12 +79,12 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.put(route('hive.modules.update', props.module.id));
+  form.put(route('hive.modules.update', { module: props.module.id }));
 };
 
 const destroy = () => {
   if (confirm('Are you sure you want to delete this module?')) {
-    form.delete(route('hive.modules.destroy', props.module.id));
+    form.delete(route('hive.modules.destroy', { module: props.module.id }));
   }
 };
 </script>

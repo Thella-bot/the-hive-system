@@ -57,7 +57,7 @@
           </div>
 
           <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <Link :href="route('hive.documents.show', document.id)"
+            <Link :href="route('hive.documents.show', { document: document.id })"
               class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-xs text-gray-700 dark:text-gray-200 uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-600 transition">
               Cancel
             </Link>
@@ -91,7 +91,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.put(route('hive.documents.update', props.document.id), {
+  form.put(route('hive.documents.update', { document: props.document.id }), {
     preserveScroll: true,
     onError: (errors) => {
       if (Object.keys(errors).length > 0) {

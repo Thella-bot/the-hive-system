@@ -106,14 +106,14 @@ function handleEventDrop(dropInfo) {
     start: dropInfo.event.startStr,
     end: dropInfo.event.endStr,
   };
-  useForm(eventData).put(route('hive.events.update', eventData.id), {
+  useForm(eventData).put(route('hive.events.update', { event: eventData.id }), {
     preserveScroll: true,
   });
 }
 
 function submit() {
   if (form.id) {
-    form.put(route('hive.events.update', form.id), {
+    form.put(route('hive.events.update', { event: form.id }), {
       onSuccess: () => {
         showModal.value = false;
         form.reset();
@@ -130,7 +130,7 @@ function submit() {
 }
 
 function destroy() {
-  form.delete(route('hive.events.destroy', form.id), {
+  form.delete(route('hive.events.destroy', { event: form.id }), {
     onSuccess: () => {
       showModal.value = false;
       form.reset();

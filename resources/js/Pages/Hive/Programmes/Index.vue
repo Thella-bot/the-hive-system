@@ -17,7 +17,7 @@ const canManage = () => {
 
 const deleteProgramme = (id) => {
     if (confirm('Are you sure you want to delete this programme?')) {
-        form.delete(route('hive.programmes.destroy', id));
+        form.delete(route('hive.programmes.destroy', { programme: id }));
     }
 };
 </script>
@@ -53,8 +53,8 @@ const deleteProgramme = (id) => {
                                 <div class="text-sm text-gray-500">{{ programme.duration }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <Link :href="route('hive.programmes.show', programme.id)" class="text-amber-600 hover:text-amber-900 mr-3">View</Link>
-                                <Link v-if="canManage()" :href="route('hive.programmes.edit', programme.id)" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</Link>
+                                <Link :href="route('hive.programmes.show', { programme: programme.id })" class="text-amber-600 hover:text-amber-900 mr-3">View</Link>
+                                <Link v-if="canManage()" :href="route('hive.programmes.edit', { programme: programme.id })" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</Link>
                                 <button v-if="canManage()" @click="deleteProgramme(programme.id)" class="text-red-600 hover:text-red-900">Delete</button>
                             </td>
                         </tr>

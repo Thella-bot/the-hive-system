@@ -26,7 +26,7 @@ const enroll = (moduleId) => {
 
 const leave = (moduleId) => {
     form.module_id = moduleId;
-    form.delete(route('hive.enrollment.destroy', moduleId), {
+    form.delete(route('hive.enrollment.destroy', { module: moduleId }), {
         preserveScroll: true,
     });
 };

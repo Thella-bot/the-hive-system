@@ -20,7 +20,7 @@ const canManage = computed(() => {
   <HiveLayout title="Departments" description="Manage culinary departments and their heads">
     <template #header-actions>
       <Link v-if="canManage" :href="route('hive.departments.create')"
-        class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
@@ -40,7 +40,7 @@ const canManage = computed(() => {
       <h3 class="text-gray-900 font-semibold mb-1">No departments yet</h3>
       <p class="text-sm text-gray-500 mb-4">Create your first department to get started.</p>
       <Link v-if="canManage" :href="route('hive.departments.create')"
-        class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         Create Department
       </Link>
     </div>
@@ -86,11 +86,11 @@ const canManage = computed(() => {
           </div>
 
           <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
-            <Link :href="route('hive.departments.show', dept.id)"
+            <Link :href="route('hive.departments.show', { department: dept.id })"
               class="flex-1 text-center text-sm text-amber-600 hover:text-amber-700 font-medium py-1.5 rounded-lg hover:bg-amber-50 transition-colors">
               View
             </Link>
-            <Link v-if="canManage" :href="route('hive.departments.edit', dept.id)"
+            <Link v-if="canManage" :href="route('hive.departments.edit', { department: dept.id })"
               class="flex-1 text-center text-sm text-gray-600 hover:text-gray-700 font-medium py-1.5 rounded-lg hover:bg-gray-50 transition-colors">
               Edit
             </Link>

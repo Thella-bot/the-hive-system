@@ -97,6 +97,6 @@ const submitRequest = () => {
 };
 
 const review = (id, status) => {
-  router.post(route('hive.uniform-requests.review', id), { status });
+  router.post(route('hive.uniform-requests.review', { uniform_request: id }), { status });
 };
 </script>

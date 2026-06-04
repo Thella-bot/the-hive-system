@@ -78,15 +78,15 @@
         </div>
 
         <div class="mt-6 flex gap-3">
-          <a :href="route('hive.events.ical', event.id)" target="_blank"
+          <a :href="route('hive.events.ical', { event: event.id })" target="_blank"
              class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded">
             📅 Export .ics
           </a>
-          <a :href="route('hive.events.qr', event.id)" target="_blank"
+          <a :href="route('hive.events.qr', { event: event.id })" target="_blank"
              class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded">
             📱 QR Code
           </a>
-          <Link v-if="canEdit" :href="route('hive.events.edit', event.id)"
+          <Link v-if="canEdit" :href="route('hive.events.edit', { event: event.id })"
                 class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded">
             Edit Event
           </Link>
@@ -119,7 +119,7 @@ const formatDate = (iso) => {
 };
 
 const submitRsvp = (status) => {
-  router.post(route('hive.events.rsvp', props.event.id), { status }, {
+  router.post(route('hive.events.rsvp', { event: props.event.id }), { status }, {
     onSuccess: () => { rsvpSuccess.value = true; setTimeout(() => rsvpSuccess.value = false, 3000); },
   });
 };

@@ -19,7 +19,7 @@ const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: 'nu
 
 const deleteYear = (year) => {
   if (confirm(`Delete "${year.name}"? This cannot be undone.`)) {
-    router.delete(route('hive.academic-years.destroy', year.id))
+    router.delete(route('hive.academic-years.destroy', { academic_year: year.id }))
   }
 }
 </script>
@@ -28,7 +28,7 @@ const deleteYear = (year) => {
   <HiveLayout title="Academic Years" description="Define and manage school year periods">
     <template #header-actions>
       <Link v-if="canManage" :href="route('hive.academic-years.create')"
-        class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
@@ -73,7 +73,7 @@ const deleteYear = (year) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center justify-end gap-3">
-                <Link v-if="canManage" :href="route('hive.academic-years.edit', year.id)"
+                <Link v-if="canManage" :href="route('hive.academic-years.edit', { academic_year: year.id })"
                   class="text-gray-400 hover:text-amber-600 font-medium text-xs transition-colors">Edit</Link>
                 <button v-if="canManage && year.cohorts_count === 0"
                   @click="deleteYear(year)"

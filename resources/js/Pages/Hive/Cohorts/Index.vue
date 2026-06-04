@@ -36,7 +36,7 @@ const capacityColor = (c) => {
   <HiveLayout title="Cohorts" description="Student groups by department and academic year">
     <template #header-actions>
       <Link v-if="canManage" :href="route('hive.cohorts.create')"
-        class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
@@ -99,11 +99,11 @@ const capacityColor = (c) => {
           </div>
 
           <div class="flex gap-2 pt-3 border-t border-gray-100">
-            <Link :href="route('hive.cohorts.show', cohort.id)"
+            <Link :href="route('hive.cohorts.show', { cohort: cohort.id })"
               class="flex-1 text-center py-1.5 text-sm text-amber-600 hover:text-amber-700 font-medium rounded-lg hover:bg-amber-50 transition-colors">
               View
             </Link>
-            <Link v-if="canManage" :href="route('hive.cohorts.edit', cohort.id)"
+            <Link v-if="canManage" :href="route('hive.cohorts.edit', { cohort: cohort.id })"
               class="flex-1 text-center py-1.5 text-sm text-gray-600 hover:text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors">
               Edit
             </Link>

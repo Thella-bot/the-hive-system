@@ -18,7 +18,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route('hive.students.update', props.managedStudent.id));
+    form.put(route('hive.students.update', { student: props.managedStudent.id }));
 };
 </script>
 

@@ -100,7 +100,7 @@
             Cancel
           </Link>
           <button type="submit" :disabled="form.processing"
-            class="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+            class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
             <svg v-if="form.processing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
@@ -135,5 +135,5 @@ const form = useForm({
   is_active:    true,
 })
 
-const submit = () => form.post(route('departments.store'))
+const submit = () => form.post(route('hive.departments.store'))
 </script>

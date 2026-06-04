@@ -23,7 +23,7 @@
               <option v-for="m in monthOptions" :key="m.value" :value="m.value">{{ m.label }}</option>
             </select>
             <button type="submit" :disabled="batchGenerateForm.processing"
-              class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
+              class="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition disabled:opacity-50">
               Batch Generate
             </button>
           </form>
@@ -122,12 +122,12 @@
               <!-- Actions -->
               <td class="px-6 py-4">
                 <div class="flex items-center justify-end gap-2">
-                  <a :href="route('hive.payslips.download', payslip.id)"
+                  <a :href="route('hive.payslips.download', { payslip: payslip.id })"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     PDF
                   </a>
-                  <Link v-if="canManage" :href="route('hive.payslips.edit', payslip.id)"
+                  <Link v-if="canManage" :href="route('hive.payslips.edit', { payslip: payslip.id })"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-600 bg-amber-50 rounded-lg hover:bg-amber-100 transition">
                     Edit
                   </Link>
@@ -201,7 +201,7 @@ const formatPeriod = (start, end) => {
 
 const deletePayslip = (payslip) => {
   if (confirm(`Delete payslip for ${payslip.user?.name || 'this staff member'} for ${formatMonthYear(payslip.pay_period_start)}?`)) {
-    useForm({}).delete(route('hive.payslips.destroy', payslip.id));
+    useForm({}).delete(route('hive.payslips.destroy', { payslip: payslip.id }));
   }
 };
 </script>

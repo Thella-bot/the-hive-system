@@ -108,10 +108,10 @@ const openIssue = (key) => {
 };
 
 const issueKey = () => {
-  router.post(route('hive.keys.issue', selectedKey.value.id), { user_id: issueUserId.value });
+  router.post(route('hive.keys.issue', { key: selectedKey.value.id }), { user_id: issueUserId.value });
   showIssue.value = false;
 };
 
-const returnKey = (id) => router.post(route('hive.keys.return', id));
-const reportLost = (id) => router.post(route('hive.keys.report-lost', id));
+const returnKey = (id) => router.post(route('hive.keys.return', { key: id }));
+const reportLost = (id) => router.post(route('hive.keys.report-lost', { key: id }));
 </script>

@@ -11,7 +11,7 @@
             <h1 class="text-2xl font-bold text-gray-800">My Transcript</h1>
             <p class="text-sm text-gray-500 mt-1">{{ student.name }}</p>
           </div>
-          <a :href="route('hive.transcript.download', student.id)"
+          <a :href="route('hive.transcript.download', { student: student.id })"
              class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 text-sm">
             Download PDF
           </a>

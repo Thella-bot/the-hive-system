@@ -2,10 +2,10 @@
   <HiveLayout title="Achievement Board" description="Competitions, awards, and certifications">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">🏆 Achievement Board</h1>
-      <Link v-if="canCreate" :href="route('hive.achievements.create')"
+      <button v-if="canCreate" @click="showAdd = true"
         class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 text-sm">
         + Add Achievement
-      </Link>
+      </button>
     </div>
 
     <div v-if="achievements.data.length === 0" class="bg-white p-8 text-center rounded-xl border">
@@ -34,7 +34,7 @@
     </div>
 
     <div v-if="achievements.links" class="mt-6 flex justify-center gap-2">
-      <Link v-for="link in achievements.links" :key="link.label" :href="link.url"
+      <Link v-for="link in achievements.links" :key="link.label" :href="link.url || '#'"
         :class="['px-3 py-1 rounded', link.active ? 'bg-amber-600 text-white' : 'bg-white text-gray-700']"
         v-html="link.label" />
     </div>
@@ -100,7 +100,7 @@ const form = ref({ user_id: '', type: 'competition', title: '', awarded_by: '', 
 const formatDate = (d) => dayjs(d).format('MMM D, YYYY');
 
 const remove = (id) => {
-  if (confirm('Remove this achievement?')) router.delete(route('hive.achievements.destroy', id));
+  if (confirm('Remove this achievement?')) router.delete(route('hive.achievements.destroy', { achievement: id }));
 };
 
 const submitAchievement = () => {

@@ -6,7 +6,7 @@
             class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700">New Post</Link>
     </div>
     <div class="space-y-4">
-      <div v-for="ann in announcements" :key="ann.id" class="bg-white p-4 shadow rounded">
+      <div v-for="ann in announcementsList" :key="ann.id" class="bg-white p-4 shadow rounded">
         <div class="flex justify-between">
           <h2 class="font-semibold text-lg">
             <span v-if="ann.is_pinned" class="text-red-500 mr-1">📌</span>{{ ann.title }}
@@ -16,7 +16,7 @@
 
         <!-- Announcement body: render HTML if available, otherwise plain text -->
         <div v-if="ann.body_html" class="mt-2 text-sm text-gray-700 prose max-w-none" v-html="ann.body_html"></div>
-        <p v-else class="text-sm text-gray-700 mt-1">{{ ann.body.substring(0, 200) }}{{ ann.body.length > 200 ? '...' : '' }}</p>
+        <p v-else class="text-sm text-gray-700 mt-1">{{ (ann.body || '').substring(0, 200) }}{{ (ann.body || '').length > 200 ? '...' : '' }}</p>
 
         <!-- Attachments -->
         <div v-if="ann.attachments && ann.attachments.length" class="mt-2 flex flex-wrap gap-2">
@@ -37,7 +37,7 @@
           <span v-if="ann.expires_at">Expires: {{ new Date(ann.expires_at).toLocaleDateString() }}</span>
         </div>
         <div v-if="canEdit(ann)" class="mt-2 space-x-2">
-          <Link :href="route('hive.announcements.edit', ann.id)" class="text-amber-600 text-sm hover:text-amber-700">Edit</Link>
+          <Link :href="route('hive.announcements.edit', { announcement: ann.id })" class="text-amber-600 text-sm hover:text-amber-700">Edit</Link>
           <button @click="deleteAnn(ann.id)" class="text-red-600 text-sm">Delete</button>
         </div>
       </div>
@@ -50,7 +50,12 @@ import { computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
-const props = defineProps({ announcements: Array });
+const props = defineProps({ announcements: [Array, Object] });
+const announcementsList = computed(() => {
+  if (!props.announcements) return [];
+  if (Array.isArray(props.announcements)) return props.announcements;
+  return props.announcements.data || [];
+});
 const roles = computed(() => usePage().props.auth.user?.roles || []);
 const canCreate = computed(() => roles.value.some(r => ['super-admin','school-admin', 'academic_staff', 'non_academic_staff'].includes(r)));
 const canEdit = (ann) => {
@@ -59,7 +64,7 @@ const canEdit = (ann) => {
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {
-    router.delete(route('hive.announcements.destroy', id));
+    router.delete(route('hive.announcements.destroy', { announcement: id }));
   }
 };
 </script>

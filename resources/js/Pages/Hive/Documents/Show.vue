@@ -25,12 +25,12 @@
               ✓ Acknowledge Read
             </button>
             <Link v-if="canSeeAcknowledgements"
-              :href="route('hive.documents.acknowledgements', document.id)"
+              :href="route('hive.documents.acknowledgements', { document: document.id })"
               class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md font-semibold text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
               👁 {{ acknowledgementCount }} acknowledged
             </Link>
             <Link v-if="canUpdate"
-              :href="route('hive.documents.edit', document.id)"
+              :href="route('hive.documents.edit', { document: document.id })"
               class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 transition">
               Edit
             </Link>
@@ -68,7 +68,7 @@
                 </p>
               </div>
             </div>
-            <a :href="route('hive.documents.version.download', version.id)"
+            <a :href="route('hive.documents.version.download', { version: version.id })"
               class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200">
               <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -132,7 +132,7 @@ const newVersionForm = reactive({ file: null, processing: false, error: '' });
 const formatDate = (date) => dayjs(date).format('MMM D, YYYY');
 
 const acknowledge = () => {
-  router.post(route('hive.documents.acknowledge', props.document.id));
+  router.post(route('hive.documents.acknowledge', { document: props.document.id }));
 };
 
 const uploadVersion = async () => {
@@ -144,7 +144,7 @@ const uploadVersion = async () => {
   data.append('file', newVersionForm.file);
 
   try {
-    await router.post(route('hive.documents.versions.store', props.document.id), data, {
+    await router.post(route('hive.documents.versions.store', { document: props.document.id }), data, {
       forceFormData: true,
     });
     newVersionForm.file = null;
@@ -157,7 +157,7 @@ const uploadVersion = async () => {
 
 const deleteDocument = () => {
   if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
-    router.delete(route('hive.documents.destroy', props.document.id));
+    router.delete(route('hive.documents.destroy', { document: props.document.id }));
   }
 };
 </script>

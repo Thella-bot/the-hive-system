@@ -1,7 +1,7 @@
 <template>
   <HiveLayout :title="`Edit: ${cohort.name}`" description="Update cohort details">
     <template #header-actions>
-      <Link :href="route('hive.cohorts.show', cohort.id)" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
+      <Link :href="route('hive.cohorts.show', { cohort: cohort.id })" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
         ← Back to Cohort
       </Link>
     </template>
@@ -59,10 +59,10 @@
             class="text-sm text-red-500 hover:text-red-700 font-medium">Delete cohort</button>
           <span v-else class="text-xs text-gray-400">Cannot delete — has enrolled students.</span>
           <div class="flex gap-3">
-            <Link :href="route('hive.cohorts.show', cohort.id)"
+            <Link :href="route('hive.cohorts.show', { cohort: cohort.id })"
               class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors">Cancel</Link>
             <button type="submit" :disabled="form.processing"
-              class="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
+              class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
               Save Changes
             </button>
           </div>
@@ -80,7 +80,7 @@
         <div class="flex justify-end gap-3">
           <button @click="confirmDelete = false"
             class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-100">Cancel</button>
-          <Link :href="route('hive.cohorts.destroy', cohort.id)" method="delete" as="button"
+          <Link :href="route('hive.cohorts.destroy', { cohort: cohort.id })" method="delete" as="button"
             class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg">Delete</Link>
         </div>
       </div>
@@ -110,5 +110,5 @@ const form = useForm({
   is_active:        props.cohort.is_active,
 })
 
-const submit = () => form.put(route('hive.cohorts.update', props.cohort.id))
+const submit = () => form.put(route('hive.cohorts.update', { cohort: props.cohort.id }))
 </script>

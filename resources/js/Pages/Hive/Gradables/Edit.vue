@@ -5,7 +5,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Assessment</h1>
-                    <Link :href="route('hive.gradables.show', gradable.id)"
+                    <Link :href="route('hive.gradables.show', { gradable: gradable.id })"
                         class="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300">
                         Back to Assessment
                     </Link>
@@ -121,7 +121,7 @@
                     </div>
 
                     <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <Link :href="route('hive.gradables.show', gradable.id)"
+                        <Link :href="route('hive.gradables.show', { gradable: gradable.id })"
                             class="inline-flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-xs text-gray-700 dark:text-gray-200 uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-gray-600 transition">
                             Cancel
                         </Link>
@@ -288,7 +288,7 @@ const newQuestion = reactive({
 const addingQuestion = ref(false);
 
 const submit = () => {
-    form.put(route('hive.gradables.update', props.gradable.id));
+    form.put(route('hive.gradables.update', { gradable: props.gradable.id }));
 };
 
 const addOption = () => {
@@ -314,7 +314,7 @@ const addQuestion = () => {
         });
     }
 
-    router.post(route('hive.gradables.questions.store', props.gradable.id), data, {
+    router.post(route('hive.gradables.questions.store', { gradable: props.gradable.id }), data, {
         forceFormData: true,
         onFinish: () => {
             addingQuestion.value = false;

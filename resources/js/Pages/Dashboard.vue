@@ -87,7 +87,7 @@
               <p class="text-sm font-semibold text-gray-900">{{ cohort.students_count }}</p>
               <p class="text-xs text-gray-400">/ {{ cohort.max_students }}</p>
             </div>
-            <Link :href="route('hive.cohorts.show', cohort.id)"
+            <Link :href="route('hive.cohorts.show', { cohort: cohort.id })"
               class="text-gray-400 hover:text-amber-600 transition-colors">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>

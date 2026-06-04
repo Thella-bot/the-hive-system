@@ -35,7 +35,7 @@
                 {{ event.location }}
               </span>
               <span class="bg-gray-100 px-2 py-0.5 rounded">{{ event.category }}</span>
-              <a :href="route('hive.events.ical', event.id)" class="text-amber-600 hover:text-amber-800 underline text-xs" target="_blank">📅 Add to Calendar</a>
+              <a :href="route('hive.events.ical', { event: event.id })" class="text-amber-600 hover:text-amber-800 underline text-xs" target="_blank">📅 Add to Calendar</a>
             </div>
             <!-- RSVP summary -->
             <div v-if="event.rsvps" class="mt-2 flex items-center gap-3 text-xs text-gray-500">
@@ -54,7 +54,7 @@
               </button>
             </div>
             <div v-if="canCreate || canDelete" class="flex gap-2 mt-1">
-              <Link :href="route('hive.events.edit', event.id)"
+              <Link :href="route('hive.events.edit', { event: event.id })"
                     v-if="canCreate"
                     class="text-amber-600 hover:text-amber-700 text-sm">Edit</Link>
               <button v-if="canDelete" @click="deleteEvent(event.id)" class="text-red-600 hover:text-red-700 text-sm">Delete</button>
@@ -97,7 +97,7 @@ const formatDate = (date) => {
 };
 
 const rsvp = (eventId, status) => {
-  router.post(route('hive.events.rsvp', eventId), { status });
+  router.post(route('hive.events.rsvp', { event: eventId }), { status });
 };
 
 const getRsvpClass = (event, status) => {
@@ -111,7 +111,7 @@ const getRsvpClass = (event, status) => {
 
 const deleteEvent = (id) => {
   if (confirm('Delete this event?')) {
-    router.delete(route('hive.events.destroy', id));
+    router.delete(route('hive.events.destroy', { event: id }));
   }
 };
 </script>

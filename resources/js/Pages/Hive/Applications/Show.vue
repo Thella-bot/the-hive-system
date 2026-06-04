@@ -1,5 +1,10 @@
 <template>
   <HiveLayout :title="`Application from ${applicantName}`">
+    <template #header-actions>
+      <Link :href="route('hive.applications.index')" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
+        ← Applications
+      </Link>
+    </template>
     <div class="max-w-3xl mx-auto space-y-6">
       <!-- Application Details -->
       <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -134,7 +139,7 @@
 <script setup>
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { computed } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm, router, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
   application: Object,
@@ -153,12 +158,12 @@ const applicantName = computed(() => props.application.user?.name || props.appli
 const applicantEmail = computed(() => props.application.user?.email || props.application.email || 'No email recorded');
 
 const submit = () => {
-  form.patch(route('hive.applications.update', props.application.id));
+  form.patch(route('hive.applications.update', { application: props.application.id }));
 };
 
 const completeRegistration = () => {
   if (confirm('Complete registration for this student? They will gain full access to modules.')) {
-    router.post(route('hive.applications.complete-registration', props.application.id));
+    router.post(route('hive.applications.complete-registration', { application: props.application.id }));
   }
 };
 

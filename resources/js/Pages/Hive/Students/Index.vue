@@ -1,5 +1,5 @@
 <script setup>
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { computed, Link, useForm, usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 const props = defineProps({
@@ -7,16 +7,16 @@ const props = defineProps({
 });
 
 const page = usePage();
-const isAdmin = () => {
+const isAdmin = computed(() => {
     const roles = page.props.auth?.user?.roles || [];
     return roles.includes('super-admin') || roles.includes('school-admin');
-};
+});
 
 const form = useForm({});
 
 const deleteStudent = (id) => {
     if (confirm('Are you sure you want to delete this student?')) {
-        form.delete(route('hive.students.destroy', id));
+        form.delete(route('hive.students.destroy', { student: id }));
     }
 };
 </script>
@@ -47,8 +47,8 @@ const deleteStudent = (id) => {
                                             <div class="text-sm text-gray-900">{{ student.email }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <Link :href="route('hive.students.edit', student.id)" class="text-indigo-600 hover:text-indigo-900">Edit</Link>
-                                            <button v-if="isAdmin()" @click="deleteStudent(student.id)" class="ml-2 text-red-600 hover:text-red-900">Delete</button>
+                                            <Link :href="route('hive.students.edit', { student: student.id })" class="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                                            <button v-if="isAdmin" @click="deleteStudent(student.id)" class="ml-2 text-red-600 hover:text-red-900">Delete</button>
                                         </td>
                                     </tr>
                                 </tbody>

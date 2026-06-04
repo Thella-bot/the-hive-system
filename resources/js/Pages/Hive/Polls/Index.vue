@@ -101,7 +101,7 @@ const hasVoted = (poll) => {
 };
 
 const vote = (pollId, choice) => {
-  router.post(route('hive.polls.vote', pollId), { choice });
+  router.post(route('hive.polls.vote', { poll: pollId }), { choice });
 };
 
 const getVoteClass = (poll, choice) => {

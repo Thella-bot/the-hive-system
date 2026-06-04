@@ -267,7 +267,7 @@
             <Link :href="route('hive.modules.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium dark:text-amber-400">View all</Link>
           </div>
           <div v-if="programme && programme.modules.length" class="space-y-3">
-            <Link v-for="module in programme.modules" :key="module.id" :href="route('hive.modules.show', module.id)" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
+            <Link v-for="module in programme.modules" :key="module.id" :href="route('hive.modules.show', { module: module.id })" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
               <p class="font-medium text-gray-800 text-sm dark:text-white">{{ module.name }}</p>
               <p class="text-xs text-gray-500 dark:text-gray-400">{{ module.code }}</p>
             </Link>
@@ -392,7 +392,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ doc.category || doc.module?.name || 'Document' }}</p>
                   </div>
                 </div>
-                <Link :href="route('hive.documents.show', doc.id)" class="text-amber-600 hover:text-amber-700 text-sm font-medium dark:text-amber-400">View</Link>
+                <Link :href="route('hive.documents.show', { document: doc.id })" class="text-amber-600 hover:text-amber-700 text-sm font-medium dark:text-amber-400">View</Link>
               </div>
             </div>
             <p v-else class="text-gray-500 text-sm py-6 text-center dark:text-gray-400">No documents available</p>

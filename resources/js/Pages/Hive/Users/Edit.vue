@@ -1,7 +1,7 @@
 <template>
   <HiveLayout :title="`Edit: ${managedUser.name}`" description="Update user account and profile">
     <template #header-actions>
-      <Link :href="route('hive.users.show', managedUser.id)" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
+      <Link :href="route('hive.users.show', { user: managedUser.id })" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
         ← Back to Profile
       </Link>
     </template>
@@ -132,12 +132,12 @@
             class="text-sm text-red-500 hover:text-red-700 font-medium">Delete user</button>
           <span v-else></span>
           <div class="flex gap-3">
-            <Link :href="route('hive.users.show', managedUser.id)"
+            <Link :href="route('hive.users.show', { user: managedUser.id })"
               class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
               Cancel
             </Link>
             <button type="submit" :disabled="form.processing"
-              class="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
+              class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
               Save Changes
             </button>
           </div>
@@ -156,7 +156,7 @@
         <div class="flex justify-end gap-3">
           <button @click="confirmDelete = false"
             class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-100">Cancel</button>
-          <Link :href="route('hive.users.destroy', managedUser.id)" method="delete" as="button"
+          <Link :href="route('hive.users.destroy', { user: managedUser.id })" method="delete" as="button"
             class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg">Delete</Link>
         </div>
       </div>
@@ -207,5 +207,5 @@ const isStudentRole = computed(() => form.role === 'student')
 
 const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
-const submit = () => form.put(route('hive.users.update', props.managedUser.id))
+const submit = () => form.put(route('hive.users.update', { user: props.managedUser.id }))
 </script>

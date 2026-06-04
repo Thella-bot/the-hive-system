@@ -92,7 +92,7 @@
                     class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 disabled:opacity-50">
               {{ processing ? 'Updating...' : 'Update Event' }}
             </button>
-            <a :href="route('hive.events.ical', event.id)" target="_blank"
+            <a :href="route('hive.events.ical', { event: event.id })" target="_blank"
                class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded">
               📅 Export .ics
             </a>
@@ -127,6 +127,6 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.put(route('hive.events.update', props.event.id));
+  form.put(route('hive.events.update', { event: props.event.id }));
 };
 </script>

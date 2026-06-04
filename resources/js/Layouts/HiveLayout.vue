@@ -520,7 +520,7 @@ const hrNav = () => {
     icon: BriefcaseIcon,
     children: [
       { name: 'Leave Requests', href: route('hive.leaves.index'), active: 'hive.leaves.*', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
-      { name: 'Payslips', href: route('hive.payslips.index'), active: 'hive.polls.index', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
+      { name: 'Payslips', href: route('hive.payslips.index'), active: 'hive.payslips.index', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
       { name: 'Polls & Surveys', href: route('hive.polls.index'), active: 'hive.polls.*', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
       { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*', roles: ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'] },
     ],

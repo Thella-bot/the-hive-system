@@ -1,7 +1,7 @@
 <template>
   <HiveLayout :title="`Edit: ${department.name}`" description="Update department details">
     <template #header-actions>
-      <Link :href="route('departments.show', department.id)"
+      <Link :href="route('hive.departments.show', { department: department.id })"
         class="text-sm text-gray-500 hover:text-gray-700 font-medium">
         ← Back to Department
       </Link>
@@ -79,12 +79,12 @@
             Delete department
           </button>
           <div class="flex gap-3">
-            <Link :href="route('departments.show', department.id)"
+            <Link :href="route('hive.departments.show', { department: department.id })"
               class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors">
               Cancel
             </Link>
             <button type="submit" :disabled="form.processing"
-              class="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
+              class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
               Save Changes
             </button>
           </div>
@@ -104,7 +104,7 @@
             class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors">
             Cancel
           </button>
-          <Link :href="route('departments.destroy', department.id)" method="delete" as="button"
+          <Link :href="route('hive.departments.destroy', { department: department.id })" method="delete" as="button"
             class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">
             Yes, Delete
           </Link>
@@ -139,5 +139,5 @@ const form = useForm({
   is_active:    props.department.is_active,
 })
 
-const submit = () => form.put(route('departments.update', props.department.id))
+const submit = () => form.put(route('hive.departments.update', { department: props.department.id }))
 </script>

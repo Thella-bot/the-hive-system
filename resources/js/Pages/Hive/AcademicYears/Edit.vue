@@ -1,7 +1,7 @@
 <template>
   <HiveLayout :title="`Edit: ${year.name}`" description="Update academic year details">
     <template #header-actions>
-      <Link :href="route('academic-years.index')" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
+      <Link :href="route('hive.academic-years.index')" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
         ← Academic Years
       </Link>
     </template>
@@ -46,12 +46,12 @@
         </div>
 
         <div class="px-6 py-4 bg-gray-50 flex justify-end gap-3 rounded-b-xl">
-          <Link :href="route('academic-years.index')"
+          <Link :href="route('hive.academic-years.index')"
             class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition-colors">
             Cancel
           </Link>
           <button type="submit" :disabled="form.processing"
-            class="px-5 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
+            class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
             Save Changes
           </button>
         </div>
@@ -75,5 +75,5 @@ const form = useForm({
   is_current: props.year.is_current,
 })
 
-const submit = () => form.put(route('academic-years.update', props.year.id))
+const submit = () => form.put(route('hive.academic-years.update', { academic_year: props.year.id }))
 </script>

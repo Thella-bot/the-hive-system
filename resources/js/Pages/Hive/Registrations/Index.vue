@@ -43,7 +43,7 @@
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
-                    <Link :href="route('hive.applications.show', reg.id)"
+                    <Link :href="route('hive.applications.show', { application: reg.id })"
                       class="text-amber-600 hover:text-amber-700 font-medium text-sm">
                       View
                     </Link>
@@ -188,14 +188,14 @@ const submit = () => {
 
 const completeRegistration = (reg) => {
   if (!confirm(`Approve registration for ${reg.name || reg.user?.name}?`)) return;
-  router.patch(route('hive.registration.update', reg.id), {
+  router.patch(route('hive.registration.update', { registration: reg.id }), {
     registration_status: 'completed',
   });
 };
 
 const rejectRegistration = (reg) => {
   if (!confirm(`Reject registration for ${reg.name || reg.user?.name}?`)) return;
-  router.patch(route('hive.registration.update', reg.id), {
+  router.patch(route('hive.registration.update', { registration: reg.id }), {
     registration_status: 'rejected',
   });
 };

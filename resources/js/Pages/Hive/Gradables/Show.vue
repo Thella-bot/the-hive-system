@@ -23,7 +23,7 @@
                     </div>
 
                     <div v-if="isInstructor" class="flex gap-2">
-                        <Link :href="route('hive.gradables.edit', gradable.id)"
+                        <Link :href="route('hive.gradables.edit', { gradable: gradable.id })"
                             class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 transition">
                             Edit / Questions
                         </Link>
@@ -247,11 +247,11 @@ const submitOnlineAnswers = async () => {
         option_id: data.option_id ? parseInt(data.option_id) : null,
         answer_text: data.answer_text || null,
     }));
-    await router.post(route('hive.gradables.submit-online', props.gradable.id), { answers });
+    await router.post(route('hive.gradables.submit-online', { gradable: props.gradable.id }), { answers });
     submittingAnswers.value = false;
 };
 
 const deleteGradable = () => {
-    if (confirm('Delete this assessment?')) router.delete(route('hive.gradables.destroy', props.gradable.id));
+    if (confirm('Delete this assessment?')) router.delete(route('hive.gradables.destroy', { gradable: props.gradable.id }));
 };
 </script>

@@ -1,5 +1,10 @@
 <template>
   <HiveLayout :title="isEditing ? 'Edit Payslip' : 'Create Payslip'" :description="isEditing ? `Editing payslip for ${payslip?.user?.name}` : 'Enter salary details for a staff member'">
+    <template #header-actions>
+      <Link :href="route('hive.payslips.index')" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
+        ← Payslips
+      </Link>
+    </template>
     <div class="max-w-4xl mx-auto">
       <!-- Staff Selector (Create mode only) -->
       <div v-if="!isEditing" class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
@@ -188,7 +193,7 @@
 
 <script setup>
 import { computed, watch } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 const props = defineProps({
@@ -216,7 +221,7 @@ const form = useForm({
 
 const submit = () => {
   if (props.isEditing) {
-    form.patch(route('hive.payslips.update', props.payslip.id));
+    form.patch(route('hive.payslips.update', { payslip: props.payslip.id }));
   } else {
     form.post(route('hive.payslips.store'));
   }

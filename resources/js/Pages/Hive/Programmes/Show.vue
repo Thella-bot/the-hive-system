@@ -7,7 +7,7 @@
           <p class="text-gray-600 mt-2">{{ programme.description }}</p>
           <p class="text-sm text-gray-500 mt-4">Duration: {{ programme.duration }}</p>
         </div>
-        <Link v-if="canManage" :href="route('hive.programmes.edit', programme.id)" class="btn-primary">
+        <Link v-if="canManage" :href="route('hive.programmes.edit', { programme: programme.id })" class="btn-primary">
           Manage Courses
         </Link>
       </div>

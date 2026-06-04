@@ -40,7 +40,7 @@ const roleColor = (r) => ({
   <HiveLayout title="Users" description="All staff, instructors and students">
     <template #header-actions>
       <Link :href="route('hive.users.create')"
-        class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
@@ -112,9 +112,9 @@ const roleColor = (r) => ({
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center justify-end gap-3">
-                <Link :href="route('hive.users.show', user.id)"
+                <Link :href="route('hive.users.show', { user: user.id })"
                   class="text-amber-600 hover:text-amber-700 font-medium text-xs">View</Link>
-                <Link :href="route('hive.users.edit', user.id)"
+                <Link :href="route('hive.users.edit', { user: user.id })"
                   class="text-gray-500 hover:text-gray-700 font-medium text-xs">Edit</Link>
               </div>
             </td>

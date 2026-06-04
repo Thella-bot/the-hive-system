@@ -195,7 +195,7 @@ const submitGrade = () => {
   if (!selectedSubmission.value) return;
 
   submitting.value = true;
-  router.post(route('hive.submissions.grade', selectedSubmission.value.id), {
+  router.post(route('hive.submissions.grade', { submission: selectedSubmission.value.id }), {
     grade: gradingForm.value.grade,
     feedback: gradingForm.value.feedback,
   }, {

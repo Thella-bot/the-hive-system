@@ -84,6 +84,6 @@ const joinWaitlist = () => {
 };
 
 const leave = (id) => {
-  if (confirm('Leave this waitlist?')) router.delete(route('hive.waitlist.leave', id));
+  if (confirm('Leave this waitlist?')) router.delete(route('hive.waitlist.leave', { waitlist: id }));
 };
 </script>

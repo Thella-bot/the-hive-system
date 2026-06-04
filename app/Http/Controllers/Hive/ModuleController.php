@@ -55,6 +55,15 @@ class ModuleController extends Controller
         return redirect()->route('hive.modules.index')->with('success', 'Module created successfully.');
     }
 
+    public function show(Module $module)
+    {
+        $this->authorize('view', $module);
+        $module->load(['department', 'programme', 'instructors']);
+        return Inertia::render('Hive/Modules/Show', [
+            'module' => $module,
+        ]);
+    }
+
     public function edit(Module $module)
     {
         $this->authorize('update', $module);

@@ -58,6 +58,6 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.put(route('hive.programmes.update', props.programme.id));
+  form.put(route('hive.programmes.update', { programme: props.programme.id }));
 };
 </script>

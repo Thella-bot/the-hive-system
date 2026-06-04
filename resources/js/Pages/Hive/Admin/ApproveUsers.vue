@@ -38,7 +38,7 @@ const selectedRoles = ref({});
 props.unapprovedUsers.forEach(u => selectedRoles.value[u.id] = 'student');
 
 const approve = (userId) => {
-  router.post(route('hive.admin.approve-users.approve', userId), {
+  router.post(route('hive.admin.approve-users.approve', { user: userId }), {
     role: selectedRoles.value[userId]
   });
 };

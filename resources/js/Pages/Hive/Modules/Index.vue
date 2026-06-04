@@ -44,10 +44,10 @@ const isStudent = computed(() => {
           <td class="border-t px-6 py-4">{{ module.department?.name }}</td>
           <td class="border-t px-6 py-4">{{ module.programme?.name }}</td>
           <td class="border-t px-6 py-4">
-            <Link v-if="canManage" :href="route('hive.modules.edit', module.id)" class="text-indigo-600 hover:text-indigo-900">
+            <Link v-if="canManage" :href="route('hive.modules.edit', { module: module.id })" class="text-indigo-600 hover:text-indigo-900">
               Edit
             </Link>
-            <Link v-if="isStudent" :href="route('hive.enrollment.destroy', module.id)" method="delete" as="button" class="text-red-600 hover:text-red-900 ml-4">
+            <Link v-if="isStudent" :href="route('hive.enrollment.destroy', { module: module.id })" method="delete" as="button" class="text-red-600 hover:text-red-900 ml-4">
               Deregister
             </Link>
           </td>

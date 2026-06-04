@@ -14,7 +14,7 @@
       </div>
       <div v-else-if="isStudent && existingSubmission" class="mt-4 p-2 bg-gray-100">
         <p>Your submission ({{ new Date(existingSubmission.submitted_at).toLocaleString() }})</p>
-        <a :href="route('hive.submissions.download', existingSubmission.id)" class="text-amber-600 underline hover:text-amber-700">Download</a>
+        <a :href="route('hive.submissions.download', { submission: existingSubmission.id })" class="text-amber-600 underline hover:text-amber-700">Download</a>
         <span v-if="existingSubmission.grade"> | Grade: {{ existingSubmission.grade }}%</span>
         <p v-if="existingSubmission.feedback" class="mt-2"><strong>Feedback:</strong> {{ existingSubmission.feedback }}</p>
       </div>
@@ -29,7 +29,7 @@
               <td>{{ sub.student.name }}</td>
               <td>{{ new Date(sub.submitted_at).toLocaleString() }}</td>
               <td>{{ sub.is_late ? 'Yes' : 'No' }}</td>
-              <td><a :href="route('hive.submissions.download', sub.id)" class="text-amber-600 hover:text-amber-700">Download</a></td>
+              <td><a :href="route('hive.submissions.download', { submission: sub.id })" class="text-amber-600 hover:text-amber-700">Download</a></td>
               <td>{{ sub.grade ?? '-' }}</td>
               <td>{{ sub.feedback ?? '-' }}</td>
               <td><button @click="gradeModal(sub)" class="text-amber-600 hover:text-amber-700">Grade</button></td>
@@ -66,7 +66,7 @@ const existingSubmission = computed(() => props.assignment.submissions?.find(s =
 
 const submissionForm = useForm({ file: null });
 const submitFile = () => {
-  submissionForm.post(route('hive.submissions.store', props.assignment.id));
+  submissionForm.post(route('hive.submissions.store', { assignment: props.assignment.id }));
 };
 
 const grading = ref(null);
@@ -77,7 +77,7 @@ const gradeModal = (sub) => {
   gradingForm.feedback = sub.feedback ?? '';
 };
 const submitGrade = () => {
-  gradingForm.post(route('hive.submissions.grade', grading.value.id), {
+  gradingForm.post(route('hive.submissions.grade', { submission: grading.value.id }), {
     onSuccess: () => grading.value = null,
   });
 };

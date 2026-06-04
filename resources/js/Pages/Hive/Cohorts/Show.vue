@@ -5,7 +5,7 @@
         <Link :href="route('hive.cohorts.index')" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
           ← Cohorts
         </Link>
-        <Link v-if="can('edit-cohorts')" :href="route('hive.cohorts.edit', cohort.id)"
+        <Link v-if="can('edit-cohorts')" :href="route('hive.cohorts.edit', { cohort: cohort.id })"
           class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
           Edit
         </Link>
@@ -73,7 +73,7 @@
               <p class="text-xs text-gray-400">{{ student.student_number }}</p>
             </div>
             <Badge :color="student.status_color">{{ formatStatus(student.status) }}</Badge>
-            <Link :href="route('hive.users.show', student.user_id)"
+            <Link :href="route('hive.users.show', { user: student.user_id })"
               class="text-gray-400 hover:text-amber-600 transition-colors ml-2">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
