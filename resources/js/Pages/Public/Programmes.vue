@@ -1,8 +1,12 @@
 <template>
   <PublicLayout>
     <!-- Page Hero -->
-    <section class="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20 lg:py-28">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <section class="relative bg-gray-900 text-white py-20 lg:py-28 overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-amber-900"></div>
+      <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+      <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 left-0 w-72 h-72 bg-amber-600/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl lg:text-5xl font-bold">Our Programmes</h1>
         <p class="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">From professional diplomas to short workshops — find the perfect path to launch your culinary career.</p>
       </div>
@@ -25,12 +29,12 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="space-y-20">
           <div v-for="(programme, index) in programmes" :key="programme.id"
-            class="grid lg:grid-cols-2 gap-12 items-start"
+            class="group grid lg:grid-cols-2 gap-12 items-start"
             :class="index % 2 === 1 ? 'lg:grid-flow-dense' : ''">
 
             <!-- Content -->
             <div :class="index % 2 === 1 ? 'lg:col-start-2' : ''">
-              <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">{{ programme.name }}</h2>
+              <h2 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-3 group-hover:text-amber-700 transition">{{ programme.name }}</h2>
               <p class="text-gray-600 leading-relaxed mb-6">{{ programme.description }}</p>
 
               <!-- Duration Options -->
@@ -59,16 +63,16 @@
                 <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">What You'll Learn</h3>
                 <div class="flex flex-wrap gap-2">
                   <span v-for="module in programme.modules" :key="module.id"
-                    class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg border border-gray-200">
+                    class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg border border-gray-200 hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700 transition">
                     {{ module.name }}
                   </span>
                 </div>
               </div>
 
               <div class="flex flex-wrap gap-4">
-                <Link :href="route('apply')" class="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition shadow-sm">
+                <Link :href="route('apply')" class="group inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition shadow-sm">
                   Apply Now
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                  <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </Link>
                 <Link :href="route('contact')" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition">
                   Ask a Question
@@ -78,7 +82,7 @@
 
             <!-- Visual Info Card -->
             <div :class="index % 2 === 1 ? 'lg:col-start-1 lg:row-start-1' : ''">
-              <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-2xl border border-amber-200 p-8 sticky top-24">
+              <div class="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-2xl border border-amber-200 p-8 sticky top-24 hover:shadow-xl transition-shadow duration-300">
                 <div class="bg-amber-600 text-white rounded-xl p-5 mb-6">
                   <p class="text-sm text-amber-200 mb-1">Programmes</p>
                   <p class="text-xl font-bold leading-tight">{{ programme.name }}</p>
@@ -151,7 +155,7 @@
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="course in allShortCourses" :key="course.id"
-            class="bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg hover:border-orange-200 transition">
+            class="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg hover:border-orange-200 hover:-translate-y-1 transition-all duration-300">
             <div class="flex items-start justify-between mb-4">
               <span class="px-2.5 py-1 text-xs font-semibold rounded-full"
                 :class="{
@@ -179,9 +183,9 @@
             <div v-if="course.start_date" class="text-xs text-gray-400 mb-4">
               {{ course.start_date }}
             </div>
-            <Link :href="route('apply')" class="inline-flex items-center gap-2 text-amber-600 font-semibold text-sm hover:text-amber-700 transition">
+            <Link :href="route('apply')" class="group/sub inline-flex items-center gap-2 text-amber-600 font-semibold text-sm hover:text-amber-700 transition">
               Apply Now
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+              <svg class="w-4 h-4 group-hover/sub:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
             </Link>
           </div>
         </div>
@@ -189,13 +193,15 @@
     </section>
 
     <!-- CTA -->
-    <section class="py-16 bg-gray-50">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">Not Sure Which Programme Is Right for You?</h2>
-        <p class="mt-3 text-gray-600">Our admissions team can help guide you to the best choice based on your goals.</p>
+    <section class="py-16 bg-gradient-to-br from-amber-600 to-amber-700 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-72 h-72 bg-white/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-2xl lg:text-3xl font-bold text-white">Not Sure Which Programme Is Right for You?</h2>
+        <p class="mt-3 text-amber-100">Our admissions team can help guide you to the best choice based on your goals.</p>
         <div class="mt-6 flex flex-wrap justify-center gap-4">
-          <Link :href="route('contact')" class="px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition">Contact Admissions</Link>
-          <Link :href="route('about')" class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">Learn About HBCI</Link>
+          <Link :href="route('contact')" class="group inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-700 font-semibold rounded-lg hover:bg-amber-50 transition">Contact Admissions</Link>
+          <Link :href="route('about')" class="px-6 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition">Learn About HBCI</Link>
         </div>
       </div>
     </section>

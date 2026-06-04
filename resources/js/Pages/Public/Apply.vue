@@ -97,7 +97,6 @@
                       </div>
                       <div class="text-right">
                         <p class="font-bold text-amber-700">LSL {{ parseFloat(variant.total_price).toLocaleString() }}</p>
-                        <p v-if="variant.monthly_fee > 0" class="text-xs text-gray-500">LSL {{ parseFloat(variant.monthly_fee).toLocaleString() }}/mo</p>
                       </div>
                     </label>
                   </div>

@@ -1,13 +1,36 @@
 <template>
   <PublicLayout>
+    <!-- Announcements Banner -->
+    <section v-if="announcements && announcements.length" class="bg-amber-50 border-b border-amber-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="flex items-center gap-3">
+          <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 bg-amber-600 text-white text-xs font-bold rounded-full">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            NEW
+          </span>
+          <p class="text-sm text-amber-800 font-medium truncate">
+            {{ announcements[0].title }}
+          </p>
+          <Link :href="route('about')" class="flex-shrink-0 text-xs text-amber-600 hover:text-amber-700 font-semibold underline">
+            Learn more
+          </Link>
+        </div>
+      </div>
+    </section>
+
     <!-- Hero Section -->
     <section class="relative bg-gray-900 text-white overflow-hidden">
-      <!-- Background gradient overlay -->
+      <!-- Background layers -->
       <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-amber-900"></div>
+      <!-- Subtle grid pattern -->
+      <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+      <!-- Glowing orb -->
+      <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 left-0 w-72 h-72 bg-amber-600/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium mb-6">
+          <div class="space-y-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
               Lesotho's Premier Culinary Academy
             </div>
@@ -15,21 +38,25 @@
               The International Culinary & Hospitality<br>
               <span class="text-amber-400">Academy of Lesotho</span>
             </h1>
-            <p class="mt-6 text-lg text-gray-300 max-w-lg leading-relaxed">
+            <p class="text-lg text-gray-300 max-w-lg leading-relaxed">
               Launch your career in culinary arts and hospitality management with world-class training, expert instructors, and internationally recognized certifications.
             </p>
-            <div class="mt-8 flex flex-wrap gap-4">
-              <Link :href="route('apply')" class="px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition shadow-lg shadow-amber-600/30">
+            <div class="flex flex-wrap gap-4">
+              <Link :href="route('apply')" class="group inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition shadow-lg shadow-amber-600/30">
                 Apply Now
+                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
               </Link>
-              <Link :href="route('programmes')" class="px-6 py-3 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition border border-white/20">
+              <Link :href="route('programmes')" class="group inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition border border-white/20">
                 Explore Programmes
+                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
               </Link>
             </div>
           </div>
-          <div class="hidden lg:block relative">
-            <div class="absolute -top-4 -left-4 w-72 h-72 bg-amber-500/20 rounded-full blur-3xl"></div>
-            <img src="/images/hbci-logo.png" alt="HBCI" class="relative w-full max-w-md mx-auto opacity-90" />
+          <div class="hidden lg:flex relative justify-center items-center">
+            <div class="absolute w-80 h-80 bg-amber-500/20 rounded-full blur-3xl"></div>
+            <div class="relative animate-float">
+              <img src="/images/hbci-logo.png" alt="HBCI" class="w-full max-w-sm mx-auto opacity-90 drop-shadow-2xl" />
+            </div>
           </div>
         </div>
       </div>
@@ -133,16 +160,17 @@
             <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Our Programmes</h2>
             <p class="mt-2 text-gray-600">Choose from a range of accredited culinary and hospitality programmes.</p>
           </div>
-          <Link :href="route('programmes')" class="inline-flex items-center gap-2 text-amber-600 font-semibold hover:text-amber-700 transition">
+          <Link :href="route('programmes')" class="group inline-flex items-center gap-2 text-amber-600 font-semibold hover:text-amber-700 transition">
             View all programmes
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
           </Link>
         </div>
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div v-for="programme in programmes" :key="programme.id" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:border-amber-200 transition group">
+          <div v-for="programme in programmes" :key="programme.id" class="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:border-amber-200 hover:-translate-y-1 transition-all duration-300">
             <div class="p-6">
               <div class="flex items-center justify-between mb-4">
                 <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">{{ programme.duration }}</span>
+                <svg class="w-5 h-5 text-gray-300 group-hover:text-amber-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
               </div>
               <h3 class="text-xl font-semibold text-gray-900 mb-2 group-hover:text-amber-700 transition">{{ programme.name }}</h3>
               <p class="text-gray-500 text-sm mb-4 line-clamp-2">{{ programme.description }}</p>
@@ -152,6 +180,39 @@
                 Apply Now
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
               </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Short Courses Spotlight -->
+    <section v-if="shortCourses && shortCourses.length" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
+          <div>
+            <p class="text-amber-600 text-sm font-bold uppercase tracking-wider mb-2">Workshops & Short Courses</p>
+            <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Learn a New Skill Today</h2>
+            <p class="mt-2 text-gray-600">Flexible short courses and cooking sessions for all skill levels.</p>
+          </div>
+          <Link :href="route('programmes')" class="group inline-flex items-center gap-2 text-amber-600 font-semibold hover:text-amber-700 transition">
+            View all courses
+            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </Link>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-for="course in shortCourses" :key="course.id" class="group relative bg-gradient-to-br from-gray-50 to-amber-50/30 rounded-2xl border border-gray-100 p-6 hover:shadow-lg hover:border-amber-200 hover:-translate-y-1 transition-all duration-300">
+            <div class="flex items-start justify-between mb-3">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                Short Course
+              </span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-amber-700 transition">{{ course.name }}</h3>
+            <p v-if="course.description" class="text-gray-500 text-sm line-clamp-2 mb-4">{{ course.description }}</p>
+            <div v-if="course.start_date" class="flex items-center gap-2 text-sm text-gray-400">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span>{{ new Date(course.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }}</span>
             </div>
           </div>
         </div>
@@ -209,13 +270,17 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20 bg-gradient-to-br from-amber-600 to-amber-700">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <section class="py-20 bg-gradient-to-br from-amber-600 to-amber-700 relative overflow-hidden">
+      <!-- Background decoration -->
+      <div class="absolute top-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-72 h-72 bg-white/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl lg:text-4xl font-bold text-white">Ready to Start Your Culinary Journey?</h2>
         <p class="mt-4 text-amber-100 text-lg max-w-2xl mx-auto">Applications are now open for the upcoming academic year. Take the first step toward your dream career today.</p>
         <div class="mt-8 flex flex-wrap justify-center gap-4">
-          <Link :href="route('apply')" class="px-8 py-4 bg-white text-amber-700 font-bold rounded-lg hover:bg-amber-50 transition shadow-lg">
+          <Link :href="route('apply')" class="group inline-flex items-center gap-2 px-8 py-4 bg-white text-amber-700 font-bold rounded-lg hover:bg-amber-50 transition shadow-lg">
             Apply Now — It's Free
+            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
           </Link>
           <Link :href="route('contact')" class="px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-lg hover:bg-white/10 transition">
             Have Questions?
@@ -223,15 +288,69 @@
         </div>
       </div>
     </section>
+
+    <!-- Scroll to Top Button -->
+    <Transition name="fade">
+      <button
+        v-if="showScrollTop"
+        @click="scrollToTop"
+        class="fixed bottom-6 right-6 z-50 w-12 h-12 bg-amber-600 text-white rounded-full shadow-lg hover:bg-amber-700 hover:shadow-xl transition-all flex items-center justify-center"
+        aria-label="Scroll to top"
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+      </button>
+    </Transition>
   </PublicLayout>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { Link } from '@inertiajs/vue3';
 
 defineProps({
   programmes: Array,
+  shortCourses: Array,
   announcements: Array,
 });
+
+const showScrollTop = ref(false);
+
+const handleScroll = () => {
+  showScrollTop.value = window.scrollY > 600;
+};
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
+
+<style scoped>
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>
