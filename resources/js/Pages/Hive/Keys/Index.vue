@@ -29,7 +29,7 @@
             <div class="flex items-center gap-2">
               <span class="text-lg">🗝️</span>
               <h3 class="font-semibold text-gray-900">{{ key.label }}</h3>
-              <span :class="statusClass(key.status)" class="text-xs px-2 py-0.5 rounded-full">{{ key.status }}</span>
+              <span :class="statusClass(key.status)" class="text-xs px-2 py-0.5 rounded-full">{{ statusLabels[key.status] ?? key.status }}</span>
             </div>
             <p class="text-sm text-gray-500 mt-0.5">{{ key.location || 'No location set' }}</p>
           </div>
@@ -86,6 +86,12 @@ const roles = computed(() => usePage().props.auth?.user?.roles || []);
 const canCreate = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
 const canIssue = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
 const form = ref({ label: '', location: '' });
+
+const statusLabels = {
+  available: 'Available',
+  issued: 'Issued',
+  lost: 'Lost',
+};
 
 const statusClass = (s) => {
   switch (s) {

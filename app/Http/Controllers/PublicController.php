@@ -47,19 +47,11 @@ class PublicController extends Controller
     {
         $programmes = Programme::with([
             'variants' => fn($q) => $q->where('is_active', true),
-            'shortCourses' => fn($q) => $q->active()->open(),
             'modules',
         ])->get();
 
-        // Also collect department-level short courses
-        $departmentCourses = ShortCourse::with('courseable')
-            ->active()->open()
-            ->get()
-            ->filter(fn($sc) => $sc->courseable_type === 'App\\Models\\Department');
-
         return Inertia::render('Public/Programmes', [
             'programmes' => $programmes,
-            'departmentCourses' => $departmentCourses,
         ]);
     }
 

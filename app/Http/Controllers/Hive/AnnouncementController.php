@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Events\EmergencyAlert;
 use App\Notifications\NewAnnouncement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -132,6 +133,19 @@ class AnnouncementController extends Controller
         }
         $announcement->delete();
         return redirect()->back()->with('success', 'Announcement deleted.');
+    }
+
+    public function show(Request $request, Announcement $announcement)
+    {
+        // Apply visibility scope so students only see announcements targeting them
+        $announcement = Announcement::visibleTo($request->user())
+            ->where('id', $announcement->id)
+            ->with(['attachments', 'targetModules'])
+            ->firstOrFail();
+
+        return Inertia::render('Hive/Announcements/Show', [
+            'announcement' => $announcement,
+        ]);
     }
 
     public function downloadAttachment(AnnouncementAttachment $attachment)

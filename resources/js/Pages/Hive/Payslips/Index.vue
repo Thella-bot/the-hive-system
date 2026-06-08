@@ -81,7 +81,7 @@
               <!-- Pay period (staff) -->
               <td v-else class="px-6 py-4">
                 <p class="font-medium text-gray-900">{{ formatMonthYear(payslip.pay_period_start) }}</p>
-                <p class="text-xs text-gray-400">{{ payslip.pay_period_start }} → {{ payslip.pay_period_end }}</p>
+                <p class="text-xs text-gray-400">{{ formatPeriod(payslip.pay_period_start, payslip.pay_period_end) }}</p>
               </td>
 
               <!-- Earnings -->
@@ -153,6 +153,7 @@ import { computed } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import dayjs from 'dayjs';
 
 const props = defineProps({
   payslips: Object,
@@ -185,15 +186,14 @@ const monthOptions = computed(() => {
 
 const formatMonthYear = (dateStr) => {
   if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleString('default', { month: 'long', year: 'numeric' });
+  return dayjs(dateStr).format('MMMM YYYY');
 };
 
 const formatPeriod = (start, end) => {
   if (!start || !end) return '';
-  const s = new Date(start);
-  const e = new Date(end);
-  if (s.getFullYear() === e.getFullYear() && s.getMonth() === e.getMonth()) {
+  const s = dayjs(start);
+  const e = dayjs(end);
+  if (s.isSame(e, 'month')) {
     return formatMonthYear(start);
   }
   return `${formatMonthYear(start)} — ${formatMonthYear(end)}`;

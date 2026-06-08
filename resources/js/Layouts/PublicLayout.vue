@@ -23,7 +23,7 @@ const isActive = (href) => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col font-sans bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen flex flex-col font-sans bg-white dark:bg-gray-900">
     <!-- Sticky Modern Header -->
     <header class="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:bg-gray-800 dark:border-gray-700">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,7 +53,7 @@ const isActive = (href) => {
             <ThemeToggle />
             <Link
               :href="route('apply')"
-              class="px-5 py-2.5 bg-white text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition shadow-sm"
+              class="px-5 py-2.5 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition shadow-sm"
             >
               Apply Now
             </Link>
@@ -99,7 +99,7 @@ const isActive = (href) => {
             <Link
               :href="route('apply')"
               @click="mobileMenuOpen = false"
-              class="block text-center px-5 py-3 bg-white text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition"
+              class="block text-center px-5 py-3 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition"
             >
               Apply Now
             </Link>
@@ -121,7 +121,7 @@ const isActive = (href) => {
     </main>
 
     <!-- Modern Footer -->
-    <footer class="bg-gray-900 text-white dark:bg-gray-800">
+    <footer class="bg-gradient-to-r from-gray-800 to-gray-900 text-white dark:bg-gray-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           <!-- Brand Column -->

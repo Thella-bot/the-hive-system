@@ -4,6 +4,7 @@ import { Link, router, usePage } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
 import Pagination from '@/Components/Pagination.vue'
+import dayjs from 'dayjs';
 
 defineProps({
   years: { type: Object, required: true },
@@ -15,7 +16,7 @@ const canManage = computed(() => {
   return roles.includes('super-admin') || roles.includes('school-admin');
 });
 
-const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY') : '—';
 
 const deleteYear = (year) => {
   if (confirm(`Delete "${year.name}"? This cannot be undone.`)) {

@@ -35,10 +35,10 @@
                   <p class="text-gray-500 text-xs">{{ reg.email || reg.user?.email }}</p>
                 </td>
                 <td class="px-6 py-4 text-gray-700">{{ reg.programme?.name }}</td>
-                <td class="px-6 py-4 text-gray-500 text-xs">{{ reg.admitted_at ? new Date(reg.admitted_at).toLocaleDateString() : '—' }}</td>
+                <td class="px-6 py-4 text-gray-500 text-xs">{{ formatDate(reg.admitted_at) }}</td>
                 <td class="px-6 py-4">
                   <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full" :class="registrationStatusClass(reg.registration_status)">
-                    {{ reg.registration_status || 'pending' }}
+                    {{ registrationStatusLabels[reg.registration_status] ?? 'Pending' }}
                   </span>
                 </td>
                 <td class="px-6 py-4">
@@ -158,6 +158,7 @@
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { Link, useForm, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import dayjs from 'dayjs';
 
 const props = defineProps({
   application: Object,
@@ -179,6 +180,15 @@ const canManageRegistration = computed(() => {
   const roles = pageProps.auth?.user?.roles || [];
   return roles.includes('super-admin') || roles.includes('school-admin') || roles.includes('non_academic_staff');
 });
+
+const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY') : '—';
+
+const registrationStatusLabels = {
+  pending: 'Pending',
+  submitted: 'Submitted',
+  completed: 'Completed',
+  rejected: 'Rejected',
+};
 
 const submit = () => {
   form.post(route('hive.registration.store'), {

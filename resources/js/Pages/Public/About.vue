@@ -1,7 +1,7 @@
 <template>
   <PublicLayout>
     <!-- Page Hero -->
-    <section class="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20 lg:py-28">
+    <section class="bg-gradient-to-br from-hbci-warm-800 via-hbci-warm-700 to-hbci-warm-900 text-white py-20 lg:py-28">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl lg:text-5xl font-bold">About Honey Bee Culinary Institute</h1>
         <p class="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">Empowering the next generation of culinary and hospitality professionals since establishment.</p>
@@ -133,13 +133,13 @@
           <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Accreditations & Partnerships</h2>
           <p class="mt-4 text-gray-600">Our programmes are backed by leading international bodies.</p>
         </div>
-        <div class="flex flex-wrap justify-center items-center gap-12">
-          <img src="/images/city-n-guilds-logo.png" alt="City & Guilds" />
-          <img src="/images/lca-logo.png" alt="Luxury Hospitality Academy" />
-          <img src="/images/safa-logo.png" alt="SAFA" />
-          <img src="/images/sachef-logo.png" alt="SAChef" />
-          <img src="/images/cchpl-logo.png" alt="CCHPL" />
-          <img src="/images/culinary-institute-logo.png" alt="Culinary Institute" />
+        <div class="flex flex-wrap justify-center items-center gap-6">
+          <img src="/images/city-n-guilds-logo.png" alt="City & Guilds" class="h-14 w-auto object-contain" />
+          <img src="/images/lca-logo.png" alt="Luxury Hospitality Academy" class="h-14 w-auto object-contain" />
+          <img src="/images/safa-logo.png" alt="SAFA" class="h-14 w-auto object-contain" />
+          <img src="/images/sachef-logo.png" alt="SAChef" class="h-14 w-auto object-contain" />
+          <img src="/images/cchpl-logo.png" alt="CCHPL" class="h-14 w-auto object-contain" />
+          <img src="/images/culinary-institute-logo.png" alt="Culinary Institute" class="h-14 w-auto object-contain" />
         </div>
       </div>
     </section>

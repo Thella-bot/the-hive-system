@@ -115,6 +115,45 @@
 
       </div>
 
+      <!-- Short Courses -->
+      <div class="bg-white rounded-xl border border-gray-200">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 class="font-semibold text-gray-900">Short Courses & Workshops</h2>
+          <Link v-if="can('edit-departments')" :href="route('hive.short-courses.create', { departmentId: department.id })"
+            class="text-sm text-amber-600 hover:text-amber-700 font-medium">+ Add Short Course</Link>
+        </div>
+        <div class="divide-y divide-gray-50">
+          <div v-if="!department.short_courses || department.short_courses.length === 0"
+            class="px-6 py-10 text-center text-sm text-gray-400">
+            No short courses for this department yet.
+          </div>
+          <div v-for="course in department.short_courses" :key="course.id"
+            class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <p class="text-sm font-medium text-gray-900">{{ course.title }}</p>
+                <span class="px-2 py-0.5 text-xs rounded-full"
+                  :class="{
+                    'bg-blue-100 text-blue-700': course.type === 'workshop',
+                    'bg-purple-100 text-purple-700': course.type === 'training',
+                    'bg-orange-100 text-orange-700': course.type === 'short-course'
+                  }">
+                  {{ course.type?.replace('-', ' ') }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-400">{{ course.duration }}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span v-if="course.price > 0" class="text-sm text-gray-600">LSL {{ parseFloat(course.price).toLocaleString() }}</span>
+              <Badge v-if="course.accepting_applications" color="green" class="text-xs">Open</Badge>
+              <Badge v-else color="gray" class="text-xs">Closed</Badge>
+            </div>
+            <Link v-if="can('edit-departments')" :href="route('hive.short-courses.edit', { short_course: course.id })"
+              class="text-amber-600 hover:text-amber-700 text-sm font-medium">Edit →</Link>
+          </div>
+        </div>
+      </div>
+
       <!-- Head info -->
       <div v-if="department.head" class="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-center gap-4">
         <img :src="department.head.profile_photo_url" :alt="department.head.name"

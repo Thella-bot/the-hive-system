@@ -19,9 +19,8 @@
     </section>
 
     <!-- Hero Section -->
-    <section class="relative bg-gray-900 text-white overflow-hidden">
+    <section class="relative bg-gray-800 text-white overflow-hidden">
       <!-- Background layers -->
-      <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-amber-900"></div>
       <!-- Subtle grid pattern -->
       <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
       <!-- Glowing orb -->

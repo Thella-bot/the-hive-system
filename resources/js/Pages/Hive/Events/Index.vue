@@ -34,7 +34,7 @@
                 </svg>
                 {{ event.location }}
               </span>
-              <span class="bg-gray-100 px-2 py-0.5 rounded">{{ event.category }}</span>
+              <span class="bg-gray-100 px-2 py-0.5 rounded">{{ formatCategory(event.category) }}</span>
               <a :href="route('hive.events.ical', { event: event.id })" class="text-amber-600 hover:text-amber-800 underline text-xs" target="_blank">📅 Add to Calendar</a>
             </div>
             <!-- RSVP summary -->
@@ -83,6 +83,7 @@
 import { computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import dayjs from 'dayjs';
 
 defineProps({ events: Object });
 
@@ -90,11 +91,8 @@ const roles = computed(() => usePage().props.auth.user?.roles || []);
 const canCreate = computed(() => roles.value.some(role => ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'].includes(role)));
 const canDelete = computed(() => roles.value.some(role => ['super-admin', 'school-admin'].includes(role)));
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-  });
-};
+const formatDate = (date) => date ? dayjs(date).format('MMM D, YYYY h:mm A') : '—';
+const formatCategory = (c) => c?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) ?? '';
 
 const rsvp = (eventId, status) => {
   router.post(route('hive.events.rsvp', { event: eventId }), { status });

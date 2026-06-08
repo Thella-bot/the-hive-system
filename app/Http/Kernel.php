@@ -37,6 +37,9 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
@@ -60,5 +63,6 @@ class Kernel extends HttpKernel
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         'registered' => \App\Http\Middleware\EnsureStudentIsRegistered::class,
+        'dev.auth' => \App\Http\Middleware\BypassAuthInLocal::class,
     ];
 }

@@ -1,7 +1,7 @@
 <template>
   <PublicLayout>
     <!-- Page Hero -->
-    <section class="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20 lg:py-28">
+    <section class="bg-gradient-to-br from-hbci-warm-800 via-hbci-warm-700 to-hbci-warm-900 text-white py-20 lg:py-28">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl lg:text-5xl font-bold">Contact Us</h1>
         <p class="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">Have questions about our programmes or admissions? We'd love to hear from you.</p>

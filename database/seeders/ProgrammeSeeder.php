@@ -30,114 +30,162 @@ class ProgrammeSeeder extends Seeder
         }
 
         $programmes = [
+            // Higher Certificate in Contemporary Gastronomy
             [
                 'name' => 'Higher Certificate in Contemporary Gastronomy',
-                'description' => 'LGCSE, Junior Certificate(JC)',
+                'description' => 'This programme is designed to provide students with foundational knowledge and skills in contemporary gastronomy. Students will learn about food safety, nutrition, culinary techniques, and kitchen operations.',
                 'duration' => '1 Year',
+                'duration_months' => 12,
+                'requirements' => 'LGCSE or JC with at least D in English and Mathematics',
+                'payment_method' => 'both',
                 'total_price' => 34000.00,
                 'monthly_fee' => 2570.00,
-                'registration_fee' => 2800.00,
+                'registration_fee' => 2500.00,
                 'academic_resource_fee' => 1500.00,
-                'department_id' => $contemporaryDept->id, 
+                'uniform_fee' => 3400.00,
+                'tools_cost' => 750.00,
+                'intake_period' => 'January & July',
+                'career_opportunities' => 'Junior Chef, Line Cook, Kitchen Assistant, Food Service Associate',
+                'department_id' => $contemporaryDept->id,
             ],
+            // Diploma in Professional Chef
             [
-                'name' => 'Diploma in Professional Cheffing',
-                'description' => 'LGCSE',
-                'duration' => '3 Years',
+                'name' => 'Diploma in Professional Chef',
+                'description' => 'This comprehensive diploma programme prepares students for a career as a professional chef. The programme covers advanced cooking techniques, kitchen management, menu planning, and industry placement.',
+                'duration' => '2 Years & 6 months',
+                'duration_months' => 30,
+                'requirements' => 'LGCSE with at least D in English and Mathematics',
+                'payment_method' => 'both',
                 'total_price' => 99000.00,
                 'monthly_fee' => 2570.00,
                 'registration_fee' => 3100.00,
-                'academic_resource_fee' => 5000.00,
-                'department_id' => $globalCuisinesDept->id, 
+                'academic_resource_fee' => 5900.00,
+                'uniform_fee' => 3400.00,
+                'tools_cost' => 750.00,
+                'intake_period' => 'January only',
+                'career_opportunities' => 'Commis Chef, Chef de Partie, Sous Chef, Executive Chef, Kitchen Manager',
+                'department_id' => $globalCuisinesDept->id,
             ],
-            [
-                'name' => 'Patisserie and Baking',
-                'description' => 'LGCSE, Junior Certificate(JC)',
-                'duration' => '1 Year & 2 Years, 3 months - 6 Months, 1 - 5 Days',
-                'total_price' => 0.00,             // Added defaults
-                'monthly_fee' => 0.00,             
-                'registration_fee' => 0.00,        
-                'academic_resource_fee' => 0.00,   
-                'department_id' => $patisserieDept->id, // Mapped to Patisseries
-            ],
-            [
-                'name' => 'Gastronomy Cooking and Patisserie',
-                'description' => 'LGCSE, Junior Certificate(JC)',
-                'duration' => '6 Months',
-                'total_price' => 18500.00,
-                'monthly_fee' => 2570.00,
-                'registration_fee' => 2000.00,
-                'academic_resource_fee' => 1500.00,
-                'department_id' => $patisserieDept->id, // Mapped to Patisseries
-            ],
+            // Diploma in Culinary Patisserie
             [
                 'name' => 'Diploma in Culinary Patisserie',
-                'description' => 'LGCSE, Junior Certificate(JC)',
+                'description' => 'This programme focuses on the art of patisserie and baking. Students will master classical French pastry techniques, chocolate work, sugar art, and bread making.',
                 'duration' => '2 Years',
+                'duration_months' => 24,
+                'requirements' => 'LGCSE or JC with at least D in English and Mathematics',
+                'payment_method' => 'both',
                 'total_price' => 66300.00,
                 'monthly_fee' => 2570.00,
                 'registration_fee' => 2500.00,
                 'academic_resource_fee' => 2800.00,
-                'department_id' => $patisserieDept->id, // Mapped to Patisseries
+                'uniform_fee' => 3400.00,
+                'tools_cost' => 750.00,
+                'intake_period' => 'January & July',
+                'career_opportunities' => 'Pastry Chef, Baker, Confectioner, Cake Designer, Patisserie Manager',
+                'department_id' => $patisserieDept->id,
             ],
+            // Hospitality Management
             [
                 'name' => 'Hospitality Management',
-                'description' => 'LGCSE, Junior Certificate(JC)',
+                'description' => 'This programme prepares students for supervisory and management positions in the hospitality industry. Topics include hotel operations, food and beverage management, front office management, and event planning.',
                 'duration' => '1 Year',
+                'duration_months' => 12,
+                'requirements' => 'LGCSE or JC with at least D in English and Mathematics',
+                'payment_method' => 'both',
                 'total_price' => 32500.00,
                 'monthly_fee' => 2500.00,
                 'registration_fee' => 2800.00,
                 'academic_resource_fee' => 2500.00,
-                'uniform_fee' => 3800.00,           // Ensure this column is in your migration!
-                'department_id' => $hospitalityDept->id, // Mapped to Hospitality Management
+                'uniform_fee' => 3800.00,
+                'tools_cost' => 0.00,
+                'intake_period' => 'January & July',
+                'career_opportunities' => 'Front Office Manager, Food & Beverage Supervisor, Event Coordinator, Hotel Manager',
+                'department_id' => $hospitalityDept->id,
             ],
+            // Short Courses and Cooking Sessions
             [
                 'name' => 'Short Courses and Cooking Sessions',
-                'description' => 'LGCSE, Junior Certificate(JC)',
+                'description' => 'Intensive workshops and short courses for those looking to develop specific culinary skills without committing to a full programme.',
                 'duration' => '3 months - 6 Months, 1 - 5 Days',
-                'total_price' => 0.00,             
-                'monthly_fee' => 0.00,             
-                'registration_fee' => 0.00,        
-                'academic_resource_fee' => 0.00,   
+                'duration_months' => null,
+                'requirements' => 'None required for most short courses',
+                'payment_method' => 'monthly',
+                'total_price' => 0.00,
+                'monthly_fee' => 0.00,
+                'registration_fee' => 0.00,
+                'academic_resource_fee' => 0.00,
+                'uniform_fee' => 0.00,
+                'tools_cost' => 0.00,
+                'intake_period' => 'Rolling intake',
+                'career_opportunities' => 'Skill enhancement for personal or career development',
                 'department_id' => $globalCuisinesDept->id,
             ],
         ];
 
         // 3. Insert data
         foreach ($programmes as $programme) {
-            if (!Schema::hasColumn('programmes', 'uniform_fee') && isset($programme['uniform_fee'])) {
-                unset($programme['uniform_fee']);
+            // Remove fields that don't exist yet if migration hasn't run
+            $safeProgramme = $programme;
+            if (!Schema::hasColumn('programmes', 'uniform_fee') && isset($safeProgramme['uniform_fee'])) {
+                unset($safeProgramme['uniform_fee']);
+            }
+            if (!Schema::hasColumn('programmes', 'tools_cost') && isset($safeProgramme['tools_cost'])) {
+                unset($safeProgramme['tools_cost']);
+            }
+            if (!Schema::hasColumn('programmes', 'duration_months') && isset($safeProgramme['duration_months'])) {
+                unset($safeProgramme['duration_months']);
+            }
+            if (!Schema::hasColumn('programmes', 'requirements') && isset($safeProgramme['requirements'])) {
+                unset($safeProgramme['requirements']);
+            }
+            if (!Schema::hasColumn('programmes', 'payment_method') && isset($safeProgramme['payment_method'])) {
+                unset($safeProgramme['payment_method']);
+            }
+            if (!Schema::hasColumn('programmes', 'intake_period') && isset($safeProgramme['intake_period'])) {
+                unset($safeProgramme['intake_period']);
+            }
+            if (!Schema::hasColumn('programmes', 'career_opportunities') && isset($safeProgramme['career_opportunities'])) {
+                unset($safeProgramme['career_opportunities']);
             }
 
-            $created = Programme::updateOrCreate($programme);
+            $created = Programme::updateOrCreate(
+                ['name' => $programme['name']],
+                $safeProgramme
+            );
 
             // 4. Create default variants for each programme
-            $variants = [
-                [
-                    'label' => 'Full Programme',
-                    'duration' => $created->duration,
-                    'total_price' => $created->total_price,
-                    'monthly_fee' => $created->monthly_fee,
-                    'is_active' => true,
-                ],
-            ];
+            $variants = [];
 
-            // Add installment variant for paid programmes
+            // Full programme variant (pay upfront)
             if ($created->total_price > 0) {
                 $variants[] = [
-                    'label' => 'Monthly Installments',
+                    'label' => 'Full Payment',
                     'duration' => $created->duration,
                     'total_price' => $created->total_price,
-                    'monthly_fee' => max(500, $created->monthly_fee),
+                    'monthly_fee' => 0,
                     'is_active' => true,
                 ];
             }
 
-            foreach ($variants as $variant) {
-                ProgrammeVariant::firstOrCreate([
-                    'programme_id' => $created->id,
-                    'label' => $variant['label'],
-                ], $variant);
+            // Monthly installments variant for paid programmes
+            if ($created->total_price > 0 && $created->monthly_fee > 0) {
+                $variants[] = [
+                    'label' => 'Monthly Installments',
+                    'duration' => $created->duration,
+                    'total_price' => $created->total_price,
+                    'monthly_fee' => $created->monthly_fee,
+                    'is_active' => true,
+                ];
+            }
+
+            // Skip variants for free/short course programmes
+            if (!empty($variants)) {
+                foreach ($variants as $variant) {
+                    ProgrammeVariant::updateOrCreate([
+                        'programme_id' => $created->id,
+                        'label' => $variant['label'],
+                    ], $variant);
+                }
             }
 
             // Seed default modules for each programme
@@ -147,10 +195,8 @@ class ProgrammeSeeder extends Seeder
 
     private function seedProgrammeModules(Programme $programme): void
     {
-        if ($programme->modules()->exists()) {
-            return; // Skip if modules already exist
-        }
-
+        // Modules are seeded by ModuleSeeder — this method is kept for backwards
+        // compatibility only and will be phased out once ModuleSeeder is the norm.
         $department = $programme->department;
         if (! $department) {
             return;
@@ -189,15 +235,19 @@ class ProgrammeSeeder extends Seeder
 
         foreach ($modules as $index => $moduleData) {
             $code = $moduleData['code'];
-            Module::firstOrCreate(
+            $module = Module::firstOrCreate(
                 ['code' => $code],
                 [
                     'name' => $moduleData['name'],
                     'description' => $moduleData['description'],
-                    'programme_id' => $programme->id,
                     'department_id' => $department->id,
                 ]
             );
+
+            // Attach via pivot instead of setting programme_id directly
+            $programme->modules()->syncWithoutDetaching([
+                $module->id => ['order_column' => $index],
+            ]);
         }
     }
 }

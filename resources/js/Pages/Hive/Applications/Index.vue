@@ -54,7 +54,7 @@
             </td>
             <td class="px-6 py-4">
               <span class="px-2.5 py-1 text-xs font-semibold rounded-full" :class="statusClass(application.status)">
-                {{ application.status }}
+                {{ statusLabels[application.status] ?? application.status }}
               </span>
             </td>
             <td class="px-6 py-4 text-gray-500 hidden md:table-cell">{{ formatDate(application.created_at) }}</td>
@@ -128,5 +128,11 @@ const statusClass = (status) => {
     default:
       return 'bg-gray-100 text-gray-800';
   }
+};
+
+const statusLabels = {
+  pending: 'Pending',
+  approved: 'Approved',
+  rejected: 'Rejected',
 };
 </script>

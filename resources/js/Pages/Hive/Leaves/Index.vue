@@ -30,19 +30,19 @@
           <tr v-for="leave in leaves.data" :key="leave.id" class="hover:bg-amber-50 transition-colors">
             <td class="px-6 py-4 text-gray-700">
               <span v-if="leave.half_day" class="text-amber-600 mr-1 font-bold" title="Half Day">½</span>
-              {{ leave.start_date }}
+              {{ formatDate(leave.start_date) }}
             </td>
-            <td class="px-6 py-4 text-gray-700">{{ leave.end_date }}</td>
+            <td class="px-6 py-4 text-gray-700">{{ formatDate(leave.end_date) }}</td>
             <td class="px-6 py-4">
-              <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 capitalize">
-                {{ leave.type }}
+              <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
+                {{ formatLeaveType(leave.type) }}
               </span>
             </td>
             <td class="px-6 py-4 text-gray-700 hidden md:table-cell">{{ leave.days }}</td>
             <td class="px-6 py-4">
               <span v-if="leave.is_cancelled" class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-500">Cancelled</span>
               <span v-else class="px-2.5 py-1 text-xs font-semibold rounded-full" :class="statusClass(leave.status)">
-                {{ leave.status }}
+                {{ statusLabels[leave.status] ?? leave.status }}
               </span>
             </td>
             <!-- Admin approve/reject actions -->
@@ -97,6 +97,7 @@ import { computed, ref } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import DialogModal from '@/Components/DialogModal.vue';
+import dayjs from 'dayjs';
 
 const props = defineProps({ leaves: Object, balance: Number });
 const isAdmin = computed(() => usePage().props.auth?.user?.roles?.some(r => ['super-admin', 'school-admin'].includes(r)));
@@ -104,6 +105,24 @@ const isAdmin = computed(() => usePage().props.auth?.user?.roles?.some(r => ['su
 const showRejectModal = ref(false);
 const rejectReason = ref('');
 const pendingRejectId = ref(null);
+
+const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY') : '—';
+
+const leaveTypeLabels = {
+  sick_leave: 'Sick Leave',
+  annual_leave: 'Annual Leave',
+  personal_leave: 'Personal Leave',
+  parental_leave: 'Parental Leave',
+  bereavement_leave: 'Bereavement Leave',
+};
+
+const formatLeaveType = (type) => leaveTypeLabels[type] ?? type?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
+
+const statusLabels = {
+  pending: 'Pending',
+  approved: 'Approved',
+  rejected: 'Rejected',
+};
 
 const approve = (leaveId) => {
   if (confirm('Approve this leave request?')) {

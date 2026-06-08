@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white rounded-xl border border-gray-200 p-6 flex items-start gap-4">
+  <div class="bg-white rounded-xl border border-hbci-warm-100 p-6 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
     <div
-      class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+      class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-hbci-warm-100"
       :class="iconBg"
     >
       <slot name="icon" />

@@ -9,7 +9,7 @@
     </section>
 
     <!-- Application Form -->
-    <section class="py-16 lg:py-20 bg-gray-50">
+    <section class="py-16 lg:py-20 bg-hbci-cream">
       <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Success -->
         <div v-if="$page.props.flash?.success" class="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-2xl">
@@ -79,6 +79,16 @@
                   <div v-if="form.errors.programme_id" class="text-red-600 text-xs mt-1">{{ form.errors.programme_id }}</div>
                 </div>
 
+                <!-- Programme Info Banner -->
+                <div v-if="currentProgramme" class="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <p class="text-sm font-semibold text-amber-800 mb-1">{{ currentProgramme.name }}</p>
+                  <p class="text-xs text-amber-700">{{ currentProgramme.description }}</p>
+                  <div v-if="currentProgramme.department" class="mt-2 flex items-center gap-1.5 text-xs text-amber-600">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    {{ currentProgramme.department.name }}
+                  </div>
+                </div>
+
                 <!-- Variant Select (if programme has variants) -->
                 <div v-if="currentVariants.length">
                   <label for="variant_id" class="block text-sm font-medium text-gray-700 mb-1.5">Study Option *</label>
@@ -101,6 +111,13 @@
                     </label>
                   </div>
                   <div v-if="form.errors.variant_id" class="text-red-600 text-xs mt-1">{{ form.errors.variant_id }}</div>
+                </div>
+
+                <!-- No variants fallback -->
+                <div v-else-if="currentProgramme" class="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                  <p class="text-sm text-gray-600">
+                    No study options available for this programme. Fill in your details and we'll be in touch.
+                  </p>
                 </div>
               </div>
             </div>
@@ -140,9 +157,14 @@ const form = useForm({
   variant_id: '',
 });
 
+// Computed: current selected programme
+const currentProgramme = computed(() => {
+  return props.programmes.find(p => p.id === form.programme_id) || null;
+});
+
 // Computed: variants for currently selected programme
 const currentVariants = computed(() => {
-  const prog = props.programmes.find(p => p.id === form.programme_id);
+  const prog = currentProgramme.value;
   return prog?.variants?.filter(v => v.is_active) || [];
 });
 

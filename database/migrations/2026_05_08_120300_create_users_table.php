@@ -171,11 +171,6 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('student_number')->unique()->nullable()->after('email');
         });
-
-        // Users: programme_id
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('programme_id')->nullable()->constrained()->onDelete('set null');
-        });
     }
 
     public function down(): void

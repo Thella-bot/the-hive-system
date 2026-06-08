@@ -67,6 +67,7 @@ class DepartmentController extends Controller
             'head',
             'staff.user',
             'cohorts' => fn ($q) => $q->with('academicYear')->withCount('students')->latest(),
+            'shortCourses' => fn ($q) => $q->active(),
         ]);
 
         $department->loadCount(['cohorts', 'staff']);

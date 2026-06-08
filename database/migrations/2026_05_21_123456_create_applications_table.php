@@ -26,19 +26,19 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone')->nullable();
             $table->foreignId('programme_id')->constrained()->onDelete('cascade');
-            $table->foreignId('variant_id')->nullable()->after('programme_id')->constrained('programme_variants')->nullOnDelete();
+            $table->foreignId('variant_id')->nullable()->constrained('programme_variants')->nullOnDelete();
             $table->string('status')->default('pending');
             $table->text('notes')->nullable();
 
             // Admission fields - set when application is approved
-            $table->timestamp('admitted_at')->nullable()->after('notes');
+            $table->timestamp('admitted_at')->nullable();
 
             // Registration fields - set when admitted user completes registration
-            $table->string('registration_status')->default('pending')->after('admitted_at');
-            $table->timestamp('registered_at')->nullable()->after('registration_status');
-            $table->string('payment_proof_path')->nullable()->after('registered_at');
-            $table->timestamp('payment_verified_at')->nullable()->after('payment_proof_path');
-            $table->text('registration_notes')->nullable()->after('payment_verified_at');
+            $table->string('registration_status')->default('pending');
+            $table->timestamp('registered_at')->nullable();
+            $table->string('payment_proof_path')->nullable();
+            $table->timestamp('payment_verified_at')->nullable();
+            $table->text('registration_notes')->nullable();
 
             $table->timestamps();
         });

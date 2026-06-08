@@ -50,11 +50,11 @@
             <td colspan="6" class="px-6 py-8 text-center text-gray-400">No requests found.</td>
           </tr>
           <tr v-for="r in requests.data" :key="r.id" class="hover:bg-gray-50">
-            <td class="px-6 py-4 capitalize">{{ r.item_type?.replace('_', ' ') }}</td>
+            <td class="px-6 py-4 capitalize">{{ formatItemType(r.item_type) }}</td>
             <td class="px-6 py-4">{{ r.size || '—' }}</td>
             <td class="px-6 py-4">{{ r.quantity }}</td>
             <td class="px-6 py-4">
-              <span :class="statusClass(r.status)">{{ r.status }}</span>
+              <span :class="statusClass(r.status)">{{ statusLabels[r.status] ?? r.status }}</span>
             </td>
             <td class="px-6 py-4 text-gray-500">{{ r.user?.name }}</td>
             <td v-if="isAdmin && r.status === 'pending'" class="px-6 py-4">
@@ -90,6 +90,24 @@ const statusClass = (s) => {
     default: return 'px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full text-xs';
   }
 };
+
+const statusLabels = {
+  pending: 'Pending',
+  approved: 'Approved',
+  issued: 'Issued',
+  rejected: 'Rejected',
+};
+
+const itemTypeLabels = {
+  chef_jacket: 'Chef Jacket',
+  trousers: 'Trousers',
+  apron: 'Apron',
+  safety_shoes: 'Safety Shoes',
+  hat: 'Chef Hat',
+  other: 'Other',
+};
+
+const formatItemType = (t) => itemTypeLabels[t] ?? t?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
 
 const submitRequest = () => {
   router.post(route('hive.uniform-requests.store'), form.value);

@@ -38,21 +38,21 @@ const scrollToBottom = () => {
 };
 
 const echoChannelName = computed(() => {
-    if (props.module) return `module.${props.module.id}`;
+    if (props.module) return `chat.module.${props.module.id}`;
     if (props.channel.channel_type === 'module') return `chat.module.${props.channel.channel_id}`;
     if (props.channel.channel_type === 'department') return `chat.department.${props.channel.channel_id}`;
     if (props.channel.channel_type === 'general') return 'chat.general';
     if (props.channel.channel_type === 'direct') return `chat.direct.${props.channel.id}`;
-    return `module.${props.module?.id}`;
+    return `chat.module.${props.module?.id}`;
 });
 
 const fetchMessages = async () => {
     try {
         let url;
         if (props.module) {
-            url = route('messages.index', { module: props.module.id });
+            url = `/api/modules/${props.module.id}/messages`;
         } else {
-            url = route('channels.messages.index', { channel: props.channel.id });
+            url = `/api/channels/${props.channel.id}/messages`;
         }
         const response = await axios.get(url);
         messages.value = response.data;
@@ -72,13 +72,14 @@ const sendMessage = async () => {
         formError.value = null;
         let url;
         if (props.module) {
-            url = route('messages.store', { module: props.module.id });
+            url = `/api/modules/${props.module.id}/messages`;
         } else {
-            url = route('channels.messages.store', { channel: props.channel.id });
+            url = `/api/channels/${props.channel.id}/messages`;
         }
         await axios.post(url, { message: newMessage.value });
         newMessage.value = '';
-        scrollToBottom();
+        // Re-fetch messages to ensure we have the latest
+        await fetchMessages();
     } catch (error) {
         console.error('Error sending message:', error);
         if (error.response?.data?.errors?.message) {

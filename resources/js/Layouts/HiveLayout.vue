@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="flex min-h-screen bg-hbci-cream dark:bg-gray-900">
     <!-- Emergency Broadcast Modal -->
     <Transition name="fade">
       <div v-if="emergencyAlert" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90">
@@ -28,7 +28,7 @@
     />
 
     <aside
-      class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-hbci-gray text-white transition-transform duration-200 lg:static lg:w-64 lg:translate-x-0"
+      class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-gradient-to-b from-hbci-warm-800 to-hbci-gray text-white transition-transform duration-200 lg:static lg:w-64 lg:translate-x-0"
       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <div class="px-6 pb-4 pt-6">
@@ -124,7 +124,7 @@
     </aside>
 
     <div class="flex min-w-0 flex-1 flex-col">
-      <header class="flex-shrink-0 border-b border-gray-200 bg-white px-4 py-4 sm:px-6 lg:px-8 dark:bg-gray-800 dark:border-gray-700">
+      <header class="flex-shrink-0 border-b border-gray-100 bg-white px-4 py-4 sm:px-6 lg:px-8 dark:bg-gray-800 dark:border-gray-700 shadow-sm">
         <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div class="flex min-w-0 items-center gap-4">
             <button
@@ -198,7 +198,7 @@
         </div>
       </div>
 
-      <main class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 dark:bg-gray-900">
+      <main class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 bg-hbci-cream dark:bg-gray-900">
         <slot />
       </main>
     </div>

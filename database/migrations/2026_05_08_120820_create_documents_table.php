@@ -16,7 +16,7 @@ return new class extends Migration
             $table->json('visible_to_roles')->nullable();
             $table->boolean('is_published')->default(false);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('module_id')->nullable()->after('created_by')->constrained('modules')->cascadeOnDelete();
+            $table->foreignId('module_id')->nullable()->constrained('modules')->cascadeOnDelete();
             $table->timestamps();
         });
 

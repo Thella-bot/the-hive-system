@@ -16,7 +16,7 @@ class ModuleController extends Controller
         $this->authorize('viewAny', Module::class);
 
         $user = $request->user();
-        $query = Module::with(['department', 'programme']);
+        $query = Module::with(['department', 'programmes']);
 
         if ($user->isStudent()) {
             $query->whereIn('id', $user->modules()->pluck('id'));

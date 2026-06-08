@@ -9,7 +9,7 @@
 }
 
 /* Brand color accents for backgrounds and text */
-.bg-hbci-gold\/5 { background-color: rgba(211, 161, 2, 0.05); }
-.border-hbci-gold\/40 { border-color: rgba(211, 161, 2, 0.4); }
-.text-hbci-gold { color: #d3a102; }
-.text-hbci-gray { color: #4a4a4a; }
+.bg-hbci-gold\/5 { background-color: rgba(245, 200, 66, 0.05); }
+.border-hbci-gold\/40 { border-color: rgba(245, 200, 66, 0.4); }
+.text-hbci-gold { color: #f5c842; }
+.text-hbci-gray { color: #6b7280; }

@@ -23,7 +23,7 @@
           </div>
         </div>
         <div class="mt-3 flex flex-wrap gap-2 text-xs text-gray-500">
-          <span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded">{{ ach.type }}</span>
+          <span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded">{{ formatType(ach.type) }}</span>
           <span v-if="ach.awarded_by">Awarded by: {{ ach.awarded_by }}</span>
           <span v-if="ach.awarded_at">on {{ formatDate(ach.awarded_at) }}</span>
         </div>
@@ -97,7 +97,16 @@ const canDelete = computed(() => roles.value.some(r => ['super-admin', 'school-a
 
 const form = ref({ user_id: '', type: 'competition', title: '', awarded_by: '', awarded_at: '' });
 
-const formatDate = (d) => dayjs(d).format('MMM D, YYYY');
+const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY') : '—';
+
+const typeLabels = {
+  competition: 'Competition',
+  award: 'Award',
+  certification: 'Certification',
+  recognition: 'Recognition',
+};
+
+const formatType = (t) => typeLabels[t] ?? t?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
 
 const remove = (id) => {
   if (confirm('Remove this achievement?')) router.delete(route('hive.achievements.destroy', { achievement: id }));

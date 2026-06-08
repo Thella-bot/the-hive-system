@@ -22,6 +22,8 @@ use App\Http\Controllers\Hive\PollController;
 use App\Http\Controllers\Hive\ProfileController;
 use App\Http\Controllers\Hive\RegistrationController;
 use App\Http\Controllers\Hive\SearchController;
+use App\Http\Controllers\Hive\ShortCourseController;
+use App\Http\Controllers\Hive\ShortCourseApplicationController;
 use App\Http\Controllers\Hive\StudentIdController;
 use App\Http\Controllers\Hive\SubmissionController;
 use App\Http\Controllers\Hive\SupplierController;
@@ -56,6 +58,18 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::resource('programmes', ProgrammeController::class)
             ->middleware('role:super-admin|school-admin');
 
+        // Short Courses
+        Route::resource('short-courses', ShortCourseController::class)
+            ->middleware('role:super-admin|school-admin');
+
+        // Short Course Applications
+        Route::get('short-course-applications', [ShortCourseApplicationController::class, 'index'])
+            ->name('short-course-applications.index')
+            ->middleware('role:super-admin|school-admin');
+        Route::post('short-course-applications/{short_course_application}/review', [ShortCourseApplicationController::class, 'review'])
+            ->name('short-course-applications.review')
+            ->middleware('role:super-admin|school-admin');
+
         // Cohorts
         Route::resource('cohorts', CohortController::class)
             ->middleware('role:super-admin|school-admin');
@@ -74,7 +88,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
 
         // Announcements
-        Route::resource('announcements', AnnouncementController::class)->except(['show']);
+        Route::resource('announcements', AnnouncementController::class)->except(['destroy']);
+        Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
         Route::get('announcements/{announcement}/attachments/{attachment}/download', [AnnouncementController::class, 'downloadAttachment'])
             ->name('announcements.attachments.download');
 
