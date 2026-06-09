@@ -9,10 +9,7 @@ use App\Actions\Hive\UpdateStudent;
 use App\Models\Programme;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Role;
 
 class StudentController extends Controller
 {
@@ -40,6 +37,9 @@ class StudentController extends Controller
      */
     public function store(Request $request, CreateNewStudent $creator)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $creator->create($request->all());
 
         return redirect()->route('hive.students.index');
@@ -58,7 +58,10 @@ class StudentController extends Controller
      */
     public function edit(User $student)
     {
-        $student->load('programmes'); // Eager load the student's programmes
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+        $student->load('programme'); // Eager load the student's programme
         return Inertia::render('Hive/Students/Edit', [
             'managedStudent' => $student,
             'programmes' => Programme::all(),
@@ -70,6 +73,9 @@ class StudentController extends Controller
      */
     public function update(Request $request, User $student, UpdateStudent $updater)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $updater->update($student, $request->all());
 
         return redirect()->route('hive.students.index');
@@ -80,6 +86,9 @@ class StudentController extends Controller
      */
     public function destroy(User $student)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $student->delete();
 
         return redirect()->route('hive.students.index');

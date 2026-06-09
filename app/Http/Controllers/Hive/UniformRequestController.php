@@ -38,6 +38,10 @@ class UniformRequestController extends Controller
 
     public function review(Request $request, UniformRequest $request_)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403, 'Only administrators can review uniform requests.');
+        }
+
         $validated = $request->validate([
             'status' => 'required|in:approved,issued,rejected',
             'rejection_reason' => 'nullable|string|max:500|required_if:status,rejected',

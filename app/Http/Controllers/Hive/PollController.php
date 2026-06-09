@@ -30,6 +30,10 @@ class PollController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'question' => 'required|string|max:500',
             'type' => 'required|in:binary,choice',
@@ -62,6 +66,10 @@ class PollController extends Controller
 
     public function destroy(Poll $poll)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $poll->votes()->delete();
         $poll->delete();
         return back()->with('success', 'Poll deleted.');

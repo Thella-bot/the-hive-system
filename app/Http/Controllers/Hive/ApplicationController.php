@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Mail\AcceptanceLetter;
 use App\Models\Application;
-use App\Models\Programme;
 use App\Models\User;
 use App\Services\IdGenerator;
 use Illuminate\Support\Facades\DB;
@@ -154,7 +153,7 @@ class ApplicationController extends Controller
                 ['email' => $application->email],
                 [
                     'name' => $application->name,
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make(Str::random(12)),
                     'email_verified_at' => now(),
                 ]
             );
@@ -180,7 +179,7 @@ class ApplicationController extends Controller
 
         // Generate student number if applicable
         if (Schema::hasColumn('users', 'student_number') && empty($student->student_number)) {
-            $student->forceFill(['student_number' => $this->generateStudentNumber($programme)])->save();
+            $student->forceFill(['student_number' => IdGenerator::generateStudentId($programme?->department_id ?? 0)])->save();
         }
 
         return redirect()->route('hive.applications.show', $application)
@@ -193,7 +192,7 @@ class ApplicationController extends Controller
             ['email' => $application->email],
             [
                 'name' => $application->name,
-                'password' => Hash::make('password'),
+                'password' => Hash::make(Str::random(12)),
                 'email_verified_at' => now(),
             ],
         );
@@ -210,7 +209,7 @@ class ApplicationController extends Controller
         }
 
         if (Schema::hasColumn('users', 'student_number') && empty($student->student_number)) {
-            $updates['student_number'] = $this->generateStudentNumber($application->programme);
+            $updates['student_number'] = IdGenerator::generateStudentId($application->programme?->department_id ?? 0);
         }
 
         if ($updates) {
@@ -240,10 +239,4 @@ class ApplicationController extends Controller
         Mail::to($student->email)->send(new AcceptanceLetter($application, $student, $passwordResetUrl));
     }
 
-    private function generateStudentNumber(?Programme $programme): string
-    {
-        $departmentId = $programme?->department_id ?? 0;
-
-        return IdGenerator::generateStudentId($departmentId);
-    }
 }

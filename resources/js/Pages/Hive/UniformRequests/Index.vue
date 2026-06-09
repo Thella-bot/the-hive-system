@@ -72,14 +72,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ requests: Object });
 const showRequest = ref(false);
-const roles = computed(() => usePage().props.auth?.user?.roles || []);
-const isAdmin = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
+const { isAdmin } = useUser();
 const form = ref({ item_type: 'chef_jacket', size: '', quantity: 1 });
 
 const statusClass = (s) => {

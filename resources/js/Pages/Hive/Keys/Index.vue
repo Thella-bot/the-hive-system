@@ -73,18 +73,19 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import DialogModal from '@/Components/DialogModal.vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ keys: Array, users: Array });
 const showAdd = ref(false);
 const showIssue = ref(false);
 const selectedKey = ref(null);
 const issueUserId = ref('');
-const roles = computed(() => usePage().props.auth?.user?.roles || []);
-const canCreate = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
-const canIssue = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
+const { isAdmin } = useUser();
+const canCreate = computed(() => isAdmin.value);
+const canIssue = computed(() => isAdmin.value);
 const form = ref({ label: '', location: '' });
 
 const statusLabels = {

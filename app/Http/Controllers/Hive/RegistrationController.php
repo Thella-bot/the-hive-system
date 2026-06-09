@@ -140,7 +140,7 @@ class RegistrationController extends Controller
                 ['email' => $application->email],
                 [
                     'name' => $application->name,
-                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(12)),
                     'email_verified_at' => now(),
                 ]
             );

@@ -84,14 +84,15 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ suppliers: Array });
 const showAdd = ref(false);
-const roles = computed(() => usePage().props.auth?.user?.roles || []);
-const canCreate = computed(() => roles.value.some(r => ['super-admin', 'school-admin', 'non_academic_staff'].includes(r)));
+const { isAdmin, isNonAcademicStaff } = useUser();
+const canCreate = computed(() => isAdmin.value || isNonAcademicStaff.value);
 const form = ref({ name: '', category: '', contact_name: '', phone: '', email: '', contract_expiry: '', notes: '' });
 
 const formatDate = (d) => dayjs(d).format('MMM D, YYYY');

@@ -30,7 +30,8 @@
       "Bash(php \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/artisan\" tinker --execute=\"echo App\\\\Models\\\\Module::count\\(\\).'' modules, ''.DB::table\\(''programme_module''\\)->count\\(\\).'' pivot rows'';\")",
       "Bash(php \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/artisan\" tinker --execute=\"foreach\\(App\\\\Models\\\\Programme::with\\(''modules''\\)->get\\(\\) as $p\\) { printf\\(\"\"%s: %d modules\\\\n\"\", $p->name, $p->modules->count\\(\\)\\); }\")",
       "Bash(php \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/artisan\" tinker --execute=\"printf\\(''Total: %d | Programme: %d | Dept: %d | Active+Open: %d'', \\\\App\\\\Models\\\\ShortCourse::count\\(\\), \\\\App\\\\Models\\\\ShortCourse::whereHasMorph\\(''courseable'', [\\\\App\\\\Models\\\\Programme::class]\\)->count\\(\\), \\\\App\\\\Models\\\\ShortCourse::whereHasMorph\\(''courseable'', [\\\\App\\\\Models\\\\Department::class]\\)->count\\(\\), \\\\App\\\\Models\\\\ShortCourse::where\\(''is_active'', 1\\)->where\\(''accepting_applications'', 1\\)->count\\(\\)\\);\")",
-      "Bash(tail -100 bootstrap/log/*.log)"
+      "Bash(tail -100 bootstrap/log/*.log)",
+      "Bash(grep -n \"$table->foreignId\\\\|$table->foreignIdFor\\\\|$table->foreign\\\\\\(\\\\\\)\" database/migrations/*.php)"
     ]
   }
 }

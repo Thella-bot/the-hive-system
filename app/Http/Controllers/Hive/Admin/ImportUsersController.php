@@ -12,11 +12,17 @@ class ImportUsersController extends Controller
 {
     public function show()
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         return Inertia::render('Hive/Admin/ImportUsers');
     }
 
     public function import(Request $request)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $request->validate([
             'csv_file' => 'required|file|mimes:csv,txt',
         ]);

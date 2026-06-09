@@ -35,7 +35,7 @@ class CreateNewStaff
         $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
-            'password' => Hash::make('password'),
+            'password' => Hash::make(\Illuminate\Support\Str::random(12)),
         ]);
 
         $role = Role::findById($input['role_id']);

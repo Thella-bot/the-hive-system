@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['role:super-admin|school-admin'])->name('academic.')->prefix('academic')->group(function () {
     // Programme variants
-    Route::resource('programme-seeks', ProgrammeSoughtController::class);
+    Route::resource('programme-seeks', ProgrammeSoughtController::class)->only(['index', 'show', 'update', 'destroy']);
 });

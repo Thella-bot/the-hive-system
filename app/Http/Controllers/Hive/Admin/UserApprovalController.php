@@ -12,6 +12,9 @@ class UserApprovalController extends Controller
 {
     public function index()
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $unapproved = User::role('unapproved')->get();
         return Inertia::render('Hive/Admin/ApproveUsers', [
             'unapprovedUsers' => $unapproved,
@@ -20,6 +23,9 @@ class UserApprovalController extends Controller
 
     public function approve(User $user, Request $request)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $request->validate([
             'role' => 'required|in:student,academic_staff,non_academic_staff,department-head,chef-instructor',
         ]);

@@ -13,7 +13,7 @@ class ShortCourseApplicationController extends Controller
 {
     public function __construct()
     {
-        // $this->authorizeResource(ShortCourseApplication::class, 'short_course_application');
+        $this->authorizeResource(ShortCourseApplication::class, 'short_course_application');
     }
 
     public function index(Request $request): Response
@@ -42,6 +42,8 @@ class ShortCourseApplicationController extends Controller
 
     public function review(Request $request, ShortCourseApplication $shortCourseApplication): \Illuminate\Http\RedirectResponse
     {
+        $this->authorize('review', $shortCourseApplication);
+
         $data = $request->validate([
             'status' => 'required|string|in:pending,approved,rejected',
         ]);

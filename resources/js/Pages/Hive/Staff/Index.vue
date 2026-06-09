@@ -1,17 +1,14 @@
 <script setup>
-import { computed } from 'vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
+import { PlusIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
     staff: Array,
 });
 
-const page = usePage();
-const isAdmin = computed(() => {
-    const roles = page.props.auth?.user?.roles || [];
-    return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 
 const form = useForm({});
 
@@ -34,9 +31,7 @@ const getRoleName = (roles) => {
         <template #header-actions>
             <Link v-if="isAdmin" :href="route('hive.staff.create')"
                 class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
+                <PlusIcon class="w-4 h-4" />
                 Create Staff
             </Link>
         </template>

@@ -1,19 +1,18 @@
 <script setup>
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { Link, useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
     programmes: Object,
 });
 
-const page = usePage();
+const { isAdmin } = useUser();
 const form = useForm({});
 
-const canManage = () => {
-    const roles = page.props.auth?.user?.roles || [];
-    return roles.includes('super-admin') || roles.includes('school-admin');
-};
+const canManage = computed(() => isAdmin.value);
 
 const deleteProgramme = (id) => {
     if (confirm('Are you sure you want to delete this programme?')) {

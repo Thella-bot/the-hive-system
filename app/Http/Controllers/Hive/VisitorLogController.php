@@ -49,6 +49,11 @@ class VisitorLogController extends Controller
 
     public function checkOut(VisitorLog $log)
     {
+        $user = auth()->user();
+        if (!$user->hasAnyRole(['super-admin', 'school-admin']) && $log->host_user_id !== $user->id) {
+            abort(403);
+        }
+
         $log->update(['departed_at' => now(), 'status' => 'checked_out']);
         return back()->with('success', 'Visitor checked out.');
     }

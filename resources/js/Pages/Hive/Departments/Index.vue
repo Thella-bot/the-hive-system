@@ -1,25 +1,21 @@
 <script setup>
-import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
 import Pagination from '@/Components/Pagination.vue'
+import { useUser } from '@/composables/useUser';
 
 defineProps({
   departments: { type: Object, required: true },
 })
 
-const page = usePage();
-const canManage = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 </script>
 
 <template>
   <HiveLayout title="Departments" description="Manage culinary departments and their heads">
     <template #header-actions>
-      <Link v-if="canManage" :href="route('hive.departments.create')"
+      <Link v-if="isAdmin" :href="route('hive.departments.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -39,7 +35,7 @@ const canManage = computed(() => {
       </div>
       <h3 class="text-gray-900 font-semibold mb-1">No departments yet</h3>
       <p class="text-sm text-gray-500 mb-4">Create your first department to get started.</p>
-      <Link v-if="canManage" :href="route('hive.departments.create')"
+      <Link v-if="isAdmin" :href="route('hive.departments.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         Create Department
       </Link>
@@ -90,7 +86,7 @@ const canManage = computed(() => {
               class="flex-1 text-center text-sm text-amber-600 hover:text-amber-700 font-medium py-1.5 rounded-lg hover:bg-amber-50 transition-colors">
               View
             </Link>
-            <Link v-if="canManage" :href="route('hive.departments.edit', { department: dept.id })"
+            <Link v-if="isAdmin" :href="route('hive.departments.edit', { department: dept.id })"
               class="flex-1 text-center text-sm text-gray-600 hover:text-gray-700 font-medium py-1.5 rounded-lg hover:bg-gray-50 transition-colors">
               Edit
             </Link>

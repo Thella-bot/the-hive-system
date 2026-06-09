@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Attendance::class, 'attendance');
+    }
+
     public function scan()
     {
         return inertia('Hive/Attendance/Scan');

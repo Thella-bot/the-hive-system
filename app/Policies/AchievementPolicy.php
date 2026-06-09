@@ -4,9 +4,12 @@ namespace App\Policies;
 
 use App\Models\Achievement;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class AchievementPolicy
 {
+    use HandlesAuthorization;
+
     public function delete(User $user, Achievement $achievement): bool
     {
         return $user->hasAnyRole(['super-admin', 'school-admin']);

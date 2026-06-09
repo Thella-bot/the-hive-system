@@ -2,8 +2,6 @@
   <HiveLayout title="Edit Document">
     <div class="max-w-2xl mx-auto">
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Document</h1>
-
         <form @submit.prevent="submit" class="space-y-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Title *</label>

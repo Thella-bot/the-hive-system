@@ -83,17 +83,18 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ achievements: Object, users: Array });
 const showAdd = ref(false);
-const roles = computed(() => usePage().props.auth?.user?.roles || []);
-const canCreate = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
-const canDelete = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
+const { isAdmin } = useUser();
+const canCreate = computed(() => isAdmin.value);
+const canDelete = computed(() => isAdmin.value);
 
 const form = ref({ user_id: '', type: 'competition', title: '', awarded_by: '', awarded_at: '' });
 

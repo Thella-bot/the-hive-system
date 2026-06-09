@@ -1,10 +1,9 @@
 <script setup>
-import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
 
-const page = usePage();
-const isStudent = computed(() => page.props.auth.user?.roles?.includes('student'));
+const { isStudent } = useUser();
 
 defineProps({
     modules: {

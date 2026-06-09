@@ -70,9 +70,7 @@
             </div>
             <a :href="route('hive.documents.version.download', { version: version.id })"
               class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-              </svg>
+              <ArrowDownTrayIcon class="w-4 h-4 mr-1" />
               Download
             </a>
           </div>
@@ -98,33 +96,32 @@
 
 <script setup>
 import { computed, reactive, ref } from 'vue';
-import { Link, usePage, router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ document: Object });
-const page = usePage();
+const { currentUser } = useUser();
 
 const isAcknowledged = computed(() => props.document.is_acknowledged || false);
 const acknowledgementCount = computed(() => props.document.acknowledgements_count || 0);
 
 const canUpdate = computed(() => {
-  const user = page.props.auth?.user;
-  if (!user) return false;
-  return user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name)) ||
-         user.id === props.document.created_by;
+  if (!currentUser.value) return false;
+  return currentUser.value.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name)) ||
+         currentUser.value.id === props.document.created_by;
 });
 
 const canDelete = computed(() => {
-  const user = page.props.auth?.user;
-  if (!user) return false;
-  return user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
+  if (!currentUser.value) return false;
+  return currentUser.value.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
 });
 
 const canSeeAcknowledgements = computed(() => {
-  const user = page.props.auth?.user;
-  if (!user) return false;
-  return user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
+  if (!currentUser.value) return false;
+  return currentUser.value.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
 });
 
 const newVersionForm = reactive({ file: null, processing: false, error: '' });

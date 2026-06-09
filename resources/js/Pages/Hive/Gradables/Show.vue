@@ -175,9 +175,7 @@
 
             <!-- Already Submitted -->
             <div v-if="!isInstructor && studentSubmission" class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6 text-center">
-                <svg class="w-12 h-12 mx-auto text-green-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
+                <CheckCircleIcon class="w-12 h-12 mx-auto text-green-500 mb-3" />
                 <h3 class="text-lg font-medium text-green-800 dark:text-green-200">Already Submitted</h3>
                 <p class="text-sm text-green-600 dark:text-green-400">Submitted on {{ formatDate(studentSubmission.submitted_at || studentSubmission.created_at) }}</p>
             </div>
@@ -193,11 +191,11 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { Link, usePage, router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { CheckCircleIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
 
-const page = usePage();
 const props = defineProps({
     gradable: Object,
     isInstructor: Boolean,

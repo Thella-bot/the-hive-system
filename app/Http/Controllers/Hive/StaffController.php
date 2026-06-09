@@ -41,6 +41,9 @@ class StaffController extends Controller
      */
     public function store(Request $request, CreateNewStaff $creator)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $creator->create($request->all());
 
         return redirect()->route('hive.staff.index');
@@ -59,6 +62,9 @@ class StaffController extends Controller
      */
     public function edit(User $staff)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $roles = Role::whereIn('name', ['academic_staff', 'non_academic_staff'])->get();
         $staff->load('roles');
         return Inertia::render('Hive/Staff/Edit', [
@@ -72,6 +78,9 @@ class StaffController extends Controller
      */
     public function update(Request $request, User $staff, UpdateStaff $updater)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $updater->update($staff, $request->all());
 
         return redirect()->route('hive.staff.index');
@@ -82,6 +91,9 @@ class StaffController extends Controller
      */
     public function destroy(User $staff)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $staff->delete();
 
         return redirect()->route('hive.staff.index');

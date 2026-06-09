@@ -45,7 +45,7 @@ class TranscriptController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->can('view-student-grades') && $user->id !== $student->id) abort(403);
+        if (!$user->can('view-student-grades') && $user->id !== $student->id) abort(403);
         if ($user->can('manage-student-grades')) {
             $studentModuleIds = $student->modules()->pluck('id');
             $instructorModuleIds = $user->instructedModules()->pluck('id');

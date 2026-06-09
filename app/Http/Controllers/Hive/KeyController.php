@@ -18,6 +18,10 @@ class KeyController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'label' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
@@ -29,6 +33,10 @@ class KeyController extends Controller
 
     public function issue(Request $request, Key $key)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $data = $request->validate(['user_id' => 'required|exists:users,id']);
 
         KeyAssignment::create([
@@ -44,6 +52,10 @@ class KeyController extends Controller
 
     public function return(Key $key)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $assignment = $key->currentAssignment()->first();
         if ($assignment) {
             $assignment->update(['returned_at' => now(), 'status' => 'returned']);
@@ -54,6 +66,10 @@ class KeyController extends Controller
 
     public function reportLost(Key $key)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $assignment = $key->currentAssignment()->first();
         if ($assignment) {
             $assignment->update(['returned_at' => now(), 'status' => 'lost']);

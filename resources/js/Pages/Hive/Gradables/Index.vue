@@ -1,12 +1,8 @@
 <template>
-    <HiveLayout title="Assessments" :description="isStudent ? 'View and submit your assessments' : 'Manage all assessments'">
+    <HiveLayout :title="gradables.length + ' Assessments'" :description="isStudent ? 'View and submit your assessments' : 'Manage all assessments'">
         <div class="space-y-6">
-            <!-- Header with Create Button -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Assessments</h1>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ gradables.length }} assessments</p>
-                </div>
+            <!-- Create Button -->
+            <div class="flex justify-end">
                 <Link v-if="canCreate" :href="route('hive.gradables.create')"
                     class="inline-flex items-center px-4 py-2.5 bg-amber-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
                     <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,15 +94,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useUser } from '@/composables/useUser';
 
 dayjs.extend(relativeTime);
 
-const props = defineProps({
+defineProps({
     gradables: {
         type: Array,
         default: () => [],
@@ -117,8 +113,7 @@ const props = defineProps({
     },
 });
 
-const page = usePage();
-const isStudent = computed(() => page.props.auth?.user?.roles?.includes('student'));
+const { isStudent } = useUser();
 
 const assessmentTypes = [
     { value: 'quiz', label: 'Quizzes' },

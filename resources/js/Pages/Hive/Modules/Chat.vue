@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -14,8 +14,6 @@ const props = defineProps({
     channel: { type: Object, required: true },
 });
 
-const page = usePage();
-const user = page.props.auth.user;
 const messages = ref([]);
 const newMessage = ref('');
 const formError = ref(null);
@@ -144,9 +142,7 @@ onUnmounted(() => {
                             </div>
                         </div>
                         <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
-                            <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
+                            <ChatBubbleLeftRightIcon class="w-12 h-12 mx-auto text-gray-400 mb-3" />
                             <p>No messages yet. Be the first to say something!</p>
                         </div>
                     </div>

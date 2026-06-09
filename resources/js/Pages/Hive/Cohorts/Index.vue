@@ -1,9 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Link, router, usePage } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
 import Pagination from '@/Components/Pagination.vue'
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
   cohorts:       { type: Object, required: true },
@@ -11,11 +12,7 @@ const props = defineProps({
   academicYears: { type: Array, default: () => [] },
 })
 
-const page = usePage();
-const canManage = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 
 const filters = ref({ department_id: '', academic_year_id: '' })
 const hasActiveFilters = computed(() => filters.value.department_id || filters.value.academic_year_id)
@@ -35,7 +32,7 @@ const capacityColor = (c) => {
 <template>
   <HiveLayout title="Cohorts" description="Student groups by department and academic year">
     <template #header-actions>
-      <Link v-if="canManage" :href="route('hive.cohorts.create')"
+      <Link v-if="isAdmin" :href="route('hive.cohorts.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>

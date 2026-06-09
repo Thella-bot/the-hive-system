@@ -1,29 +1,19 @@
 <script setup>
-import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
 
-const props = defineProps({
+defineProps({
   modules: Array,
 });
 
-const page = usePage();
-const canManage = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin');
-});
-
-const isStudent = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('student');
-});
+const { isAdmin } = useUser();
 </script>
 
 <template>
   <HiveLayout title="Modules" description="A list of all the modules in the system.">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Modules</h1>
-      <Link v-if="canManage" :href="route('hive.modules.create')" class="btn-primary">
+    <div class="flex justify-end">
+      <Link v-if="isAdmin" :href="route('hive.modules.create')" class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
         Create Module
       </Link>
     </div>

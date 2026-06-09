@@ -49,7 +49,7 @@ class IdGenerator
                 ->first();
 
             if ($latestProfile) {
-                $lastNumber = (int) substr($latestProfile->$field, -4);
+                $lastNumber = (int) substr($latestProfile->$field, -3);
                 $newNumber = max($newNumber, $lastNumber + 1);
             }
 
@@ -60,7 +60,7 @@ class IdGenerator
                     ->first();
 
                 if ($latestUser) {
-                    $lastNumber = (int) substr($latestUser->student_number, -4);
+                    $lastNumber = (int) substr($latestUser->student_number, -3);
                     $newNumber = max($newNumber, $lastNumber + 1);
                 }
             }

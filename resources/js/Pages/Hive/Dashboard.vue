@@ -590,8 +590,10 @@
 
 <script setup>
 import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
+import { useUser } from '@/composables/useUser';
 import LeaveRequestsChart from './LeaveRequestsChart.vue';
 import ClassAveragesChart from './ClassAveragesChart.vue';
 import UserDistributionChart from './UserDistributionChart.vue';
@@ -712,13 +714,15 @@ const props = defineProps({
 });
 
 const formatDate = (date) => dayjs(date).fromNow();
-const currentUser = computed(() => usePage().props.auth?.user);
 
-const isAdmin = computed(() => usePage().props.auth?.user?.roles?.some(r => r === 'super-admin' || r === 'school-admin'));
-const isSuperAdmin = computed(() => usePage().props.auth?.user?.roles?.includes('super-admin'));
-const isInstructor = computed(() => usePage().props.auth?.user?.roles?.some(r => r === 'academic_staff'));
-const isNonAcademicStaff = computed(() => usePage().props.auth?.user?.roles?.some(r => r === 'non_academic_staff'));
-const isStudent = computed(() => usePage().props.auth?.user?.roles?.some(r => r === 'student'));
+const {
+  currentUser,
+  isAdmin,
+  isSuperAdmin,
+  isAcademicStaff,
+  isNonAcademicStaff,
+  isStudent,
+} = useUser();
 
 const formatType = (type) => {
     const labels = {
@@ -752,7 +756,7 @@ const quickActions = computed(() => {
             { label: 'Create Event', href: route('hive.events.create'), icon: 'CalendarDaysIcon' },
         ];
     }
-    if (isInstructor.value) {
+    if (isAcademicStaff.value) {
         return [
             { label: 'Create Assessment', href: route('hive.gradables.create'), icon: 'ClipboardDocumentCheckIcon' },
             { label: 'Upload Material', href: route('hive.documents.create'), icon: 'DocumentIcon' },

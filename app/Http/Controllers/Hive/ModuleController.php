@@ -97,4 +97,28 @@ class ModuleController extends Controller
         $module->delete();
         return redirect()->route('hive.modules.index')->with('success', 'Module deleted successfully.');
     }
+
+    public function storeProgramme(Request $request)
+    {
+        $this->authorize('create', Module::class);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'duration' => 'nullable|string|max:255',
+            'duration_months' => 'nullable|integer|min:1',
+            'total_price' => 'nullable|numeric|min:0',
+            'monthly_fee' => 'nullable|numeric|min:0',
+            'registration_fee' => 'nullable|numeric|min:0',
+            'academic_resource_fee' => 'nullable|numeric|min:0',
+            'uniform_fee' => 'nullable|numeric|min:0',
+            'tools_cost' => 'nullable|numeric|min:0',
+            'requirements' => 'nullable|string',
+            'payment_method' => 'nullable|string|max:255',
+            'intake_period' => 'nullable|string|max:255',
+            'career_opportunities' => 'nullable|string',
+            'department_id' => 'required|exists:departments,id',
+        ]);
+        Programme::create($data);
+        return redirect()->route('hive.programmes.index')->with('success', 'Programme created successfully.');
+    }
 }

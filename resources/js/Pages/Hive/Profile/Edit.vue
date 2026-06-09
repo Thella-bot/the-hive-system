@@ -123,9 +123,9 @@
   </HiveLayout>
 </template>
 <script setup>
-import { useForm, usePage } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
-import { computed } from 'vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
   profile: Object,
@@ -133,11 +133,7 @@ const props = defineProps({
   cohorts: Array,
 });
 
-const page = usePage();
-const user = computed(() => page.props.auth.user);
-
-const isStaff = computed(() => user.value.roles.some(role => role.name === 'academic_staff' || role.name === 'non_academic_staff'));
-const isStudent = computed(() => user.value.roles.some(role => role.name === 'student'));
+const { isStaff, isStudent } = useUser();
 
 const form = useForm({
   first_name: props.profile?.first_name ?? '',

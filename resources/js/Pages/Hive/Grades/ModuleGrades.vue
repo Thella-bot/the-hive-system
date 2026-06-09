@@ -3,9 +3,7 @@
     <template #header-actions>
       <Link :href="route('hive.grades.index')"
         class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 text-sm font-medium">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
+        <ArrowLeftIcon class="w-4 h-4" />
         Back to Modules
       </Link>
     </template>
@@ -142,7 +140,8 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
 

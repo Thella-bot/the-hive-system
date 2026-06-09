@@ -113,8 +113,14 @@ php artisan serve
 # In another terminal — Vite (JS/CSS)
 npm run dev
 
-# In a third terminal — Queue worker (required for background jobs)
+# In a third terminal — Queue workers (required for background jobs)
+# Default starts a single worker; increase concurrency by running multiple workers.
 php artisan queue:work
+
+# Or start multiple workers with a single command (database queue by default)
+# Example: 4 worker processes
+php artisan queue:workers --workers=4
+
 ```
 
 Visit `http://localhost:8000` and log in with the seeded admin account:

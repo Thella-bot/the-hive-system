@@ -63,7 +63,7 @@
               class="inline-flex items-center gap-2 text-sm text-amber-600 hover:text-amber-800 bg-amber-50 px-3 py-2 rounded border border-amber-200"
               target="_blank"
             >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <ArrowDownTrayIcon class="w-4 h-4" />
               {{ att.name }}
             </a>
           </div>
@@ -80,16 +80,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ announcement: Object });
-const roles = computed(() => usePage().props.auth.user?.roles || []);
+const { userRoles, currentUser } = useUser();
 const canEdit = (ann) => {
-  const user = usePage().props.auth.user;
-  return roles.value.some(r => ['super-admin', 'school-admin'].includes(r)) || user?.id === ann.created_by;
+  return userRoles.value?.some(r => ['super-admin', 'school-admin'].includes(r)) || currentUser.value?.id === ann.created_by;
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {

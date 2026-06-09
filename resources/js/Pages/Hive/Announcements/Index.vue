@@ -1,7 +1,6 @@
 <template>
   <HiveLayout title="Announcements" description="Institute notices, reminders, and pinned updates.">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Announcements</h1>
+    <div class="flex justify-end">
       <Link v-if="canCreate" :href="route('hive.announcements.create')"
             class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition">New Post</Link>
     </div>
@@ -29,7 +28,7 @@
             class="inline-flex items-center gap-1 text-xs text-amber-600 hover:text-amber-800 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-1 rounded border border-amber-200 dark:border-amber-800"
             target="_blank"
           >
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <ArrowDownTrayIcon class="w-3 h-3" />
             {{ att.name }}
           </a>
         </div>
@@ -49,21 +48,22 @@
 
 <script setup>
 import { computed } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ announcements: [Array, Object] });
+const { userRoles, currentUser } = useUser();
 const announcementsList = computed(() => {
   if (!props.announcements) return [];
   if (Array.isArray(props.announcements)) return props.announcements;
   return props.announcements.data || [];
 });
-const roles = computed(() => usePage().props.auth.user?.roles || []);
-const canCreate = computed(() => roles.value.some(r => ['super-admin','school-admin', 'academic_staff', 'non_academic_staff'].includes(r)));
+const canCreate = computed(() => userRoles.value?.some(r => ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'].includes(r)) ?? false);
 const canEdit = (ann) => {
-  const user = usePage().props.auth.user;
-  return roles.value.some(r => ['super-admin', 'school-admin'].includes(r)) || user?.id === ann.created_by;
+  return userRoles.value?.some(r => ['super-admin', 'school-admin'].includes(r)) || currentUser.value?.id === ann.created_by;
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {

@@ -62,15 +62,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ waitlists: [Array, Object], programmes: Array });
 const showJoin = ref(false);
-const roles = computed(() => usePage().props.auth?.user?.roles || []);
-const isAdmin = computed(() => roles.value.some(r => ['super-admin', 'school-admin'].includes(r)));
+const { isAdmin } = useUser();
 const joinForm = ref({ programme_id: '' });
 
 const isOnWaitlist = computed(() => {

@@ -14,20 +14,14 @@
 
         <NavItem :href="route('hive.dashboard')" active="hive.dashboard">
           <template #icon>
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
+            <HomeIcon class="w-5 h-5" />
           </template>
           Dashboard
         </NavItem>
 
         <NavItem :href="route('hive.events.index')" active="hive.events.">
           <template #icon>
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
+            <CalendarIcon class="w-5 h-5" />
           </template>
           Calendar
         </NavItem>
@@ -40,9 +34,7 @@
 
           <NavItem :href="route('hive.applications.index')" active="hive.applications.">
             <template #icon>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <DocumentTextIcon class="w-5 h-5" />
             </template>
             Applications
           </NavItem>
@@ -58,10 +50,7 @@
             :href="route('hive.departments.index')"
             active="hive.departments.">
             <template #icon>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-              </svg>
+              <BuildingOfficeIcon class="w-5 h-5" />
             </template>
             Departments
           </NavItem>
@@ -70,10 +59,7 @@
                      :href="route('hive.programmes.index')"
                      active="hive.programmes.">
             <template #icon>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-              </svg>
+              <CodeBracketIcon class="w-5 h-5" />
             </template>
             Programmes
           </NavItem>
@@ -83,10 +69,7 @@
             :href="route('hive.academic-years.index')"
             active="hive.academic-years.">
             <template #icon>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
+              <CalendarIcon class="w-5 h-5" />
             </template>
             Academic Years
           </NavItem>
@@ -95,10 +78,7 @@
             :href="route('hive.cohorts.index')"
             active="hive.cohorts.">
             <template #icon>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
+              <UserGroupIcon class="w-5 h-5" />
             </template>
             Cohorts
           </NavItem>
@@ -112,10 +92,7 @@
 
           <NavItem :href="route('hive.users.index')" active="hive.users.">
             <template #icon>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-              </svg>
+              <UsersIcon class="w-5 h-5" />
             </template>
             All Users
           </NavItem>
@@ -144,10 +121,7 @@
             class="text-gray-400 hover:text-white transition-colors"
             title="Logout"
           >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
+            <ArrowRightOnRectangleIcon class="w-5 h-5" />
           </Link>
         </div>
       </div>
@@ -175,16 +149,12 @@
       <div v-if="$page.props.flash?.success || $page.props.flash?.error" class="px-8 pt-4">
         <div v-if="$page.props.flash?.success"
           class="flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200 rounded-lg px-4 py-3 text-sm">
-          <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
+          <CheckCircleIcon class="w-5 h-5 text-green-500 flex-shrink-0" />
           {{ $page.props.flash.success }}
         </div>
         <div v-if="$page.props.flash?.error"
           class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200 rounded-lg px-4 py-3 text-sm">
-          <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+          <ExclamationCircleIcon class="w-5 h-5 text-red-500 flex-shrink-0" />
           {{ $page.props.flash.error }}
         </div>
       </div>
@@ -198,35 +168,27 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { usePage } from '@inertiajs/vue3'
 import NavItem from '@/Components/NavItem.vue'
 import SearchInput from '@/Components/SearchInput.vue'
 import ThemeToggle from '@/Components/ThemeToggle.vue'
-import { useToast } from 'vue-toastification'
+import { usePermissions } from '@/composables/usePermissions'
+import {
+  ArrowRightOnRectangleIcon,
+  BuildingOfficeIcon,
+  CalendarIcon,
+  CheckCircleIcon,
+  CodeBracketIcon,
+  DocumentTextIcon,
+  ExclamationCircleIcon,
+  HomeIcon,
+  UserGroupIcon,
+  UsersIcon,
+} from '@heroicons/vue/24/outline'
 
 defineProps({
   title: { type: String, default: '' },
   description: { type: String, default: '' },
 })
 
-const page = usePage()
-const toast = useToast()
-
-onMounted(() => {
-  if (!window.Echo || !page.props.auth?.user?.id) {
-    return
-  }
-
-  window.Echo.private(`App.Models.User.${page.props.auth.user.id}`)
-    .notification((notification) => {
-      toast.info(notification.message, {
-        title: notification.title,
-      });
-    });
-});
-
-const can = (permission) => {
-  return page.props.auth.user?.permissions?.includes(permission) ?? false
-}
+const { can } = usePermissions()
 </script>

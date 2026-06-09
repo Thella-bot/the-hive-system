@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProgrammeSought;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,6 +18,9 @@ class ProgrammeSoughtController extends Controller
      */
     public function index(): Response
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $applications = ProgrammeSought::with('programme')
             ->where('status', 'pending')
             ->latest()
@@ -32,6 +36,9 @@ class ProgrammeSoughtController extends Controller
      */
     public function show(ProgrammeSought $application): Response
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $application->load('programme');
         return Inertia::render('Hive/Applications/Show', [
             'application' => $application,
@@ -43,11 +50,15 @@ class ProgrammeSoughtController extends Controller
      */
     public function update(Request $request, ProgrammeSought $application, CreateNewStudent $creator): RedirectResponse
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+        $tempPassword = Str::random(12);
         $creator->create([
             'name' => $application->name,
             'email' => $application->email,
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => $tempPassword,
+            'password_confirmation' => $tempPassword,
             'programme_id' => $application->programme_id,
         ]);
 
@@ -61,6 +72,9 @@ class ProgrammeSoughtController extends Controller
      */
     public function destroy(ProgrammeSought $application): RedirectResponse
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
         $application->update(['status' => 'rejected']);
 
         return redirect()->route('hive.applications.index')->with('success', 'Application rejected.');

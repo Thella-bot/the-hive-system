@@ -1,20 +1,16 @@
 <script setup>
-import { computed } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
 import Pagination from '@/Components/Pagination.vue'
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 defineProps({
   years: { type: Object, required: true },
 })
 
-const page = usePage();
-const canManage = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 
 const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY') : '—';
 
@@ -28,7 +24,7 @@ const deleteYear = (year) => {
 <template>
   <HiveLayout title="Academic Years" description="Define and manage school year periods">
     <template #header-actions>
-      <Link v-if="canManage" :href="route('hive.academic-years.create')"
+      <Link v-if="isAdmin" :href="route('hive.academic-years.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -52,7 +48,7 @@ const deleteYear = (year) => {
           <tr v-if="years.data.length === 0">
             <td colspan="5" class="px-6 py-12 text-center text-gray-400">
               No academic years defined yet.
-              <Link v-if="canManage" :href="route('hive.academic-years.create')" class="text-amber-600 hover:underline ml-1">Create one.</Link>
+              <Link v-if="isAdmin" :href="route('hive.academic-years.create')" class="text-amber-600 hover:underline ml-1">Create one.</Link>
             </td>
           </tr>
           <tr v-for="year in years.data" :key="year.id"
@@ -74,9 +70,9 @@ const deleteYear = (year) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center justify-end gap-3">
-                <Link v-if="canManage" :href="route('hive.academic-years.edit', { academic_year: year.id })"
+                <Link v-if="isAdmin" :href="route('hive.academic-years.edit', { academic_year: year.id })"
                   class="text-gray-400 hover:text-amber-600 font-medium text-xs transition-colors">Edit</Link>
-                <button v-if="canManage && year.cohorts_count === 0"
+                <button v-if="isAdmin && year.cohorts_count === 0"
                   @click="deleteYear(year)"
                   class="text-gray-400 hover:text-red-500 font-medium text-xs transition-colors">Delete</button>
               </div>

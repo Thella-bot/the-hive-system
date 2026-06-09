@@ -1,17 +1,13 @@
 <script setup>
-import { computed } from 'vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
     students: Array,
 });
 
-const page = usePage();
-const isAdmin = computed(() => {
-    const roles = page.props.auth?.user?.roles || [];
-    return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 
 const form = useForm({});
 

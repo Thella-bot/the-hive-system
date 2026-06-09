@@ -60,6 +60,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         // Short Courses
         Route::resource('short-courses', ShortCourseController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
             ->middleware('role:super-admin|school-admin');
 
         // Short Course Applications
@@ -76,6 +77,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         // Academic Years
         Route::resource('academic-years', AcademicYearController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
             ->middleware('role:super-admin|school-admin');
 
         // Include modular route files
@@ -120,7 +122,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::resource('leave-requests', LeaveRequestController::class)
             ->parameters(['leave-requests' => 'leave'])
             ->names('leaves')
-            ->except(['create']);
+            ->only(['index', 'store', 'update', 'destroy']);
         Route::get('leave-requests/create', [LeaveRequestController::class, 'create'])->name('leaves.create');
 
         // Modules
@@ -201,7 +203,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('visitor-logs/{log}/checkout', [VisitorLogController::class, 'checkOut'])->name('visitor-logs.checkout');
 
         // Suppliers
-        Route::resource('suppliers', SupplierController::class);
+        Route::resource('suppliers', SupplierController::class)->only(['index', 'store', 'update', 'destroy']);
 
         // Uniform requests
         Route::resource('uniform-requests', UniformRequestController::class)->only(['index', 'store']);

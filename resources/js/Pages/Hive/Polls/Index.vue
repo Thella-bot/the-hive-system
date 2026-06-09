@@ -83,14 +83,15 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ polls: Object });
 const showCreate = ref(false);
-const roles = computed(() => usePage().props.auth?.user?.roles || []);
-const canCreate = computed(() => roles.value.some(r => ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'].includes(r)));
+const { isAdmin, isAcademicStaff, isNonAcademicStaff } = useUser();
+const canCreate = computed(() => isAdmin.value || isAcademicStaff.value || isNonAcademicStaff.value);
 const form = ref({ question: '', type: 'binary', expires_at: '' });
 const optionsText = ref('');
 

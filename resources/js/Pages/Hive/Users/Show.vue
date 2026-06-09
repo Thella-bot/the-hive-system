@@ -88,9 +88,10 @@
 
 <script setup>
 import { computed } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
+import { usePermissions } from '@/composables/usePermissions'
 
 const InfoRow = {
   props: { label: String, value: String },
@@ -106,7 +107,7 @@ const props = defineProps({
   managedUser: { type: Object, required: true },
 })
 
-const can = (p) => usePage().props.auth.user?.permissions?.includes(p) ?? false
+const { can } = usePermissions()
 
 const primaryRole = computed(() =>
   props.managedUser.roles?.[0]?.name

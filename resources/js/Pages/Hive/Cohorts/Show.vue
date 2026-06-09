@@ -89,15 +89,17 @@
 
 <script setup>
 import { computed } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
+import { ChevronRightIcon } from '@heroicons/vue/24/outline'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
+import { usePermissions } from '@/composables/usePermissions'
 
 const props = defineProps({
   cohort: { type: Object, required: true },
 })
 
-const can = (p) => usePage().props.auth.user?.permissions?.includes(p) ?? false
+const { can } = usePermissions()
 
 const enrolled = computed(() => props.cohort.students?.length ?? 0)
 const availableSpots = computed(() => Math.max(0, props.cohort.max_students - enrolled.value))

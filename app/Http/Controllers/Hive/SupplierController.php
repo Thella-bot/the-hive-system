@@ -17,6 +17,10 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
@@ -33,6 +37,10 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
@@ -49,6 +57,10 @@ class SupplierController extends Controller
 
     public function destroy(Supplier $supplier)
     {
+        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+            abort(403);
+        }
+
         $supplier->delete();
         return back()->with('success', 'Supplier removed.');
     }

@@ -7,7 +7,7 @@
           <p class="text-gray-600 mt-2">{{ programme.description }}</p>
           <p class="text-sm text-gray-500 mt-4">Duration: {{ programme.duration }}</p>
         </div>
-        <Link v-if="canManage" :href="route('hive.programmes.edit', { programme: programme.id })" class="btn-primary">
+        <Link v-if="isAdmin" :href="route('hive.programmes.edit', { programme: programme.id })" class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
           Manage Courses
         </Link>
       </div>
@@ -32,16 +32,12 @@
 
 <script setup>
 import HiveLayout from '@/Layouts/HiveLayout.vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
   programme: Object,
 });
 
-const page = usePage();
-const canManage = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 </script>

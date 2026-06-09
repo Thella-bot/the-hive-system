@@ -166,8 +166,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { Link, useForm, usePage } from '@inertiajs/vue3'
+import { Link, useForm } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
+import { usePermissions } from '@/composables/usePermissions'
+import { useUser } from '@/composables/useUser'
 
 const props = defineProps({
   managedUser: { type: Object, required: true },
@@ -176,9 +178,9 @@ const props = defineProps({
   cohorts:     { type: Array, default: () => [] },
 })
 
-const page = usePage()
-const can = (p) => page.props.auth.user?.permissions?.includes(p) ?? false
-const isSelf = computed(() => page.props.auth.user?.id === props.managedUser.id)
+const { can } = usePermissions()
+const { currentUser } = useUser()
+const isSelf = computed(() => currentUser.value?.id === props.managedUser.id)
 const confirmDelete = ref(false)
 
 const staffRoles = ['super-admin', 'school-admin', 'department-head', 'chef-instructor', 'academic-staff', 'non-academic-staff']

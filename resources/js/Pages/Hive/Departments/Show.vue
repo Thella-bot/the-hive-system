@@ -27,10 +27,7 @@
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
           <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
+            <UsersIcon class="w-5 h-5 text-purple-600" />
           </div>
           <div>
             <p class="text-2xl font-bold text-gray-900">{{ department.staff_count }}</p>
@@ -39,10 +36,7 @@
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4">
           <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            <CheckCircleIcon class="w-5 h-5 text-green-600" />
           </div>
           <div>
             <Badge :color="department.is_active ? 'green' : 'gray'" class="text-sm">
@@ -105,9 +99,7 @@
               </div>
               <Link :href="route('hive.users.show', { user: member.user_id })"
                 class="text-gray-400 hover:text-amber-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
+                <ChevronRightIcon class="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -170,13 +162,15 @@
 </template>
 
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
+import { UsersIcon, CheckCircleIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
+import { usePermissions } from '@/composables/usePermissions'
 
 defineProps({
   department: { type: Object, required: true },
 })
 
-const can = (p) => usePage().props.auth.user?.permissions?.includes(p) ?? false
+const { can } = usePermissions()
 </script>

@@ -3,14 +3,6 @@
         <div class="max-w-4xl mx-auto space-y-6">
             <!-- Basic Info Form -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Assessment</h1>
-                    <Link :href="route('hive.gradables.show', { gradable: gradable.id })"
-                        class="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300">
-                        Back to Assessment
-                    </Link>
-                </div>
-
                 <form @submit.prevent="submit" class="space-y-6">
                     <div>
                         <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Title *</label>

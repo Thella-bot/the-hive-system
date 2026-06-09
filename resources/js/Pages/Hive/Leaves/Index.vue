@@ -3,9 +3,7 @@
     <template #header-actions>
       <Link v-if="!isAdmin" :href="route('hive.leaves.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        <PlusIcon class="w-4 h-4" />
         Request Leave
       </Link>
     </template>
@@ -94,13 +92,15 @@
 
 <script setup>
 import { computed, ref } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { PlusIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ leaves: Object, balance: Number });
-const isAdmin = computed(() => usePage().props.auth?.user?.roles?.some(r => ['super-admin', 'school-admin'].includes(r)));
+const { isAdmin } = useUser();
 
 const showRejectModal = ref(false);
 const rejectReason = ref('');

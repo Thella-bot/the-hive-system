@@ -75,9 +75,7 @@
         <!-- Not admitted -->
         <div v-if="!application" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            <ExclamationCircleIcon class="w-8 h-8 text-amber-600" />
           </div>
           <h2 class="text-xl font-bold text-gray-900 mb-2">Registration Not Available</h2>
           <p class="text-gray-500">You do not have an admitted application. Please complete your application process first.</p>
@@ -86,9 +84,7 @@
         <!-- Registration completed -->
         <div v-else-if="registration?.status === 'completed'" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
+            <CheckIcon class="w-8 h-8 text-emerald-600" />
           </div>
           <h2 class="text-xl font-bold text-gray-900 mb-2">Registration Complete!</h2>
           <p class="text-gray-500 mb-4">You have completed your registration. You now have full access to the Hive.</p>
@@ -100,8 +96,7 @@
         <!-- Registration submitted (awaiting verification) -->
         <div v-else-if="registration?.status === 'submitted'" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <ClockIcon class="w-8 h-8 text-amber-600" />
             </svg>
           </div>
           <h2 class="text-xl font-bold text-gray-900 mb-2">Registration Under Review</h2>
@@ -156,9 +151,11 @@
 
 <script setup>
 import HiveLayout from '@/Layouts/HiveLayout.vue';
-import { Link, useForm, router, usePage } from '@inertiajs/vue3';
+import { Link, useForm, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { ExclamationCircleIcon, CheckIcon, ClockIcon } from '@heroicons/vue/24/outline';
 import dayjs from 'dayjs';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
   application: Object,
@@ -175,11 +172,8 @@ const form = useForm({
 });
 
 // Non-academic staff can manage registrations, but not academic_staff
-const canManageRegistration = computed(() => {
-  const { props: pageProps } = usePage();
-  const roles = pageProps.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin') || roles.includes('non_academic_staff');
-});
+const { isAdmin, isNonAcademicStaff } = useUser();
+const canManageRegistration = computed(() => isAdmin.value || isNonAcademicStaff.value);
 
 const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY') : '—';
 

@@ -1,11 +1,9 @@
 <script setup>
-import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
 
-const page = usePage();
-const isStudent = computed(() => page.props.auth.user?.roles?.some(r => r === 'student'));
-const isInstructor = computed(() => page.props.auth.user?.roles?.some(r => ['academic_staff', 'school-admin', 'super-admin'].includes(r)));
+const { isStudent, isAcademicStaff } = useUser();
 
 const props = defineProps({
     modules: {
@@ -45,7 +43,6 @@ const typeColors = {
         :description="`Select a module to view ${typeLabel.toLowerCase()}`"
     >
         <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ typeLabel }}</h1>
             <p class="text-gray-600 dark:text-gray-400">
                 {{ isStudent ? 'Select a module to view and submit your assessments.' : 'Select a module to manage assessments.' }}
             </p>

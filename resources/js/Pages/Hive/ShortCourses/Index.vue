@@ -1,20 +1,17 @@
 <script setup>
 import { computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import Badge from '@/Components/Badge.vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
   shortCourses: { type: Object, required: true },
   departmentId: { type: Number, default: null },
 });
 
-const page = usePage();
-const canManage = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 
 const courseTypeColors = {
   workshop: 'bg-blue-100 text-blue-700',
@@ -34,7 +31,7 @@ const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replac
 <template>
   <HiveLayout title="Short Courses" description="Manage workshops and short courses">
     <template #header-actions>
-      <Link v-if="canManage" :href="route('hive.short-courses.create', departmentId ? { departmentId } : {})"
+      <Link v-if="isAdmin" :href="route('hive.short-courses.create', departmentId ? { departmentId } : {})"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -54,7 +51,7 @@ const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replac
       </div>
       <h3 class="text-gray-900 font-semibold mb-1">No short courses yet</h3>
       <p class="text-sm text-gray-500 mb-4">Create your first short course or workshop.</p>
-      <Link v-if="canManage" :href="route('hive.short-courses.create')"
+      <Link v-if="isAdmin" :href="route('hive.short-courses.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         Create Short Course
       </Link>
@@ -107,11 +104,11 @@ const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replac
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
-              <Link v-if="canManage" :href="route('hive.short-courses.edit', { short_course: course.id })"
+              <Link v-if="isAdmin" :href="route('hive.short-courses.edit', { short_course: course.id })"
                 class="text-sm text-amber-600 hover:text-amber-700 font-medium">
                 Edit
               </Link>
-              <Link v-if="canManage" :href="route('hive.short-courses.destroy', { short_course: course.id })"
+              <Link v-if="isAdmin" :href="route('hive.short-courses.destroy', { short_course: course.id })"
                 method="delete" as="button"
                 class="text-sm text-red-600 hover:text-red-700 font-medium">
                 Delete

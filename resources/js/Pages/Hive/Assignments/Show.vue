@@ -54,15 +54,21 @@
 </template>
 <script setup>
 import { computed, ref } from 'vue';
-import { useForm, usePage } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ assignment: Object });
-const user = usePage().props.user;
-const isStudent = user.roles.some(r => r.name === 'student');
-const isInstructor = user.roles.some(r => ['super-admin','school-admin', 'academic_staff'].includes(r.name)) && (user.id === props.assignment.instructor_id || user.roles.some(r=>r.name==='super-admin' || r.name==='school-admin'));
+const { currentUser } = useUser();
+const isStudent = computed(() => currentUser.value?.roles?.some(r => r.name === 'student') ?? false);
+const isInstructor = computed(() => {
+  const user = currentUser.value;
+  if (!user) return false;
+  return user.roles?.some(r => ['super-admin', 'school-admin', 'academic_staff'].includes(r.name)) &&
+    (user.id === props.assignment.instructor_id || user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name)));
+});
 
-const existingSubmission = computed(() => props.assignment.submissions?.find(s => s.student_id === user.id) ?? null);
+const existingSubmission = computed(() => props.assignment.submissions?.find(s => s.student_id === currentUser.value?.id) ?? null);
 
 const submissionForm = useForm({ file: null });
 const submitFile = () => {

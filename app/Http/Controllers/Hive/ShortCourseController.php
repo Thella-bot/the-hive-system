@@ -15,7 +15,7 @@ class ShortCourseController extends Controller
 {
     public function __construct()
     {
-        // $this->authorizeResource(ShortCourse::class, 'short_course');
+        $this->authorizeResource(ShortCourse::class, 'short_course');
     }
 
     public function index(Request $request): Response

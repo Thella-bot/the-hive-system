@@ -1,11 +1,12 @@
 <script setup>
 import { computed } from 'vue';
-import { Link, usePage, router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import Badge from '@/Components/Badge.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useUser } from '@/composables/useUser';
 
 dayjs.extend(relativeTime);
 
@@ -14,11 +15,7 @@ const props = defineProps({
   filter: { type: String, default: 'pending' },
 });
 
-const page = usePage();
-const canManage = computed(() => {
-  const roles = page.props.auth?.user?.roles || [];
-  return roles.includes('super-admin') || roles.includes('school-admin');
-});
+const { isAdmin } = useUser();
 
 const filters = [
   { value: 'pending', label: 'Pending' },
@@ -141,7 +138,7 @@ const review = (app, status) => {
           </td>
           <td class="px-6 py-4">
             <div v-if="app.notes" class="text-xs text-gray-500 mb-2 max-w-xs truncate">{{ app.notes }}</div>
-            <div v-if="canManage && app.status === 'pending'" class="flex items-center gap-2">
+            <div v-if="isAdmin && app.status === 'pending'" class="flex items-center gap-2">
               <button @click="review(app, 'approved')"
                 class="px-3 py-1 text-xs font-medium rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition">
                 Approve
