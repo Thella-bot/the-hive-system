@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { PlusIcon, ClockIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import Badge from '@/Components/Badge.vue';
@@ -33,9 +34,7 @@ const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replac
     <template #header-actions>
       <Link v-if="isAdmin" :href="route('hive.short-courses.create', departmentId ? { departmentId } : {})"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        <PlusIcon class="w-4 h-4" />
         New Short Course
       </Link>
     </template>
@@ -44,10 +43,7 @@ const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replac
     <div v-if="shortCourses.data.length === 0"
       class="text-center py-16 bg-white rounded-xl border border-gray-200">
       <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
+        <ClockIcon class="w-8 h-8 text-orange-500" />
       </div>
       <h3 class="text-gray-900 font-semibold mb-1">No short courses yet</h3>
       <p class="text-sm text-gray-500 mb-4">Create your first short course or workshop.</p>

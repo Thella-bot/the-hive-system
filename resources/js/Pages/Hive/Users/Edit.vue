@@ -62,8 +62,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Employee Number</label>
-                <input v-model="form.employee_number" type="text"
-                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                    {{ form.employee_number ?? '— Not assigned —' }}
+                </div>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
@@ -95,8 +96,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Student Number</label>
-                <input v-model="form.student_number" type="text"
-                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                    {{ form.student_number ?? '— Not assigned —' }}
+                </div>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Cohort</label>
@@ -184,24 +186,23 @@ const isSelf = computed(() => currentUser.value?.id === props.managedUser.id)
 const confirmDelete = ref(false)
 
 const staffRoles = ['super-admin', 'school-admin', 'department-head', 'chef-instructor', 'academic-staff', 'non-academic-staff']
-const sp = props.managedUser.staff_profile
-const stp = props.managedUser.student_profile
+const p = props.managedUser.profile
 
 const form = useForm({
   name: props.managedUser.name, email: props.managedUser.email,
   password: '', password_confirmation: '',
   role: props.managedUser.roles?.[0]?.name ?? '',
   // Staff
-  employee_number: sp?.employee_number ?? '', department_id: sp?.department_id ?? null,
-  designation: sp?.designation ?? '', specialization: sp?.specialization ?? '',
-  phone: sp?.phone ?? '', hire_date: sp?.hire_date ?? '',
+  employee_number: p?.employee_number ?? '', department_id: p?.department_id ?? null,
+  designation: p?.designation ?? '', specialization: p?.specialization ?? '',
+  phone: p?.phone ?? '', hire_date: p?.hire_date ?? '',
   // Student
-  student_number: stp?.student_number ?? '', cohort_id: stp?.cohort_id ?? null,
-  enrollment_date: stp?.enrollment_date ?? '', expected_graduation_date: stp?.expected_graduation_date ?? '',
-  status: stp?.status ?? 'active',
-  emergency_contact_name: stp?.emergency_contact_name ?? '',
-  emergency_contact_phone: stp?.emergency_contact_phone ?? '',
-  emergency_contact_relationship: stp?.emergency_contact_relationship ?? '',
+  student_number: p?.student_number ?? '', cohort_id: p?.cohort_id ?? null,
+  enrollment_date: p?.enrollment_date ?? '', expected_graduation_date: p?.expected_graduation_date ?? '',
+  status: p?.status ?? 'active',
+  emergency_contact_name: p?.emergency_contact_name ?? '',
+  emergency_contact_phone: p?.emergency_contact_phone ?? '',
+  emergency_contact_relationship: p?.emergency_contact_relationship ?? '',
 })
 
 const isStaffRole = computed(() => staffRoles.includes(form.role))

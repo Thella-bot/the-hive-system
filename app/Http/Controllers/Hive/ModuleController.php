@@ -24,7 +24,7 @@ class ModuleController extends Controller
             $query->whereIn('id', $user->instructedModules()->pluck('id'));
         }
 
-        $modules = $query->get();
+        $modules = $query->paginate(15);
 
         return Inertia::render('Hive/Modules/Index', ['modules' => $modules]);
     }

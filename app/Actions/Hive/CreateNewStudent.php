@@ -28,14 +28,16 @@ class CreateNewStudent
                 'max:255',
                 Rule::unique(User::class),
             ],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'programme_id' => ['nullable', 'exists:programmes,id'],
         ])->validate();
+
+        $password = $input['password'] ?? 'password';
 
         $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
-            'password' => Hash::make($input['password']),
+            'password' => Hash::make($password),
         ]);
 
         $user->assignRole('student');

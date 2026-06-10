@@ -43,7 +43,7 @@ class PayslipController extends Controller
     // ─── Admin: show create/edit form ─────────────────────────────
     public function create(): Response
     {
-        $this->authorizeAdmin();
+        $this->authorize('create', Payslip::class);
 
         $staff = User::query()
             ->whereDoesntHave('roles', fn($q) => $q->where('name', 'student'))
@@ -57,8 +57,7 @@ class PayslipController extends Controller
 
     public function edit(Payslip $payslip): Response
     {
-        $this->authorizeAdmin();
-        $this->authorizeOwnerOrAdmin($payslip);
+        $this->authorize('update', $payslip);
 
         $staff = User::query()
             ->whereDoesntHave('roles', fn($q) => $q->where('name', 'student'))
@@ -75,7 +74,7 @@ class PayslipController extends Controller
     // ─── Admin: store new payslip with full salary breakdown ───────
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $this->authorizeAdmin();
+        $this->authorize('create', Payslip::class);
 
         $data = $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -136,8 +135,7 @@ class PayslipController extends Controller
 
     public function update(Request $request, Payslip $payslip): \Illuminate\Http\RedirectResponse
     {
-        $this->authorizeAdmin();
-        $this->authorizeOwnerOrAdmin($payslip);
+        $this->authorize('update', $payslip);
 
         $data = $request->validate([
             'pay_period_start' => 'required|date',
@@ -267,7 +265,7 @@ class PayslipController extends Controller
     // ─── Admin: batch generate for all staff ───────────────────────
     public function generateBatch(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $this->authorizeAdmin();
+        $this->authorize('generateBatch', Payslip::class);
 
         $month = $request->input('month')
             ? \Carbon\Carbon::parse($request->input('month') . '-01')
@@ -348,9 +346,7 @@ class PayslipController extends Controller
     // ─── Download PDF ──────────────────────────────────────────────
     public function download(Payslip $payslip)
     {
-        if (!Auth::user()->hasAnyRole(['super-admin', 'school-admin']) && $payslip->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('download', $payslip);
 
         $payslip->load('user');
 
@@ -362,26 +358,11 @@ class PayslipController extends Controller
     // ─── Admin: delete payslip ────────────────────────────────────
     public function destroy(Payslip $payslip): \Illuminate\Http\RedirectResponse
     {
-        $this->authorizeAdmin();
+        $this->authorize('delete', $payslip);
 
         $payslip->delete();
 
         return redirect()->route('hive.payslips.index')->with('success', 'Payslip deleted.');
-    }
-
-    // ─── Private helpers ───────────────────────────────────────────
-    private function authorizeAdmin(): void
-    {
-        if (!Auth::user()->hasAnyRole(['super-admin', 'school-admin'])) {
-            abort(403, 'Only administrators can perform this action.');
-        }
-    }
-
-    private function authorizeOwnerOrAdmin(Payslip $payslip): void
-    {
-        if (!Auth::user()->hasAnyRole(['super-admin', 'school-admin']) && $payslip->user_id !== Auth::id()) {
-            abort(403);
-        }
     }
 
     /**

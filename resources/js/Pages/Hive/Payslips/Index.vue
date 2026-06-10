@@ -29,7 +29,7 @@
           </form>
           <Link :href="route('hive.payslips.create')"
             class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <PlusIcon class="w-4 h-4" />
             Manual Payslip
           </Link>
         </div>
@@ -41,9 +41,7 @@
       <!-- Empty State -->
       <div v-if="payslips.data.length === 0" class="px-6 py-16 text-center">
         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
+          <DocumentIcon class="w-8 h-8 text-gray-400" />
         </div>
         <p class="text-gray-500 font-medium">No payslips found.</p>
         <p class="text-sm text-gray-400 mt-1">Generate your first payslip using the button above.</p>
@@ -124,7 +122,7 @@
                 <div class="flex items-center justify-end gap-2">
                   <a :href="route('hive.payslips.download', { payslip: payslip.id })"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <ArrowDownTrayIcon class="w-3.5 h-3.5" />
                     PDF
                   </a>
                   <Link v-if="canManage" :href="route('hive.payslips.edit', { payslip: payslip.id })"
@@ -151,6 +149,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
+import { PlusIcon, DocumentIcon, ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import dayjs from 'dayjs';

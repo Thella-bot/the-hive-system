@@ -19,6 +19,7 @@ class Application extends Model
         'variant_id',
         'status',
         'notes',
+        'attachments',
         'admitted_at',
         'registration_status',
         'registered_at',
@@ -31,13 +32,44 @@ class Application extends Model
         'admitted_at' => 'datetime',
         'registered_at' => 'datetime',
         'payment_verified_at' => 'datetime',
+        'attachments' => 'array',
     ];
+
+    protected $attributes = [
+        'status' => 'pending',
+        'registration_status' => 'pending',
+    ];
+
+    /**
+     * Get attachment URLs with proper URLs for display.
+     */
+    public function getAttachmentUrls(): array
+    {
+        if (empty($this->attachments)) {
+            return [];
+        }
+
+        return collect($this->attachments)->map(function ($attachment) {
+            if (isset($attachment['path'])) {
+                $attachment['url'] = \Illuminate\Support\Facades\Storage::url($attachment['path']);
+            }
+            return $attachment;
+        })->toArray();
+    }
+
+    /**
+     * Get attachments by type (e.g., 'certificate', 'employer_letter').
+     */
+    public function getAttachmentsByType(string $type): array
+    {
+        return collect($this->attachments)->where('type', $type)->values()->toArray();
+    }
 
     // --- Admission ---
 
     public function isAdmitted(): bool
     {
-        return $this->status === 'approved' && $this->admitted_at !== null;
+        return $this->status === 'approved' && ! empty($this->admitted_at);
     }
 
     // --- Registration ---

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Mail\AcceptanceLetter;
 use App\Models\Application;
+use App\Models\Programme;
 use App\Models\User;
 use App\Services\IdGenerator;
 use Illuminate\Support\Facades\DB;
@@ -161,8 +162,8 @@ class ApplicationController extends Controller
             $application->forceFill(['user_id' => $student->id])->save();
         }
 
-        // Sync modules from programme
-        $programme = $application->programme;
+        // Sync modules from programme (load relation first)
+        $programme = $application->programme ?? $application->load('programme')->programme;
         if ($programme && $programme->modules()->exists()) {
             $student->modules()->sync($programme->modules()->pluck('id'));
         }
@@ -208,8 +209,10 @@ class ApplicationController extends Controller
             $updates['programme_id'] = $application->programme_id;
         }
 
-        if (Schema::hasColumn('users', 'student_number') && empty($student->student_number)) {
-            $updates['student_number'] = IdGenerator::generateStudentId($application->programme?->department_id ?? 0);
+        if (empty($student->profile?->student_number)) {
+            $student->profile()->create([
+                'student_number' => IdGenerator::generateStudentId($application->programme?->department_id ?? 1),
+            ]);
         }
 
         if ($updates) {

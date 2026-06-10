@@ -67,12 +67,21 @@ class Cohort extends Model
 
     public function getStudentCountAttribute(): int
     {
-        return $this->students()->count();
+        // Use direct count query to avoid N+1 when loading multiple cohorts.
+        // The students() HasMany already filters by profileable_type = User::class.
+        if ($this->relationLoaded('students')) {
+            return $this->students->count();
+        }
+
+        return (int) \Illuminate\Support\Facades\DB::table('profiles')
+            ->where('cohort_id', $this->id)
+            ->where('profileable_type', User::class)
+            ->count();
     }
 
     public function getAvailableSpotsAttribute(): int
     {
-        return max(0, $this->max_students - $this->student_count);
+        return max(0, (int) $this->max_students - (int) $this->student_count);
     }
 
     public function isFull(): bool

@@ -102,11 +102,11 @@ const roleColor = (r) => ({
               </div>
             </td>
             <td class="px-6 py-4 text-gray-500 hidden md:table-cell">
-              <span v-if="user.staff_profile?.department">
-                {{ user.staff_profile.department.name }}
+              <span v-if="user.profile?.department">
+                {{ user.profile.department.name }}
               </span>
-              <span v-else-if="user.student_profile?.cohort">
-                {{ user.student_profile.cohort.name }}
+              <span v-else-if="user.profile?.cohort">
+                {{ user.profile.cohort.name }}
               </span>
               <span v-else class="text-gray-300">—</span>
             </td>

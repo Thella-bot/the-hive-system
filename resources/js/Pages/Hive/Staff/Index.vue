@@ -5,7 +5,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
-    staff: Array,
+    staff: { type: Object, required: true },
 });
 
 const { isAdmin } = useUser();
@@ -47,10 +47,10 @@ const getRoleName = (roles) => {
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    <tr v-if="staff.length === 0">
+                    <tr v-if="staff.data.length === 0">
                         <td colspan="4" class="px-6 py-12 text-center text-gray-400">No staff members found.</td>
                     </tr>
-                    <tr v-for="staffMember in staff" :key="staffMember.id" class="hover:bg-amber-50 transition-colors">
+                    <tr v-for="staffMember in staff.data" :key="staffMember.id" class="hover:bg-amber-50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <img :src="staffMember.profile_photo_url" :alt="staffMember.name"

@@ -5,9 +5,7 @@
             <div class="flex justify-end">
                 <Link v-if="canCreate" :href="route('hive.gradables.create')"
                     class="inline-flex items-center px-4 py-2.5 bg-amber-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
-                    <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
+                    <PlusIcon class="w-4 h-4 mr-2" />
                     Create Assessment
                 </Link>
             </div>
@@ -80,9 +78,7 @@
 
                 <!-- Empty State -->
                 <div v-if="gradables.length === 0" class="text-center py-16">
-                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
+                    <DocumentIcon class="w-16 h-16 mx-auto text-gray-400 mb-4" />
                     <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No assessments found</h3>
                     <p class="text-gray-500 dark:text-gray-400">
                         {{ canCreate ? 'Create your first assessment to get started.' : 'No assessments available for your modules.' }}
@@ -95,6 +91,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { PlusIcon, DocumentIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';

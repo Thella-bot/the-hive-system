@@ -593,7 +593,6 @@ import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
-import { useUser } from '@/composables/useUser';
 import LeaveRequestsChart from './LeaveRequestsChart.vue';
 import ClassAveragesChart from './ClassAveragesChart.vue';
 import UserDistributionChart from './UserDistributionChart.vue';

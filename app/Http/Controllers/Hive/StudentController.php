@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-
 use App\Actions\Hive\CreateNewStudent;
 use App\Actions\Hive\UpdateStudent;
 use App\Models\Programme;
@@ -18,7 +17,8 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = User::role('student')->get();
+        $this->authorize('viewAny', User::class);
+        $students = User::role('student')->paginate(15);
         return Inertia::render('Hive/Students/Index', [
             'students' => $students,
         ]);
@@ -29,6 +29,7 @@ class StudentController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', User::class);
         return Inertia::render('Hive/Students/Create');
     }
 
@@ -37,11 +38,8 @@ class StudentController extends Controller
      */
     public function store(Request $request, CreateNewStudent $creator)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
-            abort(403);
-        }
+        $this->authorize('create', User::class);
         $creator->create($request->all());
-
         return redirect()->route('hive.students.index');
     }
 
@@ -58,10 +56,8 @@ class StudentController extends Controller
      */
     public function edit(User $student)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
-            abort(403);
-        }
-        $student->load('programme'); // Eager load the student's programme
+        $this->authorize('update', $student);
+        $student->load(['programme', 'profile']);
         return Inertia::render('Hive/Students/Edit', [
             'managedStudent' => $student,
             'programmes' => Programme::all(),
@@ -73,11 +69,8 @@ class StudentController extends Controller
      */
     public function update(Request $request, User $student, UpdateStudent $updater)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
-            abort(403);
-        }
+        $this->authorize('update', $student);
         $updater->update($student, $request->all());
-
         return redirect()->route('hive.students.index');
     }
 
@@ -86,11 +79,8 @@ class StudentController extends Controller
      */
     public function destroy(User $student)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
-            abort(403);
-        }
+        $this->authorize('delete', $student);
         $student->delete();
-
         return redirect()->route('hive.students.index');
     }
 }

@@ -1,5 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3'
+import { PlusIcon, BuildingOffice2Icon, UsersIcon } from '@heroicons/vue/24/outline'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import Badge from '@/Components/Badge.vue'
 import Pagination from '@/Components/Pagination.vue'
@@ -17,9 +18,7 @@ const { isAdmin } = useUser();
     <template #header-actions>
       <Link v-if="isAdmin" :href="route('hive.departments.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        <PlusIcon class="w-4 h-4" />
         New Department
       </Link>
     </template>
@@ -28,10 +27,7 @@ const { isAdmin } = useUser();
     <div v-if="departments.data.length === 0"
       class="text-center py-16 bg-white rounded-xl border border-gray-200">
       <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
-        </svg>
+        <BuildingOffice2Icon class="w-8 h-8 text-amber-500" />
       </div>
       <h3 class="text-gray-900 font-semibold mb-1">No departments yet</h3>
       <p class="text-sm text-gray-500 mb-4">Create your first department to get started.</p>
@@ -66,17 +62,11 @@ const { isAdmin } = useUser();
 
           <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
             <span class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-              </svg>
+              <UsersIcon class="w-4 h-4" />
               {{ dept.active_cohort_count }} cohorts
             </span>
             <span class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-              </svg>
+              <UsersIcon class="w-4 h-4" />
               {{ dept.staff_count }} Academic Staff
             </span>
           </div>

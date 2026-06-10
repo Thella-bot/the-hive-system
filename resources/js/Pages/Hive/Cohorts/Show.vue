@@ -75,9 +75,7 @@
             <Badge :color="student.status_color">{{ formatStatus(student.status) }}</Badge>
             <Link :href="route('hive.users.show', { user: student.user_id })"
               class="text-gray-400 hover:text-amber-600 transition-colors ml-2">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
+              <ChevronRightIcon class="w-4 h-4" />
             </Link>
           </div>
         </div>

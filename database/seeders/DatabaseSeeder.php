@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
             ProgrammeSeeder::class,
             ModuleSeeder::class,
             ShortCourseSeeder::class,
-            TestDataSeeder::class,
         ]);
     }
 }

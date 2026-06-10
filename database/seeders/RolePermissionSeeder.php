@@ -181,45 +181,5 @@ class RolePermissionSeeder extends Seeder
             ]
         );
         $admin->assignRole('school-admin');
-
-        $studentUser = User::firstOrCreate(
-            ['email' => 'student@hbci.ac.ls'],
-            [
-                'name' => 'Student User',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $studentUser->assignRole('student');
-
-        $academicStaffUser = User::firstOrCreate(
-            ['email' => 'academic@hbci.ac.ls'],
-            [
-                'name' => 'Academic Staff',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $academicStaffUser->assignRole('academic_staff');
-
-        $nonAcademicStaffUser = User::firstOrCreate(
-            ['email' => 'nonacademic@hbci.ac.ls'],
-            [
-                'name' => 'Non-Academic Staff',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $nonAcademicStaffUser->assignRole('non_academic_staff');
-
-        $departmentHeadUser = User::firstOrCreate(
-            ['email' => 'head@hbci.ac.ls'],
-            [
-                'name' => 'Department Head',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $departmentHeadUser->assignRole('department-head');
     }
 }

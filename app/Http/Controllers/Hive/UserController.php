@@ -167,13 +167,11 @@ class UserController extends Controller
             'emergency_contact_phone' => 'nullable|string|max:20',
             'annual_leave_days' => 'nullable|integer',
             'leave_balance' => 'nullable|integer',
-            'employee_number' => 'nullable|string|unique:profiles,employee_number,' . ($user->profile?->id ?? 0),
             'department_id'   => 'nullable|exists:departments,id',
             'designation'     => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
             'bio' => 'nullable|string',
             'hire_date'       => 'nullable|date',
-            'student_number'             => 'nullable|string|unique:profiles,student_number,' . ($user->profile?->id ?? 0),
             'cohort_id'                  => 'nullable|exists:cohorts,id',
             'enrollment_date'            => 'nullable|date',
             'expected_graduation_date'   => 'nullable|date|after:enrollment_date',
@@ -191,7 +189,10 @@ class UserController extends Controller
 
         $user->syncRoles([$data['role']]);
 
+        // Preserve existing numbers, never allow edits via this endpoint
+        $existingProfile = $user->profile;
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
+        unset($profileData['employee_number'], $profileData['student_number']);
         $user->profile()->updateOrCreate([], $profileData);
 
         return redirect()->route('hive.users.show', $user)

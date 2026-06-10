@@ -211,6 +211,7 @@ import { onMounted, ref } from 'vue';
 import NavItem from '@/Components/NavItem.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import { useNavigation } from '@/composables/useNavigation';
+import { useUser } from '@/composables/useUser';
 import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
@@ -233,6 +234,8 @@ defineProps({
 const page = usePage();
 const searchQuery = ref('');
 const emergencyAlert = ref(null);
+
+const { currentUser, displayRole } = useUser();
 
 const {
   sidebarOpen,

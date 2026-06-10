@@ -65,17 +65,18 @@ class AdminDashboardData implements DashboardData
         ];
     }
 
-    private function getNewStudentsByMonth()
+    private function getNewStudentsByMonth(): array
     {
-        $students = User::role('student')
+        $results = User::role('student')
             ->whereYear('created_at', now()->year)
-            ->get()
-            ->groupBy(fn($u) => (int) $u->created_at->format('n'))
-            ->map(fn($group) => $group->count());
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
 
         $months = [];
         for ($i = 1; $i <= 12; $i++) {
-            $months[Carbon::create(null, $i)->format('F')] = $students[$i] ?? 0;
+            $months[Carbon::create(null, $i)->format('F')] = $results[$i] ?? 0;
         }
 
         return $months;

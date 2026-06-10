@@ -30,54 +30,54 @@
       </div>
 
       <!-- Staff Profile -->
-      <div v-if="managedUser.staff_profile" class="bg-white rounded-xl border border-gray-200">
+      <div v-if="managedUser.profile?.employee_number" class="bg-white rounded-xl border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="font-semibold text-gray-900">Staff Details</h3>
         </div>
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <InfoRow label="Employee Number" :value="managedUser.staff_profile.employee_number" />
-          <InfoRow label="Department" :value="managedUser.staff_profile.department?.name ?? '—'" />
-          <InfoRow label="Designation" :value="managedUser.staff_profile.designation ?? '—'" />
-          <InfoRow label="Specialization" :value="managedUser.staff_profile.specialization ?? '—'" />
-          <InfoRow label="Phone" :value="managedUser.staff_profile.phone ?? '—'" />
-          <InfoRow label="Hire Date" :value="formatDate(managedUser.staff_profile.hire_date)" />
+          <InfoRow label="Employee Number" :value="managedUser.profile.employee_number" />
+          <InfoRow label="Department" :value="managedUser.profile.department?.name ?? '—'" />
+          <InfoRow label="Designation" :value="managedUser.profile.designation ?? '—'" />
+          <InfoRow label="Specialization" :value="managedUser.profile.specialization ?? '—'" />
+          <InfoRow label="Phone" :value="managedUser.profile.phone ?? '—'" />
+          <InfoRow label="Hire Date" :value="formatDate(managedUser.profile.hire_date)" />
         </div>
       </div>
 
       <!-- Student Profile -->
-      <div v-if="managedUser.student_profile" class="bg-white rounded-xl border border-gray-200">
+      <div v-if="managedUser.profile?.student_number" class="bg-white rounded-xl border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <h3 class="font-semibold text-gray-900">Student Details</h3>
-          <Badge :color="managedUser.student_profile.status_color">
-            {{ formatStatus(managedUser.student_profile.status) }}
+          <Badge :color="managedUser.profile.status_color">
+            {{ formatStatus(managedUser.profile.status) }}
           </Badge>
         </div>
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <InfoRow label="Student Number" :value="managedUser.student_profile.student_number" />
-          <InfoRow label="Cohort" :value="managedUser.student_profile.cohort?.name ?? '—'" />
-          <InfoRow label="Department" :value="managedUser.student_profile.cohort?.department?.name ?? '—'" />
-          <InfoRow label="Enrolment Date" :value="formatDate(managedUser.student_profile.enrollment_date)" />
-          <InfoRow label="Expected Graduation" :value="formatDate(managedUser.student_profile.expected_graduation_date)" />
-          <InfoRow label="Graduation Date" :value="formatDate(managedUser.student_profile.graduation_date)" />
+          <InfoRow label="Student Number" :value="managedUser.profile.student_number" />
+          <InfoRow label="Cohort" :value="managedUser.profile.cohort?.name ?? '—'" />
+          <InfoRow label="Department" :value="managedUser.profile.cohort?.department?.name ?? '—'" />
+          <InfoRow label="Enrolment Date" :value="formatDate(managedUser.profile.enrollment_date)" />
+          <InfoRow label="Expected Graduation" :value="formatDate(managedUser.profile.expected_graduation_date)" />
+          <InfoRow label="Graduation Date" :value="formatDate(managedUser.profile.graduation_date)" />
         </div>
 
         <!-- Dietary restrictions -->
-        <div v-if="managedUser.student_profile.dietary_restrictions?.length"
+        <div v-if="managedUser.profile.dietary_restrictions?.length"
           class="px-6 pb-5">
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Dietary Restrictions</p>
           <div class="flex flex-wrap gap-1.5">
-            <Badge v-for="r in managedUser.student_profile.dietary_restrictions" :key="r" color="orange">{{ r }}</Badge>
+            <Badge v-for="r in managedUser.profile.dietary_restrictions" :key="r" color="orange">{{ r }}</Badge>
           </div>
         </div>
 
         <!-- Emergency contact -->
-        <div v-if="managedUser.student_profile.emergency_contact_name"
+        <div v-if="managedUser.profile.emergency_contact_name"
           class="px-6 pb-6 pt-2 border-t border-gray-100 mt-2">
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Emergency Contact</p>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <InfoRow label="Name" :value="managedUser.student_profile.emergency_contact_name ?? '—'" />
-            <InfoRow label="Phone" :value="managedUser.student_profile.emergency_contact_phone ?? '—'" />
-            <InfoRow label="Relationship" :value="managedUser.student_profile.emergency_contact_relationship ?? '—'" />
+            <InfoRow label="Name" :value="managedUser.profile.emergency_contact_name ?? '—'" />
+            <InfoRow label="Phone" :value="managedUser.profile.emergency_contact_phone ?? '—'" />
+            <InfoRow label="Relationship" :value="managedUser.profile.emergency_contact_relationship ?? '—'" />
           </div>
         </div>
       </div>

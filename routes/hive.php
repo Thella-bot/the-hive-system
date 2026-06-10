@@ -43,7 +43,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
+Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
     ->name('hive.')
     ->prefix('hive')
     ->group(function () {

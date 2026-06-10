@@ -97,7 +97,6 @@
         <div v-else-if="registration?.status === 'submitted'" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <ClockIcon class="w-8 h-8 text-amber-600" />
-            </svg>
           </div>
           <h2 class="text-xl font-bold text-gray-900 mb-2">Registration Under Review</h2>
           <p class="text-gray-500 mb-4">Your registration documents and payment proof have been submitted. Our team is verifying your information.</p>

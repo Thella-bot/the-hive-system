@@ -1,5 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { DocumentIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
 
@@ -58,9 +59,7 @@ const typeColors = {
             >
                 <div class="flex items-start justify-between mb-3">
                     <div class="p-3 rounded-lg" :class="typeColors[type] || typeColors.quiz">
-                        <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="typeIcons[type] || typeIcons.quiz" />
-                        </svg>
+                        <DocumentIcon class="w-8 h-8 text-amber-600 dark:text-amber-400" />
                     </div>
                     <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                         {{ mod.code }}
@@ -72,9 +71,7 @@ const typeColors = {
                 </p>
                 <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
+                        <DocumentIcon class="w-4 h-4 mr-1" />
                         {{ mod.credits || 0 }} Credits
                     </span>
                     <span class="text-amber-600 dark:text-amber-400 font-medium">View {{ typeLabel }} →</span>
@@ -84,9 +81,7 @@ const typeColors = {
 
         <!-- Empty State -->
         <div v-if="modules.length === 0" class="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
+            <DocumentIcon class="w-16 h-16 mx-auto text-gray-400 mb-4" />
             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No modules found</h3>
             <p class="text-gray-500 dark:text-gray-400">
                 {{ isStudent ? 'You are not enrolled in any modules with this assessment type.' : 'No modules available to display.' }}

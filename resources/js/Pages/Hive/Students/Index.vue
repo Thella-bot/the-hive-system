@@ -1,11 +1,19 @@
 <script setup>
+import { computed } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import Pagination from '@/Components/Pagination.vue';
 import { useUser } from '@/composables/useUser';
 
 const props = defineProps({
-    students: Array,
+    students: { type: Object, required: true },
 });
+
+const studentMeta = computed(() => ({
+    from: props.students.from,
+    to: props.students.to,
+    total: props.students.total,
+}));
 
 const { isAdmin } = useUser();
 
@@ -34,7 +42,7 @@ const deleteStudent = (id) => {
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
-                            <tr v-for="student in students" :key="student.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
+                            <tr v-for="student in students.data" :key="student.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ student.name }}</div>
                                 </td>
@@ -50,6 +58,7 @@ const deleteStudent = (id) => {
                     </table>
                 </div>
             </div>
+            <Pagination v-if="students.data.length > 0" :links="students.links" :meta="studentMeta" />
         </div>
     </HiveLayout>
 </template>

@@ -14,7 +14,7 @@ const props = defineProps({
 const form = useForm({
     name: props.managedStudent.name,
     email: props.managedStudent.email,
-    programme_id: props.managedStudent.programmes.length > 0 ? props.managedStudent.programmes[0].id : null,
+    programme_id: props.managedStudent.programme?.id ?? null,
 });
 
 const submit = () => {
@@ -34,6 +34,11 @@ const submit = () => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                     <div class="p-6">
+                        <div v-if="managedStudent.profile?.student_number" class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-500">Student Number</p>
+                            <p class="text-lg font-medium text-gray-900">{{ managedStudent.profile.student_number }}</p>
+                        </div>
+
                         <form @submit.prevent="submit">
                             <div>
                                 <InputLabel for="name" value="Name" />

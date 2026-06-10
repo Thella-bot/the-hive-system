@@ -99,7 +99,10 @@ return Application::configure(basePath: dirname(__DIR__))
                     ], $status);
                 }
 
-                return redirect()->back()->with('error', [
+                $backUrl = url()->previous();
+                $redirect = $backUrl ? redirect($backUrl) : redirect('/');
+
+                return $redirect->with('error', [
                     'title' => $title,
                     'message' => $message,
                     'error_id' => $errorId,
