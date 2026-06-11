@@ -1,8 +1,12 @@
 <template>
   <HiveLayout :title="`Edit: ${managedUser.name}`" description="Update user account and profile">
     <template #header-actions>
-      <Link :href="route('hive.users.show', { user: managedUser.id })" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
-        ← Back to Profile
+      <Link :href="route('hive.users.show', { user: managedUser.id })"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+        title="Back to Profile">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
       </Link>
     </template>
 
@@ -25,18 +29,22 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                <input v-model="form.email" type="email"
-                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
-                  :class="{ 'border-red-400': form.errors.email }" />
-                <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
+                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                  {{ form.email }}
+                </div>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-                <select v-model="form.role"
-                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
-                  <option v-for="role in roles" :key="role.id" :value="role.name">{{ formatRole(role.name) }}</option>
-                </select>
+                <div v-if="isAdmin" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm bg-white">
+                  <select v-model="form.role"
+                    class="w-full border-0 p-0 text-sm focus:ring-0 bg-transparent">
+                    <option v-for="role in roles" :key="role.id" :value="role.name">{{ formatRole(role.name) }}</option>
+                  </select>
+                </div>
+                <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                  {{ formatRole(form.role) }}
+                </div>
               </div>
 
               <div>
@@ -66,13 +74,19 @@
                     {{ form.employee_number ?? '— Not assigned —' }}
                 </div>
               </div>
-              <div>
+              <div v-if="isAdmin">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
                 <select v-model="form.department_id"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
                   <option :value="null">— None —</option>
                   <option v-for="d in departments" :key="d.id" :value="d.id">{{ d.name }}</option>
                 </select>
+              </div>
+              <div v-if="!isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Department</label>
+                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                  {{ form.department_id ? departments.find(d => d.id === form.department_id)?.name : '—' }}
+                </div>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Designation</label>
@@ -100,7 +114,7 @@
                     {{ form.student_number ?? '— Not assigned —' }}
                 </div>
               </div>
-              <div>
+              <div v-if="isAdmin">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Cohort</label>
                 <select v-model="form.cohort_id"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
@@ -108,7 +122,13 @@
                   <option v-for="c in cohorts" :key="c.id" :value="c.id">{{ c.name }}</option>
                 </select>
               </div>
-              <div>
+              <div v-if="!isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Cohort</label>
+                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                  {{ form.cohort_id ? cohorts.find(c => c.id === form.cohort_id)?.name : '—' }}
+                </div>
+              </div>
+              <div v-if="isAdmin">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
                 <select v-model="form.status"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
@@ -119,10 +139,22 @@
                   <option value="withdrawn">Withdrawn</option>
                 </select>
               </div>
-              <div>
+              <div v-if="!isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                  {{ formatStatus(form.status) }}
+                </div>
+              </div>
+              <div v-if="isAdmin">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Expected Graduation</label>
                 <input v-model="form.expected_graduation_date" type="date"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div v-if="!isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Expected Graduation</label>
+                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                  {{ formatDate(form.expected_graduation_date) }}
+                </div>
               </div>
             </div>
           </div>
@@ -178,6 +210,7 @@ const props = defineProps({
   roles:       { type: Array, default: () => [] },
   departments: { type: Array, default: () => [] },
   cohorts:     { type: Array, default: () => [] },
+  isAdmin:     { type: Boolean, default: false },
 })
 
 const { can } = usePermissions()
@@ -209,6 +242,12 @@ const isStaffRole = computed(() => staffRoles.includes(form.role))
 const isStudentRole = computed(() => form.role === 'student')
 
 const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+const formatStatus = (s) => s?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '—'
+const formatDate = (d) => {
+  if (!d) return '—'
+  const date = new Date(d)
+  return isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+}
 
 const submit = () => form.put(route('hive.users.update', { user: props.managedUser.id }))
 </script>

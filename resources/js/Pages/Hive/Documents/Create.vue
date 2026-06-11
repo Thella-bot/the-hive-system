@@ -30,6 +30,17 @@
         </select>
       </div>
       <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Audience</label>
+        <select v-model="form.audience" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500" required>
+          <option value="module_students">Module Students (enrolled in the module)</option>
+          <option value="student_only">All Students</option>
+          <option value="staff_only">Staff Only</option>
+          <option value="all_users">All Users (authenticated)</option>
+          <option value="everyone">Everyone (Public)</option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">Who should be able to view this document</p>
+      </div>
+      <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Visible to Roles (leave empty for all)</label>
         <div class="flex flex-wrap gap-4">
           <label v-for="role in ['student','academic_staff','non_academic_staff','school-admin', 'super-admin']" :key="role" class="inline-flex items-center">
@@ -69,6 +80,7 @@ const form = useForm({
   description: '',
   module_id: '',
   category: '',
+  audience: 'module_students',
   visible_to_roles: [],
   file: null,
 });

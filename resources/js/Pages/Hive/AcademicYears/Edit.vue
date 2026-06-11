@@ -1,8 +1,12 @@
 <template>
   <HiveLayout :title="`Edit: ${year.name}`" description="Update academic year details">
     <template #header-actions>
-      <Link :href="route('hive.academic-years.index')" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
-        ← Academic Years
+      <Link :href="route('hive.academic-years.index')"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+        title="Academic Years">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
       </Link>
     </template>
 

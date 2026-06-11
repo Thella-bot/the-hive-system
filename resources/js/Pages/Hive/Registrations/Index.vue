@@ -124,6 +124,77 @@
 
             <!-- Upload form -->
             <form @submit.prevent="submit" class="space-y-6">
+              <!-- Personal Information -->
+              <div class="border-b border-gray-100 pb-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-4">Personal Information</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth *</label>
+                    <input v-model="form.date_of_birth" type="date"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      :class="form.errors.date_of_birth ? 'border-red-400' : ''" />
+                    <div v-if="form.errors.date_of_birth" class="text-red-600 text-xs mt-1">{{ form.errors.date_of_birth }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Emergency Contact -->
+              <div class="border-b border-gray-100 pb-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-4">Emergency Contact *</h3>
+                <p class="text-xs text-gray-500 mb-4">Please provide someone we can contact in case of emergency.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Contact Name *</label>
+                    <input v-model="form.emergency_contact_name" type="text"
+                      placeholder="Full name"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      :class="form.errors.emergency_contact_name ? 'border-red-400' : ''" />
+                    <div v-if="form.errors.emergency_contact_name" class="text-red-600 text-xs mt-1">{{ form.errors.emergency_contact_name }}</div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
+                    <input v-model="form.emergency_contact_phone" type="tel"
+                      placeholder="+266..."
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      :class="form.errors.emergency_contact_phone ? 'border-red-400' : ''" />
+                    <div v-if="form.errors.emergency_contact_phone" class="text-red-600 text-xs mt-1">{{ form.errors.emergency_contact_phone }}</div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Relationship *</label>
+                    <select v-model="form.emergency_contact_relationship"
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      :class="form.errors.emergency_contact_relationship ? 'border-red-400' : ''">
+                      <option value="">Select relationship</option>
+                      <option value="Parent">Parent</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Sibling">Sibling</option>
+                      <option value="Friend">Friend</option>
+                      <option value="Guardian">Guardian</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <div v-if="form.errors.emergency_contact_relationship" class="text-red-600 text-xs mt-1">{{ form.errors.emergency_contact_relationship }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dietary Restrictions -->
+              <div class="border-b border-gray-100 pb-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-4">Dietary Requirements</h3>
+                <p class="text-xs text-gray-500 mb-4">Select any dietary restrictions (optional)</p>
+                <div class="flex flex-wrap gap-2">
+                  <label v-for="diet in dietaryOptions" :key="diet"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition"
+                    :class="form.dietary_restrictions.includes(diet)
+                      ? 'border-amber-400 bg-amber-50'
+                      : 'border-gray-200 hover:border-gray-300'">
+                    <input type="checkbox" :value="diet" v-model="form.dietary_restrictions"
+                      class="w-4 h-4 text-amber-600 rounded" />
+                    <span class="text-sm text-gray-700">{{ diet }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Payment Proof -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Proof of Payment *</label>
                 <input type="file" ref="fileInput" accept=".pdf,.jpg,.jpeg,.png"
@@ -167,8 +238,18 @@ const props = defineProps({
 });
 
 const form = useForm({
+  date_of_birth: '',
+  emergency_contact_name: '',
+  emergency_contact_phone: '',
+  emergency_contact_relationship: '',
+  dietary_restrictions: [],
   payment_proof: null,
 });
+
+const dietaryOptions = [
+  'Vegetarian', 'Vegan', 'Gluten-Free', 'Halal', 'Kosher',
+  'Nut Allergy', 'Dairy-Free', 'Egg-Free', 'Shellfish Allergy',
+];
 
 // Non-academic staff can manage registrations, but not academic_staff
 const { isAdmin, isNonAcademicStaff } = useUser();

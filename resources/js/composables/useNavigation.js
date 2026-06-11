@@ -145,12 +145,7 @@ export function useNavigation() {
         { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*', roles: ['student', 'academic_staff', 'super-admin', 'school-admin'] },
         { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*', roles: ['student', 'academic_staff', 'super-admin', 'school-admin'] },
         ...(isStaff.value || isAdmin.value ? [
-          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.index', roles: ['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin'] },
-          { name: 'Browse by Module', href: route('hive.documents.module-select'), active: 'hive.documents.module-select', roles: ['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin'] },
-          { name: 'Books', href: route('hive.documents.index', { category: 'Book' }), active: 'hive.documents.*', roles: ['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin'] },
-          { name: 'Notes', href: route('hive.documents.index', { category: 'Notes' }), active: 'hive.documents.*', roles: ['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin'] },
-          { name: 'Schedules', href: route('hive.documents.index', { category: 'Schedule' }), active: 'hive.documents.*', roles: ['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin'] },
-          { name: 'Recipes', href: route('hive.documents.index', { category: 'Recipes' }), active: 'hive.documents.*', roles: ['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin'] },
+          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*', roles: ['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin'] },
         ] : []),
         ...(!isStaff.value && !isAdmin.value ? [
           { name: 'Documents', href: route('hive.documents.module-select'), active: 'hive.documents.*', roles: ['student'] },
@@ -292,7 +287,6 @@ export function useNavigation() {
       ...studentNav(),
       ...resourcesNav(),
       ...admissionsNav(),
-      ...teachingNav(),
       ...administrationNav(),
       ...peopleNav(),
       ...operationsNav(),

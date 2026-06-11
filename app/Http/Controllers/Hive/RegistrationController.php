@@ -89,10 +89,29 @@ class RegistrationController extends Controller
 
         $data = $request->validate([
             'payment_proof' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // max 5MB
+            // Required profile info
+            'date_of_birth' => 'required|date',
+            'emergency_contact_name' => 'required|string|max:255',
+            'emergency_contact_phone' => 'required|string|max:20',
+            'emergency_contact_relationship' => 'required|string|max:100',
+            'dietary_restrictions' => 'nullable|array',
         ]);
 
         // Store payment proof
         $path = $request->file('payment_proof')->store('payment-proofs', 'public');
+
+        // Update user profile with required info
+        $user = $request->user();
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'date_of_birth' => $data['date_of_birth'],
+                'emergency_contact_name' => $data['emergency_contact_name'],
+                'emergency_contact_phone' => $data['emergency_contact_phone'],
+                'emergency_contact_relationship' => $data['emergency_contact_relationship'],
+                'dietary_restrictions' => $data['dietary_restrictions'] ?? [],
+            ]
+        );
 
         $application->forceFill([
             'payment_proof_path' => $path,

@@ -130,22 +130,60 @@ class UserController extends Controller
 
     public function show(User $user): Response
     {
-        $user->load(['roles', 'profile.department', 'profile.cohort.department']);
+        $user->load([
+            'roles',
+            'profile.department',
+            'profile.cohort.department',
+            'profile',
+        ]);
+
+        // Load applications (for applicants/students) - check if relationship exists
+        $applications = method_exists($user, 'applications')
+            ? $user->applications()->with(['programme', 'variant'])->latest()->limit(10)->get()
+            : collect();
+
+        // Load enrollments (for students) - check if relationship exists
+        $enrollments = method_exists($user, 'enrollments')
+            ? $user->enrollments()->with(['cohort', 'module'])->latest()->limit(10)->get()
+            : collect();
+
+        // Load certifications if relationship exists
+        $certifications = method_exists($user, 'certifications')
+            ? $user->certifications()->with(['module', 'awardedBy'])->latest()->limit(10)->get()
+            : collect();
+
+        // Count documents if relationship exists
+        $documentCount = method_exists($user, 'documents')
+            ? $user->documents()->count()
+            : 0;
+
+        // Get user's programme (for students)
+        $programme = null;
+        if ($user->profile && $user->profile->cohort_id) {
+            $programme = \App\Models\Programme::whereHas('cohorts', fn($q) => $q->where('cohorts.id', $user->profile->cohort_id))->first();
+        }
 
         return Inertia::render('Hive/Users/Show', [
             'managedUser' => $user,
+            'applications' => $applications,
+            'enrollments' => $enrollments,
+            'certifications' => $certifications,
+            'documentCount' => $documentCount,
+            'programme' => $programme,
         ]);
     }
 
     public function edit(User $user): Response
     {
         $user->load(['roles', 'profile']);
+        $isAdmin = auth()->user()?->hasAnyRole(['super-admin', 'school-admin']);
 
         return Inertia::render('Hive/Users/Edit', [
             'managedUser'        => $user,
             'roles'       => Role::orderBy('name')->get(['id', 'name']),
             'departments' => Department::active()->select('id', 'name')->get(),
             'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
+            'isAdmin' => $isAdmin,
         ]);
     }
 
@@ -153,7 +191,7 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $user->id,
+            // Email is read-only - removed from validation to prevent changes
             'password' => 'nullable|string|min:8|confirmed',
             'role'     => 'required|exists:roles,name',
 
@@ -183,7 +221,7 @@ class UserController extends Controller
 
         $user->update(array_filter([
             'name'     => $data['name'],
-            'email'    => $data['email'],
+            // Email is read-only - never allow changes
             'password' => isset($data['password']) ? Hash::make($data['password']) : null,
         ]));
 

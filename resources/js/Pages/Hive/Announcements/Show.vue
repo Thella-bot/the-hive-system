@@ -2,8 +2,12 @@
   <HiveLayout title="Announcement" description="View announcement details.">
     <div class="max-w-3xl mx-auto">
       <div class="mb-4">
-        <Link :href="route('hive.announcements.index')" class="text-amber-600 hover:text-amber-700 text-sm">
-          ← Back to Announcements
+        <Link :href="route('hive.announcements.index')"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+          title="Announcements">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
         </Link>
       </div>
 

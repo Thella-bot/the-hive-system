@@ -1,5 +1,5 @@
 <template>
-  <HiveLayout title="Dashboard" description="Welcome back! Here's what's happening today.">
+  <HiveLayout title="Dashboard" :description="welcomeMessage">
     <!-- Admin Dashboard -->
     <div v-if="isAdmin">
       <!-- Stats Row 1 -->
@@ -79,7 +79,7 @@
           </div>
         </Link>
 
-        <Link :href="route('hive.documents.module-select')" class="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-xl block hover:shadow-lg transition-shadow dark:from-amber-900/20 dark:to-amber-800/20">
+        <Link :href="route('hive.documents.index')" class="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-xl block hover:shadow-lg transition-shadow dark:from-amber-900/20 dark:to-amber-800/20">
           <div class="flex items-center">
             <div class="p-3 bg-amber-600 rounded-lg">
               <DocumentIcon class="h-6 w-6 text-white"/>
@@ -582,9 +582,6 @@
       <!-- Recent Activity -->
       <RecentActivity :activities="recentActivities || []" />
     </div>
-
-    <!-- Quick Actions FAB -->
-    <QuickActions :actions="quickActions" />
   </HiveLayout>
 </template>
 
@@ -595,14 +592,12 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
 import LeaveRequestsChart from './LeaveRequestsChart.vue';
 import ClassAveragesChart from './ClassAveragesChart.vue';
-import UserDistributionChart from './UserDistributionChart.vue';
 import ProgressTracker from '@/Components/ProgressTracker.vue';
 import GradeAnalytics from '@/Components/GradeAnalytics.vue';
 import AcademicCalendar from '@/Components/AcademicCalendar.vue';
 import TodoWidget from '@/Components/TodoWidget.vue';
 import RecentActivity from '@/Components/RecentActivity.vue';
 import Bookmarks from '@/Components/Bookmarks.vue';
-import QuickActions from '@/Components/QuickActions.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {
@@ -719,9 +714,16 @@ const {
   isAdmin,
   isSuperAdmin,
   isAcademicStaff,
+  isInstructor,
   isNonAcademicStaff,
   isStudent,
 } = useUser();
+
+const welcomeMessage = computed(() => {
+  return currentUser.value?.name
+    ? `Welcome back, ${currentUser.value.name}! Here's what's happening today.`
+    : "Here's what's happening today.";
+});
 
 const formatType = (type) => {
     const labels = {
@@ -744,39 +746,6 @@ const getApplicationStatusClass = (status) => {
     };
     return classes[status] || 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
 };
-
-const quickActions = computed(() => {
-    if (isAdmin.value || isSuperAdmin.value) {
-        return [
-            { label: 'Add User', href: route('hive.users.create'), icon: 'UserPlusIcon' },
-            { label: 'Post Announcement', href: route('hive.announcements.create'), icon: 'MegaphoneIcon' },
-            { label: 'Upload Document', href: route('hive.documents.create'), icon: 'DocumentIcon' },
-            { label: 'Create Assessment', href: route('hive.gradables.create'), icon: 'ClipboardDocumentCheckIcon' },
-            { label: 'Create Event', href: route('hive.events.create'), icon: 'CalendarDaysIcon' },
-        ];
-    }
-    if (isAcademicStaff.value) {
-        return [
-            { label: 'Create Assessment', href: route('hive.gradables.create'), icon: 'ClipboardDocumentCheckIcon' },
-            { label: 'Upload Material', href: route('hive.documents.create'), icon: 'DocumentIcon' },
-            { label: 'Module Chat', href: route('hive.chat.index'), icon: 'ChatBubbleLeftIcon' },
-            { label: 'Gradebook', href: route('hive.grades.index'), icon: 'ChartBarIcon' },
-        ];
-    }
-    if (isNonAcademicStaff.value) {
-        return [
-            { label: 'Post Announcement', href: route('hive.announcements.create'), icon: 'MegaphoneIcon' },
-            { label: 'Create Event', href: route('hive.events.create'), icon: 'CalendarDaysIcon' },
-            { label: 'Upload Document', href: route('hive.documents.create'), icon: 'DocumentIcon' },
-            { label: 'Request Leave', href: route('hive.leaves.create'), icon: 'CalendarDaysIcon' },
-        ];
-    }
-    return [
-        { label: 'My Modules', href: route('hive.modules.index'), icon: 'BookOpenIcon' },
-        { label: 'My Grades', href: route('hive.grades.index'), icon: 'ChartBarIcon' },
-        { label: 'Chat', href: route('hive.chat.index'), icon: 'ChatBubbleLeftIcon' },
-    ];
-});
 
 const getTypeClass = (type) => {
     const classes = {

@@ -11,6 +11,8 @@ export function useUser() {
   const isNonAcademicStaff = computed(() => userRoles.value.includes('non_academic_staff'));
   const isStaff = computed(() => isAcademicStaff.value || isNonAcademicStaff.value);
   const isAdmin = computed(() => userRoles.value.some((role) => ['super-admin', 'school-admin'].includes(role)));
+  const isSuperAdmin = computed(() => userRoles.value.includes('super-admin'));
+  const isInstructor = computed(() => isAcademicStaff.value);
   const needsRegistration = computed(() => currentUser.value?.needs_registration ?? false);
   const isRegisteredStudent = computed(() => isStudent.value && !needsRegistration.value);
 
@@ -34,6 +36,8 @@ export function useUser() {
     isNonAcademicStaff,
     isStaff,
     isAdmin,
+    isSuperAdmin,
+    isInstructor,
     needsRegistration,
     isRegisteredStudent,
     displayRole,

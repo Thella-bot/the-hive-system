@@ -5,8 +5,23 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Document extends Model
 {
+    // Audience types: module_students, student_only, staff_only, all_users, everyone
+    const AUDIENCE_MODULE_STUDENTS = 'module_students';
+    const AUDIENCE_STUDENT_ONLY = 'student_only';
+    const AUDIENCE_STAFF_ONLY = 'staff_only';
+    const AUDIENCE_ALL_USERS = 'all_users';
+    const AUDIENCE_EVERYONE = 'everyone';
+
+    public static $audienceLabels = [
+        'module_students' => 'Module Students',
+        'student_only' => 'All Students',
+        'staff_only' => 'Staff Only',
+        'all_users' => 'All Users',
+        'everyone' => 'Everyone (Public)',
+    ];
+
     protected $fillable = [
-        'title', 'description', 'category', 'visible_to_roles', 'is_published', 'created_by', 'module_id'
+        'title', 'description', 'category', 'audience', 'is_published', 'created_by', 'module_id'
     ];
 
     protected $casts = [

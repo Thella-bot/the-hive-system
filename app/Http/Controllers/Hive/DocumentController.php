@@ -41,20 +41,34 @@ class DocumentController extends Controller
     {
         $user = $request->user();
         $roleNames = $user->roles->pluck('name')->toArray();
+        $isStudent = $user->hasRole('student');
+        $isStaff = $user->hasAnyRole(['academic_staff', 'non_academic_staff', 'department-head', 'chef-instructor', 'school-admin', 'super-admin']);
+        $isAdmin = $user->hasAnyRole(['school-admin', 'super-admin']);
 
         // Enforce DocumentPolicy visibility rules at the query level (avoid loading + filtering in PHP).
         $documentsQuery = Document::query()
             ->with('latestVersion', 'creator', 'module')
             ->where('is_published', true)
-            ->where(function ($q) use ($roleNames) {
-                // public to all Hive users
-                $q->whereNull('visible_to_roles')
-                  // role restricted
-                  ->orWhere(function ($q) use ($roleNames) {
-                      foreach ($roleNames as $roleName) {
-                          $q->orWhereJsonContains('visible_to_roles', $roleName);
-                      }
-                  });
+            ->where(function ($q) use ($roleNames, $user, $isStudent, $isStaff) {
+                // Check audience visibility
+                $q->where(function ($q) use ($user, $isStudent, $isStaff, $roleNames) {
+                    // Everyone (public)
+                    $q->where('audience', 'everyone');
+
+                    // All authenticated users
+                    $q->orWhere('audience', 'all_users');
+
+                    // Staff only
+                    if ($isStaff) {
+                        $q->orWhere('audience', 'staff_only');
+                    }
+
+                    // Students only or module students
+                    if ($isStudent || $isStaff) {
+                        $q->orWhere('audience', 'student_only');
+                        $q->orWhere('audience', 'module_students');
+                    }
+                });
             });
 
         // Filter by module if provided
@@ -75,6 +89,9 @@ class DocumentController extends Controller
             $doc->is_acknowledged = $doc->isAcknowledgedBy(auth()->user());
         });
 
+        // Get modules for filtering (staff/admin only)
+        $modules = $isAdmin ? Module::with('programme')->get() : ($isStaff ? $user->instructedModules()->with('programme')->get() : collect());
+
         return Inertia::render('Hive/Documents/Index', [
             'documents' => $documents->values(),
             'categories' => Document::query()
@@ -89,6 +106,7 @@ class DocumentController extends Controller
                 })
                 ->distinct()
                 ->pluck('category'),
+            'modules' => $modules,
         ]);
     }
 
@@ -115,6 +133,7 @@ class DocumentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|string',
+            'audience' => 'required|string|in:module_students,student_only,staff_only,all_users,everyone',
             'module_id' => 'required|exists:modules,id',
             'visible_to_roles' => 'nullable|array',
             'file' => 'required|file|max:20480', // 20 MB max
@@ -124,6 +143,7 @@ class DocumentController extends Controller
             'title' => $attrs['title'],
             'description' => $attrs['description'] ?? '',
             'category' => $attrs['category'],
+            'audience' => $attrs['audience'],
             'module_id' => $attrs['module_id'],
             'visible_to_roles' => $attrs['visible_to_roles'] ?? null,
             'is_published' => true,
@@ -179,6 +199,7 @@ class DocumentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|string',
+            'audience' => 'required|string|in:module_students,student_only,staff_only,all_users,everyone',
             'module_id' => 'nullable|exists:modules,id',
             'visible_to_roles' => 'nullable|array',
             'is_published' => 'nullable|boolean',

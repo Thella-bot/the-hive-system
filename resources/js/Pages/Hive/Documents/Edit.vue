@@ -39,6 +39,19 @@
           </div>
 
           <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Audience *</label>
+            <select v-model="form.audience" required
+              class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-gray-700 dark:text-white">
+              <option value="module_students">Module Students (enrolled in the module)</option>
+              <option value="student_only">All Students</option>
+              <option value="staff_only">Staff Only</option>
+              <option value="all_users">All Users (authenticated)</option>
+              <option value="everyone">Everyone (Public)</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Who should be able to view this document</p>
+          </div>
+
+          <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Visible to Roles</label>
             <div class="flex flex-wrap gap-4">
               <label v-for="role in ['student','academic_staff','non_academic_staff','school-admin', 'super-admin']" :key="role" class="inline-flex items-center">
@@ -84,6 +97,7 @@ const form = useForm({
   description: props.document.description || '',
   module_id: props.document.module_id,
   category: props.document.category,
+  audience: props.document.audience || 'module_students',
   visible_to_roles: props.document.visible_to_roles || [],
   error: '',
 });

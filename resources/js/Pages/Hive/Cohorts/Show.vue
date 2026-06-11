@@ -2,8 +2,12 @@
   <HiveLayout :title="cohort.name" :description="`${cohort.department?.name} · ${cohort.academic_year?.name}`">
     <template #header-actions>
       <div class="flex items-center gap-3">
-        <Link :href="route('hive.cohorts.index')" class="text-sm text-gray-500 hover:text-gray-700 font-medium">
-          ← Cohorts
+        <Link :href="route('hive.cohorts.index')"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+          title="Cohorts">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
         </Link>
         <Link v-if="can('edit-cohorts')" :href="route('hive.cohorts.edit', { cohort: cohort.id })"
           class="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors">

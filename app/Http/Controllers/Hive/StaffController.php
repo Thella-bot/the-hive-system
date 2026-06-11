@@ -61,10 +61,13 @@ class StaffController extends Controller
     {
         $this->authorize('update', $staff);
         $roles = Role::whereIn('name', ['academic_staff', 'non_academic_staff'])->get();
-        $staff->load('roles');
+        $staff->load(['roles', 'profile', 'department']);
+        $isAdmin = auth()->user()?->hasAnyRole(['super-admin', 'school-admin']);
         return Inertia::render('Hive/Staff/Edit', [
             'managedStaff' => $staff,
             'roles' => $roles,
+            'departments' => \App\Models\Department::orderBy('name')->get(),
+            'isAdmin' => $isAdmin,
         ]);
     }
 

@@ -66,8 +66,11 @@ const review = (app, status) => {
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Short Course Applications</h1>
       <Link :href="route('hive.short-courses.index')"
-        class="text-sm text-amber-600 hover:text-amber-700 font-medium">
-        ← Manage Short Courses
+        class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+        title="Short Courses">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
       </Link>
     </div>
 

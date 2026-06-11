@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('category');
+            $table->string('audience')->default('module_students'); // module_students, student_only, staff_only, all_users, everyone
             $table->json('visible_to_roles')->nullable();
             $table->boolean('is_published')->default(false);
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();

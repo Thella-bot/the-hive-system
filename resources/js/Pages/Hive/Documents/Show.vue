@@ -16,7 +16,7 @@
               </span>
             </div>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              Module: {{ document.module?.name || 'General' }} | Created by {{ document.creator?.name || 'Unknown' }}
+              Module: {{ document.module?.name || 'General' }} | Created by {{ document.creator?.name || 'Unknown' }} | Audience: {{ formatAudience(document.audience) }}
             </p>
           </div>
           <div class="flex gap-2">
@@ -127,6 +127,13 @@ const canSeeAcknowledgements = computed(() => {
 const newVersionForm = reactive({ file: null, processing: false, error: '' });
 
 const formatDate = (date) => dayjs(date).format('MMM D, YYYY');
+const formatAudience = (audience) => ({
+  module_students: 'Module Students',
+  student_only: 'All Students',
+  staff_only: 'Staff Only',
+  all_users: 'All Users',
+  everyone: 'Everyone (Public)',
+}[audience] || audience);
 
 const acknowledge = () => {
   router.post(route('hive.documents.acknowledge', { document: props.document.id }));
