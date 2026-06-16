@@ -11,7 +11,7 @@ class StaffPolicy extends BasePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'academic-director']);
     }
 
     /**
@@ -19,7 +19,7 @@ class StaffPolicy extends BasePolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager']);
     }
 
     /**
@@ -27,7 +27,7 @@ class StaffPolicy extends BasePolicy
      */
     public function update(User $user, User $staff): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager']);
     }
 
     /**
@@ -35,6 +35,6 @@ class StaffPolicy extends BasePolicy
      */
     public function delete(User $user, User $staff): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 }

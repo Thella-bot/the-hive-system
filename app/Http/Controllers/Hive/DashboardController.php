@@ -17,11 +17,11 @@ class DashboardController extends Controller
         $user = auth()->user();
         $data = [];
 
-        if ($user->hasRole(['super-admin', 'school-admin'])) {
+        if ($user->isAdmin()) {
             $data = app(AdminDashboardData::class)->getData($user);
-        } elseif ($user->hasRole('academic_staff')) {
+        } elseif ($user->isFaculty()) {
             $data = app(InstructorDashboardData::class)->getData($user);
-        } elseif ($user->hasRole('non_academic_staff')) {
+        } elseif ($user->isStaff() && !$user->isFaculty()) {
             $data = app(NonAcademicStaffDashboardData::class)->getData($user);
         } elseif ($user->hasRole('student')) {
             $data = app(StudentDashboardData::class)->getData($user);

@@ -150,7 +150,7 @@ class AnnouncementController extends Controller
 
     public function downloadAttachment(AnnouncementAttachment $attachment)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'])) {
+        if (!auth()->user()->isStaff()) {
             abort(403);
         }
 

@@ -218,7 +218,13 @@ const { currentUser } = useUser()
 const isSelf = computed(() => currentUser.value?.id === props.managedUser.id)
 const confirmDelete = ref(false)
 
-const staffRoles = ['super-admin', 'school-admin', 'department-head', 'chef-instructor', 'academic-staff', 'non-academic-staff']
+const staffRoles = [
+  'super-admin', 'it-support', 'academic-director', 'program-coordinator',
+  'chef-instructor', 'pastry-instructor', 'sous-chef',
+  'admissions-officer', 'examination-cell', 'registrar', 'finance',
+  'procurement-manager', 'storekeeper', 'hr-manager', 'librarian',
+  'career-services', 'events-pr-manager', 'cafeteria-manager',
+]
 const p = props.managedUser.profile
 
 const form = useForm({

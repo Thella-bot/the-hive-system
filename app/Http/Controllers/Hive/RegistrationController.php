@@ -20,7 +20,7 @@ class RegistrationController extends Controller
         $user = $request->user();
 
         // If not staff, show student registration page
-        if (! $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'])) {
+        if (! $user->isStaff()) {
             $application = Application::where('user_id', $user->id)
                 ->where('status', 'approved')
                 ->whereNotNull('admitted_at')
@@ -123,7 +123,7 @@ class RegistrationController extends Controller
 
     public function update(Request $request, Application $application): RedirectResponse
     {
-        abort_unless($request->user()->hasAnyRole(['super-admin', 'school-admin', 'non_academic_staff']), 403);
+        abort_unless($request->user()->hasAnyRole(['super-admin', 'it-support', 'registrar', 'program-coordinator']), 403);
 
         $data = $request->validate([
             'registration_status' => 'required|in:pending,submitted,completed,rejected',

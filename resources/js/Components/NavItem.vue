@@ -49,7 +49,10 @@ const isVisible = computed(() => {
 
   const roles = currentUser.value.roles?.map(r => r.name) || []
   const isStudent = roles.includes('student')
-  const isStaff = roles.some(r => ['academic_staff', 'non_academic_staff', 'department-head', 'chef-instructor', 'school-admin', 'super-admin'].includes(r))
+  const isParentGuardian = roles.includes('parent-guardian')
+  const isAlumni = roles.includes('alumni')
+  // Staff = anyone who is NOT student, parent-guardian, or alumni
+  const isStaff = !isStudent && !isParentGuardian && !isAlumni
 
   switch (audience) {
     case 'everyone':

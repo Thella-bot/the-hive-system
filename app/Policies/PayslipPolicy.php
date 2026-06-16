@@ -7,7 +7,9 @@ class PayslipPolicy extends BasePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff', 'department-head', 'chef-instructor']);
+        return $user->hasAnyRole([
+            'super-admin', 'it-support', 'academic-director', 'finance', 'hr-manager'
+        ]);
     }
 
     public function view(User $user, Payslip $payslip): bool

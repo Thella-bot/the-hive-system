@@ -103,26 +103,19 @@ import dayjs from 'dayjs';
 import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ document: Object });
-const { currentUser } = useUser();
+const { currentUser, isAdmin } = useUser();
 
 const isAcknowledged = computed(() => props.document.is_acknowledged || false);
 const acknowledgementCount = computed(() => props.document.acknowledgements_count || 0);
 
 const canUpdate = computed(() => {
   if (!currentUser.value) return false;
-  return currentUser.value.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name)) ||
-         currentUser.value.id === props.document.created_by;
+  return isAdmin.value || currentUser.value.id === props.document.created_by;
 });
 
-const canDelete = computed(() => {
-  if (!currentUser.value) return false;
-  return currentUser.value.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
-});
+const canDelete = computed(() => isAdmin.value);
 
-const canSeeAcknowledgements = computed(() => {
-  if (!currentUser.value) return false;
-  return currentUser.value.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name));
-});
+const canSeeAcknowledgements = computed(() => isAdmin.value);
 
 const newVersionForm = reactive({ file: null, processing: false, error: '' });
 

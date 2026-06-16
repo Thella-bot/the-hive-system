@@ -176,7 +176,7 @@ class UserController extends Controller
     public function edit(User $user): Response
     {
         $user->load(['roles', 'profile']);
-        $isAdmin = auth()->user()?->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = auth()->user()?->isAdmin();
 
         return Inertia::render('Hive/Users/Edit', [
             'managedUser'        => $user,

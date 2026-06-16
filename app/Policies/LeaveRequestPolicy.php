@@ -30,8 +30,8 @@ class LeaveRequestPolicy extends BasePolicy
      */
     public function create(User $user): bool
     {
-        // All staff (academic and non-academic) and admins can create leave requests, but students cannot.
-        return $user->hasAnyRole(['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin', 'department-head', 'chef-instructor']);
+        // All staff can create leave requests, students cannot
+        return $user->isStaff();
     }
 
     /**

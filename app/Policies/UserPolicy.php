@@ -11,30 +11,30 @@ class UserPolicy extends BasePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar']);
     }
 
     /**
-     * Determine if the user can create students.
+     * Determine if the user can create users.
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer']);
     }
 
     /**
-     * Determine if the user can update a student.
+     * Determine if the user can update a user.
      */
-    public function update(User $user, User $student): bool
+    public function update(User $user, User $targetUser): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager']);
     }
 
     /**
-     * Determine if the user can delete a student.
+     * Determine if the user can delete a user.
      */
-    public function delete(User $user, User $student): bool
+    public function delete(User $user, User $targetUser): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 }

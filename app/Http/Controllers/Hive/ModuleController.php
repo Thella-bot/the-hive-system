@@ -20,7 +20,7 @@ class ModuleController extends Controller
 
         if ($user->isStudent()) {
             $query->whereIn('id', $user->modules()->pluck('id'));
-        } elseif ($user->hasRole('academic_staff')) {
+        } elseif ($user->isFaculty()) {
             $query->whereIn('id', $user->instructedModules()->pluck('id'));
         }
 

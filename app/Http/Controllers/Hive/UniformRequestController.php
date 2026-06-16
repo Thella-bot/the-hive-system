@@ -13,7 +13,7 @@ class UniformRequestController extends Controller
     {
         $user = auth()->user();
         $requests = UniformRequest::with('user', 'reviewer')
-            ->when(!$user->hasAnyRole(['super-admin', 'school-admin']), function ($q) use ($user) {
+            ->when(!$user->isAdmin(), function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })
             ->latest()
@@ -38,7 +38,7 @@ class UniformRequestController extends Controller
 
     public function review(Request $request, UniformRequest $request_)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Only administrators can review uniform requests.');
         }
 

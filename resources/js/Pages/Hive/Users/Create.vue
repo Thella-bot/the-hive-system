@@ -207,7 +207,13 @@ defineProps({
   cohorts:     { type: Array, default: () => [] },
 })
 
-const staffRoles = ['super-admin', 'school-admin', 'department-head', 'chef-instructor', 'academic_staff', 'non_academic_staff']
+const staffRoles = [
+  'super-admin', 'it-support', 'academic-director', 'program-coordinator',
+  'chef-instructor', 'pastry-instructor', 'sous-chef',
+  'admissions-officer', 'examination-cell', 'registrar', 'finance',
+  'procurement-manager', 'storekeeper', 'hr-manager', 'librarian',
+  'career-services', 'events-pr-manager', 'cafeteria-manager',
+]
 
 const form = useForm({
   name: '', email: '', password: '', password_confirmation: '', role: '',

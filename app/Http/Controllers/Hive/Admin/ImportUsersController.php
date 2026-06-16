@@ -12,7 +12,7 @@ class ImportUsersController extends Controller
 {
     public function show()
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         return Inertia::render('Hive/Admin/ImportUsers');
@@ -20,7 +20,7 @@ class ImportUsersController extends Controller
 
     public function import(Request $request)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         $request->validate([

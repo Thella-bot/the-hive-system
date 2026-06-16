@@ -15,7 +15,7 @@ class VisitorLogController extends Controller
     public function index()
     {
         $logs = VisitorLog::with('host')
-            ->when(!auth()->user()->hasAnyRole(['super-admin', 'school-admin']), function ($q) {
+            ->when(!auth()->user()->isAdmin(), function ($q) {
                 $q->where('host_user_id', auth()->id());
             })
             ->latest()
@@ -50,7 +50,7 @@ class VisitorLogController extends Controller
     public function checkOut(VisitorLog $log)
     {
         $user = auth()->user();
-        if (!$user->hasAnyRole(['super-admin', 'school-admin']) && $log->host_user_id !== $user->id) {
+        if (!$user->isAdmin() && $log->host_user_id !== $user->id) {
             abort(403);
         }
 

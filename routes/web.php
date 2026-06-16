@@ -39,6 +39,6 @@ Route::get('/reset-password/{token}', fn (string $token) => Inertia::render('Aut
 ]))->name('password.reset');
 
 // --- Dev tools (protected) ---
-Route::middleware(['role:super-admin|school-admin'])->group(function () {
+Route::middleware(['role:super-admin|it-support'])->group(function () {
     Route::get('/log-viewer', fn () => redirect('/log-viewer'))->name('log-viewer');
 });

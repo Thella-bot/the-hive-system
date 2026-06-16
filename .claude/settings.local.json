@@ -41,7 +41,10 @@
       "Bash(php artisan view:clear)",
       "Bash(php artisan route:list --name documents)",
       "Bash(php artisan env)",
-      "Bash(php artisan route:list --name=hive --columns=name)"
+      "Bash(php artisan route:list --name=hive --columns=name)",
+      "Bash(php artisan tinker --execute=\"echo ''Routes OK'';\")",
+      "Bash(php artisan tinker --execute=\"echo ''Roles: '' . json_encode\\(\\\\Spatie\\\\Permission\\\\Models\\\\Role::pluck\\(''name''\\)->toArray\\(\\)\\) . PHP_EOL;\")",
+      "Bash(php -l \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/bootstrap/app.php\")"
     ]
   }
 }

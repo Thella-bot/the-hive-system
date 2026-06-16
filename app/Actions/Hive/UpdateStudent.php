@@ -12,7 +12,7 @@ class UpdateStudent
 {
     public function update(User $student, array $input): User
     {
-        $isAdmin = $student->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = $student->isAdmin();
 
         // Validate base fields (available to everyone)
         Validator::make($input, [

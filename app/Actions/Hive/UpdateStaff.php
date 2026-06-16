@@ -12,7 +12,7 @@ class UpdateStaff
     public function update(User $staff, array $input): User
     {
         // Check if user is admin
-        $isAdmin = auth()->user()?->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = auth()->user()?->isAdmin();
 
         // Base fields validation (available to everyone)
         Validator::make($input, [

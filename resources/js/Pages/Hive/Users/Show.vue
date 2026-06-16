@@ -272,8 +272,13 @@ const formatDate = (d) => {
 }
 
 const roleColor = (r) => ({
-  'super-admin': 'purple', 'school-admin': 'blue',
-  'department-head': 'amber', 'chef-instructor': 'orange', 'student': 'green',
-  'applicant': 'cyan', 'non_academic_staff': 'gray',
+  'super-admin': 'purple', 'it-support': 'indigo', 'academic-director': 'violet',
+  'program-coordinator': 'fuchsia', 'chef-instructor': 'orange', 'pastry-instructor': 'amber',
+  'sous-chef': 'yellow', 'admissions-officer': 'cyan', 'examination-cell': 'sky',
+  'registrar': 'blue', 'finance': 'emerald', 'procurement-manager': 'teal',
+  'storekeeper': 'lime', 'hr-manager': 'rose', 'librarian': 'pink',
+  'career-services': 'red', 'events-pr-manager': 'orange', 'cafeteria-manager': 'yellow',
+  'student': 'green', 'parent-guardian': 'teal', 'alumni': 'slate',
+  'applicant': 'cyan',
 }[r] ?? 'gray')
 </script>

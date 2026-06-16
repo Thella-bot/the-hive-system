@@ -58,7 +58,7 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
         $student->load(['programme', 'profile']);
-        $isAdmin = auth()->user()?->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = auth()->user()?->isAdmin();
         return Inertia::render('Hive/Students/Edit', [
             'managedStudent' => $student,
             'programmes' => Programme::all(),

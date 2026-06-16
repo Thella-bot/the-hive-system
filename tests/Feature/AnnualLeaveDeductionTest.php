@@ -18,10 +18,10 @@ class AnnualLeaveDeductionTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
 
         $hrStaff = User::factory()->create();
-        $hrStaff->assignRole('school-admin');
+        $hrStaff->assignRole('hr-manager');
 
         $staffUser = User::factory()->create();
-        $staffUser->assignRole('academic_staff');
+        $staffUser->assignRole('chef-instructor');
 
         // Create profile with leave balance
         $profile = $staffUser->profile()->create([

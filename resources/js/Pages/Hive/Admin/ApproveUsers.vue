@@ -11,10 +11,26 @@
             <td>
               <select v-model="selectedRoles[user.id]" class="border rounded">
                 <option value="student">Student</option>
-                <option value="academic_staff">Academic Staff</option>
-                <option value="non_academic_staff">Non-Academic Staff</option>
-                <option value="department-head">Department Head</option>
+                <option value="parent-guardian">Parent/Guardian</option>
+                <option value="alumni">Alumni</option>
+                <option value="super-admin">Super Admin</option>
+                <option value="it-support">IT Support</option>
+                <option value="academic-director">Academic Director</option>
+                <option value="program-coordinator">Program Coordinator</option>
                 <option value="chef-instructor">Chef Instructor</option>
+                <option value="pastry-instructor">Pastry Instructor</option>
+                <option value="sous-chef">Sous Chef</option>
+                <option value="admissions-officer">Admissions Officer</option>
+                <option value="examination-cell">Examination Cell</option>
+                <option value="registrar">Registrar</option>
+                <option value="finance">Finance</option>
+                <option value="procurement-manager">Procurement Manager</option>
+                <option value="storekeeper">Storekeeper</option>
+                <option value="hr-manager">HR Manager</option>
+                <option value="librarian">Librarian</option>
+                <option value="career-services">Career Services</option>
+                <option value="events-pr-manager">Events PR Manager</option>
+                <option value="cafeteria-manager">Cafeteria Manager</option>
               </select>
             </td>
             <td>

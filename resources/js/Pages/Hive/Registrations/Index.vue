@@ -251,9 +251,9 @@ const dietaryOptions = [
   'Nut Allergy', 'Dairy-Free', 'Egg-Free', 'Shellfish Allergy',
 ];
 
-// Non-academic staff can manage registrations, but not academic_staff
-const { isAdmin, isNonAcademicStaff } = useUser();
-const canManageRegistration = computed(() => isAdmin.value || isNonAcademicStaff.value);
+// Staff can manage registrations (excluding students/parent-guardians/alumni)
+const { isAdmin, isStaff } = useUser();
+const canManageRegistration = computed(() => isAdmin.value || isStaff.value);
 
 const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY') : '—';
 

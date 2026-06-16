@@ -16,11 +16,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// User management (super-admin, it-support, hr-manager)
 Route::resource('users', UserController::class)
-    ->middleware('role:super-admin|school-admin');
+    ->middleware('role:super-admin|it-support|hr-manager');
 
 // Admin-only user management
-Route::middleware(['role:super-admin|school-admin'])->name('admin.')->prefix('admin')->group(function () {
+Route::middleware(['role:super-admin|it-support'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('approve-users', [UserApprovalController::class, 'index'])->name('approve-users');
     Route::post('approve-users/{user}', [UserApprovalController::class, 'approve'])->name('approve-users.approve');
     Route::get('import-users', [ImportUsersController::class, 'show'])->name('import-users');
@@ -30,8 +31,10 @@ Route::middleware(['role:super-admin|school-admin'])->name('admin.')->prefix('ad
     Route::get('logs', fn() => redirect('/log-viewer'))->name('logs');
 });
 
-// Student and staff resource routes
+// Student management (super-admin, admissions-officer, registrar, program-coordinator)
 Route::resource('students', StudentController::class)
-    ->middleware('role:super-admin|school-admin');
+    ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
+
+// Staff management (super-admin, hr-manager)
 Route::resource('staff', StaffController::class)
-    ->middleware('role:super-admin|school-admin');
+    ->middleware('role:super-admin|hr-manager');

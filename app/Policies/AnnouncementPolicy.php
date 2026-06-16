@@ -17,16 +17,17 @@ class AnnouncementPolicy extends BasePolicy
 
     public function create(User $user)
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']);
+        // Staff can create announcements
+        return $user->isStaff();
     }
 
     public function update(User $user, Announcement $announcement)
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']) || $user->id === $announcement->created_by;
+        return $user->hasAnyRole(['super-admin', 'it-support']) || $user->id === $announcement->created_by;
     }
 
     public function delete(User $user, Announcement $announcement)
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']) || $user->id === $announcement->created_by;
+        return $user->hasAnyRole(['super-admin', 'it-support']) || $user->id === $announcement->created_by;
     }
 }

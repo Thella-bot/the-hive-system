@@ -12,26 +12,26 @@ class AcademicYearPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
+        return $user->isStaff();
     }
 
     public function view(User $user, AcademicYear $academicYear): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
+        return $user->isStaff();
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']);
     }
 
     public function update(User $user, AcademicYear $academicYear): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']);
     }
 
     public function delete(User $user, AcademicYear $academicYear): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 }

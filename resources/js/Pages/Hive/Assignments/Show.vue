@@ -59,13 +59,13 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ assignment: Object });
-const { currentUser } = useUser();
+const { currentUser, isFaculty, isAdmin } = useUser();
 const isStudent = computed(() => currentUser.value?.roles?.some(r => r.name === 'student') ?? false);
 const isInstructor = computed(() => {
   const user = currentUser.value;
   if (!user) return false;
-  return user.roles?.some(r => ['super-admin', 'school-admin', 'academic_staff'].includes(r.name)) &&
-    (user.id === props.assignment.instructor_id || user.roles?.some(r => ['super-admin', 'school-admin'].includes(r.name)));
+  return (isFaculty.value || isAdmin.value) &&
+    (user.id === props.assignment.instructor_id || isAdmin.value);
 });
 
 const existingSubmission = computed(() => props.assignment.submissions?.find(s => s.student_id === currentUser.value?.id) ?? null);

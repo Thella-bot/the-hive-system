@@ -52,7 +52,7 @@ class AssignUserNumbers extends Command
 
         // Get staff without employee_number in profile
         if (!$type || $type === 'staff') {
-            $staff = User::role(['academic_staff', 'non_academic_staff'])
+            $staff = User::role(['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])
                 ->whereDoesntHave('profile', fn($q) => $q->whereNotNull('employee_number'))
                 ->get();
 

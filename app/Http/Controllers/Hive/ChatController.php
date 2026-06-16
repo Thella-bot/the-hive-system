@@ -48,10 +48,10 @@ class ChatController extends Controller
         $canAccess = match ($channel->channel_type) {
             'module' => $user->modules()->where('module_id', $channel->channel_id)->exists()
                         || $user->instructedModules()->where('module_id', $channel->channel_id)->exists()
-                        || $user->hasAnyRole(['super-admin', 'school-admin']),
+                        || $user->isAdmin(),
             'department' => $user->profile?->department_id == $channel->channel_id
-                           || $user->hasAnyRole(['super-admin', 'school-admin']),
-            'general' => $user->hasAnyRole(['academic_staff', 'non_academic_staff', 'super-admin', 'school-admin']),
+                           || $user->isAdmin(),
+            'general' => $user->isStaff(),
             'direct' => in_array((string) $user->id, $channel->participants ?? []),
             default => false,
         };
@@ -69,7 +69,7 @@ class ChatController extends Controller
 
         $isEnrolled = $user->modules()->where('module_id', $module->id)->exists();
         $isInstructor = $module->instructors()->where('user_id', $user->id)->exists();
-        $isAdmin = $user->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = $user->isAdmin();
 
         if (!$isEnrolled && !$isInstructor && !$isAdmin) {
             abort(403, 'You are not enrolled in this module.');

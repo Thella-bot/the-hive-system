@@ -25,7 +25,7 @@ class DocumentController extends Controller
 
         if ($user->hasRole('student')) {
             $modules = $user->modules()->with('programme')->get();
-        } elseif ($user->hasRole('academic_staff')) {
+        } elseif ($user->isFaculty()) {
             $modules = $user->instructedModules()->with('programme')->get();
         } else {
             $modules = Module::with('programme')->get();
@@ -42,8 +42,8 @@ class DocumentController extends Controller
         $user = $request->user();
         $roleNames = $user->roles->pluck('name')->toArray();
         $isStudent = $user->hasRole('student');
-        $isStaff = $user->hasAnyRole(['academic_staff', 'non_academic_staff', 'department-head', 'chef-instructor', 'school-admin', 'super-admin']);
-        $isAdmin = $user->hasAnyRole(['school-admin', 'super-admin']);
+        $isStaff = $user->isStaff();
+        $isAdmin = $user->isAdmin();
 
         // Enforce DocumentPolicy visibility rules at the query level (avoid loading + filtering in PHP).
         $documentsQuery = Document::query()
@@ -116,7 +116,7 @@ class DocumentController extends Controller
 
         if ($user->hasRole('student')) {
             $modules = collect(); // Students can't upload documents for specific modules
-        } elseif ($user->hasRole('academic_staff')) {
+        } elseif ($user->isFaculty()) {
             $modules = $user->instructedModules()->get();
         } else {
             $modules = Module::with('programme')->get();
@@ -178,7 +178,7 @@ class DocumentController extends Controller
         $this->authorize('update', $document);
         $user = auth()->user();
 
-        if ($user->hasRole('academic_staff')) {
+        if ($user->isFaculty()) {
             $modules = $user->instructedModules()->get();
         } else {
             $modules = Module::with('programme')->get();

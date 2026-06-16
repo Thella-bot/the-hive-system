@@ -27,9 +27,27 @@ class HandleInertiaRequests extends Middleware
             $user->load('roles.permissions');
 
             $dashboardData = match (true) {
-                $user->hasRole(['super-admin', 'school-admin']) => (new AdminDashboardData())->getData($user),
-                $user->hasRole('academic_staff') => (new InstructorDashboardData())->getData($user),
-                $user->hasRole('non_academic_staff') => (new NonAcademicStaffDashboardData())->getData($user),
+                // Admin: super-admin, it-support
+                $user->hasAnyRole(['super-admin', 'it-support']) => (new AdminDashboardData())->getData($user),
+                // Faculty: chef-instructor, pastry-instructor, sous-chef
+                $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef']) => (new InstructorDashboardData())->getData($user),
+                // Non-academic staff (HR, finance, procurement, events, etc.)
+                $user->hasAnyRole([
+                    'finance',
+                    'hr-manager',
+                    'procurement-manager',
+                    'storekeeper',
+                    'librarian',
+                    'career-services',
+                    'events-pr-manager',
+                    'cafeteria-manager',
+                    'admissions-officer',
+                    'registrar',
+                    'examination-cell',
+                    'academic-director',
+                    'program-coordinator',
+                ]) => (new NonAcademicStaffDashboardData())->getData($user),
+                // Student
                 $user->hasRole('student') => (new StudentDashboardData())->getData($user),
                 default => [],
             };

@@ -17,7 +17,7 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 
@@ -37,7 +37,7 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 
@@ -57,7 +57,7 @@ class SupplierController extends Controller
 
     public function destroy(Supplier $supplier)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 

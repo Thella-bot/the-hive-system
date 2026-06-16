@@ -19,7 +19,7 @@ class PayslipController extends Controller
     public function index(): Response
     {
         $user = Auth::user();
-        $isAdmin = $user->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = $user->canAccessFinance();
 
         $payslips = Payslip::with('user')
             ->when(!$isAdmin, fn($q) => $q->where('user_id', $user->id))

@@ -155,7 +155,7 @@
         <div v-if="$page.props.flash?.error"
           class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200 rounded-lg px-4 py-3 text-sm">
           <ExclamationCircleIcon class="w-5 h-5 text-red-500 flex-shrink-0" />
-          {{ $page.props.flash.error }}
+          <span>{{ typeof $page.props.flash.error === 'object' ? $page.props.flash.error.message : $page.props.flash.error }}</span>
         </div>
       </div>
 

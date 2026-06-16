@@ -27,7 +27,7 @@
       <div>
         <label class="block text-sm">Target Roles (leave empty for all)</label>
         <div class="flex gap-2">
-          <label v-for="role in ['student','academic_staff','non_academic_staff','school-admin','super-admin']" :key="role">
+          <label v-for="role in ['student','parent-guardian','alumni','super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager']" :key="role">
             <input type="checkbox" :value="role" v-model="form.target_roles" /> {{ role }}
           </label>
         </div>

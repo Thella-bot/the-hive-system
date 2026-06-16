@@ -12,7 +12,7 @@ class UserApprovalController extends Controller
 {
     public function index()
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         $unapproved = User::role('unapproved')->get();
@@ -23,11 +23,11 @@ class UserApprovalController extends Controller
 
     public function approve(User $user, Request $request)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         $request->validate([
-            'role' => 'required|in:student,academic_staff,non_academic_staff,department-head,chef-instructor',
+            'role' => 'required|in:student,super-admin,it-support,academic-director,program-coordinator,chef-instructor,pastry-instructor,sous-chef,admissions-officer,examination-cell,registrar,finance,procurement-manager,storekeeper,hr-manager,librarian,career-services,events-pr-manager,cafeteria-manager,parent-guardian,alumni',
         ]);
 
         $user->syncRoles([$request->role]);

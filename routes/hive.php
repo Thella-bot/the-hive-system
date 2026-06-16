@@ -50,40 +50,42 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Departments
+        // Departments (super-admin, academic-director)
         Route::resource('departments', DepartmentController::class)
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|academic-director');
 
-        // Programmes
+        // Programmes (super-admin, academic-director, program-coordinator)
         Route::resource('programmes', ProgrammeController::class)
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|academic-director|program-coordinator');
 
         // Short Courses
         Route::resource('short-courses', ShortCourseController::class)
             ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|admissions-officer');
 
         // Short Course Applications
         Route::get('short-course-applications', [ShortCourseApplicationController::class, 'index'])
             ->name('short-course-applications.index')
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|admissions-officer');
         Route::post('short-course-applications/{short_course_application}/review', [ShortCourseApplicationController::class, 'review'])
             ->name('short-course-applications.review')
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|admissions-officer');
 
-        // Cohorts
+        // Cohorts (super-admin, program-coordinator)
         Route::resource('cohorts', CohortController::class)
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|program-coordinator');
 
-        // Academic Years
+        // Academic Years (super-admin, academic-director)
         Route::resource('academic-years', AcademicYearController::class)
             ->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|academic-director');
 
         // Include modular route files
         require __DIR__ . '/hive/people.php';
         require __DIR__ . '/hive/academic.php';
         require __DIR__ . '/hive/assessments.php';
+        require __DIR__ . '/hive/bursar.php';
+        require __DIR__ . '/hive/registrar.php';
 
         // Profile
         Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -105,7 +107,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::post('registration', [RegistrationController::class, 'store'])->name('registration.store');
         Route::patch('registration/{application}', [RegistrationController::class, 'update'])
             ->name('registration.update')
-            ->middleware('role:super-admin|school-admin|non_academic_staff');
+            ->middleware('role:super-admin|admissions-officer|registrar');
         Route::get('registration/proof', [RegistrationController::class, 'downloadProof'])
             ->name('registration.proof')
             ->middleware('registered');
@@ -129,7 +131,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
         Route::post('programmes', [ModuleController::class, 'storeProgramme'])->name('programmes.store');
         Route::resource('modules', ModuleController::class)->only(['create', 'store', 'edit', 'update', 'destroy'])
-            ->middleware('role:super-admin|school-admin');
+            ->middleware('role:super-admin|academic-director|program-coordinator');
 
         // Notifications
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

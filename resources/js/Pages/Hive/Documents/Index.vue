@@ -142,14 +142,21 @@ const props = defineProps({
 });
 
 const page = usePage();
-const { currentUser } = useUser();
+const { currentUser, isStaff, isAdmin } = useUser();
 
 const selectedModule = computed(() => {
-  const params = new URLSearchParams(page.url.split('?')[1] || '');
+  const url = page.url || page.props.ziggy?.current || '';
+  const params = new URLSearchParams(url.split('?')[1] || '');
   return params.get('module_id');
 });
 
-const selectedCategory = computed(() => page.url.includes('category=') ? page.url.split('category=')[1] : null);
+const selectedCategory = computed(() => {
+  const url = page.url || page.props.ziggy?.current || '';
+  if (url.includes('category=')) {
+    return url.split('category=')[1].split('&')[0];
+  }
+  return null;
+});
 
 const pageTitle = computed(() => {
   if (selectedCategory.value) {
@@ -164,7 +171,8 @@ const pageTitle = computed(() => {
 
 const canCreate = computed(() => {
   if (!currentUser.value) return false;
-  return currentUser.value.roles?.some(r => ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff', 'department-head', 'chef-instructor'].includes(r));
+  // Staff or admin can create documents
+  return isStaff.value || isAdmin.value;
 });
 
 // Get document count per category

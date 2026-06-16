@@ -30,7 +30,7 @@ class PollController extends Controller
 
     public function store(Request $request)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 
@@ -66,7 +66,7 @@ class PollController extends Controller
 
     public function destroy(Poll $poll)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 

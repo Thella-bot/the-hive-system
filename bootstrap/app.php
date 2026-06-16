@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 if (!function_exists('friendlyMessageForStatus')) {
@@ -62,6 +63,29 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Handle ModelNotFoundException - return proper 404
+        $exceptions->render(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e, Request $request) {
+            $message = 'The requested resource was not found.';
+
+            if ($request->header('X-Inertia') || $request->expectsJson()) {
+                return response()->json(['message' => $message, 'error_id' => (string) Str::uuid()], 404);
+            }
+
+            return redirect('/')->with('error', ['title' => 'Not Found', 'message' => $message]);
+        });
+
+        // Handle QueryException - database errors
+        $exceptions->render(function (\Illuminate\Database\QueryException $e, Request $request) {
+            Log::error('Database error', ['message' => $e->getMessage()]);
+            $message = 'A database error occurred. Please try again later.';
+
+            if ($request->header('X-Inertia') || $request->expectsJson()) {
+                return response()->json(['message' => $message, 'error_id' => (string) Str::uuid()], 500);
+            }
+
+            return redirect()->back()->with('error', $message);
+        });
+
         // Configure custom rendering for all requests
         $exceptions->render(function (\Throwable $e, Request $request) {
             // Let Laravel handle ValidationException normally
@@ -90,7 +114,38 @@ return Application::configure(basePath: dirname(__DIR__))
             $message = friendlyMessageForStatus($status);
             $title = friendlyTitleForStatus($status);
 
-            // Inertia request
+            // Handle 401 (unauthenticated) - redirect to login
+            if ($status === 401) {
+                $loginUrl = route('login', [], false);
+
+                if ($request->header('X-Inertia')) {
+                    return redirect($loginUrl)->with('error', [
+                        'title' => $title,
+                        'message' => $message,
+                        'error_id' => $errorId,
+                    ]);
+                }
+
+                return redirect($loginUrl);
+            }
+
+            // Handle 403 (forbidden/unauthorized) - redirect back with error
+            if ($status === 403) {
+                $backUrl = url()->previous();
+                $redirect = $backUrl ? redirect($backUrl) : redirect('/');
+
+                if ($request->header('X-Inertia')) {
+                    return $redirect->with('error', [
+                        'title' => $title,
+                        'message' => $message,
+                        'error_id' => $errorId,
+                    ]);
+                }
+
+                return $redirect->with('error', $message);
+            }
+
+            // Inertia request (other errors)
             if ($request->header('X-Inertia')) {
                 if ($request->wantsJson()) {
                     return response()->json([

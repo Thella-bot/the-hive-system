@@ -36,7 +36,7 @@ class GradeController extends Controller
             return Inertia::render('Hive/Grades/StudentIndex', ['modules' => $modules]);
         } else {
             // Instructor/Admin: select module to manage grades
-            $isAdmin = $user->hasAnyRole(['super-admin', 'school-admin']);
+            $isAdmin = $user->isAdmin();
 
             if ($isAdmin) {
                 $modules = Module::with(['programme', 'gradables.submissions'])->get();
@@ -52,7 +52,7 @@ class GradeController extends Controller
     public function manage(Module $module)
     {
         $user = auth()->user();
-        $isAdmin = $user->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = $user->isAdmin();
 
         abort_unless(
             $isAdmin || $module->instructors()->where('user_id', $user->id)->exists(),

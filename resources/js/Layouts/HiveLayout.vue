@@ -194,7 +194,7 @@
           class="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200"
         >
           <ExclamationCircleIcon class="h-5 w-5 flex-shrink-0 text-red-500" />
-          {{ $page.props.flash.error }}
+          <span>{{ typeof $page.props.flash.error === 'object' ? $page.props.flash.error.message : $page.props.flash.error }}</span>
         </div>
       </div>
 

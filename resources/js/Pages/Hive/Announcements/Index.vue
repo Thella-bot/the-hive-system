@@ -55,15 +55,15 @@ import dayjs from 'dayjs';
 import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ announcements: [Array, Object] });
-const { userRoles, currentUser } = useUser();
+const { userRoles, currentUser, isStaff, isAdmin } = useUser();
 const announcementsList = computed(() => {
   if (!props.announcements) return [];
   if (Array.isArray(props.announcements)) return props.announcements;
   return props.announcements.data || [];
 });
-const canCreate = computed(() => userRoles.value?.some(r => ['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff'].includes(r)) ?? false);
+const canCreate = computed(() => isStaff.value || isAdmin.value);
 const canEdit = (ann) => {
-  return userRoles.value?.some(r => ['super-admin', 'school-admin'].includes(r)) || currentUser.value?.id === ann.created_by;
+  return isAdmin.value || currentUser.value?.id === ann.created_by;
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {

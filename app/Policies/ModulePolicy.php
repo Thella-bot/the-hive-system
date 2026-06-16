@@ -22,20 +22,32 @@ class ModulePolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
+        // Admin and academic roles can create modules
+        return $user->hasAnyRole([
+            'super-admin',
+            'it-support',
+            'academic-director',
+            'program-coordinator',
+            'chef-instructor',
+            'pastry-instructor',
+        ]);
     }
 
     public function update(User $user, Module $module): bool
     {
-        if ($user->hasAnyRole(['super-admin', 'school-admin'])) {
+        // Admin can update all
+        if ($user->hasAnyRole(['super-admin', 'it-support', 'academic-director'])) {
             return true;
         }
 
-        return $user->hasRole('academic_staff') && $module->instructors()->where('user_id', $user->id)->exists();
+        // Instructors can update modules they teach
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+            && $module->instructors()->where('user_id', $user->id)->exists();
     }
 
     public function delete(User $user, Module $module): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        // Only admin can delete modules
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 }

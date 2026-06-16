@@ -18,7 +18,7 @@ class KeyController extends Controller
 
     public function store(Request $request)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 
@@ -33,7 +33,7 @@ class KeyController extends Controller
 
     public function issue(Request $request, Key $key)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 
@@ -52,7 +52,7 @@ class KeyController extends Controller
 
     public function return(Key $key)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 
@@ -66,7 +66,7 @@ class KeyController extends Controller
 
     public function reportLost(Key $key)
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
 

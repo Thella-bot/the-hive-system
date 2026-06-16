@@ -79,7 +79,13 @@ class Department extends Model
         )
         ->where('profiles.profileable_type', User::class)
         ->whereHas('roles', function ($query) {
-            $query->where('name', 'academic_staff')->orWhere('name', 'non_academic_staff');
+            $query->whereIn('name', [
+                'super-admin', 'it-support', 'academic-director', 'program-coordinator',
+                'chef-instructor', 'pastry-instructor', 'sous-chef',
+                'admissions-officer', 'examination-cell', 'registrar', 'finance',
+                'procurement-manager', 'storekeeper', 'hr-manager', 'librarian',
+                'career-services', 'events-pr-manager', 'cafeteria-manager',
+            ]);
         });
     }
 

@@ -43,7 +43,7 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Visible to Roles (leave empty for all)</label>
         <div class="flex flex-wrap gap-4">
-          <label v-for="role in ['student','academic_staff','non_academic_staff','school-admin', 'super-admin']" :key="role" class="inline-flex items-center">
+          <label v-for="role in ['student','parent-guardian','alumni','super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager']" :key="role" class="inline-flex items-center">
             <input type="checkbox" :value="role" v-model="form.visible_to_roles" class="mr-1" /> {{ role }}
           </label>
         </div>

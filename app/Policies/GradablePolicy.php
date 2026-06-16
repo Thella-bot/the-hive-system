@@ -14,14 +14,17 @@ class GradablePolicy extends BasePolicy
 
     public function view(User $user, Gradable $gradable): bool
     {
-        if ($user->hasAnyRole(['super-admin', 'school-admin'])) {
+        // Admin can view all
+        if ($user->hasAnyRole(['super-admin', 'it-support', 'academic-director'])) {
             return true;
         }
 
-        if ($user->hasRole('academic_staff') && $gradable->instructor_id === $user->id) {
+        // Instructor can view their own gradables
+        if ($user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef']) && $gradable->instructor_id === $user->id) {
             return true;
         }
 
+        // Students can view enrolled gradables
         if ($user->hasRole('student')) {
             return true;
         }
@@ -31,24 +34,39 @@ class GradablePolicy extends BasePolicy
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
+        // Admin and faculty can create gradables
+        return $user->hasAnyRole([
+            'super-admin',
+            'it-support',
+            'academic-director',
+            'chef-instructor',
+            'pastry-instructor',
+            'sous-chef',
+            'examination-cell',
+        ]);
     }
 
     public function update(User $user, Gradable $gradable): bool
     {
-        if ($user->hasAnyRole(['super-admin', 'school-admin'])) {
+        // Admin can update all
+        if ($user->hasAnyRole(['super-admin', 'it-support', 'academic-director'])) {
             return true;
         }
 
-        return $user->hasRole('academic_staff') && $gradable->instructor_id === $user->id;
+        // Instructor can update their own gradables
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+            && $gradable->instructor_id === $user->id;
     }
 
     public function delete(User $user, Gradable $gradable): bool
     {
-        if ($user->hasAnyRole(['super-admin', 'school-admin'])) {
+        // Admin can delete all
+        if ($user->hasAnyRole(['super-admin', 'it-support', 'academic-director'])) {
             return true;
         }
 
-        return $user->hasRole('academic_staff') && $gradable->instructor_id === $user->id;
+        // Instructor can delete their own gradables
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+            && $gradable->instructor_id === $user->id;
     }
 }

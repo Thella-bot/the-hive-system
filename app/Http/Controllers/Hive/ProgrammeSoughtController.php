@@ -18,7 +18,7 @@ class ProgrammeSoughtController extends Controller
      */
     public function index(): Response
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         $applications = ProgrammeSought::with('programme')
@@ -36,7 +36,7 @@ class ProgrammeSoughtController extends Controller
      */
     public function show(ProgrammeSought $application): Response
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         $application->load('programme');
@@ -50,7 +50,7 @@ class ProgrammeSoughtController extends Controller
      */
     public function update(Request $request, ProgrammeSought $application, CreateNewStudent $creator): RedirectResponse
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         $tempPassword = Str::random(12);
@@ -72,7 +72,7 @@ class ProgrammeSoughtController extends Controller
      */
     public function destroy(ProgrammeSought $application): RedirectResponse
     {
-        if (!auth()->user()->hasAnyRole(['super-admin', 'school-admin'])) {
+        if (!auth()->user()->isAdmin()) {
             abort(403);
         }
         $application->update(['status' => 'rejected']);

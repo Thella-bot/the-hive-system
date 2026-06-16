@@ -133,7 +133,7 @@ class GradableController extends Controller
         $this->authorize('view', $gradable);
 
         $user = auth()->user();
-        $isInstructor = $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff']);
+        $isInstructor = $user->isFaculty() || $user->isAdmin();
         $isStudent = $user->hasRole('student');
 
         // Load appropriate relations

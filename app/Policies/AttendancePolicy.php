@@ -17,26 +17,39 @@ class AttendancePolicy
 
     public function view(User $user, Attendance $attendance): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']);
+        // All staff can view attendance
+        return $user->isStaff();
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']);
+        // Faculty and admin can create attendance records
+        return $user->hasAnyRole([
+            'super-admin',
+            'it-support',
+            'academic-director',
+            'program-coordinator',
+            'chef-instructor',
+            'pastry-instructor',
+            'sous-chef',
+        ]);
     }
 
     public function checkin(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff', 'student']);
+        // Staff and students can check in
+        return $user->isStaff() || $user->hasRole('student');
     }
 
     public function update(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        // Admin and program coordinator can update attendance
+        return $user->hasAnyRole(['super-admin', 'it-support', 'program-coordinator']);
     }
 
     public function delete(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        // Only admin can delete attendance
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 }

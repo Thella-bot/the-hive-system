@@ -34,7 +34,7 @@ class ApplicationController extends Controller
 
         $paginatedApplications = Application::with(['user', 'programme', 'variant'])
             ->when($filter !== 'all', fn($q) => $q->where('status', $filter))
-            ->when(! $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']), fn($q) => $q->where('user_id', $user->id))
+            ->when(! $user->isStaff(), fn($q) => $q->where('user_id', $user->id))
             ->latest()
             ->paginate(12);
 
@@ -54,7 +54,7 @@ class ApplicationController extends Controller
                     'total' => $applicationsArray['total'],
                 ],
             ],
-            'canUpdate' => $user->hasAnyRole(['super-admin', 'school-admin', 'non_academic_staff']),
+            'canUpdate' => $user->isAdmin() || $user->hasAnyRole(['registrar', 'program-coordinator', 'admissions-officer']),
             'filter' => $filter,
         ]);
     }
@@ -138,7 +138,7 @@ class ApplicationController extends Controller
     // Called by admin to mark registration as complete (after payment proof is verified)
     public function completeRegistration(Request $request, Application $application): RedirectResponse
     {
-        abort_unless($request->user()->hasAnyRole(['super-admin', 'school-admin', 'non_academic_staff']), 403);
+        abort_unless($request->user()->hasAnyRole(['super-admin', 'it-support', 'registrar', 'program-coordinator']), 403);
 
         $application->forceFill([
             'registration_status' => 'completed',

@@ -21,13 +21,14 @@ class AdminDashboardData implements DashboardData
 {
     public function getData(User $user): array
     {
-        $totalStaff = User::role(['non_academic_staff', 'school-admin', 'super-admin'])->count();
+        $facultyCount = User::role(['chef-instructor', 'pastry-instructor', 'sous-chef'])->count();
+        $staffCount = User::role(['super-admin', 'it-support', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])->count();
 
         return [
             // User Stats
             'totalStudents' => User::role('student')->count(),
-            'totalInstructors' => User::role('academic_staff')->count(),
-            'totalStaff' => $totalStaff,
+            'totalInstructors' => $facultyCount,
+            'totalStaff' => $staffCount,
             'totalUsers' => User::count(),
             'pendingApplications' => Application::where('status', 'pending')->count(),
 

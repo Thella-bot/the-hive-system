@@ -18,7 +18,7 @@ class StaffController extends Controller
     public function index()
     {
         $this->authorize('viewAny', User::class);
-        $staff = User::role(['academic_staff', 'non_academic_staff'])->with('roles')->paginate(15);
+        $staff = User::role(['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])->with('roles')->paginate(15);
         return Inertia::render('Hive/Staff/Index', [
             'staff' => $staff,
         ]);
@@ -30,7 +30,7 @@ class StaffController extends Controller
     public function create()
     {
         $this->authorize('create', User::class);
-        $roles = Role::whereIn('name', ['academic_staff', 'non_academic_staff'])->get();
+        $roles = Role::whereIn('name', ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])->get();
         return Inertia::render('Hive/Staff/Create', [
             'roles' => $roles,
         ]);
@@ -60,9 +60,9 @@ class StaffController extends Controller
     public function edit(User $staff)
     {
         $this->authorize('update', $staff);
-        $roles = Role::whereIn('name', ['academic_staff', 'non_academic_staff'])->get();
+        $roles = Role::whereIn('name', ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])->get();
         $staff->load(['roles', 'profile', 'department']);
-        $isAdmin = auth()->user()?->hasAnyRole(['super-admin', 'school-admin']);
+        $isAdmin = auth()->user()?->isAdmin();
         return Inertia::render('Hive/Staff/Edit', [
             'managedStaff' => $staff,
             'roles' => $roles,

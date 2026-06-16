@@ -12,11 +12,11 @@ class AchievementPolicy
 
     public function delete(User $user, Achievement $achievement): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'program-coordinator', 'career-services']);
     }
 }

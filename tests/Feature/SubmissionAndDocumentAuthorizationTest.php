@@ -22,7 +22,7 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
 
         $studentA->assignRole('student');
         $studentB->assignRole('student');
-        $instructor->assignRole('academic_staff');
+        $instructor->assignRole('chef-instructor');
 
         // Test logic omitted - requires model refactoring
         $this->assertTrue(true);
@@ -35,7 +35,7 @@ class SubmissionAndDocumentAuthorizationTest extends TestCase
         $this->seed(\Database\Seeders\RolePermissionSeeder::class);
 
         $admin = User::factory()->create();
-        $admin->assignRole('school-admin');
+        $admin->assignRole('it-support');
 
         // Test logic omitted - requires model refactoring
         $this->assertTrue(true);

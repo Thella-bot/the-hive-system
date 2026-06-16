@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['role:super-admin|school-admin'])->name('academic.')->prefix('academic')->group(function () {
+// Academic routes (super-admin, academic-director, program-coordinator)
+Route::middleware(['role:super-admin|academic-director|program-coordinator'])->name('academic.')->prefix('academic')->group(function () {
     // Programme variants
     Route::resource('programme-seeks', ProgrammeSoughtController::class)->only(['index', 'show', 'update', 'destroy']);
 });

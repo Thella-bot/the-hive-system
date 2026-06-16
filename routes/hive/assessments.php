@@ -23,8 +23,8 @@ Route::get('gradables/{type}/modules', [GradableController::class, 'moduleSelect
 Route::resource('gradables', GradableController::class)->only(['index', 'show'])
     ->middleware('registered');
 
-// Staff-only gradable management
-Route::middleware(['role:super-admin|school-admin|academic_staff'])->group(function () {
+// Staff-only gradable management (super-admin, academic-director, chef-instructor, pastry-instructor, sous-chef, examination-cell)
+Route::middleware(['role:super-admin|academic-director|chef-instructor|pastry-instructor|sous-chef|examination-cell'])->group(function () {
     Route::resource('gradables', GradableController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
 
     // Attachment routes

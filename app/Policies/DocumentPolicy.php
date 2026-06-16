@@ -18,16 +18,13 @@ class DocumentPolicy extends BasePolicy
 
     public function create(User $user)
     {
-        return $user->hasAnyRole([
-            'super-admin', 'school-admin', 'academic_staff',
-            'department-head', 'chef-instructor', 'non_academic_staff'
-        ]);
+        return $user->isStaff();
     }
 
     public function update(User $user, Document $document)
     {
         // Admins can update any, others only their own
-        if ($user->hasAnyRole(['super-admin', 'school-admin'])) {
+        if ($user->hasAnyRole(['super-admin', 'it-support', 'academic-director'])) {
             return true;
         }
         return $user->id === $document->created_by;
@@ -35,6 +32,6 @@ class DocumentPolicy extends BasePolicy
 
     public function delete(User $user, Document $document)
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']);
     }
 }

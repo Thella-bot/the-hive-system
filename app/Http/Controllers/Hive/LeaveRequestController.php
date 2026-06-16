@@ -21,7 +21,7 @@ class LeaveRequestController extends Controller
         $user = $request->user();
         $leaves = LeaveRequest::query()
             ->with('user')
-            ->when(!$user->hasAnyRole(['super-admin', 'school-admin']), function ($query) use ($user) {
+            ->when(!$user->isAdmin(), function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
             ->latest()
@@ -61,7 +61,7 @@ class LeaveRequestController extends Controller
 
         $leave = $user->leaveRequests()->create($data);
 
-        $hrUsers = User::role(['super-admin', 'school-admin'])->get();
+        $hrUsers = User::role(['super-admin', 'it-support', 'hr-manager'])->get();
         Notification::send($hrUsers, new LeaveRequestSubmitted($leave));
 
         return redirect()->route('hive.leaves.index')->with('success', 'Leave request submitted.');

@@ -227,7 +227,7 @@
                 <p class="text-sm text-green-600 dark:text-green-400">{{ $page.props.flash.success }}</p>
             </div>
             <div v-if="$page.props.flash?.error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <p class="text-sm text-red-600 dark:text-red-400">{{ $page.props.flash.error }}</p>
+                <p class="text-sm text-red-600 dark:text-red-400">{{ typeof $page.props.flash.error === 'object' ? $page.props.flash.error.message : $page.props.flash.error }}</p>
             </div>
         </div>
     </HiveLayout>

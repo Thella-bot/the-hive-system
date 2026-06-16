@@ -21,8 +21,8 @@ class SearchController extends Controller
         $like = '%' . addcslashes($query, '%_\\') . '%';
         $user = $request->user();
         $roles = $user?->getRoleNames()->toArray() ?? [];
-        $isAdmin = $user?->hasRole(['super-admin', 'school-admin']) ?? false;
-        $isStaff = $user?->hasRole(['academic_staff', 'non_academic_staff']) ?? false;
+        $isAdmin = $user?->isAdmin() ?? false;
+        $isStaff = $user?->isStaff() ?? false;
 
         $results = [
             'people' => [],

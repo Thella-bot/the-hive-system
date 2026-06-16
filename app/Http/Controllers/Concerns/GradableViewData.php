@@ -53,7 +53,7 @@ trait GradableViewData
      */
     protected function getModulesForUser(User $user): \Illuminate\Database\Eloquent\Collection
     {
-        if ($user->hasRole('academic_staff')) {
+        if ($user->isFaculty()) {
             return $user->instructedModules()->with('programme')->get();
         }
 

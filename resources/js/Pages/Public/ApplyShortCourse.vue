@@ -56,9 +56,9 @@
           </div>
         </div>
         <div class="mt-4 text-center">
-          <Link :href="route('programmes')"
+          <Link :href="route('short-courses.index')"
             class="text-amber-600 hover:text-amber-700 font-medium">
-            ← Back to Programmes
+            ← Back to Short Courses
           </Link>
         </div>
       </div>
@@ -67,9 +67,21 @@
     <!-- Error -->
     <div v-else-if="$page.props.flash?.error" class="py-10">
       <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="p-6 bg-red-50 border border-red-200 rounded-2xl text-center">
-          <p class="text-red-700">{{ $page.props.flash.error }}</p>
-          <Link :href="route('programmes')" class="text-amber-600 hover:text-amber-700 font-medium mt-2 inline-block">
+        <div class="p-6 bg-red-50 border border-red-200 rounded-2xl">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-red-800">{{ $page.props.flash.error.title || 'Submission Failed' }}</h3>
+              <p class="text-red-700 text-sm mt-1">{{ $page.props.flash.error.message || $page.props.flash.error }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 text-center">
+          <Link :href="route('programmes')" class="text-amber-600 hover:text-amber-700 font-medium">
             ← Back to Programmes
           </Link>
         </div>

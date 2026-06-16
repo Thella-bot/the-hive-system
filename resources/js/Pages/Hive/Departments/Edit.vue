@@ -132,7 +132,11 @@ const colorPresets = ['#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#f
 const confirmDelete = ref(false)
 
 const staff = ref(props.department.staff.map(s => s.id));
-const staffUsers = ref(props.users.filter(user => user.roles.some(role => ['academic_staff', 'non_academic_staff'].includes(role.name))));
+// Staff = users who are NOT students, parent-guardians, or alumni
+const staffUsers = ref(props.users.filter(user => {
+  const roleNames = user.roles.map(r => r.name);
+  return !roleNames.includes('student') && !roleNames.includes('parent-guardian') && !roleNames.includes('alumni');
+}));
 
 const form = useForm({
   name:         props.department.name,

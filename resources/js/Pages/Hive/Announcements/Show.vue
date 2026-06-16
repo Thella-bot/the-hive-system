@@ -91,9 +91,9 @@ import dayjs from 'dayjs';
 import { useUser } from '@/composables/useUser';
 
 const props = defineProps({ announcement: Object });
-const { userRoles, currentUser } = useUser();
+const { currentUser, isAdmin } = useUser();
 const canEdit = (ann) => {
-  return userRoles.value?.some(r => ['super-admin', 'school-admin'].includes(r)) || currentUser.value?.id === ann.created_by;
+  return isAdmin.value || currentUser.value?.id === ann.created_by;
 };
 const deleteAnn = (id) => {
   if (confirm('Delete this announcement?')) {

@@ -12,12 +12,12 @@ class ShortCourseApplicationPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']);
+        return $user->isStaff();
     }
 
     public function view(User $user, ShortCourseApplication $shortCourseApplication): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin', 'academic_staff', 'non_academic_staff']);
+        return $user->isStaff();
     }
 
     public function create(User $user): bool
@@ -27,6 +27,6 @@ class ShortCourseApplicationPolicy
 
     public function review(User $user, ShortCourseApplication $shortCourseApplication): bool
     {
-        return $user->hasAnyRole(['super-admin', 'school-admin']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'admissions-officer']);
     }
 }

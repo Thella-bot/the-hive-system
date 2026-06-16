@@ -137,10 +137,26 @@ const selectedFiles = ref([]);
 
 const availableRoles = [
   { value: 'student', label: 'Student' },
-  { value: 'academic_staff', label: 'Academic Staff' },
-  { value: 'non_academic_staff', label: 'Non-Academic Staff' },
-  { value: 'school-admin', label: 'School Admin' },
+  { value: 'parent-guardian', label: 'Parent/Guardian' },
+  { value: 'alumni', label: 'Alumni' },
   { value: 'super-admin', label: 'Super Admin' },
+  { value: 'it-support', label: 'IT Support' },
+  { value: 'academic-director', label: 'Academic Director' },
+  { value: 'program-coordinator', label: 'Program Coordinator' },
+  { value: 'chef-instructor', label: 'Chef Instructor' },
+  { value: 'pastry-instructor', label: 'Pastry Instructor' },
+  { value: 'sous-chef', label: 'Sous Chef' },
+  { value: 'admissions-officer', label: 'Admissions Officer' },
+  { value: 'examination-cell', label: 'Examination Cell' },
+  { value: 'registrar', label: 'Registrar' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'procurement-manager', label: 'Procurement Manager' },
+  { value: 'storekeeper', label: 'Storekeeper' },
+  { value: 'hr-manager', label: 'HR Manager' },
+  { value: 'librarian', label: 'Librarian' },
+  { value: 'career-services', label: 'Career Services' },
+  { value: 'events-pr-manager', label: 'Events PR Manager' },
+  { value: 'cafeteria-manager', label: 'Cafeteria Manager' },
 ];
 
 const execCmd = (command) => {
