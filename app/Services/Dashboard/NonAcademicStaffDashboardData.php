@@ -15,7 +15,7 @@ class NonAcademicStaffDashboardData implements DashboardData
 {
     public function getData(User $user): array
     {
-        $roleNames = $user->roles->pluck('name')->toArray();
+        $roleNames = collect($user->roles)->pluck('name')->toArray();
 
         return [
             'staffLeaveBalance' => $user->profile?->leave_balance ?? 0,

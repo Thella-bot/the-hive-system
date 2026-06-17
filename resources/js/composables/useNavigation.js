@@ -14,6 +14,7 @@ import {
   ChevronDownIcon,
   ClipboardDocumentCheckIcon,
   Cog6ToothIcon,
+  CurrencyDollarIcon,
   DocumentTextIcon,
   ExclamationCircleIcon,
   FolderIcon,
@@ -279,6 +280,24 @@ export function useNavigation() {
     }];
   };
 
+  const bursarNav = () => {
+    if (!canAccessFinance.value && !isAdmin.value) return [];
+
+    const financeRoles = ['super-admin', 'finance', 'hr-manager'];
+
+    return [{
+      name: 'Finance',
+      icon: CurrencyDollarIcon,
+      children: [
+        { name: 'Dashboard', href: route('bursar.reports.dashboard'), active: 'bursar.reports.dashboard', roles: financeRoles },
+        { name: 'Invoices', href: route('bursar.invoices.index'), active: 'bursar.invoices.*', roles: financeRoles },
+        { name: 'Payments', href: route('bursar.payments.index'), active: 'bursar.payments.*', roles: financeRoles },
+        { name: 'Expenses', href: route('bursar.expenses.index'), active: 'bursar.expenses.*', roles: financeRoles },
+        { name: 'Budgets', href: route('bursar.budgets.index'), active: 'bursar.budgets.*', roles: financeRoles },
+      ],
+    }];
+  };
+
   const systemNav = () => {
     if (!userRoles.value.includes('super-admin')) return [];
 
@@ -304,6 +323,7 @@ export function useNavigation() {
       ...peopleNav(),
       ...operationsNav(),
       ...hrNav(),
+      ...bursarNav(),
       ...systemNav(),
     ])
   );

@@ -32,36 +32,36 @@ const deleteYear = (year) => {
       </Link>
     </template>
 
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50 border-b border-gray-200">
+        <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
           <tr>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Name</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Period</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Cohorts</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Name</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Period</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Cohorts</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
             <th class="px-6 py-3"></th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="years.data.length === 0">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+            <td colspan="5" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
               No academic years defined yet.
               <Link v-if="isAdmin" :href="route('hive.academic-years.create')" class="text-amber-600 hover:underline ml-1">Create one.</Link>
             </td>
           </tr>
           <tr v-for="year in years.data" :key="year.id"
-            class="hover:bg-gray-50 transition-colors">
+            class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <span class="font-semibold text-gray-900">{{ year.name }}</span>
+                <span class="font-semibold text-gray-900 dark:text-gray-100">{{ year.name }}</span>
                 <Badge v-if="year.is_current" color="amber">Current</Badge>
               </div>
             </td>
-            <td class="px-6 py-4 text-gray-500">
+            <td class="px-6 py-4 text-gray-500 dark:text-gray-400">
               {{ formatDate(year.start_date) }} → {{ formatDate(year.end_date) }}
             </td>
-            <td class="px-6 py-4 text-gray-700 font-medium">{{ year.cohorts_count }}</td>
+            <td class="px-6 py-4 text-gray-700 dark:text-gray-300 font-medium">{{ year.cohorts_count }}</td>
             <td class="px-6 py-4">
               <Badge :color="year.is_ongoing ? 'green' : 'gray'">
                 {{ year.is_ongoing ? 'Ongoing' : 'Completed' }}
@@ -70,10 +70,10 @@ const deleteYear = (year) => {
             <td class="px-6 py-4">
               <div class="flex items-center justify-end gap-3">
                 <Link v-if="isAdmin" :href="route('hive.academic-years.edit', { academic_year: year.id })"
-                  class="text-gray-400 hover:text-amber-600 font-medium text-xs transition-colors">Edit</Link>
+                  class="text-gray-400 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 font-medium text-xs transition-colors">Edit</Link>
                 <button v-if="isAdmin && year.cohorts_count === 0"
                   @click="deleteYear(year)"
-                  class="text-gray-400 hover:text-red-500 font-medium text-xs transition-colors">Delete</button>
+                  class="text-gray-400 dark:text-gray-500 hover:text-red-500 font-medium text-xs transition-colors">Delete</button>
               </div>
             </td>
           </tr>

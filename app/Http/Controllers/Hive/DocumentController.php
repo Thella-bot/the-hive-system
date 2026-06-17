@@ -40,7 +40,7 @@ class DocumentController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $roleNames = $user->roles->pluck('name')->toArray();
+        $roleNames = collect($user->roles)->pluck('name')->toArray();
         $isStudent = $user->hasRole('student');
         $isStaff = $user->isStaff();
         $isAdmin = $user->isAdmin();

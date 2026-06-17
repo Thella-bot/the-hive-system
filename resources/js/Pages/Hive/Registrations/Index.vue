@@ -5,37 +5,37 @@
       <!-- Admin List View -->
       <div v-if="adminList" class="space-y-6">
         <!-- Filters -->
-        <div class="bg-white rounded-xl border border-gray-200 p-4">
-          <div class="flex items-center gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+          <div class="flex items-center gap-3 flex-wrap">
             <button v-for="f in ['pending', 'submitted', 'completed', 'all']" :key="f"
               @click="$inertia.get(route('hive.registration.index', { filter: f }))"
               class="px-4 py-2 rounded-lg text-sm font-medium transition"
-              :class="filter === f ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+              :class="filter === f ? 'bg-amber-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'">
               {{ f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1) }}
             </button>
           </div>
         </div>
 
         <!-- Registrations Table -->
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <table class="w-full text-sm">
-            <thead class="bg-gray-50 border-b border-gray-100">
+            <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700">
               <tr>
-                <th class="px-6 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">Student</th>
-                <th class="px-6 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">Programme</th>
-                <th class="px-6 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">Admitted</th>
-                <th class="px-6 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                <th class="px-6 py-3 text-left font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Student</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Programme</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Admitted</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr v-for="reg in adminList.data" :key="reg.id">
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+              <tr v-for="reg in adminList.data" :key="reg.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td class="px-6 py-4">
-                  <p class="font-medium text-gray-900">{{ reg.name || reg.user?.name }}</p>
-                  <p class="text-gray-500 text-xs">{{ reg.email || reg.user?.email }}</p>
+                  <p class="font-medium text-gray-900 dark:text-gray-100">{{ reg.name || reg.user?.name }}</p>
+                  <p class="text-gray-500 dark:text-gray-400 text-xs">{{ reg.email || reg.user?.email }}</p>
                 </td>
-                <td class="px-6 py-4 text-gray-700">{{ reg.programme?.name }}</td>
-                <td class="px-6 py-4 text-gray-500 text-xs">{{ formatDate(reg.admitted_at) }}</td>
+                <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ reg.programme?.name }}</td>
+                <td class="px-6 py-4 text-gray-500 dark:text-gray-400 text-xs">{{ formatDate(reg.admitted_at) }}</td>
                 <td class="px-6 py-4">
                   <span class="inline-flex px-2.5 py-1 text-xs font-semibold rounded-full" :class="registrationStatusClass(reg.registration_status)">
                     {{ registrationStatusLabels[reg.registration_status] ?? 'Pending' }}
@@ -44,18 +44,18 @@
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <Link :href="route('hive.applications.show', { application: reg.id })"
-                      class="text-amber-600 hover:text-amber-700 font-medium text-sm">
+                      class="text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 font-medium text-sm">
                       View
                     </Link>
                     <template v-if="canManageRegistration">
                       <button v-if="reg.registration_status === 'submitted'"
                         @click="completeRegistration(reg)"
-                        class="text-emerald-600 hover:text-emerald-700 font-medium text-sm">
+                        class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium text-sm">
                         Approve
                       </button>
                       <button v-if="reg.registration_status !== 'rejected' && reg.registration_status !== 'completed'"
                         @click="rejectRegistration(reg)"
-                        class="text-red-600 hover:text-red-700 font-medium text-sm">
+                        class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium text-sm">
                         Reject
                       </button>
                     </template>
@@ -63,7 +63,7 @@
                 </td>
               </tr>
               <tr v-if="adminList.data.length === 0">
-                <td colspan="5" class="px-6 py-8 text-center text-gray-500">No registrations found.</td>
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No registrations found.</td>
               </tr>
             </tbody>
           </table>
@@ -73,96 +73,96 @@
       <!-- Student View -->
       <template v-else>
         <!-- Not admitted -->
-        <div v-if="!application" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
-          <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ExclamationCircleIcon class="w-8 h-8 text-amber-600" />
+        <div v-if="!application" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div class="w-16 h-16 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ExclamationCircleIcon class="w-8 h-8 text-amber-600 dark:text-amber-400" />
           </div>
-          <h2 class="text-xl font-bold text-gray-900 mb-2">Registration Not Available</h2>
-          <p class="text-gray-500">You do not have an admitted application. Please complete your application process first.</p>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Registration Not Available</h2>
+          <p class="text-gray-500 dark:text-gray-400">You do not have an admitted application. Please complete your application process first.</p>
         </div>
 
         <!-- Registration completed -->
-        <div v-else-if="registration?.status === 'completed'" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
-          <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckIcon class="w-8 h-8 text-emerald-600" />
+        <div v-else-if="registration?.status === 'completed'" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckIcon class="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h2 class="text-xl font-bold text-gray-900 mb-2">Registration Complete!</h2>
-          <p class="text-gray-500 mb-4">You have completed your registration. You now have full access to the Hive.</p>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Registration Complete!</h2>
+          <p class="text-gray-500 dark:text-gray-400 mb-4">You have completed your registration. You now have full access to the Hive.</p>
           <Link :href="route('hive.dashboard')" class="inline-flex items-center px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition">
             Go to Dashboard
           </Link>
         </div>
 
         <!-- Registration submitted (awaiting verification) -->
-        <div v-else-if="registration?.status === 'submitted'" class="bg-white rounded-xl border border-gray-200 p-8 text-center">
-          <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ClockIcon class="w-8 h-8 text-amber-600" />
+        <div v-else-if="registration?.status === 'submitted'" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div class="w-16 h-16 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ClockIcon class="w-8 h-8 text-amber-600 dark:text-amber-400" />
           </div>
-          <h2 class="text-xl font-bold text-gray-900 mb-2">Registration Under Review</h2>
-          <p class="text-gray-500 mb-4">Your registration documents and payment proof have been submitted. Our team is verifying your information.</p>
-          <p class="text-sm text-gray-400">You will receive an email once your registration is approved.</p>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Registration Under Review</h2>
+          <p class="text-gray-500 dark:text-gray-400 mb-4">Your registration documents and payment proof have been submitted. Our team is verifying your information.</p>
+          <p class="text-sm text-gray-400 dark:text-gray-500">You will receive an email once your registration is approved.</p>
         </div>
 
         <!-- Registration pending - show form -->
-        <div v-else class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-            <h2 class="text-lg font-semibold text-gray-900">Complete Your Registration</h2>
-            <p class="text-sm text-gray-500 mt-1">Upload your proof of payment to complete the registration process.</p>
+        <div v-else class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Complete Your Registration</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Upload your proof of payment to complete the registration process.</p>
           </div>
           <div class="p-6">
             <!-- Application summary -->
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Your Programme</h3>
-              <p class="font-medium text-gray-900">{{ application?.programme?.name }}</p>
-              <p v-if="application?.variant" class="text-sm text-amber-600">{{ application?.variant?.label }}</p>
+            <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Your Programme</h3>
+              <p class="font-medium text-gray-900 dark:text-gray-100">{{ application?.programme?.name }}</p>
+              <p v-if="application?.variant" class="text-sm text-amber-600 dark:text-amber-400">{{ application?.variant?.label }}</p>
             </div>
 
             <!-- Success -->
-            <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <p class="text-emerald-700 text-sm">{{ $page.props.flash.success }}</p>
+            <div v-if="$page.props.flash?.success" class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+              <p class="text-emerald-700 dark:text-emerald-400 text-sm">{{ $page.props.flash.success }}</p>
             </div>
 
             <!-- Upload form -->
             <form @submit.prevent="submit" class="space-y-6">
               <!-- Personal Information -->
-              <div class="border-b border-gray-100 pb-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-4">Personal Information</h3>
+              <div class="border-b border-gray-100 dark:border-gray-700 pb-6">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Personal Information</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth *</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Date of Birth *</label>
                     <input v-model="form.date_of_birth" type="date"
-                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                       :class="form.errors.date_of_birth ? 'border-red-400' : ''" />
-                    <div v-if="form.errors.date_of_birth" class="text-red-600 text-xs mt-1">{{ form.errors.date_of_birth }}</div>
+                    <div v-if="form.errors.date_of_birth" class="text-red-600 dark:text-red-400 text-xs mt-1">{{ form.errors.date_of_birth }}</div>
                   </div>
                 </div>
               </div>
 
               <!-- Emergency Contact -->
-              <div class="border-b border-gray-100 pb-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-4">Emergency Contact *</h3>
-                <p class="text-xs text-gray-500 mb-4">Please provide someone we can contact in case of emergency.</p>
+              <div class="border-b border-gray-100 dark:border-gray-700 pb-6">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Emergency Contact *</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Please provide someone we can contact in case of emergency.</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Contact Name *</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Contact Name *</label>
                     <input v-model="form.emergency_contact_name" type="text"
                       placeholder="Full name"
-                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                       :class="form.errors.emergency_contact_name ? 'border-red-400' : ''" />
-                    <div v-if="form.errors.emergency_contact_name" class="text-red-600 text-xs mt-1">{{ form.errors.emergency_contact_name }}</div>
+                    <div v-if="form.errors.emergency_contact_name" class="text-red-600 dark:text-red-400 text-xs mt-1">{{ form.errors.emergency_contact_name }}</div>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone Number *</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Phone Number *</label>
                     <input v-model="form.emergency_contact_phone" type="tel"
                       placeholder="+266..."
-                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                       :class="form.errors.emergency_contact_phone ? 'border-red-400' : ''" />
-                    <div v-if="form.errors.emergency_contact_phone" class="text-red-600 text-xs mt-1">{{ form.errors.emergency_contact_phone }}</div>
+                    <div v-if="form.errors.emergency_contact_phone" class="text-red-600 dark:text-red-400 text-xs mt-1">{{ form.errors.emergency_contact_phone }}</div>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Relationship *</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Relationship *</label>
                     <select v-model="form.emergency_contact_relationship"
-                      class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                       :class="form.errors.emergency_contact_relationship ? 'border-red-400' : ''">
                       <option value="">Select relationship</option>
                       <option value="Parent">Parent</option>
@@ -172,37 +172,37 @@
                       <option value="Guardian">Guardian</option>
                       <option value="Other">Other</option>
                     </select>
-                    <div v-if="form.errors.emergency_contact_relationship" class="text-red-600 text-xs mt-1">{{ form.errors.emergency_contact_relationship }}</div>
+                    <div v-if="form.errors.emergency_contact_relationship" class="text-red-600 dark:text-red-400 text-xs mt-1">{{ form.errors.emergency_contact_relationship }}</div>
                   </div>
                 </div>
               </div>
 
               <!-- Dietary Restrictions -->
-              <div class="border-b border-gray-100 pb-6">
-                <h3 class="text-sm font-semibold text-gray-900 mb-4">Dietary Requirements</h3>
-                <p class="text-xs text-gray-500 mb-4">Select any dietary restrictions (optional)</p>
+              <div class="border-b border-gray-100 dark:border-gray-700 pb-6">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Dietary Requirements</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Select any dietary restrictions (optional)</p>
                 <div class="flex flex-wrap gap-2">
                   <label v-for="diet in dietaryOptions" :key="diet"
                     class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition"
                     :class="form.dietary_restrictions.includes(diet)
-                      ? 'border-amber-400 bg-amber-50'
-                      : 'border-gray-200 hover:border-gray-300'">
+                      ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'">
                     <input type="checkbox" :value="diet" v-model="form.dietary_restrictions"
                       class="w-4 h-4 text-amber-600 rounded" />
-                    <span class="text-sm text-gray-700">{{ diet }}</span>
+                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ diet }}</span>
                   </label>
                 </div>
               </div>
 
               <!-- Payment Proof -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Proof of Payment *</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Proof of Payment *</label>
                 <input type="file" ref="fileInput" accept=".pdf,.jpg,.jpeg,.png"
-                  class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                  class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
                   :class="form.errors.payment_proof ? 'border-red-400' : ''"
                   @change="form.payment_proof = $event.target.files[0]" />
-                <div v-if="form.errors.payment_proof" class="text-red-600 text-xs mt-1">{{ form.errors.payment_proof }}</div>
-                <p class="text-xs text-gray-500 mt-1">Accepted: PDF, JPG, PNG (max 5MB)</p>
+                <div v-if="form.errors.payment_proof" class="text-red-600 dark:text-red-400 text-xs mt-1">{{ form.errors.payment_proof }}</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Accepted: PDF, JPG, PNG (max 5MB)</p>
               </div>
 
               <div class="flex justify-end">
@@ -286,11 +286,11 @@ const rejectRegistration = (reg) => {
 
 const registrationStatusClass = (status) => {
   switch (status) {
-    case 'completed': return 'bg-emerald-100 text-emerald-800';
-    case 'submitted': return 'bg-blue-100 text-blue-800';
-    case 'pending': return 'bg-gray-100 text-gray-600';
-    case 'rejected': return 'bg-red-100 text-red-800';
-    default: return 'bg-gray-100 text-gray-600';
+    case 'completed': return 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300';
+    case 'submitted': return 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300';
+    case 'pending': return 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400';
+    case 'rejected': return 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300';
+    default: return 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400';
   }
 };
 </script>

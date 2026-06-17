@@ -236,7 +236,22 @@ class User extends Authenticatable
      */
     public function getRoleNames(): array
     {
-        return $this->roles->pluck('name')->toArray();
+        return collect($this->roles)->pluck('name')->toArray();
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(\App\Models\Invoice::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(\App\Models\Payment::class);
+    }
+
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(\App\Models\Expense::class);
     }
 
     public function applications(): HasMany

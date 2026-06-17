@@ -148,7 +148,7 @@
                 v-model="searchQuery"
                 type="search"
                 autocomplete="off"
-                class="w-full rounded-lg border-gray-300 py-2 pl-9 pr-3 text-sm shadow-sm focus:border-amber-500 focus:ring-amber-500"
+                class="w-full rounded-lg border-gray-200 bg-white py-2 pl-9 pr-3 text-sm text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
                 placeholder="Search The Hive"
               />
             </form>

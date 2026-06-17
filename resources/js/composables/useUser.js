@@ -16,12 +16,12 @@ export function useUser() {
   ));
   const isAdmin = computed(() => userRoles.value.some((role) =>
     ['super-admin', 'it-support'].includes(role)
-  )));
+  ));
   // Staff = anyone who is not student, parent-guardian, or alumni
-  const isStaff = computed(() => !isStudent.value && !isParentGuardian.value && !isAlumni.value));
+  const isStaff = computed(() => !isStudent.value && !isParentGuardian.value && !isAlumni.value);
   const canAccessFinance = computed(() => userRoles.value.some((role) =>
     ['super-admin', 'finance', 'hr-manager'].includes(role)
-  )));
+  ));
   const isSuperAdmin = computed(() => userRoles.value.includes('super-admin'));
   const isInstructor = computed(() => isFaculty.value);
   const needsRegistration = computed(() => currentUser.value?.needs_registration ?? false);

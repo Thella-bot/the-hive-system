@@ -8,7 +8,7 @@
           type="search"
           name="query"
           autocomplete="off"
-          class="w-full rounded-lg border-gray-300 pl-10 text-sm shadow-sm focus:border-amber-500 focus:ring-amber-500"
+          class="w-full rounded-lg border-gray-300 dark:border-gray-600 pl-10 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:border-amber-500 focus:ring-amber-500"
           placeholder="Search people, modules, documents, announcements..."
         />
       </div>
@@ -21,41 +21,41 @@
       </button>
     </form>
 
-    <div v-if="!query" class="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
+    <div v-if="!query" class="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-10 text-center">
       <MagnifyingGlassIcon class="mx-auto h-10 w-10 text-amber-500" />
-      <h2 class="mt-3 text-lg font-semibold text-gray-900">Find anything in the institute</h2>
-      <p class="mt-1 text-sm text-gray-500">Use a student number, module code, document title, event name, or assessment keyword.</p>
+      <h2 class="mt-3 text-lg font-semibold text-gray-900 dark:text-white">Find anything in the institute</h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Use a student number, module code, document title, event name, or assessment keyword.</p>
     </div>
 
-    <div v-else-if="total === 0" class="rounded-lg border border-gray-200 bg-white p-10 text-center">
+    <div v-else-if="total === 0" class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-10 text-center">
       <DocumentMagnifyingGlassIcon class="mx-auto h-10 w-10 text-gray-400" />
-      <h2 class="mt-3 text-lg font-semibold text-gray-900">No results found</h2>
-      <p class="mt-1 text-sm text-gray-500">Try a shorter phrase or a module code.</p>
+      <h2 class="mt-3 text-lg font-semibold text-gray-900 dark:text-white">No results found</h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Try a shorter phrase or a module code.</p>
     </div>
 
     <div v-else class="grid gap-5 lg:grid-cols-2">
       <section
         v-for="section in visibleSections"
         :key="section.key"
-        class="rounded-lg border border-gray-200 bg-white shadow-sm"
+        class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm"
       >
-        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+        <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4">
           <div class="flex items-center gap-2">
-            <component :is="section.icon" class="h-5 w-5 text-amber-600" />
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-700">{{ section.label }}</h2>
+            <component :is="section.icon" class="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">{{ section.label }}</h2>
           </div>
-          <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">{{ section.items.length }}</span>
+          <span class="rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400">{{ section.items.length }}</span>
         </div>
 
-        <div class="divide-y divide-gray-100">
+        <div class="divide-y divide-gray-100 dark:divide-gray-700">
           <Link
             v-for="item in section.items"
             :key="`${section.key}-${item.id}`"
             :href="item.url"
-            class="block px-5 py-4 hover:bg-amber-50"
+            class="block px-5 py-4 hover:bg-amber-50 dark:hover:bg-amber-900/20"
           >
-            <p class="text-sm font-semibold text-gray-900">{{ item.title }}</p>
-            <p v-if="item.meta" class="mt-1 text-xs text-gray-500">{{ item.meta }}</p>
+            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ item.title }}</p>
+            <p v-if="item.meta" class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ item.meta }}</p>
           </Link>
         </div>
       </section>

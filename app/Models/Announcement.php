@@ -44,7 +44,7 @@ class Announcement extends Model
             ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->where(function ($q) use ($user) {
                 $q->whereNull('target_roles');
-                foreach ($user->roles->pluck('name') as $role) {
+                foreach (collect($user->roles)->pluck('name') as $role) {
                     $q->orWhereJsonContains('target_roles', $role);
                 }
             });

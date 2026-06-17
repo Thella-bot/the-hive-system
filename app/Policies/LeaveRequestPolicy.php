@@ -22,7 +22,7 @@ class LeaveRequestPolicy extends BasePolicy
     public function view(User $user, LeaveRequest $leaveRequest): bool
     {
         // HR can view any request, users can only view their own.
-        return $user->can('edit-leave-requests') || $user->id === $leaveRequest->user_id;
+        return $user->can('approve-leave-requests') || $user->id === $leaveRequest->user_id;
     }
 
     /**
@@ -40,7 +40,7 @@ class LeaveRequestPolicy extends BasePolicy
     public function update(User $user, LeaveRequest $leaveRequest): bool
     {
         // HR can only update requests that are still pending.
-        return $user->can('edit-leave-requests') && $leaveRequest->status === 'pending';
+        return $user->can('approve-leave-requests') && $leaveRequest->status === 'pending';
     }
 
     /**

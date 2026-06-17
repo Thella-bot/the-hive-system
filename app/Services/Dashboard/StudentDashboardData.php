@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\Bookmark;
 use App\Models\Event;
 use App\Models\Gradable;
+use App\Models\Invoice;
 use App\Models\Programme;
 use App\Models\StudentTask;
 use App\Models\Submission;
@@ -95,6 +96,12 @@ class StudentDashboardData implements DashboardData
                 ->take(10)
                 ->get(),
             'recentActivities' => $this->buildRecentActivities($user),
+
+            // Fee Information
+            'invoices' => $this->getInvoices($user),
+            'totalFees' => $this->getTotalFees($user),
+            'totalPaid' => $this->getTotalPaid($user),
+            'remainingBalance' => $this->getRemainingBalance($user),
         ];
     }
 
@@ -205,5 +212,47 @@ class StudentDashboardData implements DashboardData
             ->whereHas('submissions', fn($q) => $q->where('student_id', $user->id)->whereNotNull('grade'))
             ->distinct('module_id')
             ->count('module_id');
+    }
+
+    private function getInvoices(User $user)
+    {
+        return Invoice::where('user_id', $user->id)
+            ->with('payments')
+            ->orderBy('due_date', 'desc')
+            ->take(10)
+            ->get()
+            ->map(fn($invoice) => [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'type' => $invoice->type,
+                'description' => $invoice->description,
+                'amount' => $invoice->amount,
+                'total_paid' => $invoice->total_paid,
+                'balance' => $invoice->balance,
+                'status' => $invoice->status,
+                'status_label' => $invoice->status_label,
+                'due_date' => $invoice->due_date,
+                'is_paid' => $invoice->is_paid,
+                'is_overdue' => $invoice->is_overdue,
+            ]);
+    }
+
+    private function getTotalFees(User $user): float
+    {
+        return Invoice::where('user_id', $user->id)->sum('amount');
+    }
+
+    private function getTotalPaid(User $user): float
+    {
+        return Invoice::where('user_id', $user->id)
+            ->get()
+            ->sum('total_paid');
+    }
+
+    private function getRemainingBalance(User $user): float
+    {
+        return Invoice::where('user_id', $user->id)
+            ->get()
+            ->sum('balance');
     }
 }

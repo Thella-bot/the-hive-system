@@ -1,9 +1,12 @@
 <template>
   <HiveLayout title="Announcements" description="Institute notices, reminders, and pinned updates.">
-    <div class="flex justify-end">
+    <template #header-actions>
       <Link v-if="canCreate" :href="route('hive.announcements.create')"
-            class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition">New Post</Link>
-    </div>
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        <PlusIcon class="w-4 h-4" />
+        New Post
+      </Link>
+    </template>
     <div class="space-y-4">
       <div v-for="ann in announcementsList" :key="ann.id" class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex justify-between items-start gap-4">
@@ -49,7 +52,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
+import { ArrowDownTrayIcon, PlusIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import dayjs from 'dayjs';
 import { useUser } from '@/composables/useUser';

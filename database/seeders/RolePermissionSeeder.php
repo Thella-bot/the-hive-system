@@ -153,6 +153,22 @@ class RolePermissionSeeder extends Seeder
             'view-incidents', 'report-incidents',
             'view-haccp', 'manage-haccp',
             'view-compliance', 'manage-compliance',
+            'manage-accreditation',
+
+            // === Additional Module Permissions ===
+            'view-cohorts', 'create-cohorts', 'edit-cohorts',
+            'view-kitchen-stations', 'assign-kitchen-stations',
+            'delete-leave-requests',
+            'view-transcripts',
+            'view-payslips', 'create-payslips', 'download-payslips',
+            'view-event-registrations', 'manage-event-registrations',
+            'view-job-board', 'manage-job-board',
+            'view-recipes', 'create-recipes', 'edit-recipes', 'delete-recipes',
+            'view-mise-en-place', 'manage-mise-en-place',
+            'view-ingredient-requisitions', 'create-ingredient-requisitions', 'approve-requisitions',
+            'view-requisitions', 'create-requisitions', 'process-requisitions',
+            'view-users',
+            'delete-assessments',
 
             // === Intranet Core ===
             'view-announcements', 'create-announcements', 'edit-announcements', 'delete-announcements',
@@ -243,7 +259,7 @@ class RolePermissionSeeder extends Seeder
 
         // Pastry/Bakery Instructor
         $pastryInstructor = Role::firstOrCreate(['name' => 'pastry-instructor']);
-        $pastryInstructor->givePermissionTo($chefInstructor->permissions->pluck('name')->toArray());
+        $pastryInstructor->givePermissionTo(collect($chefInstructor->permissions)->pluck('name')->toArray());
 
         // Sous Chef (Teaching Assistant)
         $sousChef = Role::firstOrCreate(['name' => 'sous-chef']);

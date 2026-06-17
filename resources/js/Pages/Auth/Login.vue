@@ -6,8 +6,6 @@ export default {
 
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -34,65 +32,84 @@ const submit = () => {
 <template>
     <Head title="Log in" />
 
-    <div class="min-h-screen flex items-center justify-center bg-gray-100">
-        <div class="max-w-md w-full bg-white shadow-lg rounded-lg p-8">
-            <div class="flex justify-center mb-6">
-                <Link :href="route('home')">
-                    <img src="/images/hbci-logo-no-text.png" alt="Honey Bee Culinary Institute" class="h-16">
-                </Link>
-            </div>
+    <div class="min-h-screen flex items-center justify-center px-4 py-12 relative bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 overflow-hidden">
+        <!-- Background pattern -->
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] lg:w-[600px] lg:h-[600px] bg-white/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 left-0 w-[400px] h-[400px] lg:w-[500px] lg:h-[500px] bg-amber-500/20 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
 
-            <h2 class="text-2xl font-bold text-center text-amber-800 mb-6">Welcome Back</h2>
-
-            <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-                {{ status }}
-            </div>
-
-            <form @submit.prevent="submit">
-                <div>
-                    <InputLabel for="email" value="Email" />
-                    <TextInput
-                        id="email"
-                        v-model="form.email"
-                        type="email"
-                        class="mt-1 block w-full"
-                        required
-                        autofocus
-                        autocomplete="username"
-                    />
-                    <InputError class="mt-2" :message="form.errors.email" />
-                </div>
-
-                <div class="mt-4">
-                    <InputLabel for="password" value="Password" />
-                    <TextInput
-                        id="password"
-                        v-model="form.password"
-                        type="password"
-                        class="mt-1 block w-full"
-                        required
-                        autocomplete="current-password"
-                    />
-                    <InputError class="mt-2" :message="form.errors.password" />
-                </div>
-
-                <div class="block mt-4">
-                    <label class="flex items-center">
-                        <Checkbox v-model:checked="form.remember" name="remember" />
-                        <span class="ms-2 text-sm text-gray-600">Remember me</span>
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-end mt-4">
-                    <Link :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-amber-800 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
-                        Forgot your password?
+        <!-- Login Card -->
+        <div class="relative w-full max-w-md">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 lg:p-10">
+                <div class="flex justify-center mb-6">
+                    <Link :href="route('home')">
+                        <img src="/images/hbci-logo-no-text.png" alt="Honey Bee Culinary Institute" class="h-16">
                     </Link>
-
-                    <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                        Log in
-                    </PrimaryButton>
                 </div>
-            </form>
+
+                <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">Welcome Back</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">Sign in to your student portal</p>
+
+                <div v-if="status" class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700">
+                    {{ status }}
+                </div>
+
+                <form @submit.prevent="submit" class="space-y-5">
+                    <div>
+                        <InputLabel for="email" value="Email" />
+                        <TextInput
+                            id="email"
+                            v-model="form.email"
+                            type="email"
+                            class="mt-1 block w-full"
+                            required
+                            autofocus
+                            autocomplete="username"
+                            placeholder="you@example.com"
+                        />
+                        <InputError class="mt-2" :message="form.errors.email" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="password" value="Password" />
+                        <TextInput
+                            id="password"
+                            v-model="form.password"
+                            type="password"
+                            class="mt-1 block w-full"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Enter your password"
+                        />
+                        <InputError class="mt-2" :message="form.errors.password" />
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <Checkbox v-model:checked="form.remember" name="remember" />
+                            <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                        </label>
+                        <Link :href="route('password.request')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                            Forgot password?
+                        </Link>
+                    </div>
+
+                    <div>
+                        <PrimaryButton class="w-full justify-center" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                            Sign In
+                        </PrimaryButton>
+                    </div>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Don't have an account?
+                        <Link :href="route('apply')" class="text-amber-600 hover:text-amber-700 font-semibold">
+                            Apply now
+                        </Link>
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </template>
