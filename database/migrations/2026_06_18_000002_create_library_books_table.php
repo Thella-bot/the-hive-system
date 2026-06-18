@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('library_books', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('isbn', 20)->nullable()->unique();
             $table->string('title');
             $table->string('author');
@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('publish_year')->nullable();
             $table->string('edition')->nullable();
             $table->text('description')->nullable();
-            $table->uuid('category_id')->nullable();
+            $table->foreignId('category_id')->nullable()->constrained('book_categories')->onDelete('set null');
             $table->integer('total_copies')->default(1);
             $table->integer('available_copies')->default(1);
             $table->string('location')->nullable();
@@ -27,10 +27,8 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->foreign('category_id')->references('id')->on('book_categories')->onDelete('set null');
             $table->index(['title', 'author']);
             $table->index('isbn');
-            $table->index('category_id');
         });
     }
 

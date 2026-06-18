@@ -84,7 +84,9 @@
       "Bash(php -l app/Models/Key.php)",
       "Bash(php -l app/Models/VisitorLog.php)",
       "Bash(ls -la \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/\"*.md)",
-      "Bash(dir \"c:\\\\Users\\\\mahal\\\\OneDrive\\\\Desktop\\\\Honey Bee Culinary Institute\\\\Code\\\\the-hive-system\\\\*.md\")"
+      "Bash(dir \"c:\\\\Users\\\\mahal\\\\OneDrive\\\\Desktop\\\\Honey Bee Culinary Institute\\\\Code\\\\the-hive-system\\\\*.md\")",
+      "Bash(mv 2026_06_17_000002_create_budgets_table.php 2026_06_17_000001_create_budgets_table.php)",
+      "Bash(mv 2026_06_17_000001_create_expenses_table.php 2026_06_17_000002_create_expenses_table.php)"
     ]
   }
 }

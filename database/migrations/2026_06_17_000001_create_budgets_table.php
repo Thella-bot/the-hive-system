@@ -8,6 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::create('expense_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('description')->nullable();
+            $table->string('code')->unique();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -34,5 +43,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('budgets');
+        Schema::dropIfExists('expense_categories');
     }
 };

@@ -9,9 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('book_loans', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('user_id');
-            $table->uuid('book_id');
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('book_id')->constrained('library_books')->onDelete('cascade');
             $table->date('loan_date');
             $table->date('due_date');
             $table->date('return_date')->nullable();
@@ -20,8 +20,6 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('book_id')->references('id')->on('library_books')->onDelete('cascade');
             $table->index('user_id');
             $table->index('book_id');
             $table->index('status');
