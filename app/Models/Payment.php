@@ -56,6 +56,11 @@ class Payment extends Model
         return $this->status === 'completed';
     }
 
+    public function getIsSuccessfulAttribute(): bool
+    {
+        return in_array($this->status, ['completed', 'refunded']);
+    }
+
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
@@ -63,7 +68,7 @@ class Payment extends Model
             'completed' => 'Completed',
             'failed' => 'Failed',
             'refunded' => 'Refunded',
-            default => $this->status,
+            default => strtoupper($this->status ?? 'unknown'),
         };
     }
 
@@ -93,5 +98,32 @@ class Payment extends Model
         });
 
         parent::boot();
+    }
+
+    // --- Scopes ---
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeForInvoice($query, int $invoiceId)
+    {
+        return $query->where('invoice_id', $invoiceId);
+    }
+
+    public function scopeForUser($query, int $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeRecent($query, int $days = 30)
+    {
+        return $query->where('payment_date', '>=', now()->subDays($days));
     }
 }

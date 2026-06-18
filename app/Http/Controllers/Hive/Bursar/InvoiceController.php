@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive\Bursar;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Invoice;
 use App\Models\Programme;
 use App\Models\User;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class InvoiceController extends Controller
 {
+    use HasFilters;
+
     public function index(Request $request): Response
     {
         $query = Invoice::with(['user', 'programme'])
@@ -36,7 +39,7 @@ class InvoiceController extends Controller
 
         return Inertia::render('Bursar/Invoice/Index', [
             'invoices' => $query->paginate(20)->withQueryString(),
-            'filters' => $request->only(['status', 'academic_year', 'search']),
+            'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'search']),
             'statuses' => ['pending', 'partial', 'paid', 'overdue', 'cancelled'],
             'academicYears' => Invoice::distinct()->pluck('academic_year')->filter()->sort()->reverse()->values(),
         ]);

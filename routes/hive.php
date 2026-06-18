@@ -85,6 +85,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         require __DIR__ . '/hive/academic.php';
         require __DIR__ . '/hive/assessments.php';
         require __DIR__ . '/hive/bursar.php';
+        require __DIR__ . '/hive/library.php';
         require __DIR__ . '/hive/registrar.php';
 
         // Profile

@@ -52,7 +52,8 @@
       "Bash(php -r \"require ''vendor/autoload.php''; $role = \\\\Spatie\\\\Permission\\\\Models\\\\Role::where\\(''name'', ''chef-instructor''\\)->first\\(\\); $perms = collect\\($role->permissions\\)->pluck\\(''name''\\)->toArray\\(\\); echo ''Chef Instructor permissions: '' . count\\($perms\\) . PHP_EOL; $pastry = \\\\Spatie\\\\Permission\\\\Models\\\\Role::where\\(''name'', ''pastry-instructor''\\)->first\\(\\); $pastry->givePermissionTo\\($perms\\); echo ''Pastry Instructor permissions assigned: '' . collect\\($pastry->permissions\\)->count\\(\\) . PHP_EOL;\")",
       "Bash(php artisan tinker --execute=\"$role = Spatie\\\\Permission\\\\Models\\\\Role::where\\(''name'', ''chef-instructor''\\)->first\\(\\); $perms = collect\\($role->permissions\\)->pluck\\(''name''\\)->toArray\\(\\); echo ''Chef Instructor permissions: '' . count\\($perms\\) . PHP_EOL; $pastry = Spatie\\\\Permission\\\\Models\\\\Role::where\\(''name'', ''pastry-instructor''\\)->first\\(\\); $pastry->givePermissionTo\\($perms\\); echo ''Done'' . PHP_EOL;\")",
       "Bash(php fix_permissions.php)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000/hive/dashboard)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000/hive/dashboard)",
+      "Bash(php artisan db:seed --class=ExpenseCategorySeeder)"
     ]
   }
 }

@@ -254,6 +254,16 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Expense::class);
     }
 
+    public function bookLoans(): HasMany
+    {
+        return $this->hasMany(\App\Models\BookLoan::class);
+    }
+
+    public function bookReservations(): HasMany
+    {
+        return $this->hasMany(\App\Models\BookReservation::class);
+    }
+
     public function applications(): HasMany
     {
         return $this->hasMany(\App\Models\Application::class);

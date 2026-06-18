@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
             ProgrammeSeeder::class,
             ModuleSeeder::class,
             ShortCourseSeeder::class,
+            ExpenseCategorySeeder::class,
+            BookCategorySeeder::class,
         ]);
     }
 }

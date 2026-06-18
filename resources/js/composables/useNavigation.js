@@ -17,7 +17,6 @@ import {
   CurrencyDollarIcon,
   DocumentTextIcon,
   ExclamationCircleIcon,
-  FolderIcon,
   HomeIcon,
   MagnifyingGlassIcon,
   MegaphoneIcon,
@@ -138,19 +137,19 @@ export function useNavigation() {
     ];
   };
 
-  const resourcesNav = () => [
+  const academicResourcesNav = () => [
     {
-      name: 'Resources',
-      icon: FolderIcon,
+      name: 'Academic Resources',
+      icon: BookOpenIcon,
       children: [
+        // Library
+        { name: 'Library', href: route('library.dashboard'), active: 'library.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
+        // Documents (unified from old Documents module)
+        { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*', roles: ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager', 'student'] },
+        // Announcements
         { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
+        // Events
         { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
-        ...(isStaff.value || isAdmin.value ? [
-          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*', roles: ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
-        ] : []),
-        ...(!isStaff.value && !isAdmin.value ? [
-          { name: 'Documents', href: route('hive.documents.module-select'), active: 'hive.documents.*', roles: ['student'] },
-        ] : []),
       ],
     },
   ];
@@ -317,12 +316,12 @@ export function useNavigation() {
     buildNav([
       ...dashNav,
       ...studentNav(),
-      ...resourcesNav(),
+      ...academicResourcesNav(),
       ...admissionsNav(),
       ...administrationNav(),
       ...peopleNav(),
       ...operationsNav(),
-      ...hrNav(),
+            ...hrNav(),
       ...bursarNav(),
       ...systemNav(),
     ])

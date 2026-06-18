@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive\Bursar;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Budget;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
@@ -14,44 +15,37 @@ use Inertia\Response;
 
 class ExpenseController extends Controller
 {
+    use HasFilters;
+
     public function index(Request $request): Response
     {
         $query = Expense::with(['user', 'category', 'vendor', 'budget', 'approver'])
             ->orderByDesc('created_at');
 
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->has('category_id') && $request->category_id) {
-            $query->where('expense_category_id', $request->category_id);
-        }
-
-        if ($request->has('budget_id') && $request->budget_id) {
-            $query->where('budget_id', $request->budget_id);
-        }
-
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('expense_number', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhere('reference_number', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->has('date_from') && $request->date_from) {
-            $query->whereDate('expense_date', '>=', $request->date_from);
-        }
-
-        if ($request->has('date_to') && $request->date_to) {
-            $query->whereDate('expense_date', '<=', $request->date_to);
-        }
+        $this->applyFilters($query, $request, [
+            'status' => true,
+            'search' => true,
+            'searchColumns' => ['expense_number', 'description', 'reference_number'],
+            'date_from' => true,
+            'date_to' => true,
+            'dateColumn' => 'expense_date',
+            'category_id' => true,
+            'categoryColumn' => 'expense_category_id',
+            'budget_id' => true,
+        ]);
 
         return Inertia::render('Bursar/Expense/Index', [
             'expenses' => $query->paginate(20)->withQueryString(),
-            'filters' => $request->only(['status', 'category_id', 'budget_id', 'search', 'date_from', 'date_to']),
+            'filters' => $this->getFilterInputs($request, ['status', 'category_id', 'budget_id', 'search', 'date_from', 'date_to']),
             'statuses' => ['pending', 'approved', 'rejected', 'paid', 'cancelled'],
+            'categories' => ExpenseCategory::active()->orderBy('name')->get(),
+            'budgets' => Budget::where('status', 'active')->orderBy('name')->get(),
+        ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('Bursar/Expense/Create', [
             'categories' => ExpenseCategory::active()->orderBy('name')->get(),
             'budgets' => Budget::where('status', 'active')->orderBy('name')->get(),
         ]);
@@ -111,7 +105,7 @@ class ExpenseController extends Controller
 
     public function destroy(Expense $expense): RedirectResponse
     {
-        if ($expense->status === 'paid') {
+        if ($expense->is_paid) {
             return back()->with('error', 'Cannot delete a paid expense.');
         }
 
@@ -125,7 +119,7 @@ class ExpenseController extends Controller
      */
     public function approve(Request $request, Expense $expense): RedirectResponse
     {
-        if ($expense->status !== 'pending') {
+        if (!$expense->is_pending) {
             return back()->with('error', 'Only pending expenses can be approved.');
         }
 
@@ -147,7 +141,7 @@ class ExpenseController extends Controller
             'notes' => 'required|string',
         ]);
 
-        if ($expense->status !== 'pending') {
+        if (!$expense->is_pending) {
             return back()->with('error', 'Only pending expenses can be rejected.');
         }
 
@@ -172,7 +166,7 @@ class ExpenseController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        if ($expense->status !== 'approved') {
+        if (!$expense->is_approved) {
             return back()->with('error', 'Only approved expenses can be marked as paid.');
         }
 

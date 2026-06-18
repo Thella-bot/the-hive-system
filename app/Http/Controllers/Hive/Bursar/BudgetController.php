@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive\Bursar;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Budget;
 use App\Models\Department;
 use App\Models\ExpenseCategory;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class BudgetController extends Controller
 {
+    use HasFilters;
+
     public function index(Request $request): Response
     {
         $query = Budget::with(['category', 'department'])
@@ -43,7 +46,7 @@ class BudgetController extends Controller
 
         return Inertia::render('Bursar/Budget/Index', [
             'budgets' => $budgets,
-            'filters' => $request->only(['status', 'academic_year', 'department_id']),
+            'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'department_id']),
             'statuses' => ['draft', 'active', 'closed'],
             'departments' => Department::orderBy('name')->get(),
             'categories' => ExpenseCategory::active()->orderBy('name')->get(),

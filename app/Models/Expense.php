@@ -69,12 +69,17 @@ class Expense extends Model
 
     public function getIsApprovedAttribute(): bool
     {
-        return $this->status === 'approved' || $this->status === 'paid';
+        return in_array($this->status, ['approved', 'paid']);
     }
 
     public function getIsPendingAttribute(): bool
     {
         return $this->status === 'pending';
+    }
+
+    public function getIsPaidAttribute(): bool
+    {
+        return $this->status === 'paid';
     }
 
     public function getStatusLabelAttribute(): string
@@ -85,7 +90,7 @@ class Expense extends Model
             'rejected' => 'Rejected',
             'paid' => 'Paid',
             'cancelled' => 'Cancelled',
-            default => $this->status,
+            default => strtoupper($this->status ?? 'unknown'),
         };
     }
 
@@ -114,5 +119,37 @@ class Expense extends Model
         });
 
         parent::boot();
+    }
+
+    // --- Scopes ---
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->whereIn('status', ['approved', 'paid']);
+    }
+
+    public function scopePaid($query)
+    {
+        return $query->where('status', 'paid');
+    }
+
+    public function scopeForBudget($query, int $budgetId)
+    {
+        return $query->where('budget_id', $budgetId);
+    }
+
+    public function scopeForCategory($query, int $categoryId)
+    {
+        return $query->where('expense_category_id', $categoryId);
+    }
+
+    public function scopeRecent($query, int $days = 30)
+    {
+        return $query->where('expense_date', '>=', now()->subDays($days));
     }
 }

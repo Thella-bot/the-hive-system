@@ -55,25 +55,36 @@ class Budget extends Model
 
     public function getSpentAmountAttribute(): float
     {
-        return $this->expenses()
+        // Use relation if loaded, otherwise query
+        if ($this->relationLoaded('expenses')) {
+            return (float) $this->expenses
+                ->whereIn('status', ['approved', 'paid'])
+                ->sum('amount');
+        }
+
+        return (float) $this->expenses()
             ->whereIn('status', ['approved', 'paid'])
             ->sum('amount');
     }
 
     public function getAvailableAmountAttribute(): float
     {
-        return $this->allocated_amount - $this->spent_amount;
+        return ($this->allocated_amount ?? 0) - $this->spent_amount;
     }
 
     public function getPercentUsedAttribute(): float
     {
-        if ($this->allocated_amount <= 0) return 0;
-        return round(($this->spent_amount / $this->allocated_amount) * 100, 2);
+        $allocated = $this->allocated_amount ?? 0;
+        if ($allocated <= 0) {
+            return 0;
+        }
+
+        return round(($this->spent_amount / $allocated) * 100, 2);
     }
 
     public function getIsOverspentAttribute(): bool
     {
-        return $this->spent_amount > $this->allocated_amount;
+        return $this->spent_amount > ($this->allocated_amount ?? 0);
     }
 
     public function getIsActiveAttribute(): bool
@@ -87,7 +98,24 @@ class Budget extends Model
             'draft' => 'Draft',
             'active' => 'Active',
             'closed' => 'Closed',
-            default => $this->status,
+            default => strtoupper($this->status ?? 'unknown'),
         };
+    }
+
+    // --- Scopes ---
+
+    public function scopeActiveStatus($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeForAcademicYear($query, string $year)
+    {
+        return $query->where('academic_year', $year);
+    }
+
+    public function scopeForDepartment($query, int $departmentId)
+    {
+        return $query->where('department_id', $departmentId);
     }
 }

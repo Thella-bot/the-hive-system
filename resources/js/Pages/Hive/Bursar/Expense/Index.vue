@@ -54,10 +54,15 @@ const formatCurrency = (amount) => {
       </Link>
     </template>
 
-    <div class="mb-5 flex flex-wrap gap-3 items-center">
+    <div class="mb-5 flex flex-wrap gap-3 items-center justify-between">
       <div class="max-w-xs">
         <SearchInput v-model="search" @search="applyFilters" placeholder="Search expenses..." />
       </div>
+      <Link :href="route('bursar.expenses.create')"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors">
+        <PlusIcon class="w-5 h-5" />
+        New Expense
+      </Link>
     </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">

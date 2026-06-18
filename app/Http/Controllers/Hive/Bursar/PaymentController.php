@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive\Bursar;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Invoice;
 use App\Models\Payment;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class PaymentController extends Controller
 {
+    use HasFilters;
+
     public function index(Request $request): Response
     {
         $query = Payment::with(['user', 'invoice', 'recorder'])
@@ -33,17 +36,15 @@ class PaymentController extends Controller
             });
         }
 
-        if ($request->has('date_from') && $request->date_from) {
-            $query->whereDate('payment_date', '>=', $request->date_from);
-        }
-
-        if ($request->has('date_to') && $request->date_to) {
-            $query->whereDate('payment_date', '<=', $request->date_to);
-        }
+        $this->applyFilters($query, $request, [
+            'date_from' => true,
+            'date_to' => true,
+            'dateColumn' => 'payment_date',
+        ]);
 
         return Inertia::render('Bursar/Payment/Index', [
             'payments' => $query->paginate(20)->withQueryString(),
-            'filters' => $request->only(['status', 'payment_method', 'search', 'date_from', 'date_to']),
+            'filters' => $this->getFilterInputs($request, ['status', 'payment_method', 'search', 'date_from', 'date_to']),
             'statuses' => ['pending', 'completed', 'failed', 'refunded'],
             'methods' => ['cash', 'bank_transfer', 'mobile_money', 'card', 'other'],
         ]);
@@ -97,7 +98,7 @@ class PaymentController extends Controller
         // Update invoice status if payment status changed
         if (isset($data['status'])) {
             $invoice = $payment->invoice;
-            if ($data['status'] === 'completed') {
+            if ($payment->is_completed || $data['status'] === 'completed') {
                 if ($payment->amount >= $invoice->balance) {
                     $invoice->update([
                         'status' => 'paid',
@@ -124,7 +125,7 @@ class PaymentController extends Controller
     public function destroy(Payment $payment): RedirectResponse
     {
         // Restore invoice status if payment was completed
-        if ($payment->status === 'completed' && $payment->invoice) {
+        if ($payment->is_completed && $payment->invoice) {
             $invoice = $payment->invoice;
             $payment->delete();
 
