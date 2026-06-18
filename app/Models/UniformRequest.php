@@ -25,8 +25,25 @@ class UniformRequest extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function scopePending($query)
+    // --- Scopes ---
+
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
     }
 }

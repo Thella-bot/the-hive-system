@@ -12,7 +12,7 @@ class Bookmark extends Model
         'note',
     ];
 
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -20,5 +20,12 @@ class Bookmark extends Model
     public function bookmarkable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    // --- Scopes ---
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
     }
 }

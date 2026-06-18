@@ -54,6 +54,35 @@ class Document extends Model
         return $this->hasMany(DocumentAcknowledgement::class);
     }
 
+    // --- Scopes ---
+
+    public function scopePublished($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeForCategory($query, string $category): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('category', $category);
+    }
+
+    public function scopeForAudience($query, string $audience): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('audience', $audience);
+    }
+
+    public function scopeByCreator($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('created_by', $userId);
+    }
+
+    public function scopeForModule($query, int $moduleId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('module_id', $moduleId);
+    }
+
+    // --- Helpers ---
+
     public function isAcknowledgedBy(User $user): bool
     {
         return $this->acknowledgements()->where('user_id', $user->id)->exists();

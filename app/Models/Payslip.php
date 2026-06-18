@@ -40,4 +40,22 @@ class Payslip extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeForPeriod($query, string $startDate, string $endDate): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('pay_period_start', '>=', $startDate)
+            ->where('pay_period_end', '<=', $endDate);
+    }
+
+    public function scopeRecent($query, int $months = 6): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('pay_period_start', '>=', now()->subMonths($months));
+    }
 }

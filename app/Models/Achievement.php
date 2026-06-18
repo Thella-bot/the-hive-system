@@ -21,8 +21,20 @@ class Achievement extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function scopePublic($query)
+    // --- Scopes ---
+
+    public function scopePublic($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_public', true);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeByType($query, string $type): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('type', $type);
     }
 }

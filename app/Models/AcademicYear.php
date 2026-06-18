@@ -47,9 +47,20 @@ class AcademicYear extends Model
 
     // --- Scopes ---
 
-    public function scopeCurrent($query)
+    public function scopeCurrent($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_current', true);
+    }
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_current', true);
+    }
+
+    public function scopeOngoing($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereDate('start_date', '<=', now())
+            ->whereDate('end_date', '>=', now());
     }
 
     // --- Helpers ---

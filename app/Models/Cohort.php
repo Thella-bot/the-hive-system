@@ -58,9 +58,24 @@ class Cohort extends Model
 
     // --- Scopes ---
 
-    public function scopeActive($query)
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeForDepartment($query, int $departmentId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('department_id', $departmentId);
+    }
+
+    public function scopeForAcademicYear($query, int $academicYearId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('academic_year_id', $academicYearId);
+    }
+
+    public function scopeNotFull($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereRaw('(SELECT COUNT(*) FROM profiles WHERE cohort_id = cohorts.id AND profileable_type = ?) < cohorts.max_students', [User::class]);
     }
 
     // --- Helpers ---

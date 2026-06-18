@@ -104,17 +104,17 @@ class Budget extends Model
 
     // --- Scopes ---
 
-    public function scopeActiveStatus($query)
+    public function scopeActiveStatus($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'active');
     }
 
-    public function scopeForAcademicYear($query, string $year)
+    public function scopeForAcademicYear($query, string $year): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('academic_year', $year);
     }
 
-    public function scopeForDepartment($query, int $departmentId)
+    public function scopeForDepartment($query, int $departmentId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('department_id', $departmentId);
     }

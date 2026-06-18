@@ -22,4 +22,31 @@ class EventRsvp extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeForEvent($query, int $eventId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('event_id', $eventId);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeAccepted($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'accepted');
+    }
+
+    public function scopeDeclined($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'declined');
+    }
+
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'pending');
+    }
 }

@@ -43,4 +43,22 @@ class Poll extends Model
         $counts['no'] = $votes->where('choice', 'no')->count();
         return $counts;
     }
+
+    // --- Scopes ---
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('expires_at', '>', now())
+            ->orWhereNull('expires_at');
+    }
+
+    public function scopeExpired($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('expires_at', '<=', now());
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
 }

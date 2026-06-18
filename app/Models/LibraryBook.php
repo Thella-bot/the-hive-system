@@ -52,15 +52,29 @@ class LibraryBook extends Model
         return $this->hasMany(BookReservation::class);
     }
 
-    public function scopeAvailable($query)
+    public function scopeAvailable($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_available', true)
             ->whereColumn('available_copies', '>', 0);
     }
 
-    public function scopeActive($query)
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeForCategory($query, int $categoryId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('category_id', $categoryId);
+    }
+
+    public function scopesearch($query, string $term): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('title', 'like', "%{$term}%")
+                ->orWhere('author', 'like', "%{$term}%")
+                ->orWhere('isbn', 'like', "%{$term}%");
+        });
     }
 
     public function isAvailable(): bool

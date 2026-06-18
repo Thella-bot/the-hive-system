@@ -38,7 +38,7 @@ class Announcement extends Model
         return $this->hasMany(AnnouncementAttachment::class);
     }
 
-    public function scopeVisibleTo($query, User $user)
+    public function scopeVisibleTo($query, User $user): \Illuminate\Database\Eloquent\Builder
     {
         return $query
             ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
@@ -48,5 +48,27 @@ class Announcement extends Model
                     $q->orWhereJsonContains('target_roles', $role);
                 }
             });
+    }
+
+    // --- Additional Scopes ---
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()));
+    }
+
+    public function scopePinned($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_pinned', true);
+    }
+
+    public function scopeForCategory($query, string $category): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('category', $category);
+    }
+
+    public function scopeByCreator($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('created_by', $userId);
     }
 }

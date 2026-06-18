@@ -20,4 +20,16 @@ class PollVote extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeForPoll($query, int $pollId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('poll_id', $pollId);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
 }

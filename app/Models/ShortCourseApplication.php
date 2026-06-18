@@ -40,8 +40,35 @@ class ShortCourseApplication extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function scopePending($q)
+    // --- Scopes ---
+
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
     {
-        return $q->where('status', 'pending');
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeForShortCourse($query, int $shortCourseId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('short_course_id', $shortCourseId);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeRecent($query, int $days = 7): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('applied_at', '>=', now()->subDays($days));
     }
 }

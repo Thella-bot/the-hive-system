@@ -123,32 +123,32 @@ class Expense extends Model
 
     // --- Scopes ---
 
-    public function scopePending($query)
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'pending');
     }
 
-    public function scopeApproved($query)
+    public function scopeApproved($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->whereIn('status', ['approved', 'paid']);
     }
 
-    public function scopePaid($query)
+    public function scopePaid($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'paid');
     }
 
-    public function scopeForBudget($query, int $budgetId)
+    public function scopeForBudget($query, int $budgetId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('budget_id', $budgetId);
     }
 
-    public function scopeForCategory($query, int $categoryId)
+    public function scopeForCategory($query, int $categoryId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('expense_category_id', $categoryId);
     }
 
-    public function scopeRecent($query, int $days = 30)
+    public function scopeRecent($query, int $days = 30): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('expense_date', '>=', now()->subDays($days));
     }

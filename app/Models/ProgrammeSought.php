@@ -26,8 +26,25 @@ class ProgrammeSought extends Model
     /**
      * Get the programme that the applicant is seeking.
      */
-    public function programme()
+    public function programme(): BelongsTo
     {
         return $this->belongsTo(Programme::class);
+    }
+
+    // --- Scopes ---
+
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeForProgramme($query, int $programmeId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('programme_id', $programmeId);
     }
 }

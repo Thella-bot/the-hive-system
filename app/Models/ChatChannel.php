@@ -34,22 +34,22 @@ class ChatChannel extends Model
         return $this->belongsTo(Module::class, 'channel_id');
     }
 
-    public function scopeGeneral($query)
+    public function scopeGeneral($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('channel_type', 'general');
     }
 
-    public function scopeDepartment($query)
+    public function scopeDepartment($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('channel_type', 'department');
     }
 
-    public function scopeDirect($query)
+    public function scopeDirect($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('channel_type', 'direct');
     }
 
-    public function scopeForUser($query, $user)
+    public function scopeForUser($query, $user): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where(function ($q) use ($user) {
             $q->where('channel_type', 'general')

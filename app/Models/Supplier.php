@@ -34,10 +34,26 @@ class Supplier extends Model
         return $this->hasMany(Expense::class);
     }
 
-    public function scopeActive($query)
+    // --- Scopes ---
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', true);
     }
+
+    public function scopeByCategory($query, string $category): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('category', $category);
+    }
+
+    public function scopeExpiringSoon($query, int $days = 30): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('contract_expiry', '<=', now()->addDays($days))
+            ->where('contract_expiry', '>=', now())
+            ->where('is_active', true);
+    }
+
+    // --- Helpers ---
 
     public function getIsExpiredAttribute(): bool
     {

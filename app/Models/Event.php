@@ -67,4 +67,29 @@ class Event extends Model
             'END:VCALENDAR',
         ]) . "\r\n";
     }
+
+    // --- Scopes ---
+
+    public function scopeUpcoming($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('start', '>', now());
+    }
+
+    public function scopeOngoing($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('start', '<=', now())
+            ->where(function ($q) {
+                $q->where('end', '>', now())->orWhereNull('end');
+            });
+    }
+
+    public function scopePast($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('end', '<', now());
+    }
+
+    public function scopeForCategory($query, string $category): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('category', $category);
+    }
 }

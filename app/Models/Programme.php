@@ -61,6 +61,18 @@ class Programme extends Model
         return $this->morphMany(ShortCourse::class, 'courseable');
     }
 
+    // --- Scopes ---
+
+    public function scopeForDepartment($query, int $departmentId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('department_id', $departmentId);
+    }
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Model\Builder
+    {
+        return $query->where('is_active', true);
+    }
+
     // Shortcut: default variant (first active one)
     public function getDefaultVariant()
     {

@@ -288,4 +288,37 @@ class User extends Authenticatable
             'email' => $this->email,
         ];
     }
+
+    // --- Scopes ---
+
+    public function scopeStaff($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereHas('roles', function ($q) {
+            $q->whereIn('name', [
+                'super-admin', 'it-support', 'academic-director', 'program-coordinator',
+                'chef-instructor', 'pastry-instructor', 'sous-chef',
+                'admissions-officer', 'examination-cell', 'registrar', 'finance',
+                'procurement-manager', 'storekeeper', 'hr-manager', 'librarian',
+                'career-services', 'events-pr-manager', 'cafeteria-manager',
+            ]);
+        });
+    }
+
+    public function scopeStudents($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereHas('roles', fn ($q) => $q->where('name', 'student'));
+    }
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeSearch($query, string $search): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        });
+    }
 }

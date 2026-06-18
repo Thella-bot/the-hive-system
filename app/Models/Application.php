@@ -115,4 +115,46 @@ class Application extends Model
     {
         return $this->belongsTo(ProgrammeVariant::class);
     }
+
+    // --- Scopes ---
+
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeForProgramme($query, int $programmeId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('programme_id', $programmeId);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeRegistrationCompleted($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('registration_status', 'completed');
+    }
+
+    public function scopeRegistrationPending($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('registration_status', 'pending');
+    }
+
+    public function scopeAdmitted($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'approved')->whereNotNull('admitted_at');
+    }
 }

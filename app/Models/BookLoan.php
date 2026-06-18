@@ -60,28 +60,28 @@ class BookLoan extends Model
 
     // --- Scopes ---
 
-    public function scopeActive($query)
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', self::STATUS_ACTIVE);
     }
 
-    public function scopeReturned($query)
+    public function scopeReturned($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', self::STATUS_RETURNED);
     }
 
-    public function scopeOverdue($query)
+    public function scopeOverdue($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', self::STATUS_ACTIVE)
             ->where('due_date', '<', now());
     }
 
-    public function scopeForUser($query, int $userId)
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('user_id', $userId);
     }
 
-    public function scopeForBook($query, string $bookId)
+    public function scopeForBook($query, string $bookId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('book_id', $bookId);
     }

@@ -36,6 +36,20 @@ class SalaryProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    // --- Scopes ---
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    // --- Helpers ---
+
     public function getGrossPackageAttribute(): float
     {
         return (float) $this->base_salary

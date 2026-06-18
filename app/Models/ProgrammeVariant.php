@@ -26,4 +26,16 @@ class ProgrammeVariant extends Model
     {
         return $this->belongsTo(Programme::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeForProgramme($query, int $programmeId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('programme_id', $programmeId);
+    }
 }

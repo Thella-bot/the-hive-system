@@ -102,27 +102,27 @@ class Payment extends Model
 
     // --- Scopes ---
 
-    public function scopeCompleted($query)
+    public function scopeCompleted($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'completed');
     }
 
-    public function scopePending($query)
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'pending');
     }
 
-    public function scopeForInvoice($query, int $invoiceId)
+    public function scopeForInvoice($query, int $invoiceId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('invoice_id', $invoiceId);
     }
 
-    public function scopeForUser($query, int $userId)
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('user_id', $userId);
     }
 
-    public function scopeRecent($query, int $days = 30)
+    public function scopeRecent($query, int $days = 30): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('payment_date', '>=', now()->subDays($days));
     }

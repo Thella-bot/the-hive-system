@@ -29,4 +29,21 @@ class RevisionNote extends Model
     {
         return $this->belongsTo(Module::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeForModule($query, int $moduleId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('module_id', $moduleId);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeByType($query, string $type): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('type', $type);
+    }
 }

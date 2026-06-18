@@ -34,13 +34,23 @@ class ShortCourse extends Model
         return $this->morphTo();
     }
 
-    public function scopeActive($q)
+    public function scopeActive($q): \Illuminate\Database\Eloquent\Builder
     {
         return $q->where('is_active', true);
     }
 
-    public function scopeOpen($q)
+    public function scopeOpen($q): \Illuminate\Database\Eloquent\Builder
     {
         return $q->where('accepting_applications', true);
+    }
+
+    public function scopeUpcoming($q): \Illuminate\Database\Eloquent\Builder
+    {
+        return $q->where('start_date', '>=', now()->toDateString());
+    }
+
+    public function scopeForType($q, string $type): \Illuminate\Database\Eloquent\Builder
+    {
+        return $q->where('type', $type);
     }
 }

@@ -39,4 +39,16 @@ class Module extends Model
     {
         return $this->hasMany(Gradable::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeForDepartment($query, int $departmentId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('department_id', $departmentId);
+    }
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_active', true);
+    }
 }

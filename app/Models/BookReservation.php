@@ -41,11 +41,6 @@ class BookReservation extends Model
         return $this->belongsTo(LibraryBook::class);
     }
 
-    public function scopePending($query)
-    {
-        return $query->where('status', self::STATUS_PENDING);
-    }
-
     public function isExpired(): bool
     {
         return $this->status === self::STATUS_PENDING && $this->expires_at->isPast();
@@ -58,23 +53,28 @@ class BookReservation extends Model
 
     // --- Scopes ---
 
-    public function scopeActive($query)
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', self::STATUS_PENDING)
             ->where('expires_at', '>=', now());
     }
 
-    public function scopeForUser($query, int $userId)
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('user_id', $userId);
     }
 
-    public function scopeForBook($query, string $bookId)
+    public function scopeForBook($query, string $bookId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('book_id', $bookId);
     }
 
-    public function scopeExpiringSoon($query, int $days = 3)
+    public function scopeExpiringSoon($query, int $days = 3): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', self::STATUS_PENDING)
             ->whereBetween('expires_at', [now(), now()->addDays($days)]);

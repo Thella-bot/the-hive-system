@@ -43,15 +43,45 @@ class Profile extends Model
         return $this->profileable();
     }
 
-    public function department()
+    public function department(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Department::class);
     }
 
-    public function cohort()
+    public function cohort(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Cohort::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeForDepartment($query, int $departmentId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('department_id', $departmentId);
+    }
+
+    public function scopeForCohort($query, int $cohortId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('cohort_id', $cohortId);
+    }
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeGraduated($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'graduated');
+    }
+
+    public function scopeByProfileable($query, int $userId, string $type = User::class): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('profileable_id', $userId)
+            ->where('profileable_type', $type);
+    }
+
+    // --- Helpers ---
 
     public function hasSufficientBalanceFor(float $days): bool
     {

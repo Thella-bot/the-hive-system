@@ -24,4 +24,11 @@ class AnnouncementAttachment extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    // --- Scopes ---
+
+    public function scopeForAnnouncement($query, int $announcementId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('announcement_id', $announcementId);
+    }
 }

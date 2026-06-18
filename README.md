@@ -22,19 +22,25 @@ A culinary institute Hive built with Laravel, Inertia.js, and Vue 3. The Hive is
 
 ## Modules
 
-### ✅ Core Foundation *(complete)*
+### ✅ Core Foundation
 User management, role-based access control, department structure, academic year scheduling, and cohort management.
 
-### 🔧 School Management *(in progress)*
+### ✅ Student Management
+Student profiles, applications, enrollment, grading, transcripts, and attendance tracking.
+
+### ✅ Bursar / Finance
+Invoices, payments, expenses, budgets, and financial reporting.
+
+### ✅ Library Management
+Book catalog, loans, reservations, and categories.
+
+### 🔧 School Management (in progress)
 Timetabling, kitchen/lab resource allocation, academic calendar, and equipment inventory.
 
-### 🔧 Learning & Teaching *(in progress)*
-Course and lesson management, structured recipe content, practical assessment rubrics, and attendance tracking.
+### 🔧 Learning & Teaching (in progress)
+Course and lesson management, structured recipe content, practical assessment rubrics.
 
-### 🔧 Student Management *(in progress)*
-Student profiles, progress tracking, transcript and certificate generation via PDF.
-
-### 🔧 Engagement *(in progress)*
+### 🔧 Engagement (in progress)
 Announcements, notice board listings, posts, recipe sharing, and guest chef event management.
 
 ---
@@ -45,9 +51,89 @@ Announcements, notice board listings, posts, recipe sharing, and guest chef even
 |---|---|
 | `super-admin` | Full system access |
 | `school-admin` | Manages school structure, users, and content |
-| `department-head` | Manages their department's cohorts, students, and courses |
+| `academic-director` | Manages academic programmes and structure |
+| `program-coordinator` | Manages specific programmes and cohorts |
+| `admissions-officer` | Handles student admissions and applications |
+| `registrar` | Manages student records and enrollment |
+| `finance` | Access to bursar and financial features |
+| `hr-manager` | Manages staff and HR functions |
 | `chef-instructor` | Teaches courses, grades students, manages attendance |
 | `student` | Views courses and content, participates in engagement |
+| `it-support` | Technical support and system administration |
+
+---
+
+## Quick Reference
+
+### Documentation Files
+
+- [Database Schema](docs/database.md) - Complete database schema documentation
+- [Controllers](docs/controllers.md) - All controllers and their methods
+- [API Routes](docs/api-routes.md) - All endpoints and routes
+
+### Key Models
+
+| Model | Description |
+|-------|-------------|
+| `User` | Authentication and user accounts |
+| `Profile` | Polymorphic staff/student profiles |
+| `Department` | Academic departments |
+| `Programme` | Academic programmes offered |
+| `Module` | Course modules |
+| `Cohort` | Student cohorts by year |
+| `AcademicYear` | Academic year configuration |
+| `Application` | Student programme applications |
+| `Enrollment` | Student module enrollments |
+| `StudentGrade` | Student grades |
+| `Attendance` | Attendance records |
+| `Invoice` | Student tuition invoices |
+| `Payment` | Student payments |
+| `Expense` | Operational expenses |
+| `Budget` | Annual budgets |
+| `Payslip` | Staff salary slips |
+| `LeaveRequest` | Staff leave requests |
+| `LibraryBook` | Library book inventory |
+| `BookLoan` | Book loans |
+| `Announcement` | System announcements |
+| `Event` | Calendar events |
+| `Document` | Policy documents |
+| `Notification` | In-app notifications |
+
+### Key Relationships
+
+```
+User
+├─�� Profile (polymorphic: StaffProfile/StudentProfile)
+├── Enrollments (many)
+├── StudentGrades (many)
+├── Attendances (many)
+├── Applications (many)
+├── Notifications (many)
+└── Messages (many)
+
+Department
+└── Programmes (many)
+    └── Cohorts (many)
+        └── Enrollments (many)
+            └── Users (many)
+
+Programme
+├── Modules (many-to-many)
+└── Cohorts (many)
+
+Module
+├── Submissions (many)
+├── Gradables (many)
+└── Attendances (many)
+
+Invoice
+├── User (belongsTo)
+└── Items (many)
+
+Payment
+├── User (belongsTo)
+└── Invoice (belongsTo)
+```
 
 ---
 
@@ -114,13 +200,10 @@ php artisan serve
 npm run dev
 
 # In a third terminal — Queue workers (required for background jobs)
-# Default starts a single worker; increase concurrency by running multiple workers.
 php artisan queue:work
 
-# Or start multiple workers with a single command (database queue by default)
-# Example: 4 worker processes
+# Or start multiple workers with a single command
 php artisan queue:workers --workers=4
-
 ```
 
 Visit `http://localhost:8000` and log in with the seeded admin account:
@@ -139,51 +222,177 @@ Password: password
 ```
 app/
 ├── Http/
-│   ├── Controllers/         # One controller per resource
-│   └── Middleware/          # HandleInertiaRequests (shares auth + flash globally)
+│   ├── Controllers/
+│   │   ├── Api/                    # REST API controllers
+│   │   ├── Concerns/               # Controller concerns/traits
+│   │   ├── Hive/                   # Main app controllers
+│   │   │   ├── Admin/              # Admin-only controllers
+│   │   │   ├── Bursar/             # Finance controllers
+│   │   │   └── ...                 # Other controllers
+│   │   └── *.php                   # Public controllers
+│   └── Middleware/
+│       ├── HandleInertiaRequests.php
+│       └── BypassAuthInLocal.php
 ├── Models/
 │   ├── User.php
 │   ├── Department.php
-│   ├── AcademicYear.php
+│   ├── Programme.php
+│   ├── Module.php
 │   ├── Cohort.php
-│   ├── StaffProfile.php
-│   └── StudentProfile.php
+│   ├── AcademicYear.php
+│   ├── Application.php
+│   ├── Enrollment.php
+│   ├── StudentGrade.php
+│   ├── Attendance.php
+│   ├── Invoice.php
+│   ├── Payment.php
+│   ├── Expense.php
+│   ├── Budget.php
+│   ├── Payslip.php
+│   ├── LeaveRequest.php
+│   ├── LibraryBook.php
+│   ├── BookLoan.php
+│   ├── Announcement.php
+│   ├── Event.php
+│   ├── Document.php
+│   ├── Notification.php
+│   ├── ChatChannel.php
+│   ├── Message.php
+│   ├── Poll.php
+│   ├── Achievement.php
+│   ├── ShortCourse.php
+│   ├── Key.php                     # Includes KeyAssignment
+│   └── VisitorLog.php
+├── Providers/
+│   ├── AppServiceProvider.php
+│   └── JetstreamServiceProvider.php
+└── Actions/
 
 database/
-├── migrations/              # Ordered, timestamped migrations
+├── migrations/                     # Timestamped migrations
 └── seeders/
-    └── RolePermissionSeeder.php
+    ├── RolePermissionSeeder.php
+    └── DatabaseSeeder.php
 
-resources/js/
-├── Layouts/
-│   └── AppLayout.vue        # Main sidebar layout
-├── Components/
-│   ├── NavItem.vue
-│   ├── StatCard.vue
-│   ├── Badge.vue
-│   └── Pagination.vue
-└── Pages/
-    ├── Dashboard.vue
-    ├── Departments/         # Index, Create, Edit, Show
-    ├── AcademicYears/       # Index, Create, Edit
-    ├── Cohorts/             # Index, Create, Edit, Show
-    └── Users/               # Index, Create, Edit, Show
+docs/
+├── database.md                     # Database schema
+├── controllers.md                  # Controllers reference
+└── api-routes.md                   # Routes reference
 
 routes/
-└── web.php
+├── web.php                         # Public routes
+├── api.php                        # REST API routes
+├── hive.php                       # Main app routes
+├── channels.php                  # WebSocket channels
+├── console.php                   # Console commands
+└── hive/
+    ├── people.php                # User management
+    ├── academic.php              # Academic modules
+    ├── assessments.php           # Assessments
+    ├── bursar.php                # Finance
+    ├── library.php               # Library
+    └── registrar.php             # Registrar
+
+resources/
+├── js/
+│   ├── Layouts/
+│   │   └── AppLayout.vue
+│   ├── Pages/
+│   │   ├── Dashboard.vue
+│   │   ├── Departments/
+│   │   ├── Programmes/
+│   │   ├── Modules/
+│   │   ├── Cohorts/
+│   │   ├── Users/
+│   │   ├── Students/
+│   │   ├── Staff/
+│   │   ├── Bursar/
+│   │   ├── Library/
+│   │   └── *.vue
+│   └── Components/
+│       ├── NavItem.vue
+│       ├── StatCard.vue
+│       ├── Badge.vue
+│       └── Pagination.vue
+└── css/
+    └── app.css
 ```
 
 ---
 
 ## Key Design Decisions
 
-**No Jetstream Teams** — Jetstream is used for authentication only. Department and cohort structure is managed through custom models rather than Jetstream's team system, giving us full control over the school hierarchy.
+**No Jetstream Teams** — Jetstream is used for authentication only. Department and cohort structure is managed through custom models rather than Jetstream's team system, giving full control over the school hierarchy.
 
 **Dual profile system** — Users have either a `StaffProfile` or a `StudentProfile` depending on their role. This keeps role-specific fields clean and separate without overloading the `users` table.
 
-**Permission-driven UI** — The sidebar, action buttons, and page access are all driven by Spatie permissions shared via `HandleInertiaRequests`. Adding a permission to a role in the seeder automatically surfaces the relevant UI to that role.
+**Permission-driven UI** — The sidebar, action buttons, and page access are all driven by Spatie permissions shared via `HandleInertiaRequests`. Adding a permission to a role automatically surfaces the relevant UI to that role.
 
-**Soft deletes on key models** — Departments, cohorts, and student profiles use soft deletes so historical records are preserved even after removal.
+**Soft deletes** — Departments, programmes, cohorts, and student profiles use soft deletes so historical records are preserved even after removal.
+
+**Polymorphic relationships** — Used for profiles, notifications, bookmarks, and document-acknowledgements for flexibility.
+
+**Scopes on all models** — All Eloquent models include query scopes for common filters (active, pending, etc.) with proper return type hints.
+
+---
+
+## API Reference
+
+### Public Endpoints
+- `GET /` - Landing page
+- `GET /about` - About page
+- `GET /programmes` - Programme listing
+- `GET /contact` - Contact page
+- `GET /apply` - Application form
+- `POST /apply` - Submit application
+- `POST /contact` - Submit contact
+
+### REST API
+- `GET /api/user` - Get authenticated user
+- `GET /api/tasks` - Student task list
+- `POST /api/tasks` - Create task
+- `PATCH /api/tasks/{task}` - Update task
+- `DELETE /api/tasks/{task}` - Delete task
+- `GET /api/modules/{id}/messages` - Module chat
+- `POST /api/modules/{id}/messages` - Send message
+
+### Hive Internal
+All routes prefixed with `/hive/` and `hive.`
+- Dashboard, departments, programmes, cohorts
+- Student management, applications, enrollment
+- Bursar, library, documents, events
+- Chat, polls, achievements
+
+---
+
+## Common Commands
+
+```bash
+# Development
+php artisan serve              # Start server
+npm run dev                    # Vite dev server
+npm run build                  # Production build
+
+# Database
+php artisan migrate          # Run migrations
+php artisan migrate:rollback # Rollback
+php artisan db:seed           # Seed database
+php artisan migrate:fresh     # Fresh install
+
+# Queue workers
+php artisan queue:work        # Start worker
+php artisan queue:flush       # Clear failed jobs
+
+# Code quality
+./vendor/bin/pint             # Format code
+php artisan test              # Run tests
+php artisan route:list        # List routes
+
+# Cache
+php artisan cache:clear        # Clear cache
+php artisan config:clear     # Clear config
+php artisan view:clear       # Clear views
+```
 
 ---
 
@@ -207,3 +416,11 @@ php artisan test
 ## Licence
 
 Private — culinary institute internal use only.
+
+---
+
+## Further Reading
+
+- [Database Schema](docs/database.md) - Complete schema documentation
+- [Controllers](docs/controllers.md) - All controllers and methods
+- [API Routes](docs/api-routes.md) - All endpoint documentation

@@ -42,4 +42,21 @@ class GradableAnswer extends Model
     {
         return $this->belongsTo(GradableQuestionOption::class, 'gradable_question_option_id');
     }
+
+    // --- Scopes ---
+
+    public function scopeForStudent($query, int $studentId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('student_id', $studentId);
+    }
+
+    public function scopeForGradable($query, int $gradableId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('gradable_id', $gradableId);
+    }
+
+    public function scopeCorrect($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_correct', true);
+    }
 }

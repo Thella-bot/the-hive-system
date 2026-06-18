@@ -26,4 +26,16 @@ class DocumentAcknowledgement extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // --- Scopes ---
+
+    public function scopeForDocument($query, int $documentId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('document_id', $documentId);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
 }

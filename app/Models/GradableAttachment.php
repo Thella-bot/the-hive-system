@@ -46,4 +46,11 @@ class GradableAttachment extends Model
         }
         return $bytes . ' B';
     }
+
+    // --- Scopes ---
+
+    public function scopeForGradable($query, int $gradableId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('gradable_id', $gradableId);
+    }
 }

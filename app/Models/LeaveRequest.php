@@ -1,5 +1,7 @@
 <?php namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LeaveRequest extends Model
 {
@@ -18,8 +20,15 @@ class LeaveRequest extends Model
         'is_cancelled' => 'boolean',
     ];
 
-    public function user() { return $this->belongsTo(User::class); }
-    public function approvedBy() { return $this->belongsTo(User::class, 'approved_by'); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
 
     public function days(): float
     {
@@ -61,13 +70,35 @@ class LeaveRequest extends Model
         }
     }
 
-    public function scopePending($query)
+    // --- Scopes ---
+
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'pending')->where('is_cancelled', false);
     }
 
-    public function scopeCancelled($query)
+    public function scopeCancelled($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_cancelled', true);
+    }
+
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeApproved($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_cancelled', false);
     }
 }

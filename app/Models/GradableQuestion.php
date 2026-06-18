@@ -43,4 +43,21 @@ class GradableQuestion extends Model
     {
         return $this->hasMany(GradableQuestionOption::class)->where('is_correct', true);
     }
+
+    // --- Scopes ---
+
+    public function scopeForGradable($query, int $gradableId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('gradable_id', $gradableId);
+    }
+
+    public function scopeByType($query, string $type): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('type', $type);
+    }
+
+    public function scopeRequired($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_required', true);
+    }
 }

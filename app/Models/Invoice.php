@@ -95,29 +95,29 @@ class Invoice extends Model
 
     // --- Scopes ---
 
-    public function scopePending($query)
+    public function scopePending($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'pending');
     }
 
-    public function scopePaid($query)
+    public function scopePaid($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'paid');
     }
 
-    public function scopeOverdue($query)
+    public function scopeOverdue($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('status', 'pending')
             ->whereNotNull('due_date')
             ->where('due_date', '<', now());
     }
 
-    public function scopeForAcademicYear($query, string $year)
+    public function scopeForAcademicYear($query, string $year): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('academic_year', $year);
     }
 
-    public function scopeForUser($query, int $userId)
+    public function scopeForUser($query, int $userId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('user_id', $userId);
     }

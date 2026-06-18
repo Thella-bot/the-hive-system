@@ -91,4 +91,32 @@ class Gradable extends Model
     {
         return $this->submission_type === self::SUBMISSION_TYPE_FILE_UPLOAD || empty($this->submission_type);
     }
+
+    // --- Scopes ---
+
+    public function scopeForModule($query, int $moduleId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('module_id', $moduleId);
+    }
+
+    public function scopeForInstructor($query, int $instructorId): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('instructor_id', $instructorId);
+    }
+
+    public function scopeDueSoon($query, int $days = 3): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('due_date', '<=', now()->addDays($days))
+            ->where('due_date', '>=', now());
+    }
+
+    public function scopeOverdue($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('due_date', '<', now());
+    }
+
+    public function scopeActiveType($query, string $type): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('type', $type);
+    }
 }

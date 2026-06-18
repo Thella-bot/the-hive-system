@@ -30,8 +30,15 @@ class ExpenseCategory extends Model
         return $this->hasMany(Expense::class);
     }
 
-    public function scopeActive($query)
+    // --- Scopes ---
+
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeByCode($query, string $code): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('code', $code);
     }
 }
