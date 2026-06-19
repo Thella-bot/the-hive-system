@@ -18,13 +18,17 @@ class ChatController extends Controller
             ? $user->modules()->with('instructors')->get()
             : $user->instructedModules()->with('programme')->get();
 
-        $generalChannel = ChatChannel::firstOrCreate(
-            ['channel_type' => 'general', 'channel_id' => null],
-            ['name' => 'All Staff']
-        );
+        // Only show general channel to staff, not students
+        $generalChannel = $user->isStaff()
+            ? ChatChannel::firstOrCreate(
+                ['channel_type' => 'general', 'channel_id' => null],
+                ['name' => 'All Staff']
+            )
+            : null;
 
+        // Only show department channel to staff with a department
         $deptChannels = null;
-        if ($user->profile?->department_id) {
+        if ($user->isStaff() && $user->profile?->department_id) {
             $dept = Department::find($user->profile->department_id);
             if ($dept) {
                 $deptChannels = ChatChannel::firstOrCreate(

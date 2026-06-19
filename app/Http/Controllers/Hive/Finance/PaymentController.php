@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Hive\Bursar;
+namespace App\Http\Controllers\Hive\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HasFilters;
@@ -42,7 +42,7 @@ class PaymentController extends Controller
             'dateColumn' => 'payment_date',
         ]);
 
-        return Inertia::render('Bursar/Payment/Index', [
+        return Inertia::render('Hive/Finance/Payment/Index', [
             'payments' => $query->paginate(20)->withQueryString(),
             'filters' => $this->getFilterInputs($request, ['status', 'payment_method', 'search', 'date_from', 'date_to']),
             'statuses' => ['pending', 'completed', 'failed', 'refunded'],
@@ -117,7 +117,7 @@ class PaymentController extends Controller
     {
         $payment->load(['user', 'invoice', 'recorder']);
 
-        return Inertia::render('Bursar/Payment/Show', [
+        return Inertia::render('Hive/Finance/Payment/Show', [
             'payment' => $payment,
         ]);
     }
@@ -139,7 +139,7 @@ class PaymentController extends Controller
             $payment->delete();
         }
 
-        return redirect()->route('bursar.payments.index')->with('success', 'Payment deleted.');
+        return redirect()->route('finance.payments.index')->with('success', 'Payment deleted.');
     }
 
     /**

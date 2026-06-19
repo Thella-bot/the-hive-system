@@ -28,8 +28,8 @@ User management, role-based access control, department structure, academic year 
 ### ✅ Student Management
 Student profiles, applications, enrollment, grading, transcripts, and attendance tracking.
 
-### ✅ Bursar / Finance
-Invoices, payments, expenses, budgets, and financial reporting.
+### ✅ Finance / Bursar
+Invoices, payments, expenses, budgets, convectionary income tracking, and financial reporting.
 
 ### ✅ Library Management
 Book catalog, loans, reservations, and categories.
@@ -89,7 +89,9 @@ Announcements, notice board listings, posts, recipe sharing, and guest chef even
 | `Invoice` | Student tuition invoices |
 | `Payment` | Student payments |
 | `Expense` | Operational expenses |
+| `ExpenseCategory` | Expense categories |
 | `Budget` | Annual budgets |
+| `ConvectionaryIncome` | Convectionary/canteen income |
 | `Payslip` | Staff salary slips |
 | `LeaveRequest` | Staff leave requests |
 | `LibraryBook` | Library book inventory |
@@ -227,7 +229,7 @@ app/
 │   │   ├── Concerns/               # Controller concerns/traits
 │   │   ├── Hive/                   # Main app controllers
 │   │   │   ├── Admin/              # Admin-only controllers
-│   │   │   ├── Bursar/             # Finance controllers
+│   │   │   ├── Finance/            # Finance controllers
 │   │   │   └── ...                 # Other controllers
 │   │   └── *.php                   # Public controllers
 │   └── Middleware/
@@ -289,7 +291,7 @@ routes/
     ├── people.php                # User management
     ├── academic.php              # Academic modules
     ├── assessments.php           # Assessments
-    ├── bursar.php                # Finance
+    ├── finance.php               # Finance
     ├── library.php               # Library
     └── registrar.php             # Registrar
 
@@ -306,7 +308,7 @@ resources/
 │   │   ├── Users/
 │   │   ├── Students/
 │   │   ├── Staff/
-│   │   ├── Bursar/
+│   │   ├── Finance/
 │   │   ├── Library/
 │   │   └── *.vue
 │   └── Components/
@@ -360,7 +362,7 @@ resources/
 All routes prefixed with `/hive/` and `hive.`
 - Dashboard, departments, programmes, cohorts
 - Student management, applications, enrollment
-- Bursar, library, documents, events
+- Finance, library, documents, events
 - Chat, polls, achievements
 
 ---

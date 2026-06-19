@@ -48,7 +48,7 @@ const submit = () => {
                 </div>
 
                 <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">Welcome Back</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">Sign in to your student portal</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">Sign in to your respective dashboard!</p>
 
                 <div v-if="status" class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700">
                     {{ status }}
@@ -89,7 +89,7 @@ const submit = () => {
                             <Checkbox v-model:checked="form.remember" name="remember" />
                             <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
                         </label>
-                        <Link :href="route('password.request')" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                        <Link :href="route('password.request')" class="text-amber-600 hover:text-amber-700 font-semibold">
                             Forgot password?
                         </Link>
                     </div>

@@ -379,63 +379,73 @@ GET    /hive/payslips/{payslip}/download
 
 ---
 
-## Bursar / Finance
+## Finance
 
 ### Invoices
 ```
-GET    /hive/bursar/invoices
-POST   /hive/bursar/invoices
-GET    /hive/bursar/invoices/generate
-GET    /hive/bursar/invoices/{invoice}
-PUT    /hive/bursar/invoices/{invoice}
-DELETE /hive/bursar/invoices/{invoice}
+GET    /finance/invoices
+POST   /finance/invoices
+GET    /finance/invoices/generate
+GET    /finance/invoices/{invoice}
+PUT    /finance/invoices/{invoice}
+DELETE /finance/invoices/{invoice}
 ```
 
 ### Payments
 ```
-GET    /hive/bursar/payments
-POST   /hive/bursar/payments
-GET    /hive/bursar/payments/{payment}
-PUT    /hive/bursar/payments/{payment}
-DELETE /hive/bursar/payments/{payment}
-PATCH /hive/bursar/payments/{payment}/verify
+GET    /finance/payments
+POST   /finance/payments
+GET    /finance/payments/{payment}
+PUT    /finance/payments/{payment}
+DELETE /finance/payments/{payment}
+PATCH /finance/payments/{payment}/verify
 ```
 
 ### Expenses
 ```
-GET    /hive/bursar/expenses
-GET    /hive/bursar/expenses/create
-POST   /hive/bursar/expenses
-GET    /hive/bursar/expenses/{expense}
-PUT    /hive/bursar/expenses/{expense}
-DELETE /hive/bursar/expenses/{expense}
-PATCH /hive/bursar/expenses/{expense}/approve
-PATCH /hive/bursar/expenses/{expense}/reject
-PATCH /hive/bursar/expenses/{expense}/mark-paid
-GET    /hive/bursar/expenses/categories
-POST   /hive/bursar/expenses/categories
-PATCH /hive/bursar/expenses/categories/{category}
-DELETE /hive/bursar/expenses/categories/{category}
+GET    /finance/expenses
+GET    /finance/expenses/create
+POST   /finance/expenses
+GET    /finance/expenses/{expense}
+PUT    /finance/expenses/{expense}
+DELETE /finance/expenses/{expense}
+PATCH /finance/expenses/{expense}/approve
+PATCH /finance/expenses/{expense}/reject
+PATCH /finance/expenses/{expense}/mark-paid
+GET    /finance/expenses/categories
+POST   /finance/expenses/categories
+PATCH /finance/expenses/categories/{category}
+DELETE /finance/expenses/categories/{category}
 ```
 
 ### Budgets
 ```
-GET    /hive/bursar/budgets
-POST   /hive/bursar/budgets
-GET    /hive/bursar/budgets/{budget}
-PUT    /hive/bursar/budgets/{budget}
-DELETE /hive/bursar/budgets/{budget}
-PATCH /hive/bursar/budgets/{budget}/activate
-PATCH /hive/bursar/budgets/{budget}/close
+GET    /finance/budgets
+POST   /finance/budgets
+GET    /finance/budgets/{budget}
+PUT    /finance/budgets/{budget}
+DELETE /finance/budgets/{budget}
+PATCH /finance/budgets/{budget}/activate
+PATCH /finance/budgets/{budget}/close
+```
+
+### Convectionary Income
+```
+GET    /finance/convectionary
+GET    /finance/convectionary/create
+POST   /finance/convectionary
+GET    /finance/convectionary/{convectionary}
+PUT    /finance/convectionary/{convectionary}
+DELETE /finance/convectionary/{convectionary}
 ```
 
 ### Reports
 ```
-GET /hive/bursar/reports/dashboard
-GET /hive/bursar/reports/income
-GET /hive/bursar/reports/expenses
-GET /hive/bursar/reports/age-analysis
-GET /hive/bursar/reports/student/{user}
+GET /finance/reports/dashboard
+GET /finance/reports/income
+GET /finance/reports/expenses
+GET /finance/reports/age-analysis
+GET /finance/reports/student/{user}
 ```
 
 ---
@@ -530,7 +540,7 @@ DELETE /api/tasks/{task}    - Delete task
 | `/hive/users/*` | super-admin, it-support, hr-manager |
 | `/hive/students/*` | super-admin, admissions-officer, registrar, program-coordinator |
 | `/hive/staff/*` | super-admin, hr-manager |
-| `/hive/bursar/*` | super-admin, finance, hr-manager |
+| `/finance/*` | super-admin, finance, hr-manager |
 
 ---
 
@@ -542,7 +552,7 @@ All Hive routes are prefixed with `hive.`:
 - `hive.departments.index`
 - `hive.departments.create`
 - `hive.applications.complete-registration`
-- `hive.bursar.invoices.generate`
+- `finance.invoices.generate`
 - etc.
 
 ---

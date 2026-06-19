@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Hive\Bursar;
+namespace App\Http\Controllers\Hive\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HasFilters;
@@ -16,6 +16,28 @@ use Inertia\Response;
 class ExpenseController extends Controller
 {
     use HasFilters;
+
+    /**
+     * Check if user can access the given expense.
+     * Admins can access all; department staff only expenses from their department's budgets.
+     */
+    private function authorizeExpense(Expense $expense): void
+    {
+        $user = auth()->user();
+
+        // Admins can access all expenses
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        // Finance/HR can only access expenses from their department's budgets
+        $userDeptId = $user->profile?->department_id;
+        $expenseDeptId = $expense->budget?->department_id;
+
+        if (!$userDeptId || $expenseDeptId !== $userDeptId) {
+            abort(403, 'You can only access expenses from your department.');
+        }
+    }
 
     public function index(Request $request): Response
     {
@@ -34,7 +56,7 @@ class ExpenseController extends Controller
             'budget_id' => true,
         ]);
 
-        return Inertia::render('Bursar/Expense/Index', [
+        return Inertia::render('Hive/Finance/Expense/Index', [
             'expenses' => $query->paginate(20)->withQueryString(),
             'filters' => $this->getFilterInputs($request, ['status', 'category_id', 'budget_id', 'search', 'date_from', 'date_to']),
             'statuses' => ['pending', 'approved', 'rejected', 'paid', 'cancelled'],
@@ -45,7 +67,7 @@ class ExpenseController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('Bursar/Expense/Create', [
+        return Inertia::render('Hive/Finance/Expense/Create', [
             'categories' => ExpenseCategory::active()->orderBy('name')->get(),
             'budgets' => Budget::where('status', 'active')->orderBy('name')->get(),
         ]);
@@ -75,6 +97,8 @@ class ExpenseController extends Controller
 
     public function update(Request $request, Expense $expense): RedirectResponse
     {
+        $this->authorizeExpense($expense);
+
         $data = $request->validate([
             'expense_category_id' => 'nullable|exists:expense_categories,id',
             'vendor_id' => 'nullable|exists:suppliers,id',
@@ -96,22 +120,26 @@ class ExpenseController extends Controller
 
     public function show(Expense $expense): Response
     {
+        $this->authorizeExpense($expense);
+
         $expense->load(['user', 'category', 'vendor', 'budget', 'approver']);
 
-        return Inertia::render('Bursar/Expense/Show', [
+        return Inertia::render('Hive/Finance/Expense/Show', [
             'expense' => $expense,
         ]);
     }
 
     public function destroy(Expense $expense): RedirectResponse
     {
+        $this->authorizeExpense($expense);
+
         if ($expense->is_paid) {
             return back()->with('error', 'Cannot delete a paid expense.');
         }
 
         $expense->delete();
 
-        return redirect()->route('bursar.expenses.index')->with('success', 'Expense deleted.');
+        return redirect()->route('finance.expenses.index')->with('success', 'Expense deleted.');
     }
 
     /**
@@ -119,6 +147,8 @@ class ExpenseController extends Controller
      */
     public function approve(Request $request, Expense $expense): RedirectResponse
     {
+        $this->authorizeExpense($expense);
+
         if (!$expense->is_pending) {
             return back()->with('error', 'Only pending expenses can be approved.');
         }
@@ -137,6 +167,8 @@ class ExpenseController extends Controller
      */
     public function reject(Request $request, Expense $expense): RedirectResponse
     {
+        $this->authorizeExpense($expense);
+
         $data = $request->validate([
             'notes' => 'required|string',
         ]);
@@ -160,6 +192,8 @@ class ExpenseController extends Controller
      */
     public function markPaid(Request $request, Expense $expense): RedirectResponse
     {
+        $this->authorizeExpense($expense);
+
         $data = $request->validate([
             'payment_method' => 'nullable|string|max:50',
             'reference_number' => 'nullable|string|max:100',
@@ -187,7 +221,7 @@ class ExpenseController extends Controller
     {
         $categories = ExpenseCategory::orderBy('name')->get();
 
-        return Inertia::render('Bursar/Expense/Categories', [
+        return Inertia::render('Hive/Finance/Expense/Categories', [
             'categories' => $categories,
         ]);
     }

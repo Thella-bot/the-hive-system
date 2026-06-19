@@ -38,8 +38,18 @@ class UniformRequestController extends Controller
 
     public function review(Request $request, UniformRequest $request_)
     {
-        if (!auth()->user()->isAdmin()) {
+        $user = auth()->user();
+
+        if (!$user->isAdmin()) {
             abort(403, 'Only administrators can review uniform requests.');
+        }
+
+        // Non-admin admins can only review requests from their department
+        $userDeptId = $user->profile?->department_id;
+        $requesterDeptId = $request_->user?->profile?->department_id;
+
+        if ($userDeptId && $requesterDeptId && $userDeptId !== $requesterDeptId) {
+            abort(403, 'You can only review uniform requests from your department.');
         }
 
         $validated = $request->validate([

@@ -58,7 +58,7 @@
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="!requests.data || requests.data.length === 0">
             <td colspan="6" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
-              <TshirtIcon class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+              <QueueListIcon class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
               <p>No requests found</p>
             </td>
           </tr>
@@ -87,7 +87,7 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
-import { PlusIcon, TshirtIcon } from '@heroicons/vue/24/outline';
+import { PlusIcon, QueueListIcon } from '@heroicons/vue/24/outline';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
 

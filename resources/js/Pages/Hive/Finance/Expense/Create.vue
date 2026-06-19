@@ -30,7 +30,7 @@ const isSubmitting = ref(false);
 
 const submit = () => {
   isSubmitting.value = true;
-  router.post(route('bursar.expenses.store'), form.value, {
+  router.post(route('finance.expenses.store'), form.value, {
     onFinish: () => {
       isSubmitting.value = false;
     },
@@ -41,7 +41,7 @@ const submit = () => {
 <template>
   <HiveLayout title="New Expense" description="Create a new expense record">
     <template #header-actions>
-      <Link :href="route('bursar.expenses.index')"
+      <Link :href="route('finance.expenses.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Expenses
@@ -151,7 +151,6 @@ const submit = () => {
                 <option value="">Select method</option>
                 <option value="cash">Cash</option>
                 <option value="bank_transfer">Bank Transfer</option>
-                <option value="cheque">Cheque</option>
                 <option value="card">Card</option>
               </select>
             </div>
@@ -186,7 +185,7 @@ const submit = () => {
         <!-- Submit -->
         <div class="flex justify-end gap-3 pt-4">
           <Link
-            :href="route('bursar.expenses.index')"
+            :href="route('finance.expenses.index')"
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             Cancel

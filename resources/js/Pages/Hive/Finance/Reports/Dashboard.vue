@@ -145,7 +145,7 @@ const formatPercent = (value) => {
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 mb-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Budget Overview</h3>
-        <Link :href="route('bursar.budgets.index')" class="text-sm text-amber-600 hover:text-amber-700">View All</Link>
+        <Link :href="route('finance.budgets.index')" class="text-sm text-amber-600 hover:text-amber-700">View All</Link>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
@@ -205,27 +205,27 @@ const formatPercent = (value) => {
 
     <!-- Navigation Links -->
     <div class="mt-6 flex flex-wrap gap-3">
-      <Link :href="route('bursar.invoices.index')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+      <Link :href="route('finance.invoices.index')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
         <DocumentTextIcon class="w-4 h-4" />
         Invoices
       </Link>
-      <Link :href="route('bursar.payments.index')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+      <Link :href="route('finance.payments.index')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
         <BanknotesIcon class="w-4 h-4" />
         Payments
       </Link>
-      <Link :href="route('bursar.expenses.index')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+      <Link :href="route('finance.expenses.index')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
         <CreditCardIcon class="w-4 h-4" />
         Expenses
       </Link>
-      <Link :href="route('bursar.reports.income')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+      <Link :href="route('finance.reports.income')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
         <ArrowDownIcon class="w-4 h-4" />
         Income Report
       </Link>
-      <Link :href="route('bursar.reports.expenses')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+      <Link :href="route('finance.reports.expenses')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
         <ArrowUpIcon class="w-4 h-4" />
         Expense Report
       </Link>
-      <Link :href="route('bursar.reports.ageAnalysis')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+      <Link :href="route('finance.reports.ageAnalysis')" class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
         <ClockIcon class="w-4 h-4" />
         Age Analysis
       </Link>

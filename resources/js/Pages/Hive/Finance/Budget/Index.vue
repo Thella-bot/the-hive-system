@@ -23,7 +23,7 @@ const props = defineProps({
 
 const search = ref(props.filters.search ?? '');
 
-const applyFilters = () => router.get(route('bursar.budgets.index'),
+const applyFilters = () => router.get(route('finance.budgets.index'),
   { search: search.value },
   { preserveState: true, replace: true }
 );
@@ -45,7 +45,7 @@ const statusClass = (status) => {
 <template>
   <HiveLayout title="Budgets" description="Manage department budgets and allocations">
     <template #header-actions>
-      <Link :href="route('bursar.reports.dashboard')"
+      <Link :href="route('finance.reports.dashboard')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <FolderIcon class="w-4 h-4" />
         Financial Reports
@@ -106,7 +106,7 @@ const statusClass = (status) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <Link :href="route('bursar.budgets.show', budget.id)" class="p-1 text-gray-500 hover:text-amber-600">
+                <Link :href="route('finance.budgets.show', budget.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <EyeIcon class="w-5 h-5" />
                 </Link>
               </div>

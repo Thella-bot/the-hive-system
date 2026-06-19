@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Hive\Bursar;
+namespace App\Http\Controllers\Hive\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Budget;
+use App\Models\ConvectionaryIncome;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
@@ -21,7 +22,7 @@ class FinancialReportController extends Controller
     {
         $academicYear = $request->get('academic_year', date('Y'));
 
-        // Income (Payments)
+        // Tuition Income (Payments)
         $totalIncome = Payment::where('status', 'completed')
             ->whereYear('payment_date', $academicYear)
             ->sum('amount');
@@ -32,6 +33,21 @@ class FinancialReportController extends Controller
             ->groupBy('month')
             ->pluck('total', 'month')
             ->toArray();
+
+        // Convectionary Income
+        $totalConvectionary = ConvectionaryIncome::where('status', 'received')
+            ->whereYear('income_date', $academicYear)
+            ->sum('amount');
+
+        $convectionaryBySource = ConvectionaryIncome::where('status', 'received')
+            ->whereYear('income_date', $academicYear)
+            ->selectRaw('source, SUM(amount) as total')
+            ->groupBy('source')
+            ->pluck('total', 'source')
+            ->toArray();
+
+        // Total Income (Tuition + Convectionary)
+        $totalIncome += $totalConvectionary;
 
         // Expenses
         $totalExpenses = Expense::whereIn('status', ['approved', 'paid'])
@@ -118,7 +134,7 @@ class FinancialReportController extends Controller
         $collectionRate = $totalInvoiced > 0 ? round(($totalCollected / $totalInvoiced) * 100, 2) : 0;
         $budgetUtilization = $totalBudgetAllocated > 0 ? round(($totalBudgetSpent / $totalBudgetAllocated) * 100, 2) : 0;
 
-        return Inertia::render('Bursar/Reports/Dashboard', [
+        return Inertia::render('Hive/Finance/Reports/Dashboard', [
             'academicYear' => $academicYear,
             'income' => [
                 'total' => $totalIncome,
@@ -139,6 +155,10 @@ class FinancialReportController extends Controller
                 'total_allocated' => $totalBudgetAllocated,
                 'total_spent' => $totalBudgetSpent,
                 'utilization' => $budgetUtilization,
+            ],
+            'convectionary' => [
+                'total' => $totalConvectionary,
+                'by_source' => $convectionaryBySource,
             ],
             'metrics' => [
                 'net_position' => $netPosition,
@@ -183,7 +203,7 @@ class FinancialReportController extends Controller
             ->when($request->date_to, fn($q) => $q->whereDate('payment_date', '<=', $request->date_to))
             ->sum('amount');
 
-        return Inertia::render('Bursar/Reports/Income', [
+        return Inertia::render('Hive/Finance/Reports/Income', [
             'payments' => $payments,
             'filters' => $request->only(['academic_year', 'date_from', 'date_to', 'payment_method']),
             'totalAmount' => $totalAmount,
@@ -227,7 +247,7 @@ class FinancialReportController extends Controller
             ->when($request->date_to, fn($q) => $q->whereDate('expense_date', '<=', $request->date_to))
             ->sum('amount');
 
-        return Inertia::render('Bursar/Reports/Expenses', [
+        return Inertia::render('Hive/Finance/Reports/Expenses', [
             'expenses' => $expenses,
             'filters' => $request->only(['academic_year', 'status', 'category_id', 'date_from', 'date_to']),
             'totalAmount' => $totalAmount,
@@ -257,7 +277,7 @@ class FinancialReportController extends Controller
         $totalPaid = $payments->where('status', 'completed')->sum('amount');
         $balance = $totalInvoiced - $totalPaid;
 
-        return Inertia::render('Bursar/Reports/StudentLedger', [
+        return Inertia::render('Hive/Finance/Reports/StudentLedger', [
             'user' => $user,
             'invoices' => $invoices,
             'payments' => $payments,
@@ -307,7 +327,7 @@ class FinancialReportController extends Controller
 
         $totalOverdue = $invoices->sum('amount');
 
-        return Inertia::render('Bursar/Reports/AgeAnalysis', [
+        return Inertia::render('Hive/Finance/Reports/AgeAnalysis', [
             'invoices' => $invoices,
             'byAgeBracket' => $byAgeBracket,
             'totalOverdue' => $totalOverdue,

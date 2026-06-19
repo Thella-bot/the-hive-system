@@ -569,84 +569,98 @@ Library book management.
 
 ---
 
-## Bursar / Finance
+## Finance
 
 ### InvoiceController
 Invoice management.
 
-**Location:** `app/Http/Controllers/Hive/Bursar/InvoiceController.php`
+**Location:** `app/Http/Controllers/Hive/Finance/InvoiceController.php`
 
 | Method | Route | Description |
 |--------|------|-------------|
-| index | GET /hive/bursar/invoices | Invoice listing |
-| store | POST /hive/bursar/invoices | Create invoice |
-| generate | GET /hive/bursar/invoices/generate | Generate invoice form |
-| show | GET /hive/bursar/invoices/{invoice} | View invoice |
-| update | PUT/PATCH /hive/bursar/invoices/{invoice} | Update invoice |
-| destroy | DELETE /hive/bursar/invoices/{invoice} | Delete invoice |
+| index | GET /finance/invoices | Invoice listing |
+| store | POST /finance/invoices | Create invoice |
+| generate | GET /finance/invoices/generate | Generate invoice form |
+| show | GET /finance/invoices/{invoice} | View invoice |
+| update | PUT/PATCH /finance/invoices/{invoice} | Update invoice |
+| destroy | DELETE /finance/invoices/{invoice} | Delete invoice |
 
 ### PaymentController
 Payment management.
 
-**Location:** `app/Http/Controllers/Hive/Bursar/PaymentController.php`
+**Location:** `app/Http/Controllers/Hive/Finance/PaymentController.php`
 
 | Method | Route | Description |
 |--------|------|-------------|
-| index | GET /hive/bursar/payments | Payment listing |
-| store | POST /hive/bursar/payments | Create payment |
-| show | GET /hive/bursar/payments/{payment} | View payment |
-| update | PUT/PATCH /hive/bursar/payments/{payment} | Update payment |
-| destroy | DELETE /hive/bursar/payments/{payment} | Delete payment |
-| verify | PATCH /hive/bursar/payments/{payment}/verify | Verify payment |
+| index | GET /finance/payments | Payment listing |
+| store | POST /finance/payments | Create payment |
+| show | GET /finance/payments/{payment} | View payment |
+| update | PUT/PATCH /finance/payments/{payment} | Update payment |
+| destroy | DELETE /finance/payments/{payment} | Delete payment |
+| verify | PATCH /finance/payments/{payment}/verify | Verify payment |
 
 ### ExpenseController
 Expense management.
 
-**Location:** `app/Http/Controllers/Hive/Bursar/ExpenseController.php`
+**Location:** `app/Http/Controllers/Hive/Finance/ExpenseController.php`
 
 | Method | Route | Description |
 |--------|------|-------------|
-| index | GET /hive/bursar/expenses | Expense listing |
-| create | GET /hive/bursar/expenses/create | Create form |
-| store | POST /hive/bursar/expenses | Create expense |
-| show | GET /hive/bursar/expenses/{expense} | View expense |
-| update | PUT/PATCH /hive/bursar/expenses/{expense} | Update expense |
-| destroy | DELETE /hive/bursar/expenses/{expense} | Delete expense |
-| approve | PATCH /hive/bursar/expenses/{expense}/approve | Approve |
-| reject | PATCH /hive/bursar/expenses/{expense}/reject | Reject |
-| markPaid | PATCH /hive/bursar/expenses/{expense}/mark-paid | Mark as paid |
-| categories | GET /hive/bursar/expenses/categories | Category listing |
-| storeCategory | POST /hive/bursar/expenses/categories | Create category |
-| updateCategory | PATCH /hive/bursar/expenses/categories/{category} | Update category |
-| destroyCategory | DELETE /hive/bursar/expenses/categories/{category} | Delete category |
+| index | GET /finance/expenses | Expense listing |
+| create | GET /finance/expenses/create | Create form |
+| store | POST /finance/expenses | Create expense |
+| show | GET /finance/expenses/{expense} | View expense |
+| update | PUT/PATCH /finance/expenses/{expense} | Update expense |
+| destroy | DELETE /finance/expenses/{expense} | Delete expense |
+| approve | PATCH /finance/expenses/{expense}/approve | Approve |
+| reject | PATCH /finance/expenses/{expense}/reject | Reject |
+| markPaid | PATCH /finance/expenses/{expense}/mark-paid | Mark as paid |
+| categories | GET /finance/expenses/categories | Category listing |
+| storeCategory | POST /finance/expenses/categories | Create category |
+| updateCategory | PATCH /finance/expenses/categories/{category} | Update category |
+| destroyCategory | DELETE /finance/expenses/categories/{category} | Delete category |
 
 ### BudgetController
 Budget management.
 
-**Location:** `app/Http/Controllers/Hive/Bursar/BudgetController.php`
+**Location:** `app/Http/Controllers/Hive/Finance/BudgetController.php`
 
 | Method | Route | Description |
 |--------|------|-------------|
-| index | GET /hive/bursar/budgets | Budget listing |
-| store | POST /hive/bursar/budgets | Create budget |
-| show | GET /hive/bursar/budgets/{budget} | View budget |
-| update | PUT/PATCH /hive/bursar/budgets/{budget} | Update budget |
-| destroy | DELETE /hive/bursar/budgets/{budget} | Delete budget |
-| activate | PATCH /hive/bursar/budgets/{budget}/activate | Activate |
-| close | PATCH /hive/bursar/budgets/{budget}/close | Close |
+| index | GET /finance/budgets | Budget listing |
+| store | POST /finance/budgets | Create budget |
+| show | GET /finance/budgets/{budget} | View budget |
+| update | PUT/PATCH /finance/budgets/{budget} | Update budget |
+| destroy | DELETE /finance/budgets/{budget} | Delete budget |
+| activate | PATCH /finance/budgets/{budget}/activate | Activate |
+| close | PATCH /finance/budgets/{budget}/close | Close |
+
+### ConvectionaryIncomeController
+Convectionary income (other income) management.
+
+**Location:** `app/Http/Controllers/Hive/Finance/ConvectionaryIncomeController.php`
+
+| Method | Route | Description |
+|--------|------|-------------|
+| index | GET /finance/convectionary | Income listing |
+| create | GET /finance/convectionary/create | Create form |
+| store | POST /finance/convectionary | Create income |
+| show | GET /finance/convectionary/{convectionary} | View income |
+| update | PUT/PATCH /finance/convectionary/{convectionary} | Update income |
+| destroy | DELETE /finance/convectionary/{convectionary} | Delete income |
 
 ### FinancialReportController
 Financial reporting.
 
-**Location:** `app/Http/Controllers/Hive/Bursar/FinancialReportController.php`
+**Location:** `app/Http/Controllers/Hive/Finance/FinancialReportController.php`
 
 | Method | Route | Description |
 |--------|------|-------------|
-| dashboard | GET /hive/bursar/reports/dashboard | Finance dashboard |
-| income | GET /hive/bursar/reports/income | Income report |
-| expenses | GET /hive/bursar/reports/expenses | Expense report |
-| ageAnalysis | GET /hive/bursar/reports/age-analysis | Age analysis |
-| studentLedger | GET /hive/bursar/reports/student/{user} | Student ledger |
+| dashboard | GET /finance/reports/dashboard | Finance dashboard |
+| income | GET /finance/reports/income | Income report |
+| expenses | GET /finance/reports/expenses | Expense report |
+| ageAnalysis | GET /finance/reports/age-analysis | Age analysis |
+| studentLedger | GET /finance/reports/student/{user} | Student ledger |
 
 ---
 

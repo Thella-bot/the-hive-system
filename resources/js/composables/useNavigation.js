@@ -137,13 +137,16 @@ export function useNavigation() {
     ];
   };
 
-  const academicResourcesNav = () => [
-    {
+  const academicResourcesNav = () => {
+    // Only show for authenticated users
+    if (!userRoles.value.length) return [];
+
+    return [{
       name: 'Academic Resources',
       icon: BookOpenIcon,
       children: [
         // Library
-        { name: 'Library', href: route('library.dashboard'), active: 'library.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
+        { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
         // Documents (unified from old Documents module)
         { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*', roles: ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager', 'student'] },
         // Announcements
@@ -151,8 +154,8 @@ export function useNavigation() {
         // Events
         { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
       ],
-    },
-  ];
+    }];
+  };
 
   const admissionsNav = () => {
     const authRoles = userRoles.value;
@@ -288,11 +291,12 @@ export function useNavigation() {
       name: 'Finance',
       icon: CurrencyDollarIcon,
       children: [
-        { name: 'Dashboard', href: route('bursar.reports.dashboard'), active: 'bursar.reports.dashboard', roles: financeRoles },
-        { name: 'Invoices', href: route('bursar.invoices.index'), active: 'bursar.invoices.*', roles: financeRoles },
-        { name: 'Payments', href: route('bursar.payments.index'), active: 'bursar.payments.*', roles: financeRoles },
-        { name: 'Expenses', href: route('bursar.expenses.index'), active: 'bursar.expenses.*', roles: financeRoles },
-        { name: 'Budgets', href: route('bursar.budgets.index'), active: 'bursar.budgets.*', roles: financeRoles },
+        { name: 'Dashboard', href: route('hive.finance.reports.dashboard'), active: 'hive.finance.reports.dashboard', roles: financeRoles },
+        { name: 'Invoices', href: route('hive.finance.invoices.index'), active: 'hive.finance.invoices.*', roles: financeRoles },
+        { name: 'Payments', href: route('hive.finance.payments.index'), active: 'hive.finance.payments.*', roles: financeRoles },
+        { name: 'Expenses', href: route('hive.finance.expenses.index'), active: 'hive.finance.expenses.*', roles: financeRoles },
+        { name: 'Budgets', href: route('hive.finance.budgets.index'), active: 'hive.finance.budgets.*', roles: financeRoles },
+        { name: 'Convectionary', href: route('hive.finance.convectionary.index'), active: 'hive.finance.convectionary.*', roles: financeRoles },
       ],
     }];
   };

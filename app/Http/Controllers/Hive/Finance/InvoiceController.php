@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Hive\Bursar;
+namespace App\Http\Controllers\Hive\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HasFilters;
@@ -37,7 +37,7 @@ class InvoiceController extends Controller
             });
         }
 
-        return Inertia::render('Bursar/Invoice/Index', [
+        return Inertia::render('Hive/Finance/Invoice/Index', [
             'invoices' => $query->paginate(20)->withQueryString(),
             'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'search']),
             'statuses' => ['pending', 'partial', 'paid', 'overdue', 'cancelled'],
@@ -84,7 +84,7 @@ class InvoiceController extends Controller
     {
         $invoice->load(['user', 'programme', 'variant', 'payments.recorder']);
 
-        return Inertia::render('Bursar/Invoice/Show', [
+        return Inertia::render('Hive/Finance/Invoice/Show', [
             'invoice' => $invoice,
         ]);
     }
@@ -93,7 +93,7 @@ class InvoiceController extends Controller
     {
         $invoice->delete();
 
-        return redirect()->route('bursar.invoices.index')->with('success', 'Invoice deleted.');
+        return redirect()->route('finance.invoices.index')->with('success', 'Invoice deleted.');
     }
 
     /**

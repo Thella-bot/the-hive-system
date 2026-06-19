@@ -24,7 +24,7 @@ const props = defineProps({
 
 const search = ref(props.filters.search ?? '');
 
-const applyFilters = () => router.get(route('bursar.expenses.index'),
+const applyFilters = () => router.get(route('finance.expenses.index'),
   { search: search.value },
   { preserveState: true, replace: true }
 );
@@ -48,7 +48,7 @@ const formatCurrency = (amount) => {
 <template>
   <HiveLayout title="Expenses" description="Track and manage expenses">
     <template #header-actions>
-      <Link :href="route('bursar.expenses.categories')"
+      <Link :href="route('finance.expenses.categories')"
         class="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         Manage Categories
       </Link>
@@ -58,7 +58,7 @@ const formatCurrency = (amount) => {
       <div class="max-w-xs">
         <SearchInput v-model="search" @search="applyFilters" placeholder="Search expenses..." />
       </div>
-      <Link :href="route('bursar.expenses.create')"
+      <Link :href="route('finance.expenses.create')"
         class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors">
         <PlusIcon class="w-5 h-5" />
         New Expense
@@ -111,7 +111,7 @@ const formatCurrency = (amount) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <Link :href="route('bursar.expenses.show', expense.id)" class="p-1 text-gray-500 hover:text-amber-600">
+                <Link :href="route('finance.expenses.show', expense.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <EyeIcon class="w-5 h-5" />
                 </Link>
               </div>

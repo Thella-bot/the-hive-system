@@ -28,7 +28,7 @@ export default {
 <template>
     <Head title="Forgot Password" />
 
-    <div class="min-h-screen flex items-center justify-center relative bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 overflow-hidden">
+    <div class="min-h-screen flex items-center justify-center px-4 py-12 relative bg-gradient-to-br from-amber-600 via-amber-700 to-amber-800 overflow-hidden">
         <!-- Background pattern -->
         <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
         <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>

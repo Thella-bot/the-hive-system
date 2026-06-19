@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Hive\Bursar;
+namespace App\Http\Controllers\Hive\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HasFilters;
@@ -15,6 +15,26 @@ use Inertia\Response;
 class BudgetController extends Controller
 {
     use HasFilters;
+
+    /**
+     * Check if user can access the given budget.
+     * Admins can access all; department-heads only their department's budgets.
+     */
+    private function authorizeBudget(Budget $budget): void
+    {
+        $user = auth()->user();
+
+        // Admins can access all budgets
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        // Finance/HR can only access budgets in their department
+        $userDeptId = $user->profile?->department_id;
+        if (!$userDeptId || $budget->department_id !== $userDeptId) {
+            abort(403, 'You can only access budgets from your department.');
+        }
+    }
 
     public function index(Request $request): Response
     {
@@ -44,7 +64,7 @@ class BudgetController extends Controller
             return $budget;
         });
 
-        return Inertia::render('Bursar/Budget/Index', [
+        return Inertia::render('Hive/Finance/Budget/Index', [
             'budgets' => $budgets,
             'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'department_id']),
             'statuses' => ['draft', 'active', 'closed'],
@@ -80,6 +100,8 @@ class BudgetController extends Controller
 
     public function update(Request $request, Budget $budget): RedirectResponse
     {
+        $this->authorizeBudget($budget);
+
         $data = $request->validate([
             'name' => 'sometimes|string|max:100',
             'academic_year' => 'sometimes|string',
@@ -101,6 +123,8 @@ class BudgetController extends Controller
 
     public function show(Budget $budget): Response
     {
+        $this->authorizeBudget($budget);
+
         $budget->load(['category', 'department', 'expenses.user', 'expenses.approver']);
 
         // Add computed attributes
@@ -109,20 +133,22 @@ class BudgetController extends Controller
         $budget->percent_used = $budget->percent_used;
         $budget->is_overspent = $budget->is_overspent;
 
-        return Inertia::render('Bursar/Budget/Show', [
+        return Inertia::render('Hive/Finance/Budget/Show', [
             'budget' => $budget,
         ]);
     }
 
     public function destroy(Budget $budget): RedirectResponse
     {
+        $this->authorizeBudget($budget);
+
         if ($budget->expenses()->exists()) {
             return back()->with('error', 'Cannot delete budget with associated expenses.');
         }
 
         $budget->delete();
 
-        return redirect()->route('bursar.budgets.index')->with('success', 'Budget deleted.');
+        return redirect()->route('finance.budgets.index')->with('success', 'Budget deleted.');
     }
 
     /**
@@ -130,6 +156,8 @@ class BudgetController extends Controller
      */
     public function activate(Budget $budget): RedirectResponse
     {
+        $this->authorizeBudget($budget);
+
         if ($budget->status !== 'draft') {
             return back()->with('error', 'Only draft budgets can be activated.');
         }
@@ -150,6 +178,8 @@ class BudgetController extends Controller
      */
     public function close(Budget $budget): RedirectResponse
     {
+        $this->authorizeBudget($budget);
+
         if ($budget->status !== 'active') {
             return back()->with('error', 'Only active budgets can be closed.');
         }
@@ -184,7 +214,7 @@ class BudgetController extends Controller
         $totalSpent = $budgets->sum('spent_amount');
         $totalAvailable = $budgets->sum('available_amount');
 
-        return Inertia::render('Bursar/Budget/Summary', [
+        return Inertia::render('Hive/Bursar/Budget/Summary', [
             'budgets' => $budgets,
             'summary' => [
                 'total_approved' => $totalApproved,

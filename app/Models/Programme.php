@@ -68,7 +68,7 @@ class Programme extends Model
         return $query->where('department_id', $departmentId);
     }
 
-    public function scopeActive($query): \Illuminate\Database\Eloquent\Model\Builder
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', true);
     }

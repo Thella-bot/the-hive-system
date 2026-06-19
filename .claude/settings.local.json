@@ -86,7 +86,19 @@
       "Bash(ls -la \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/\"*.md)",
       "Bash(dir \"c:\\\\Users\\\\mahal\\\\OneDrive\\\\Desktop\\\\Honey Bee Culinary Institute\\\\Code\\\\the-hive-system\\\\*.md\")",
       "Bash(mv 2026_06_17_000002_create_budgets_table.php 2026_06_17_000001_create_budgets_table.php)",
-      "Bash(mv 2026_06_17_000001_create_expenses_table.php 2026_06_17_000002_create_expenses_table.php)"
+      "Bash(mv 2026_06_17_000001_create_expenses_table.php 2026_06_17_000002_create_expenses_table.php)",
+      "Bash(php -l \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/app/Models/Programme.php\")",
+      "Bash(php -l \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/app/Models/Department.php\")",
+      "Bash(for f in \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/routes/hive\"/*.php)",
+      "Bash(do php -l \"$f\")",
+      "Bash(php -l \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/routes/api.php\")",
+      "Bash(php -l \"c:/Users/mahal/OneDrive/Desktop/Honey Bee Culinary Institute/Code/the-hive-system/routes/web.php\")",
+      "Bash(php artisan tinker --execute=\"echo json_encode\\(array_keys\\(\\\\Illuminate\\\\Support\\\\Facades\\\\Route::getRoutes\\(\\)->getRoutesByName\\(\\)\\), JSON_PRETTY_PRINT\\);\")",
+      "Bash(php artisan ziggy:route)",
+      "Bash(php -r \"require ''vendor/autoload.php''; $app = require ''bootstrap/app.php''; $kernel = $app->make\\(''Illuminate\\\\Contracts\\\\Console\\\\Kernel''\\); $kernel->bootstrap\\(\\); echo ''Routes loaded: ''; echo count\\(\\\\Illuminate\\\\Support\\\\Facades\\\\Route::getRoutes\\(\\)->getRoutesByName\\(\\)\\);\")",
+      "Bash(php generate-ziggy.php)",
+      "Bash(php artisan ziggy:generate)",
+      "Bash(cmd //c \"move resources\\\\js\\\\Pages\\\\Hive\\\\Bursar resources\\\\js\\\\Pages\\\\Hive\\\\Finance\")"
     ]
   }
 }

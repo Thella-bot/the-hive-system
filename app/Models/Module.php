@@ -1,10 +1,11 @@
-<?php 
+<?php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Module extends Model
 {
@@ -22,20 +23,28 @@ class Module extends Model
     {
         return $this->belongsTo(Programme::class);
     }
-    public function department() { return $this->belongsTo(Department::class); }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     /**
      * The students that are enrolled in the module.
      */
-    public function students()
+    public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'enrollments')
                     ->withPivot('academic_year', 'semester')
                     ->withTimestamps();
     }
-    public function instructors() {
-    return $this->belongsToMany(User::class, 'module_instructor');
+
+    public function instructors(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'module_instructor');
     }
-    public function gradables()
+
+    public function gradables(): HasMany
     {
         return $this->hasMany(Gradable::class);
     }
