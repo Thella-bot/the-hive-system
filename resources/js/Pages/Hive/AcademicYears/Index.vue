@@ -2,8 +2,9 @@
 import { Link, router } from '@inertiajs/vue3'
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
-import Badge from '@/Components/Badge.vue'
-import Pagination from '@/Components/Pagination.vue'
+import Badge from '@/Components/Badge.vue';
+import EmptyState from '@/Components/EmptyState.vue';
+import Pagination from '@/Components/Pagination.vue';
 import dayjs from 'dayjs';
 import { useUser } from '@/composables/useUser';
 
@@ -45,9 +46,12 @@ const deleteYear = (year) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="years.data.length === 0">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
-              No academic years defined yet.
-              <Link v-if="isAdmin" :href="route('hive.academic-years.create')" class="text-amber-600 hover:underline ml-1">Create one.</Link>
+            <td colspan="5">
+              <EmptyState type="default" title="No academic years defined yet">
+                <template #action>
+                  <Link v-if="isAdmin" :href="route('hive.academic-years.create')" class="text-amber-600 hover:text-amber-700 dark:text-amber-400 text-sm font-medium">Create one</Link>
+                </template>
+              </EmptyState>
             </td>
           </tr>
           <tr v-for="year in years.data" :key="year.id"

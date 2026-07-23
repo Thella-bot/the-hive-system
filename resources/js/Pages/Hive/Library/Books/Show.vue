@@ -107,7 +107,7 @@ const deleteBook = () => {
 
           <div class="flex gap-2 mt-4">
             <button v-if="book.available_copies > 0"
-              class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors">
+               class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
               <ClockIcon class="w-4 h-4" />
               Loan
             </button>

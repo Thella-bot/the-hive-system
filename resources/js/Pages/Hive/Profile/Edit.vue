@@ -4,41 +4,41 @@
     <form @submit.prevent="form.post(route('hive.profile.update'))" class="max-w-md space-y-4">
       <div>
         <label>First Name</label>
-        <input v-model="form.first_name" class="w-full border rounded p-2" />
+        <input v-model="form.first_name" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
       <div>
         <label>Last Name</label>
-        <input v-model="form.last_name" class="w-full border rounded p-2" />
+        <input v-model="form.last_name" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
       <div>
         <label>Date of Birth</label>
-        <input type="date" v-model="form.date_of_birth" class="w-full border rounded p-2" />
+        <input type="date" v-model="form.date_of_birth" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
       <div>
         <label>Phone</label>
-        <input v-model="form.phone" class="w-full border rounded p-2" />
+        <input v-model="form.phone" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
       <div>
         <label>Address</label>
-        <textarea v-model="form.address" class="w-full border rounded p-2"></textarea>
+        <textarea v-model="form.address" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white"></textarea>
       </div>
       <div>
         <label>Emergency Contact Name</label>
-        <input v-model="form.emergency_contact_name" class="w-full border rounded p-2" />
+        <input v-model="form.emergency_contact_name" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
       <div>
         <label>Emergency Contact Phone</label>
-        <input v-model="form.emergency_contact_phone" class="w-full border rounded p-2" />
+        <input v-model="form.emergency_contact_phone" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
 
       <!-- Student-specific fields -->
       <div v-if="isStudent">
         <label>Emergency Contact Relationship</label>
-        <input v-model="form.emergency_contact_relationship" class="w-full border rounded p-2" />
+        <input v-model="form.emergency_contact_relationship" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
       <div v-if="isStudent">
         <label>Dietary Restrictions</label>
-        <textarea v-model="form.dietary_restrictions" class="w-full border rounded p-2"></textarea>
+        <textarea v-model="form.dietary_restrictions" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white"></textarea>
       </div>
 
       <!-- Staff Fields -->
@@ -46,38 +46,38 @@
         <h2 class="text-xl font-semibold mt-6 mb-2 border-t pt-4">Staff Information</h2>
         <div>
           <label>Employee Number</label>
-          <input v-model="form.employee_number" class="w-full border rounded p-2" />
+          <input v-model="form.employee_number" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Department</label>
-          <select v-model="form.department_id" class="w-full border rounded p-2">
+          <select v-model="form.department_id" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white">
             <option :value="null">Select Department</option>
             <option v-for="department in departments" :key="department.id" :value="department.id">{{ department.name }}</option>
           </select>
         </div>
         <div>
           <label>Designation</label>
-          <input v-model="form.designation" class="w-full border rounded p-2" />
+          <input v-model="form.designation" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Specialization</label>
-          <input v-model="form.specialization" class="w-full border rounded p-2" />
+          <input v-model="form.specialization" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Bio</label>
-          <textarea v-model="form.bio" class="w-full border rounded p-2"></textarea>
+          <textarea v-model="form.bio" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white"></textarea>
         </div>
         <div>
           <label>Hire Date</label>
-          <input type="date" v-model="form.hire_date" class="w-full border rounded p-2" />
+          <input type="date" v-model="form.hire_date" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Annual Leave Days</label>
-          <input type="number" v-model="form.annual_leave_days" class="w-full border rounded p-2" />
+          <input type="number" v-model="form.annual_leave_days" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Leave Balance</label>
-          <input type="number" v-model="form.leave_balance" class="w-full border rounded p-2" />
+          <input type="number" v-model="form.leave_balance" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
       </div>
 
@@ -86,30 +86,30 @@
         <h2 class="text-xl font-semibold mt-6 mb-2 border-t pt-4">Student Information</h2>
         <div>
           <label>Student Number</label>
-          <input v-model="form.student_number" class="w-full border rounded p-2" />
+          <input v-model="form.student_number" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Cohort</label>
-          <select v-model="form.cohort_id" class="w-full border rounded p-2">
+          <select v-model="form.cohort_id" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white">
             <option :value="null">Select Cohort</option>
             <option v-for="cohort in cohorts" :key="cohort.id" :value="cohort.id">{{ cohort.name }}</option>
           </select>
         </div>
         <div>
           <label>Enrollment Date</label>
-          <input type="date" v-model="form.enrollment_date" class="w-full border rounded p-2" />
+          <input type="date" v-model="form.enrollment_date" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Expected Graduation Date</label>
-          <input type="date" v-model="form.expected_graduation_date" class="w-full border rounded p-2" />
+          <input type="date" v-model="form.expected_graduation_date" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Graduation Date</label>
-          <input type="date" v-model="form.graduation_date" class="w-full border rounded p-2" />
+          <input type="date" v-model="form.graduation_date" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
         </div>
         <div>
           <label>Status</label>
-          <select v-model="form.status" class="w-full border rounded p-2">
+          <select v-model="form.status" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white">
             <option value="active">Active</option>
             <option value="graduated">Graduated</option>
             <option value="withdrawn">Withdrawn</option>

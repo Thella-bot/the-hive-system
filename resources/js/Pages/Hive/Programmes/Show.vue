@@ -1,13 +1,13 @@
 <template>
   <HiveLayout :title="programme.name" :description="`Details for ${programme.name}`">
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 p-6">
       <div class="flex justify-between items-start">
         <div>
           <h2 class="text-2xl font-bold text-gray-800">{{ programme.name }}</h2>
           <p class="text-gray-600 mt-2">{{ programme.description }}</p>
           <p class="text-sm text-gray-500 mt-4">Duration: {{ programme.duration }}</p>
         </div>
-        <Link v-if="isAdmin" :href="route('hive.programmes.edit', { programme: programme.id })" class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-500 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+        <Link v-if="isAdmin" :href="route('hive.programmes.edit', { programme: programme.id })" class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-700 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
           Manage Courses
         </Link>
       </div>

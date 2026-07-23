@@ -65,9 +65,8 @@
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="!logs.data || logs.data.length === 0">
-            <td colspan="7" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
-              <UserGroupIcon class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-              <p>No visitor logs found</p>
+            <td colspan="7">
+              <EmptyState type="users" title="No visitor logs found" />
             </td>
           </tr>
           <tr v-for="log in logs.data" :key="log.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">

@@ -1,6 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import {
   ArrowLeftIcon,
   DocumentTextIcon,
@@ -31,7 +32,7 @@ const statusClass = (status) => {
 </script>
 
 <template>
-  <HiveLayout :title="`Student Ledger: ${user.name}`" :description="Invoice and payment history">
+  <HiveLayout :title="'Student Ledger: ' + user.name" :description="'Invoice and payment history'">
     <template #header-actions>
       <Link :href="route('finance.reports.ageAnalysis')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
@@ -89,45 +90,49 @@ const statusClass = (status) => {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-            <tr v-if="invoices.length === 0">
-              <td colspan="4" class="px-6 py-8 text-center text-gray-500">No invoices</td>
-            </tr>
-            <tr v-for="invoice in invoices" :key="invoice.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-              <td class="px-6 py-3">
-                <Link :href="route('finance.invoices.show', invoice.id)" class="text-amber-600 hover:text-amber-700">
-                  {{ invoice.invoice_number }}
-                </Link>
-              </td>
-              <td class="px-6 py-3 text-gray-600 dark:text-gray-400">{{ invoice.created_at?.split('T')[0] }}</td>
-              <td class="px-6 py-3 font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(invoice.amount) }}</td>
-              <td class="px-6 py-3">
-                <span :class="statusClass(invoice.status)" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize">
-                  {{ invoice.status }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          <tr v-if="invoices.length === 0">
+            <td colspan="4">
+              <EmptyState type="document" title="No invoices" />
+            </td>
+          </tr>
+          <tr v-for="invoice in invoices" :key="invoice.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+            <td class="px-6 py-3">
+              <Link :href="route('finance.invoices.show', invoice.id)" class="text-amber-600 hover:text-amber-700">
+                {{ invoice.invoice_number }}
+              </Link>
+            </td>
+            <td class="px-6 py-3 text-gray-600 dark:text-gray-400">{{ invoice.created_at?.split('T')[0] }}</td>
+            <td class="px-6 py-3 font-medium text-gray-900 dark:text-gray-100">{{ formatCurrency(invoice.amount) }}</td>
+            <td class="px-6 py-3">
+              <span :class="statusClass(invoice.status)" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize">
+                {{ invoice.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <!-- Payments -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-          <h3 class="font-semibold text-gray-900 dark:text-gray-100">Payments</h3>
-        </div>
-        <table class="w-full text-sm">
-          <thead class="bg-gray-50 dark:bg-gray-900/50">
-            <tr>
-              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Date</th>
-              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Reference</th>
-              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Amount</th>
-              <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Status</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-            <tr v-if="payments.length === 0">
-              <td colspan="4" class="px-6 py-8 text-center text-gray-500">No payments</td>
-            </tr>
+    <!-- Payments -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+        <h3 class="font-semibold text-gray-900 dark:text-gray-100">Payments</h3>
+      </div>
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 dark:bg-gray-900/50">
+          <tr>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Date</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Reference</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Amount</th>
+            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+          <tr v-if="payments.length === 0">
+            <td colspan="4">
+              <EmptyState type="document" title="No payments" />
+            </td>
+          </tr>
             <tr v-for="payment in payments" :key="payment.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
               <td class="px-6 py-3 text-gray-600 dark:text-gray-400">{{ payment.payment_date }}</td>
               <td class="px-6 py-3 text-gray-500 dark:text-gray-400">{{ payment.reference || '—' }}</td>

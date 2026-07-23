@@ -4,14 +4,7 @@ import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
-import {
-  PlusIcon,
-  MagnifyingGlassIcon,
-  EyeIcon,
-  PencilSquareIcon,
-  TrashIcon,
-  BookOpenIcon,
-} from '@heroicons/vue/24/outline';
+import EmptyState from '@/Components/EmptyState.vue';
 
 const props = defineProps({
   books: { type: Object, required: true },
@@ -37,7 +30,7 @@ const formatCurrency = (amount) => {
   <HiveLayout title="Library Books" description="Browse and manage library books">
     <template #header-actions>
       <Link :href="route('library.books.create')"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors">
+        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
         <PlusIcon class="w-5 h-5" />
         Add Book
       </Link>
@@ -74,13 +67,8 @@ const formatCurrency = (amount) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="books.data.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <BookOpenIcon class="w-8 h-8 text-gray-400" />
-                </div>
-                <p class="text-gray-500 dark:text-gray-400">No books found</p>
-              </div>
+            <td colspan="6">
+              <EmptyState type="book" title="No books found" />
             </td>
           </tr>
           <tr v-for="book in books.data" :key="book.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">

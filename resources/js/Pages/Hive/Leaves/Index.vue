@@ -23,7 +23,9 @@
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="leaves.data.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-400 dark:text-gray-500">No leave requests found.</td>
+            <td colspan="6">
+              <EmptyState type="default" title="No leave requests found" />
+            </td>
           </tr>
           <tr v-for="leave in leaves.data" :key="leave.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">

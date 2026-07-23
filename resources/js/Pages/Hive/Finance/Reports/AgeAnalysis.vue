@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import {
@@ -122,7 +123,9 @@ const ageBracketClass = (bracket) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="invoices.data.length === 0">
-            <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">No overdue invoices</td>
+            <td colspan="7">
+              <EmptyState type="document" title="No overdue invoices" />
+            </td>
           </tr>
           <tr v-for="invoice in invoices.data" :key="invoice.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
             <td class="px-6 py-4">

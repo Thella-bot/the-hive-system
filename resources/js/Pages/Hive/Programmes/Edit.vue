@@ -1,7 +1,7 @@
 <template>
   <HiveLayout :title="`Edit ${programme.name}`" description="Update programme details and manage modules.">
     <div class="max-w-2xl mx-auto">
-      <form @submit.prevent="submit" class="bg-white rounded-lg shadow p-6 space-y-6">
+      <form @submit.prevent="submit" class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
         <div>
           <label for="name" class="block text-sm font-medium text-gray-700">Programme Name</label>
           <input id="name" v-model="form.name" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" />

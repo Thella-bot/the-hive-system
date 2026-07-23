@@ -24,7 +24,7 @@ const submit = () => {
 
     <HiveLayout title="Create Programme">
         <div class="max-w-2xl mx-auto">
-            <form @submit.prevent="submit" class="bg-white rounded-lg shadow p-6 space-y-6">
+            <form @submit.prevent="submit" class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-6">
                 <div>
                     <InputLabel for="name" value="Programme Name" />
                     <TextInput id="name" type="text" class="mt-1 block w-full" v-model="form.name" required autofocus />

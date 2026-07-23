@@ -63,7 +63,7 @@ const deleteCategory = (category) => {
     <div class="mb-6 flex justify-end">
       <button
         @click="showCreateModal = true"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium"
       >
         <PlusIcon class="w-5 h-5" />
         New Category
@@ -83,8 +83,8 @@ const deleteCategory = (category) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="categories.length === 0">
-            <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-              No categories found
+            <td colspan="5">
+              <EmptyState type="document" title="No categories found" />
             </td>
           </tr>
           <tr v-for="category in categories" :key="category.id">
@@ -193,7 +193,7 @@ const deleteCategory = (category) => {
           <div class="flex gap-3">
             <button
               @click="createCategory"
-              class="flex-1 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium"
+              class="flex-1 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium"
             >
               Create
             </button>

@@ -2,7 +2,7 @@
 import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
-import { BookmarkIcon, CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
+import EmptyState from '@/Components/EmptyState.vue';
 
 const props = defineProps({
   reservations: { type: Object, required: true },
@@ -60,7 +60,9 @@ const statusClass = (status) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="reservations.data.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-500">No reservations found</td>
+            <td colspan="6">
+              <EmptyState type="inbox" title="No reservations found" />
+            </td>
           </tr>
           <tr v-for="res in reservations.data" :key="res.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20">
             <td class="px-6 py-4">

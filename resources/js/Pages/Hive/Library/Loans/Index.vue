@@ -2,7 +2,7 @@
 import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
-import { ClockIcon, ArrowPathIcon, CheckIcon } from '@heroicons/vue/24/outline';
+import EmptyState from '@/Components/EmptyState.vue';
 
 const props = defineProps({
   loans: { type: Object, required: true },
@@ -62,7 +62,9 @@ const isOverdue = (loan) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="loans.data.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-500">No loans found</td>
+            <td colspan="6">
+              <EmptyState type="inbox" title="No loans found" />
+            </td>
           </tr>
           <tr v-for="loan in loans.data" :key="loan.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20">
             <td class="px-6 py-4">

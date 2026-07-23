@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="Calendar">
+  <HiveLayout title="Calendar">
     <div class="h-full">
       <FullCalendar :options="calendarOptions" />
     </div>
@@ -39,13 +39,13 @@
         </form>
       </div>
     </Modal>
-  </AppLayout>
+  </HiveLayout>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import HiveLayout from '@/Layouts/HiveLayout.vue';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';

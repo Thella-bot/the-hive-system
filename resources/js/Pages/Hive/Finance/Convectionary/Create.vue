@@ -132,7 +132,7 @@ const submit = () => {
           <button
             type="submit"
             :disabled="isSubmitting"
-            class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+            class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
           >
             <span v-if="isSubmitting">Saving...</span>
             <span v-else>Record Income</span>

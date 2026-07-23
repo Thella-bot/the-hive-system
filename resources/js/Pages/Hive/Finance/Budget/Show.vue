@@ -92,7 +92,7 @@ const deleteBudget = () => {
             </div>
             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
               <div
-                class="bg-amber-500 h-3 rounded-full transition-all"
+                class="bg-amber-600 h-3 rounded-full transition-all"
                 :style="{ width: `${Math.min(budget.percent_used, 100)}%` }"
                 :class="budget.is_overspent ? 'bg-red-500' : ''"
               ></div>

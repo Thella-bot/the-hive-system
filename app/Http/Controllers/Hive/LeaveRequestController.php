@@ -48,7 +48,7 @@ class LeaveRequestController extends Controller
             'half_day' => 'nullable|boolean',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'reason' => 'nullable|string',
+            'reason' => 'nullable|string|max:1000',
         ]);
 
         $profile = $user->profile;

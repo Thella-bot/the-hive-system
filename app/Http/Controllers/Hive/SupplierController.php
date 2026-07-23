@@ -28,7 +28,7 @@ class SupplierController extends Controller
             'phone' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255',
             'contract_expiry' => 'nullable|date',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         Supplier::create($data);
@@ -48,7 +48,7 @@ class SupplierController extends Controller
             'phone' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255',
             'contract_expiry' => 'nullable|date',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $supplier->update($data);

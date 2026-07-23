@@ -85,7 +85,7 @@ class ExpenseController extends Controller
             'payment_method' => 'nullable|string|max:50',
             'reference_number' => 'nullable|string|max:100',
             'receipt_path' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $data['user_id'] = auth()->id();
@@ -110,7 +110,7 @@ class ExpenseController extends Controller
             'reference_number' => 'nullable|string|max:100',
             'status' => 'sometimes|in:pending,approved,rejected,paid,cancelled',
             'receipt_path' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $expense->update($data);
@@ -170,7 +170,7 @@ class ExpenseController extends Controller
         $this->authorizeExpense($expense);
 
         $data = $request->validate([
-            'notes' => 'required|string',
+            'notes' => 'required|string|max:2000',
         ]);
 
         if (!$expense->is_pending) {
@@ -197,7 +197,7 @@ class ExpenseController extends Controller
         $data = $request->validate([
             'payment_method' => 'nullable|string|max:50',
             'reference_number' => 'nullable|string|max:100',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         if (!$expense->is_approved) {

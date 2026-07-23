@@ -30,17 +30,11 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-            <tr v-if="grades.length === 0">
-              <td colspan="5" class="px-6 py-12 text-center">
-                <div class="flex flex-col items-center">
-                  <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                    <ClipboardDocumentListIcon class="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p class="text-gray-500 dark:text-gray-400">No grades available yet.</p>
-                  <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Your grades will appear here once assessments are marked.</p>
-                </div>
-              </td>
-            </tr>
+          <tr v-if="grades.length === 0">
+            <td colspan="5">
+              <EmptyState type="assignment" title="No grades available yet" description="Your grades will appear here once assessments are marked." />
+            </td>
+          </tr>
             <tr v-for="grade in grades" :key="grade.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <td class="px-6 py-4">
                 <p class="font-medium text-gray-900 dark:text-gray-100">{{ grade.module?.name }}</p>
@@ -69,6 +63,7 @@
 </template>
 
 <script setup>
+import EmptyState from '@/Components/EmptyState.vue';
 import { computed } from 'vue';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { ClipboardDocumentListIcon } from '@heroicons/vue/24/outline';

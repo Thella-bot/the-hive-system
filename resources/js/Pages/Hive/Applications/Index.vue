@@ -32,15 +32,8 @@
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="!applications.data?.length">
-            <td colspan="5" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <p class="text-gray-500 dark:text-gray-400">No {{ filter === 'all' ? '' : filter }} applications found.</p>
-              </div>
+            <td colspan="5">
+              <EmptyState type="document" title="No applications found" />
             </td>
           </tr>
           <tr v-for="application in (applications.data ?? [])" :key="application.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
@@ -84,6 +77,7 @@
 
 <script setup>
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { computed } from 'vue';
 import { router, Link } from '@inertiajs/vue3';

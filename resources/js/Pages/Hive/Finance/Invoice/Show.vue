@@ -128,7 +128,7 @@ const markAsPaid = () => {
             <InputError :message="errors.amount" class="mt-1" />
             <button
               @click="saveChanges"
-              class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium"
+               class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium"
             >
               Save Changes
             </button>

@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="Dashboard" :description="currentYear ? `Academic Year: ${currentYear.name}` : 'No active academic year set'">
+  <HiveLayout title="Dashboard" :description="currentYear ? `Academic Year: ${currentYear.name}` : 'No active academic year set'">
     <template #header-actions>
       <span v-if="currentYear" class="inline-flex items-center gap-1.5 text-sm text-amber-600 dark:text-amber-400 font-medium">
         <span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
@@ -124,13 +124,12 @@
       </div>
 
     </div>
-  </AppLayout>
+  </HiveLayout>
 </template>
 
 <script setup>
-import '../../../resources/css/dashboard-animations.css';
 import { Link } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import HiveLayout from '@/Layouts/HiveLayout.vue'
 import StatCard from '@/Components/StatCard.vue'
 
 defineProps({

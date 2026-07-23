@@ -4,15 +4,15 @@
     <form @submit.prevent="form.put(route('hive.announcements.update', { announcement: announcement.id }))" class="max-w-lg space-y-4">
       <div>
         <label class="block text-sm">Title</label>
-        <input v-model="form.title" class="w-full border rounded p-2" required />
+        <input v-model="form.title"       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" required />
       </div>
       <div>
         <label class="block text-sm">Body</label>
-        <textarea v-model="form.body" rows="5" class="w-full border rounded p-2" required></textarea>
+        <textarea v-model="form.body" rows="5"       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" required></textarea>
       </div>
       <div>
         <label class="block text-sm">Category</label>
-        <select v-model="form.category" class="w-full border rounded p-2">
+        <select v-model="form.category"       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white">
           <option value="general">General</option>
           <option value="academic">Academic</option>
           <option value="event">Event</option>
@@ -46,7 +46,7 @@
       </div>
       <div>
         <label class="block text-sm">Expires at (optional)</label>
-        <input type="datetime-local" v-model="form.expires_at" class="w-full border rounded p-2" />
+        <input type="datetime-local" v-model="form.expires_at"       class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
       </div>
       <button type="submit" class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700">Update</button>
     </form>

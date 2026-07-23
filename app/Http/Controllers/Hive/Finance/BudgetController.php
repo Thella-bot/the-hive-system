@@ -86,7 +86,7 @@ class BudgetController extends Controller
             'allocated_amount' => 'nullable|numeric|min:0',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         if (!isset($data['allocated_amount'])) {
@@ -113,7 +113,7 @@ class BudgetController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
             'status' => 'sometimes|in:draft,active,closed',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $budget->update($data);

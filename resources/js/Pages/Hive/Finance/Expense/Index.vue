@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -59,7 +60,7 @@ const formatCurrency = (amount) => {
         <SearchInput v-model="search" @search="applyFilters" placeholder="Search expenses..." />
       </div>
       <Link :href="route('finance.expenses.create')"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors">
+        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
         <PlusIcon class="w-5 h-5" />
         New Expense
       </Link>
@@ -79,13 +80,8 @@ const formatCurrency = (amount) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="expenses.data.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <MagnifyingGlassIcon class="w-8 h-8 text-gray-400" />
-                </div>
-                <p class="text-gray-500 dark:text-gray-400">No expenses found</p>
-              </div>
+            <td colspan="6">
+              <EmptyState type="document" title="No expenses found" />
             </td>
           </tr>
           <tr v-for="expense in expenses.data" :key="expense.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">

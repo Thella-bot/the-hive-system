@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import {
@@ -75,7 +76,7 @@ const exportReport = () => {
       </select>
       <input v-model="dateFrom" type="date" @change="applyFilters" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="From Date" />
       <input v-model="dateTo" type="date" @change="applyFilters" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" placeholder="To Date" />
-      <button @click="exportReport" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium">
+      <button @click="exportReport"         class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium">
         <ArrowDownTrayIcon class="w-5 h-5" />
         Export
       </button>
@@ -107,7 +108,9 @@ const exportReport = () => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="payments.data.length === 0">
-            <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">No payments found</td>
+            <td colspan="7">
+              <EmptyState type="document" title="No payments found" />
+            </td>
           </tr>
           <tr v-for="payment in payments.data" :key="payment.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
             <td class="px-6 py-4">

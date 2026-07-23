@@ -10,8 +10,8 @@ import {
   PencilSquareIcon,
   EyeIcon,
   TrashIcon,
-  FolderIcon,
 } from '@heroicons/vue/24/outline';
+import EmptyState from '@/Components/EmptyState.vue';
 
 const props = defineProps({
   budgets: { type: Object, required: true },
@@ -67,13 +67,8 @@ const statusClass = (status) => {
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="budgets.data.length === 0">
-            <td colspan="7" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <FolderIcon class="w-8 h-8 text-gray-400" />
-                </div>
-                <p class="text-gray-500 dark:text-gray-400">No budgets found</p>
-              </div>
+            <td colspan="7">
+              <EmptyState type="document" title="No budgets found" />
             </td>
           </tr>
           <tr v-for="budget in budgets.data" :key="budget.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">

@@ -26,7 +26,7 @@ class ChatMessageController extends Controller
 
     public function store(Request $request, Module $module)
     {
-        $request->validate(['message' => 'required|string']);
+        $request->validate(['message' => 'required|string|max:5000']);
 
         $channel = ChatChannel::firstOrCreate(
             ['channel_type' => 'module', 'channel_id' => $module->id],
@@ -52,7 +52,7 @@ class ChatMessageController extends Controller
 
     public function storeChannel(Request $request, ChatChannel $channel)
     {
-        $request->validate(['message' => 'required|string']);
+        $request->validate(['message' => 'required|string|max:5000']);
 
         $message = $channel->messages()->create([
             'user_id' => auth()->id(),
