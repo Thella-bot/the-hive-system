@@ -107,7 +107,7 @@ const formatCurrency = (amount) => {
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="books" />
+      <Pagination :links="books.links" :meta="books" />
     </div>
   </HiveLayout>
 </template>

@@ -139,7 +139,7 @@ class PaymentController extends Controller
             $payment->delete();
         }
 
-        return redirect()->route('finance.payments.index')->with('success', 'Payment deleted.');
+        return redirect()->route('hive.finance.payments.index')->with('success', 'Payment deleted.');
     }
 
     /**

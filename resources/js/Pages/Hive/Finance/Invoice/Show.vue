@@ -34,20 +34,20 @@ const showEditForm = ref(false);
 const editForm = ref({ ...props.invoice });
 
 const saveChanges = () => {
-  router.patch(route('finance.invoices.update', props.invoice.id), editForm.value, {
+  router.patch(route('hive.finance.invoices.update', props.invoice.id), editForm.value, {
     onSuccess: () => { showEditForm.value = false; },
   });
 };
 
 const cancelInvoice = () => {
   if (confirm('Are you sure you want to cancel this invoice?')) {
-    router.patch(route('finance.invoices.update', props.invoice.id), { status: 'cancelled' });
+    router.patch(route('hive.finance.invoices.update', props.invoice.id), { status: 'cancelled' });
   }
 };
 
 const markAsPaid = () => {
   if (confirm('Mark this invoice as paid?')) {
-    router.patch(route('finance.invoices.update', props.invoice.id), { status: 'paid' });
+    router.patch(route('hive.finance.invoices.update', props.invoice.id), { status: 'paid' });
   }
 };
 </script>
@@ -55,7 +55,7 @@ const markAsPaid = () => {
 <template>
   <HiveLayout :title="`Invoice ${invoice.invoice_number}`" :description="`Invoice for ${invoice.user?.name}`">
     <template #header-actions>
-      <Link :href="route('finance.invoices.index')"
+      <Link :href="route('hive.finance.invoices.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Invoices

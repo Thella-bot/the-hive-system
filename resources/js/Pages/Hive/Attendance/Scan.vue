@@ -23,7 +23,7 @@
 
       <p class="text-xs text-gray-400">Or enter code manually:</p>
       <form @submit.prevent="manualCheckIn" class="mt-2 flex gap-2">
-        <input v-model="manualCode" class="flex-1 border rounded p-2 text-sm" placeholder="e.g. EVENT-42" />
+        <input v-model="manualCode" class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" placeholder="e.g. EVENT-42" />
         <button type="submit" class="bg-amber-600 text-white px-4 py-2 rounded text-sm">Check In</button>
       </form>
     </div>

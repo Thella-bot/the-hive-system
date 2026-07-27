@@ -5,7 +5,7 @@
         <Link :href="route('hive.events.index')" class="text-gray-500 hover:text-gray-700">&larr; Back to Events</Link>
       </div>
 
-      <div class="bg-white shadow rounded p-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Create New Event</h1>
 
         <form @submit.prevent="submit">
@@ -13,21 +13,21 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
               <input v-model="form.title" type="text" required
-                     class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500" />
+                             class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
               <p v-if="errors.title" class="text-red-500 text-sm mt-1">{{ errors.title }}</p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea v-model="form.description" rows="4"
-                        class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500"></textarea>
+                                class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white"></textarea>
               <p v-if="errors.description" class="text-red-500 text-sm mt-1">{{ errors.description }}</p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
               <input v-model="form.location" type="text"
-                     class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500"
+                             class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white"
                      placeholder="e.g. Kitchen Lab 1, Main Hall" />
             </div>
 
@@ -48,7 +48,7 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Target Modules (optional)</label>
-              <div class="border rounded p-2 max-h-40 overflow-y-auto">
+              <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-2 max-h-40 overflow-y-auto">
                 <label v-for="mod in modules" :key="mod.id" class="flex items-center gap-2 py-1">
                   <input type="checkbox" :value="mod.id" v-model="form.target_modules" />
                   <span>{{ mod.code }} - {{ mod.name }}</span>
@@ -60,23 +60,23 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Start Date & Time</label>
                 <input v-model="form.start" type="datetime-local" required
-                       class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500" />
+                               class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
                 <p v-if="errors.start" class="text-red-500 text-sm mt-1">{{ errors.start }}</p>
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">End Date & Time <span class="text-gray-400">(optional)</span></label>
                 <input v-model="form.end" type="datetime-local"
-                       class="w-full rounded border-gray-300 border px-3 py-2 focus:ring-amber-500 focus:border-amber-500" />
+                               class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
                 <p v-if="errors.end" class="text-red-500 text-sm mt-1">{{ errors.end }}</p>
               </div>
             </div>
           </div>
 
           <div class="mt-6 flex gap-3">
-            <button type="submit" :disabled="processing"
+            <button type="submit" :disabled="form.processing"
                     class="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 disabled:opacity-50">
-              {{ processing ? 'Creating...' : 'Create Event' }}
+              {{ form.processing ? 'Creating...' : 'Create Event' }}
             </button>
             <Link :href="route('hive.events.index')" class="px-4 py-2 text-gray-600 hover:text-gray-800">
               Cancel

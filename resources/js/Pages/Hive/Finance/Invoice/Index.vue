@@ -17,7 +17,7 @@ const search = ref(props.filters.search ?? '');
 const status = ref(props.filters.status ?? '');
 const academicYear = ref(props.filters.academic_year ?? '');
 
-const applyFilters = () => router.get(route('finance.invoices.index'), {
+  const applyFilters = () => router.get(route('hive.finance.invoices.index'), {
   search: search.value,
   status: status.value,
   academic_year: academicYear.value,
@@ -42,7 +42,7 @@ const statusClass = (status) => {
 <template>
   <HiveLayout title="Invoices" description="Manage student invoices and billing">
     <template #header-actions>
-      <Link :href="route('finance.invoices.generate')"
+      <Link :href="route('hive.finance.invoices.generate')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <DocumentTextIcon class="w-4 h-4" />
         Generate Invoices
@@ -120,7 +120,7 @@ const statusClass = (status) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <Link :href="route('finance.invoices.show', invoice.id)" class="p-1 text-gray-500 hover:text-amber-600">
+                <Link :href="route('hive.finance.invoices.show', invoice.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <EyeIcon class="w-5 h-5" />
                 </Link>
               </div>
@@ -128,7 +128,7 @@ const statusClass = (status) => {
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="invoices" />
+      <Pagination :links="invoices.links" :meta="invoices" />
     </div>
   </HiveLayout>
 </template>

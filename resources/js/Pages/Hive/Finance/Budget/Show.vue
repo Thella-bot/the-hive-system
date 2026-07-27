@@ -28,19 +28,19 @@ const statusClass = (status) => {
 
 const activateBudget = () => {
   if (confirm('Activate this budget? This will close any other active budgets in the same category.')) {
-    router.patch(route('finance.budgets.activate', props.budget.id));
+    router.patch(route('hive.finance.budgets.activate', props.budget.id));
   }
 };
 
 const closeBudget = () => {
   if (confirm('Close this budget?')) {
-    router.patch(route('finance.budgets.close', props.budget.id));
+    router.patch(route('hive.finance.budgets.close', props.budget.id));
   }
 };
 
 const deleteBudget = () => {
   if (confirm('Are you sure you want to delete this budget?')) {
-    router.delete(route('finance.budgets.destroy', props.budget.id));
+    router.delete(route('hive.finance.budgets.destroy', props.budget.id));
   }
 };
 </script>
@@ -48,7 +48,7 @@ const deleteBudget = () => {
 <template>
   <HiveLayout :title="budget.name" :description="`Budget for ${budget.academic_year}`">
     <template #header-actions>
-      <Link :href="route('finance.budgets.index')"
+      <Link :href="route('hive.finance.budgets.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Budgets

@@ -59,6 +59,7 @@ export function useNavigation() {
 
   const buildNav = (allItems) => {
     const seenHrefs = new Set();
+    const seenNames = new Set();
 
     const dedupe = (children) =>
       children
@@ -70,6 +71,13 @@ export function useNavigation() {
         });
 
     return allItems
+      .filter((item) => {
+        if (item.single) return true;
+        if (!item.children) return false;
+        if (seenNames.has(item.name)) return false;
+        seenNames.add(item.name);
+        return true;
+      })
       .map((item) =>
         item.children
           ? { ...item, children: dedupe(item.children) }
@@ -302,13 +310,18 @@ export function useNavigation() {
   };
 
   const systemNav = () => {
-    if (!userRoles.value.includes('super-admin')) return [];
+    if (!isAdmin.value) return [];
 
     return [{
       name: 'System',
       icon: RectangleStackIcon,
       children: [
+        { name: 'Pending Approvals', href: route('hive.admin.approve-users'), active: 'hive.admin.approve-users' },
+        { name: 'Import Users', href: route('hive.admin.import-users'), active: 'hive.admin.import-users' },
         { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*' },
+        { name: 'All Users', href: route('hive.users.index'), active: 'hive.users.*' },
+        { name: 'Students', href: route('hive.students.index'), active: 'hive.students.*' },
+        { name: 'Staff', href: route('hive.staff.index'), active: 'hive.staff.*' },
         { name: 'System Logs', href: route('log-viewer'), target: '_blank' },
       ],
     }];
@@ -325,7 +338,7 @@ export function useNavigation() {
       ...administrationNav(),
       ...peopleNav(),
       ...operationsNav(),
-            ...hrNav(),
+      ...hrNav(),
       ...bursarNav(),
       ...systemNav(),
     ])
@@ -335,9 +348,10 @@ export function useNavigation() {
   const categories = computed(() => navigation.value.filter((item) => item.children));
 
   const autoExpandActiveCategory = () => {
+    expandedCategories.value = [];
     categories.value.forEach((category) => {
       const hasActiveChild = category.children?.some((child) => isActive(child.active));
-      if (hasActiveChild && !expandedCategories.value.includes(category.name)) {
+      if (hasActiveChild) {
         expandedCategories.value.push(category.name);
       }
     });

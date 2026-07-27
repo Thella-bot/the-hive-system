@@ -34,7 +34,7 @@ const statusClass = (status) => {
 <template>
   <HiveLayout :title="'Student Ledger: ' + user.name" :description="'Invoice and payment history'">
     <template #header-actions>
-      <Link :href="route('finance.reports.ageAnalysis')"
+      <Link :href="route('hive.finance.reports.ageAnalysis')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Age Analysis
@@ -97,7 +97,7 @@ const statusClass = (status) => {
           </tr>
           <tr v-for="invoice in invoices" :key="invoice.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
             <td class="px-6 py-3">
-              <Link :href="route('finance.invoices.show', invoice.id)" class="text-amber-600 hover:text-amber-700">
+              <Link :href="route('hive.finance.invoices.show', invoice.id)" class="text-amber-600 hover:text-amber-700">
                 {{ invoice.invoice_number }}
               </Link>
             </td>

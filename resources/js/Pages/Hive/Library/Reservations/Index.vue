@@ -97,7 +97,7 @@ const statusClass = (status) => {
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="reservations" />
+      <Pagination :links="reservations.links" :meta="reservations" />
     </div>
   </HiveLayout>
 </template>

@@ -21,7 +21,7 @@ const props = defineProps({
 const search = ref('');
 
 const applySearch = () => {
-  router.get(route('finance.reports.ageAnalysis'), {
+  router.get(route('hive.finance.reports.ageAnalysis'), {
     search: search.value,
   }, { preserveState: true, replace: true });
 };
@@ -54,7 +54,7 @@ const ageBracketClass = (bracket) => {
 <template>
   <HiveLayout title="Age Analysis" description="Overdue invoices by age bracket">
     <template #header-actions>
-      <Link :href="route('finance.reports.dashboard')"
+      <Link :href="route('hive.finance.reports.dashboard')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Dashboard
@@ -129,12 +129,12 @@ const ageBracketClass = (bracket) => {
           </tr>
           <tr v-for="invoice in invoices.data" :key="invoice.id" class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
             <td class="px-6 py-4">
-              <Link :href="route('finance.reports.studentLedger', invoice.user_id)" class="text-amber-600 hover:text-amber-700 font-medium">
+              <Link :href="route('hive.finance.reports.studentLedger', invoice.user_id)" class="text-amber-600 hover:text-amber-700 font-medium">
                 {{ invoice.user?.name || 'N/A' }}
               </Link>
             </td>
             <td class="px-6 py-4 hidden md:table-cell">
-              <Link :href="route('finance.invoices.show', invoice.id)" class="text-gray-500 hover:text-amber-600">
+              <Link :href="route('hive.finance.invoices.show', invoice.id)" class="text-gray-500 hover:text-amber-600">
                 {{ invoice.invoice_number }}
               </Link>
             </td>
@@ -155,14 +155,14 @@ const ageBracketClass = (bracket) => {
               </span>
             </td>
             <td class="px-6 py-4">
-              <Link :href="route('finance.invoices.show', invoice.id)" class="text-gray-500 hover:text-amber-600">
+              <Link :href="route('hive.finance.invoices.show', invoice.id)" class="text-gray-500 hover:text-amber-600">
                 View
               </Link>
             </td>
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="invoices" />
+      <Pagination :links="invoices.links" :meta="invoices" />
     </div>
   </HiveLayout>
 </template>

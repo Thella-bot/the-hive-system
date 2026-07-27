@@ -93,7 +93,7 @@ class InvoiceController extends Controller
     {
         $invoice->delete();
 
-        return redirect()->route('finance.invoices.index')->with('success', 'Invoice deleted.');
+        return redirect()->route('hive.finance.invoices.index')->with('success', 'Invoice deleted.');
     }
 
     /**

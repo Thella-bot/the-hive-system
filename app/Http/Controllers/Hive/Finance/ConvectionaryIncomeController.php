@@ -106,7 +106,7 @@ class ConvectionaryIncomeController extends Controller
 
         ConvectionaryIncome::create($data);
 
-        return redirect()->route('finance.convectionary.index')
+        return redirect()->route('hive.finance.convectionary.index')
             ->with('success', 'Convectionary income recorded successfully.');
     }
 
@@ -154,7 +154,7 @@ class ConvectionaryIncomeController extends Controller
 
         $convectionary->delete();
 
-        return redirect()->route('finance.convectionary.index')
+        return redirect()->route('hive.finance.convectionary.index')
             ->with('success', 'Convectionary income deleted successfully.');
     }
 }

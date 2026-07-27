@@ -34,7 +34,7 @@
       </div>
       <div>
         <label class="block text-sm">Target Modules (optional)</label>
-        <div class="border rounded p-2 max-h-40 overflow-y-auto">
+        <div class="border border-gray-300 dark:border-gray-600 rounded-lg p-2 max-h-40 overflow-y-auto">
           <label v-for="mod in modules" :key="mod.id" class="flex items-center gap-2 py-1">
             <input type="checkbox" :value="mod.id" v-model="form.target_modules" />
             <span>{{ mod.code }} - {{ mod.name }}</span>

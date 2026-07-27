@@ -102,7 +102,7 @@ const isOverdue = (loan) => {
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="loans" />
+      <Pagination :links="loans.links" :meta="loans" />
     </div>
   </HiveLayout>
 </template>

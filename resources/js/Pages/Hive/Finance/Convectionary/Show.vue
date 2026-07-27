@@ -35,14 +35,14 @@ const showEditForm = ref(false);
 const editForm = ref({ ...props.income });
 
 const saveChanges = () => {
-  router.patch(route('finance.convectionary.update', props.income.id), editForm.value, {
+  router.patch(route('hive.finance.convectionary.update', props.income.id), editForm.value, {
     onSuccess: () => { showEditForm.value = false; }
   });
 };
 
 const deleteIncome = () => {
   if (confirm('Are you sure you want to delete this record?')) {
-    router.delete(route('finance.convectionary.destroy', props.income.id));
+    router.delete(route('hive.finance.convectionary.destroy', props.income.id));
   }
 };
 </script>
@@ -50,7 +50,7 @@ const deleteIncome = () => {
 <template>
   <HiveLayout :title="income.reference" :description="`Convectionary income from ${income.source}`">
     <template #header-actions>
-      <Link :href="route('finance.convectionary.index')"
+      <Link :href="route('hive.finance.convectionary.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Convectionary

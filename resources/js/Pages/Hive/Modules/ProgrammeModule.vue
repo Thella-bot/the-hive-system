@@ -5,23 +5,23 @@
       <div class="w-1/2">
         <h2>Add Programme</h2>
         <form @submit.prevent="addProgramme" class="space-y-2">
-          <input v-model="programmeForm.name" placeholder="Name" class="w-full border p-2" required />
-          <textarea v-model="programmeForm.description" placeholder="Description" class="w-full border p-2"></textarea>
-          <input type="number" v-model="programmeForm.duration_years" placeholder="Duration (years)" class="w-full border p-2" />
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+          <input v-model="programmeForm.name" placeholder="Name" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" required />
+          <textarea v-model="programmeForm.description" placeholder="Description" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white"></textarea>
+          <input type="number" v-model="programmeForm.duration_years" placeholder="Duration (years)" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
+          <button type="submit" class="bg-amber-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-amber-700 transition-colors">Save</button>
         </form>
       </div>
       <div class="w-1/2">
         <h2>Add Module</h2>
         <form @submit.prevent="addModule" class="space-y-2">
-          <select v-model="moduleForm.programme_id" class="w-full border p-2">
+          <select v-model="moduleForm.programme_id" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white">
             <option v-for="p in programmes" :value="p.id">{{ p.name }}</option>
           </select>
-          <input v-model="moduleForm.name" placeholder="Module name" class="w-full border p-2" required />
-          <input v-model="moduleForm.code" placeholder="Code" class="w-full border p-2" required />
-          <textarea v-model="moduleForm.description" placeholder="Description" class="w-full border p-2"></textarea>
-          <input type="number" v-model="moduleForm.credits" placeholder="Credits" class="w-full border p-2" />
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+          <input v-model="moduleForm.name" placeholder="Module name" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" required />
+          <input v-model="moduleForm.code" placeholder="Code" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" required />
+          <textarea v-model="moduleForm.description" placeholder="Description" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white"></textarea>
+          <input type="number" v-model="moduleForm.credits" placeholder="Credits" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white" />
+          <button type="submit" class="bg-amber-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-amber-700 transition-colors">Save</button>
         </form>
       </div>
     </div>

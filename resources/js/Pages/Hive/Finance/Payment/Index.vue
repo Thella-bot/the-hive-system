@@ -17,7 +17,7 @@ const search = ref(props.filters.search ?? '');
 const status = ref(props.filters.status ?? '');
 const paymentMethod = ref(props.filters.payment_method ?? '');
 
-const applyFilters = () => router.get(route('finance.payments.index'), {
+const applyFilters = () => router.get(route('hive.finance.payments.index'), {
   search: search.value,
   status: status.value,
   payment_method: paymentMethod.value,
@@ -113,7 +113,7 @@ const methodLabel = (method) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <Link :href="route('finance.payments.show', payment.id)" class="p-1 text-gray-500 hover:text-amber-600">
+                <Link :href="route('hive.finance.payments.show', payment.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <EyeIcon class="w-5 h-5" />
                 </Link>
               </div>
@@ -121,7 +121,7 @@ const methodLabel = (method) => {
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="payments" />
+      <Pagination :links="payments.links" :meta="payments" />
     </div>
   </HiveLayout>
 </template>

@@ -139,7 +139,7 @@ class ExpenseController extends Controller
 
         $expense->delete();
 
-        return redirect()->route('finance.expenses.index')->with('success', 'Expense deleted.');
+        return redirect()->route('hive.finance.expenses.index')->with('success', 'Expense deleted.');
     }
 
     /**

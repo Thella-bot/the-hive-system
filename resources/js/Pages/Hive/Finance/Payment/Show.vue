@@ -35,13 +35,13 @@ const methodLabel = (method) => {
 
 const verifyPayment = () => {
   if (confirm('Verify this payment as completed?')) {
-    router.patch(route('finance.payments.verify', props.payment.id));
+    router.patch(route('hive.finance.payments.verify', props.payment.id));
   }
 };
 
 const deletePayment = () => {
   if (confirm('Are you sure you want to delete this payment?')) {
-    router.delete(route('finance.payments.destroy', props.payment.id));
+    router.delete(route('hive.finance.payments.destroy', props.payment.id));
   }
 };
 </script>
@@ -49,7 +49,7 @@ const deletePayment = () => {
 <template>
   <HiveLayout :title="`Payment ${payment.payment_number || payment.id}`" :description="`Payment for ${payment.user?.name}`">
     <template #header-actions>
-      <Link :href="route('finance.payments.index')"
+      <Link :href="route('hive.finance.payments.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Payments
@@ -92,7 +92,7 @@ const deletePayment = () => {
         <!-- Invoice Info -->
         <div v-if="payment.invoice" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Invoice Details</h3>
-          <Link :href="route('finance.invoices.show', payment.invoice.id)" class="block hover:bg-gray-50 dark:hover:bg-gray-700 -m-2 p-2 rounded-lg">
+          <Link :href="route('hive.finance.invoices.show', payment.invoice.id)" class="block hover:bg-gray-50 dark:hover:bg-gray-700 -m-2 p-2 rounded-lg">
             <p class="font-medium text-gray-900 dark:text-gray-100">{{ payment.invoice.invoice_number }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatCurrency(payment.invoice.amount) }} &middot; {{ payment.invoice.status }}</p>
           </Link>

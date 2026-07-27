@@ -1,0 +1,19 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "model": "anthropic/claude-sonnet",
+  "small_model": "anthropic/claude-haiku",
+  "default_agent": "code",
+  "instructions": [
+    "AGENTS.md"
+  ],
+  "permission": {
+    "bash": "allow",
+    "read": "allow",
+    "edit": {
+      "*.md": "allow",
+      ".kilo/**": "allow",
+      "storage/logs/*": "allow",
+      "*": "ask"
+    }
+  }
+}

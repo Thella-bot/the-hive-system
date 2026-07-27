@@ -25,7 +25,7 @@ const newCategory = ref({
 });
 
 const createCategory = () => {
-  router.post(route('finance.expenses.categories.store'), newCategory.value, {
+  router.post(route('hive.finance.expenses.categories.store'), newCategory.value, {
     onSuccess: () => {
       showCreateModal.value = false;
       newCategory.value = { name: '', code: '', description: '' };
@@ -38,14 +38,14 @@ const toggleEdit = (category) => {
 };
 
 const updateCategory = () => {
-  router.patch(route('finance.expenses.categories.update', editCategory.value.id), editCategory.value, {
+  router.patch(route('hive.finance.expenses.categories.update', editCategory.value.id), editCategory.value, {
     onSuccess: () => { editCategory.value = null; }
   });
 };
 
 const deleteCategory = (category) => {
   if (confirm(`Delete category "${category.name}"?`)) {
-    router.delete(route('finance.expenses.categories.destroy', category.id));
+    router.delete(route('hive.finance.expenses.categories.destroy', category.id));
   }
 };
 </script>
@@ -53,7 +53,7 @@ const deleteCategory = (category) => {
 <template>
   <HiveLayout title="Expense Categories" description="Manage expense categories">
     <template #header-actions>
-      <Link :href="route('finance.expenses.index')"
+      <Link :href="route('hive.finance.expenses.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Expenses

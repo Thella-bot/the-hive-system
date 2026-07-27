@@ -24,7 +24,7 @@ const isSubmitting = ref(false);
 
 const submit = () => {
   isSubmitting.value = true;
-  router.post(route('finance.convectionary.store'), form.value, {
+  router.post(route('hive.finance.convectionary.store'), form.value, {
     onFinish: () => { isSubmitting.value = false; },
   });
 };
@@ -33,7 +33,7 @@ const submit = () => {
 <template>
   <HiveLayout title="Record Convectionary Income" description="Add new convectionary income">
     <template #header-actions>
-      <Link :href="route('finance.convectionary.index')"
+      <Link :href="route('hive.finance.convectionary.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Convectionary
@@ -124,7 +124,7 @@ const submit = () => {
         <!-- Submit -->
         <div class="flex justify-end gap-3 pt-4">
           <Link
-            :href="route('finance.convectionary.index')"
+            :href="route('hive.finance.convectionary.index')"
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             Cancel

@@ -23,6 +23,9 @@ export default defineConfig({
             '@': path.resolve(__dirname, 'resources/js'),
         },
     },
+    optimizeDeps: {
+        include: ['@heroicons/vue/24/outline'],
+    },
     server: {
         host: 'localhost',
         port: 5173,
@@ -30,6 +33,7 @@ export default defineConfig({
             origin: '*',
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization', 'X-XSRF-TOKEN'],
+            credentials: true,
         },
         proxy: {
             '/api': {

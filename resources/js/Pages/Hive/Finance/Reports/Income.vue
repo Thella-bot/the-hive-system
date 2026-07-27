@@ -25,7 +25,7 @@ const academicYear = ref(props.filters.academic_year ?? new Date().getFullYear()
 const paymentMethod = ref(props.filters.payment_method ?? '');
 
 const applyFilters = () => {
-  router.get(route('finance.reports.income'), {
+  router.get(route('hive.finance.reports.income'), {
     search: search.value,
     date_from: dateFrom.value,
     date_to: dateTo.value,
@@ -43,7 +43,7 @@ const methodLabel = (method) => {
 };
 
 const exportReport = () => {
-  window.location.href = route('finance.reports.income') + '?' + new URLSearchParams({
+  window.location.href = route('hive.finance.reports.income') + '?' + new URLSearchParams({
     ...props.filters,
     export: 'csv',
   }).toString();
@@ -53,7 +53,7 @@ const exportReport = () => {
 <template>
   <HiveLayout title="Income Report" description="Payments received">
     <template #header-actions>
-      <Link :href="route('finance.reports.dashboard')"
+      <Link :href="route('hive.finance.reports.dashboard')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Dashboard
@@ -120,7 +120,7 @@ const exportReport = () => {
               <span class="text-gray-500 dark:text-gray-400">{{ payment.reference }}</span>
             </td>
             <td class="px-6 py-4">
-              <Link :href="route('finance.reports.studentLedger', payment.user_id)" class="text-amber-600 hover:text-amber-700 font-medium">
+              <Link :href="route('hive.finance.reports.studentLedger', payment.user_id)" class="text-amber-600 hover:text-amber-700 font-medium">
                 {{ payment.user?.name || 'N/A' }}
               </Link>
             </td>
@@ -136,14 +136,14 @@ const exportReport = () => {
               </span>
             </td>
             <td class="px-6 py-4">
-              <Link :href="route('finance.payments.show', payment.id)" class="text-gray-500 hover:text-amber-600">
+              <Link :href="route('hive.finance.payments.show', payment.id)" class="text-gray-500 hover:text-amber-600">
                 View
               </Link>
             </td>
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="payments" />
+      <Pagination :links="payments.links" :meta="payments" />
     </div>
   </HiveLayout>
 </template>

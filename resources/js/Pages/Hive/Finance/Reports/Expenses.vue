@@ -27,7 +27,7 @@ const status = ref(props.filters.status ?? '');
 const categoryId = ref(props.filters.category_id ?? '');
 
 const applyFilters = () => {
-  router.get(route('finance.reports.expenses'), {
+  router.get(route('hive.finance.reports.expenses'), {
     search: search.value,
     date_from: dateFrom.value,
     date_to: dateTo.value,
@@ -53,7 +53,7 @@ const statusClass = (s) => {
 };
 
 const exportReport = () => {
-  window.location.href = route('finance.reports.expenses') + '?' + new URLSearchParams({
+  window.location.href = route('hive.finance.reports.expenses') + '?' + new URLSearchParams({
     ...props.filters,
     export: 'csv',
   }).toString();
@@ -63,7 +63,7 @@ const exportReport = () => {
 <template>
   <HiveLayout title="Expense Report" description="Expenses by category and status">
     <template #header-actions>
-      <Link :href="route('finance.reports.dashboard')"
+      <Link :href="route('hive.finance.reports.dashboard')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Dashboard
@@ -134,7 +134,7 @@ const exportReport = () => {
               <span class="text-gray-500 dark:text-gray-400">{{ expense.expense_number }}</span>
             </td>
             <td class="px-6 py-4">
-              <Link :href="route('finance.expenses.show', expense.id)" class="text-gray-900 dark:text-gray-100 hover:text-amber-600">
+              <Link :href="route('hive.finance.expenses.show', expense.id)" class="text-gray-900 dark:text-gray-100 hover:text-amber-600">
                 {{ expense.description }}
               </Link>
             </td>
@@ -150,14 +150,14 @@ const exportReport = () => {
               </span>
             </td>
             <td class="px-6 py-4">
-              <Link :href="route('finance.expenses.show', expense.id)" class="text-gray-500 hover:text-amber-600">
+              <Link :href="route('hive.finance.expenses.show', expense.id)" class="text-gray-500 hover:text-amber-600">
                 View
               </Link>
             </td>
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="expenses" />
+      <Pagination :links="expenses.links" :meta="expenses" />
     </div>
   </HiveLayout>
 </template>

@@ -27,33 +27,37 @@ const reject = (application) => {
             </h2>
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Programme</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied On</th>
-                                <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Name</th>
+                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Programme</th>
+                                <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Applied On</th>
+                                <th class="px-6 py-3"></th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="application in applications" :key="application.id">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ application.name }}</div>
-                                    <div class="text-sm text-gray-500">{{ application.email }}</div>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <tr v-for="application in applications" :key="application.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-gray-100">{{ application.name }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ application.email }}</p>
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ application.programme?.name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        {{ new Date(application.created_at).toLocaleDateString() }}
-                                    </span>
+                                <td class="px-6 py-4">
+                                    <span class="text-gray-600 dark:text-gray-400">{{ application.programme?.name }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button @click="approve(application)" class="text-indigo-600 hover:text-indigo-900 mr-4">Approve</button>
-                                    <button @click="reject(application)" class="text-red-600 hover:text-red-900">Reject</button>
+                                <td class="px-6 py-4">
+                                    <span class="text-gray-500 dark:text-gray-400">{{ new Date(application.created_at).toLocaleDateString() }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <button @click="approve(application)" class="text-amber-600 hover:text-amber-700 dark:text-amber-400 font-medium text-xs">Approve</button>
+                                        <button @click="reject(application)" class="text-red-600 hover:text-red-700 dark:text-red-400 font-medium text-xs">Reject</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

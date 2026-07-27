@@ -24,7 +24,7 @@ const search = ref(props.filters.search ?? '');
 const source = ref(props.filters.source ?? '');
 const status = ref(props.filters.status ?? '');
 
-const applyFilters = () => router.get(route('finance.convectionary.index'), {
+const applyFilters = () => router.get(route('hive.finance.convectionary.index'), {
   search: search.value,
   source: source.value,
   status: status.value,
@@ -51,7 +51,7 @@ const sourceLabel = (key) => {
 <template>
   <HiveLayout title="Convectionary Income" description="Track convectionary income streams">
     <template #header-actions>
-      <Link :href="route('finance.convectionary.create')"
+      <Link :href="route('hive.finance.convectionary.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <PlusIcon class="w-4 h-4" />
         Record Income
@@ -137,7 +137,7 @@ const sourceLabel = (key) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <Link :href="route('finance.convectionary.show', income.id)" class="p-1 text-gray-500 hover:text-amber-600">
+                <Link :href="route('hive.finance.convectionary.show', income.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <EyeIcon class="w-5 h-5" />
                 </Link>
               </div>
@@ -145,7 +145,7 @@ const sourceLabel = (key) => {
           </tr>
         </tbody>
       </table>
-      <Pagination :pagination="incomes" />
+      <Pagination :links="incomes.links" :meta="incomes" />
     </div>
   </HiveLayout>
 </template>

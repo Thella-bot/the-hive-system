@@ -148,7 +148,7 @@ class BudgetController extends Controller
 
         $budget->delete();
 
-        return redirect()->route('finance.budgets.index')->with('success', 'Budget deleted.');
+        return redirect()->route('hive.finance.budgets.index')->with('success', 'Budget deleted.');
     }
 
     /**

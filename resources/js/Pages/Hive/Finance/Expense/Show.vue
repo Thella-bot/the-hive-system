@@ -38,27 +38,27 @@ const statusClass = (status) => {
 };
 
 const approveExpense = () => {
-  router.patch(route('finance.expenses.approve', props.expense.id), { notes: approveNotes.value }, {
+  router.patch(route('hive.finance.expenses.approve', props.expense.id), { notes: approveNotes.value }, {
     onSuccess: () => { showApproveModal.value = false; }
   });
 };
 
 const rejectExpense = () => {
   if (!rejectNotes.value) return alert('Please provide a reason for rejection');
-  router.patch(route('finance.expenses.reject', props.expense.id), { notes: rejectNotes.value }, {
+  router.patch(route('hive.finance.expenses.reject', props.expense.id), { notes: rejectNotes.value }, {
     onSuccess: () => { showApproveModal.value = false; }
   });
 };
 
 const markAsPaid = () => {
-  router.patch(route('finance.expenses.markPaid', props.expense.id), paymentForm.value, {
+  router.patch(route('hive.finance.expenses.markPaid', props.expense.id), paymentForm.value, {
     onSuccess: () => { showPaymentModal.value = false; }
   });
 };
 
 const deleteExpense = () => {
   if (confirm('Are you sure you want to delete this expense?')) {
-    router.delete(route('finance.expenses.destroy', props.expense.id));
+    router.delete(route('hive.finance.expenses.destroy', props.expense.id));
   }
 };
 </script>
@@ -66,7 +66,7 @@ const deleteExpense = () => {
 <template>
   <HiveLayout :title="`Expense ${expense.expense_number}`" :description="expense.description">
     <template #header-actions>
-      <Link :href="route('finance.expenses.index')"
+      <Link :href="route('hive.finance.expenses.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Expenses
