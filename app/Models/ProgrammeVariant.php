@@ -13,12 +13,16 @@ class ProgrammeVariant extends Model
         'duration',
         'total_price',
         'monthly_fee',
+        'registration_fee',
+        'academic_resource_fee',
         'is_active',
     ];
 
     protected $casts = [
         'total_price' => 'decimal:2',
         'monthly_fee' => 'decimal:2',
+        'registration_fee' => 'decimal:2',
+        'academic_resource_fee' => 'decimal:2',
         'is_active' => 'boolean',
     ];
 
