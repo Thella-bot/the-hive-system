@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 
+use App\Http\Requests\StoreAcademicYearRequest;
+use App\Http\Requests\UpdateAcademicYearRequest;
 use App\Models\AcademicYear;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,16 +30,9 @@ class AcademicYearController extends Controller
         return Inertia::render('Hive/AcademicYears/Create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreAcademicYearRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            'name'       => 'required|string|max:50|unique:academic_years,name',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after:start_date',
-            'is_current' => 'boolean',
-        ]);
-
-        AcademicYear::create($data);
+        AcademicYear::create($request->validated());
 
         return redirect()->route('hive.academic-years.index')
             ->with('success', 'Academic year created.');
@@ -50,16 +45,9 @@ class AcademicYearController extends Controller
         ]);
     }
 
-    public function update(Request $request, AcademicYear $academicYear): RedirectResponse
+    public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear): RedirectResponse
     {
-        $data = $request->validate([
-            'name'       => 'required|string|max:50|unique:academic_years,name,' . $academicYear->id,
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after:start_date',
-            'is_current' => 'boolean',
-        ]);
-
-        $academicYear->update($data);
+        $academicYear->update($request->validated());
 
         return redirect()->route('hive.academic-years.index')
             ->with('success', 'Academic year updated.');

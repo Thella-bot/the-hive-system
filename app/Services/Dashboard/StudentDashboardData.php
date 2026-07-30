@@ -12,11 +12,19 @@ use App\Models\Programme;
 use App\Models\StudentTask;
 use App\Models\Submission;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class StudentDashboardData implements DashboardData
 {
     public function getData(User $user): array
+    {
+        return Cache::remember('dashboard.student.' . $user->id, 300, function () use ($user) {
+            return $this->buildData($user);
+        });
+    }
+
+    private function buildData(User $user): array
     {
         $moduleIds = DB::table('module_user')->where('user_id', $user->id)->pluck('module_id')->toArray();
 

@@ -10,10 +10,18 @@ use App\Models\Event;
 use App\Models\LeaveRequest;
 use App\Models\Payslip;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 class NonAcademicStaffDashboardData implements DashboardData
 {
     public function getData(User $user): array
+    {
+        return Cache::remember('dashboard.staff.' . $user->id, 300, function () use ($user) {
+            return $this->buildData($user);
+        });
+    }
+
+    private function buildData(User $user): array
     {
         $roleNames = collect($user->roles)->pluck('name')->toArray();
 

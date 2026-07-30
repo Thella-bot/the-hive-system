@@ -103,6 +103,17 @@ class ImportUsersJob implements ShouldQueue
         }
     }
 
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('import_users.failed_job', [
+            'file_path' => $this->filePath,
+            'user_id' => $this->user->id,
+            'exception' => get_class($exception),
+            'message' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+        ]);
+    }
+
     private function validateRows(array $rows): void
     {
         foreach ($rows as $index => $row) {

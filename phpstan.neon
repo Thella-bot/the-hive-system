@@ -2,7 +2,7 @@ includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
-    level: 5
+    level: 8
     paths:
         - app/
         - bootstrap/
@@ -13,13 +13,10 @@ parameters:
         - app/Providers/*
         - app/Exceptions/*
         - app/Console/Commands/*
-        - app/Exceptions/*
 
-    # Ignore common Laravel framework issues
     ignoreErrors:
         - '#Method .*::render\(\) should return .*Inertia\\Response#'
         - '#Method .*::toSearchableArray\(\) should return array#'
         - '#Call to method .* on Throwable#'
 
-    # Allow dynamic return types from Laravel's facades
     reportUnmatched: false

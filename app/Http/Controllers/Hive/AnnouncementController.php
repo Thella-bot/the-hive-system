@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAnnouncementRequest;
+use App\Http\Requests\UpdateAnnouncementRequest;
 use App\Models\Announcement;
 use App\Models\AnnouncementAttachment;
 use App\Models\Module;
 use App\Models\User;
 use App\Events\EmergencyAlert;
 use App\Notifications\NewAnnouncement;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -44,20 +43,9 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreAnnouncementRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'body_html' => 'nullable|string',
-            'category' => 'nullable|string|max:50',
-            'target_roles' => 'nullable|array',
-            'target_modules' => 'nullable|array',
-            'target_modules.*' => 'exists:modules,id',
-            'is_pinned' => 'nullable|boolean',
-            'priority' => 'nullable|in:normal,urgent,emergency',
-            'expires_at' => 'nullable|date',
-        ]);
+        $validated = $request->validated();
 
         $announcement = Announcement::create($validated);
 
@@ -89,20 +77,9 @@ class AnnouncementController extends Controller
         return redirect()->back()->with('success', 'Announcement created and users notified.');
     }
 
-    public function update(Request $request, Announcement $announcement)
+    public function update(UpdateAnnouncementRequest $request, Announcement $announcement)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
-            'body_html' => 'nullable|string',
-            'category' => 'nullable|string|max:50',
-            'target_roles' => 'nullable|array',
-            'target_modules' => 'nullable|array',
-            'target_modules.*' => 'exists:modules,id',
-            'is_pinned' => 'nullable|boolean',
-            'priority' => 'nullable|in:normal,urgent,emergency',
-            'expires_at' => 'nullable|date',
-        ]);
+        $validated = $request->validated();
 
         $announcement->update($validated);
 

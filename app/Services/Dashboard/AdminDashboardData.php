@@ -15,11 +15,19 @@ use App\Models\Module;
 use App\Models\Submission;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class AdminDashboardData implements DashboardData
 {
     public function getData(User $user): array
+    {
+        return Cache::remember('dashboard.admin.' . $user->id, 300, function () use ($user) {
+            return $this->buildData($user);
+        });
+    }
+
+ private function buildData(User $user): array
     {
         $facultyCount = User::role(['chef-instructor', 'pastry-instructor', 'sous-chef'])->count();
         $staffCount = User::role(['super-admin', 'it-support', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])->count();

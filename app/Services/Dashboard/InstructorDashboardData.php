@@ -7,10 +7,18 @@ use App\Models\Document;
 use App\Models\Gradable;
 use App\Models\Submission;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 class InstructorDashboardData implements DashboardData
 {
     public function getData(User $user): array
+    {
+        return Cache::remember('dashboard.instructor.' . $user->id, 300, function () use ($user) {
+            return $this->buildData($user);
+        });
+    }
+
+    private function buildData(User $user): array
     {
         $instructedModuleIds = $user->instructedModules()->pluck('module_id');
 

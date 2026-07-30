@@ -6,6 +6,7 @@ use App\Services\Dashboard\AdminDashboardData;
 use App\Services\Dashboard\InstructorDashboardData;
 use App\Services\Dashboard\NonAcademicStaffDashboardData;
 use App\Services\Dashboard\StudentDashboardData;
+use App\Services\RoleService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -25,30 +26,16 @@ class HandleInertiaRequests extends Middleware
 
         if ($user) {
             $user->load('roles.permissions');
+        }
 
-            $dashboardData = match (true) {
-                // Admin: super-admin, it-support
-                $user->hasAnyRole(['super-admin', 'it-support']) => (new AdminDashboardData())->getData($user),
-                // Faculty: chef-instructor, pastry-instructor, sous-chef
-                $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef']) => (new InstructorDashboardData())->getData($user),
-                // Non-academic staff (HR, finance, procurement, events, etc.)
-                $user->hasAnyRole([
-                    'finance',
-                    'hr-manager',
-                    'procurement-manager',
-                    'storekeeper',
-                    'librarian',
-                    'career-services',
-                    'events-pr-manager',
-                    'cafeteria-manager',
-                    'admissions-officer',
-                    'registrar',
-                    'examination-cell',
-                    'academic-director',
-                    'program-coordinator',
-                ]) => (new NonAcademicStaffDashboardData())->getData($user),
-                // Student
-                $user->hasRole('student') => (new StudentDashboardData())->getData($user),
+        $roleService = app(RoleService::class);
+
+        if ($user && $roleService->canAccessDashboard($user)) {
+            $dashboardData = match ($roleService->getDashboardDataType($user)) {
+                'admin' => (new AdminDashboardData())->getData($user),
+                'instructor' => (new InstructorDashboardData())->getData($user),
+                'non_academic_staff' => (new NonAcademicStaffDashboardData())->getData($user),
+                'student' => (new StudentDashboardData())->getData($user),
                 default => [],
             };
         }

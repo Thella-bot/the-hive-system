@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreModuleRequest;
+use App\Http\Requests\UpdateModuleRequest;
 use App\Models\Department;
 use App\Models\Module;
 use App\Models\Programme;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ModuleController extends Controller
@@ -40,18 +41,10 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreModuleRequest $request)
     {
         $this->authorize('create', Module::class);
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:modules',
-            'description' => 'nullable|string',
-            'credits' => 'required|integer|min:1',
-            'department_id' => 'required|exists:departments,id',
-            'programme_id' => 'required|exists:programmes,id',
-        ]);
-        Module::create($data);
+        Module::create($request->validated());
         return redirect()->route('hive.modules.index')->with('success', 'Module created successfully.');
     }
 
@@ -76,18 +69,10 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function update(Request $request, Module $module)
+    public function update(UpdateModuleRequest $request, Module $module)
     {
         $this->authorize('update', $module);
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255|unique:modules,code,' . $module->id,
-            'description' => 'nullable|string',
-            'credits' => 'required|integer|min:1',
-            'department_id' => 'required|exists:departments,id',
-            'programme_id' => 'required|exists:programmes,id',
-        ]);
-        $module->update($data);
+        $module->update($request->validated());
         return redirect()->route('hive.modules.index')->with('success', 'Module updated successfully.');
     }
 

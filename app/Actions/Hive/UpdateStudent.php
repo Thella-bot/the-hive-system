@@ -14,7 +14,27 @@ class UpdateStudent
     {
         $isAdmin = $student->isAdmin();
 
-        // Validate base fields (available to everyone)
+        $this->validateBaseFields($input);
+
+        if ($isAdmin) {
+            $this->validateAdminFields($input, $student);
+        } else {
+            $this->sanitizeNonAdminInput($input);
+        }
+
+        $this->updateUserAccount($student, $isAdmin, $input);
+
+        $profileData = $this->buildProfileData($student, $isAdmin, $input);
+
+        $this->updateProfile($student, $profileData);
+
+        $this->syncModuleEnrollments($student, $isAdmin, $input);
+
+        return $student;
+    }
+
+    private function validateBaseFields(array $input): void
+    {
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
@@ -22,84 +42,107 @@ class UpdateStudent
             'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
             'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
         ])->validate();
+    }
 
-        // Admin-only fields validation
-        if ($isAdmin) {
-            Validator::make($input, [
-                'email' => ['nullable', 'email', Rule::unique('users')->ignore($student->id)],
-                'programme_id' => ['nullable', 'exists:programmes,id'],
-                'cohort_id' => ['nullable', 'exists:cohorts,id'],
-                'status' => ['nullable', Rule::in(['active', 'graduated', 'on_leave', 'suspended', 'withdrawn'])],
-                'enrollment_date' => ['nullable', 'date'],
-                'expected_graduation_date' => ['nullable', 'date'],
-            ])->validate();
-        } else {
-            // Non-admins cannot change these fields - remove from input
-            unset($input['email'], $input['programme_id'], $input['cohort_id'], $input['status'], $input['enrollment_date'], $input['expected_graduation_date']);
-        }
+    private function validateAdminFields(array $input, User $student): void
+    {
+        Validator::make($input, [
+            'email' => ['nullable', 'email', Rule::unique('users')->ignore($student->id)],
+            'programme_id' => ['nullable', 'exists:programmes,id'],
+            'cohort_id' => ['nullable', 'exists:cohorts,id'],
+            'status' => ['nullable', Rule::in(['active', 'graduated', 'on_leave', 'suspended', 'withdrawn'])],
+            'enrollment_date' => ['nullable', 'date'],
+            'expected_graduation_date' => ['nullable', 'date'],
+        ])->validate();
+    }
 
-        // Update user account
+    private function sanitizeNonAdminInput(array &$input): void
+    {
+        unset($input['email'], $input['programme_id'], $input['cohort_id'], $input['status'], $input['enrollment_date'], $input['expected_graduation_date']);
+    }
+
+    private function updateUserAccount(User $student, bool $isAdmin, array $input): void
+    {
         $userData = ['name' => $input['name']];
 
-        // Only admins can change email
         if ($isAdmin && isset($input['email']) && !empty($input['email'])) {
             $userData['email'] = $input['email'];
         }
 
-        // Update password if provided
         if (!empty($input['password'])) {
             $userData['password'] = bcrypt($input['password']);
         }
 
         $student->update($userData);
+    }
 
-        // Update profile
+    private function buildProfileData(User $student, bool $isAdmin, array $input): array
+    {
         $profileData = [];
 
-        // Sensitive fields - admin only
         if ($isAdmin) {
-            if (isset($input['cohort_id'])) {
-                $profileData['cohort_id'] = $input['cohort_id'];
+            $profileData = $this->buildAdminProfileData($student, $input);
+        }
+
+        $profileData = $this->buildEmergencyContactData($profileData, $input);
+
+        return $profileData;
+    }
+
+    private function buildAdminProfileData(User $student, array $input): array
+    {
+        $profileData = [];
+
+        if (isset($input['cohort_id'])) {
+            $profileData['cohort_id'] = $input['cohort_id'];
+        }
+        if (isset($input['status'])) {
+            $profileData['status'] = $input['status'];
+        }
+
+        $dates = $this->calculateEnrollmentAndGraduationDates($student, $input);
+        if ($dates['enrollment_date']) {
+            $profileData['enrollment_date'] = $dates['enrollment_date'];
+        }
+        if ($dates['expected_graduation_date']) {
+            $profileData['expected_graduation_date'] = $dates['expected_graduation_date'];
+        }
+
+        return $profileData;
+    }
+
+    private function calculateEnrollmentAndGraduationDates(User $student, array $input): array
+    {
+        $enrollmentDate = $input['enrollment_date'] ?? null;
+        $graduationDate = $input['expected_graduation_date'] ?? null;
+
+        if (isset($input['cohort_id']) || isset($input['programme_id'])) {
+            $cohort = isset($input['cohort_id'])
+                ? Cohort::with('academicYear', 'department.programme')->find($input['cohort_id'])
+                : $student->profile?->cohort;
+
+            $programme = isset($input['programme_id'])
+                ? Programme::find($input['programme_id'])
+                : $cohort?->department?->programme;
+
+            if ($cohort?->academicYear && !$enrollmentDate) {
+                $enrollmentDate = $cohort->academicYear->start_date;
             }
-            if (isset($input['status'])) {
-                $profileData['status'] = $input['status'];
-            }
 
-            // Auto-calculate enrollment and graduation dates
-            $enrollmentDate = $input['enrollment_date'] ?? null;
-            $graduationDate = $input['expected_graduation_date'] ?? null;
-
-            // If cohort is set, calculate dates from academic year and programme duration
-            if (isset($input['cohort_id']) || isset($input['programme_id'])) {
-                $cohort = isset($input['cohort_id'])
-                    ? Cohort::with('academicYear', 'department.programme')->find($input['cohort_id'])
-                    : $student->profile?->cohort;
-
-                $programme = isset($input['programme_id'])
-                    ? Programme::find($input['programme_id'])
-                    : $cohort?->department?->programme;
-
-                if ($cohort?->academicYear && !$enrollmentDate) {
-                    // Auto-set enrollment date from academic year start
-                    $enrollmentDate = $cohort->academicYear->start_date;
-                }
-
-                if ($cohort?->academicYear && $programme?->duration_months && !$graduationDate) {
-                    // Calculate graduation: enrollment + programme duration
-                    $enrollDate = $cohort->academicYear->start_date ?? now();
-                    $graduationDate = $enrollDate->copy()->addMonths($programme->duration_months);
-                }
-            }
-
-            if ($enrollmentDate) {
-                $profileData['enrollment_date'] = $enrollmentDate;
-            }
-            if ($graduationDate) {
-                $profileData['expected_graduation_date'] = $graduationDate;
+            if ($cohort?->academicYear && $programme?->duration_months && !$graduationDate) {
+                $enrollDate = $cohort->academicYear->start_date ?? now();
+                $graduationDate = $enrollDate->copy()->addMonths($programme->duration_months);
             }
         }
 
-        // Emergency contact - available to all
+        return [
+            'enrollment_date' => $enrollmentDate,
+            'expected_graduation_date' => $graduationDate,
+        ];
+    }
+
+    private function buildEmergencyContactData(array $profileData, array $input): array
+    {
         if (isset($input['emergency_contact_name'])) {
             $profileData['emergency_contact_name'] = $input['emergency_contact_name'];
         }
@@ -110,26 +153,33 @@ class UpdateStudent
             $profileData['emergency_contact_relationship'] = $input['emergency_contact_relationship'];
         }
 
+        return $profileData;
+    }
+
+    private function updateProfile(User $student, array $profileData): void
+    {
         if (!empty($profileData)) {
             $student->profile()->updateOrCreate(
                 ['profileable_id' => $student->id, 'profileable_type' => User::class],
                 $profileData
             );
         }
+    }
 
-        // Update module enrollments when programme changes (admin only)
-        if ($isAdmin && array_key_exists('programme_id', $input)) {
-            if (!empty($input['programme_id'])) {
-                $programme = Programme::find($input['programme_id']);
-                if ($programme) {
-                    $moduleIds = $programme->modules()->pluck('id');
-                    $student->modules()->sync($moduleIds);
-                }
-            } else {
-                $student->modules()->sync([]);
-            }
+    private function syncModuleEnrollments(User $student, bool $isAdmin, array $input): void
+    {
+        if (! $isAdmin || !array_key_exists('programme_id', $input)) {
+            return;
         }
 
-        return $student;
+        if (!empty($input['programme_id'])) {
+            $programme = Programme::find($input['programme_id']);
+            if ($programme) {
+                $moduleIds = $programme->modules()->pluck('id');
+                $student->modules()->sync($moduleIds);
+            }
+        } else {
+            $student->modules()->sync([]);
+        }
     }
 }

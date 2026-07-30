@@ -48,7 +48,12 @@ class StudentController extends Controller
      */
     public function show(User $student)
     {
-        //
+        $this->authorize('view', $student);
+        $student->load(['programme', 'profile', 'enrollments.module', 'submissions.gradable']);
+
+        return Inertia::render('Hive/Students/Show', [
+            'student' => $student,
+        ]);
     }
 
     /**
