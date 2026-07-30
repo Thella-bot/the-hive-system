@@ -1,83 +1,78 @@
+<script setup>
+import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
+import HiveLayout from '@/Layouts/HiveLayout.vue';
+import { ArrowDownTrayIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline';
+
+const props = defineProps({
+  student_id: { type: Object, required: true },
+  can_manage: { type: Boolean, default: false },
+  download_url: { type: String, required: true },
+});
+
+const studentId = computed(() => props.student_id || {});
+</script>
+
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-amber-700 to-amber-900 flex items-center justify-center p-4">
-    <!-- Student ID Card -->
-    <div class="w-full max-w-md">
-      <div class="bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl shadow-2xl overflow-hidden">
-        <!-- Header bar -->
-        <div class="bg-amber-900/40 px-6 py-3 flex justify-between items-center">
-          <div class="text-xs font-bold tracking-wider uppercase opacity-80">HBCI — Honey Bee Culinary Institute</div>
-          <div class="text-xs opacity-60">{{ currentYear }}</div>
-        </div>
+  <HiveLayout title="Student ID Card" description="Digital and printable student identification">
+    <div class="max-w-2xl mx-auto">
+      <div class="mb-6 flex items-center justify-between">
+        <Link :href="route('hive.dashboard')"
+          class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm flex items-center gap-1">
+          <ArrowLeftIcon class="w-4 h-4" />
+          Back to Dashboard
+        </Link>
+        <a :href="download_url"
+          class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+          <ArrowDownTrayIcon class="w-4 h-4" />
+          Download PDF
+        </a>
+      </div>
 
-        <!-- Main card body -->
-        <div class="p-6">
-          <div class="flex items-start gap-4">
-            <!-- Photo -->
-            <div class="w-20 h-20 rounded-xl overflow-hidden bg-amber-900/30 border-2 border-amber-200 flex-shrink-0">
-              <img v-if="studentId.photo" :src="studentId.photo" :alt="studentId.name"
-                class="w-full h-full object-cover" />
-              <div v-else class="w-full h-full flex items-center justify-center text-2xl">👤</div>
-            </div>
+      <!-- Card, matching HBCI brand ID design -->
+      <div class="relative w-full aspect-[16/10] rounded-3xl overflow-hidden bg-white shadow-2xl border border-gray-100">
+        <!-- Decorative orange blobs -->
+        <div class="absolute -top-16 -right-10 w-64 h-64 rounded-full bg-amber-400"></div>
+        <div class="absolute -bottom-20 -left-16 w-56 h-56 rounded-full bg-amber-400"></div>
+        <!-- Diagonal black accent, bottom right -->
+        <div class="absolute bottom-0 right-0 w-40 h-24 bg-black" style="clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
 
-            <!-- Info -->
-            <div class="flex-1">
-              <h2 class="font-bold text-lg leading-tight">{{ studentId.name }}</h2>
-              <p class="text-amber-100 text-sm mt-0.5">{{ studentId.email }}</p>
-              <p class="text-amber-200 text-xs mt-1">{{ studentId.programme }}</p>
-            </div>
+        <!-- Content -->
+        <div class="relative z-10 p-6 sm:p-8 h-full flex flex-col">
+          <div class="flex items-center justify-between">
+            <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" class="h-9 sm:h-10" />
           </div>
 
-          <!-- Stats row -->
-          <div class="grid grid-cols-3 gap-3 mt-5">
-            <div class="bg-amber-900/30 rounded-lg p-3 text-center">
-              <div class="text-xs text-amber-200 mb-0.5">Student No.</div>
-              <div class="font-bold text-sm truncate">{{ studentId.student_number || 'N/A' }}</div>
-            </div>
-            <div class="bg-amber-900/30 rounded-lg p-3 text-center">
-              <div class="text-xs text-amber-200 mb-0.5">Cohort</div>
-              <div class="font-bold text-sm truncate">{{ studentId.cohort || 'N/A' }}</div>
-            </div>
-            <div class="bg-amber-900/30 rounded-lg p-3 text-center">
-              <div class="text-xs text-amber-200 mb-0.5">ID Valid</div>
-              <div class="font-bold text-sm">{{ currentYear }}</div>
-            </div>
+          <div class="mt-3">
+            <span class="inline-block bg-amber-500 text-white font-extrabold text-xl sm:text-2xl tracking-wide px-6 py-2 rounded-full">
+              STUDENT CARD
+            </span>
           </div>
 
-          <!-- QR Code -->
-          <div class="flex justify-center mt-5">
-            <div class="bg-white rounded-xl p-3">
-              <canvas ref="qrCanvas" class="w-28 h-28"></canvas>
+          <div class="mt-5 space-y-2.5 text-sm sm:text-base">
+            <div class="grid grid-cols-[auto,1fr] gap-x-3">
+              <span class="font-bold text-gray-900">STUDENT NO:</span>
+              <span class="font-extrabold text-gray-900">{{ studentId.student_number || 'N/A' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto,1fr] gap-x-3">
+              <span class="font-bold text-gray-900">NAME:</span>
+              <span class="font-extrabold text-gray-900 uppercase">{{ studentId.name }}</span>
+            </div>
+            <div class="grid grid-cols-[auto,1fr] gap-x-3">
+              <span class="font-bold text-gray-900">YEAR:</span>
+              <span class="font-extrabold text-gray-900">{{ studentId.year }}</span>
+            </div>
+            <div class="grid grid-cols-[auto,1fr] gap-x-3">
+              <span class="font-bold text-gray-900">COURSE:</span>
+              <span class="font-extrabold text-gray-900 uppercase">{{ studentId.programme || 'N/A' }}</span>
             </div>
           </div>
-          <p class="text-center text-xs text-amber-200 mt-2">Scan to verify student identity</p>
-        </div>
-
-        <!-- Footer -->
-        <div class="bg-amber-900/30 px-6 py-3">
-          <p class="text-center text-xs text-amber-200">
-            This card is property of HBCI. Return to reception if found.
-          </p>
         </div>
       </div>
+
+      <p class="text-center text-xs text-gray-400 mt-4">
+        This card is the property of Honey Bee Culinary Institute. Return to reception if found.
+      </p>
     </div>
-  </div>
+  </HiveLayout>
 </template>
-
-<script setup>
-import { ref, onMounted, computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
-
-const page = usePage();
-const studentId = computed(() => page.props.student_id || {});
-const currentYear = new Date().getFullYear();
-const qrCanvas = ref(null);
-
-onMounted(async () => {
-  if (typeof window === 'undefined' || !qrCanvas.value || !studentId.value.qr_data) return;
-  const QRCode = (await import('qrcode')).default;
-  await QRCode.toCanvas(qrCanvas.value, String(studentId.value.qr_data), {
-    width: 112,
-    color: { dark: '#92400E', light: '#FFFFFF' },
-  });
-});
-</script>

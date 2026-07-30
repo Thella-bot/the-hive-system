@@ -11,6 +11,7 @@ import {
   EyeIcon,
   UserPlusIcon,
   TrashIcon,
+  IdentificationIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -90,6 +91,10 @@ const formatCohort = (student) => student.profile?.cohort?.name ?? '—';
                 <Link :href="route('hive.users.show', { user: student.id })"
                   class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="View">
                   <EyeIcon class="w-4 h-4" />
+                </Link>
+                <Link :href="route('hive.students.id-card', { student: student.id })"
+                  class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="Print ID Card">
+                  <IdentificationIcon class="w-4 h-4" />
                 </Link>
                 <Link :href="route('hive.students.edit', { student: student.id })"
                   class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="Edit">

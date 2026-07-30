@@ -214,4 +214,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
 
         // Student ID card
         Route::get('student-id', [StudentIdController::class, 'show'])->name('student-id');
+        Route::get('student-id/download', [StudentIdController::class, 'download'])->name('student-id.download');
+        Route::get('students/{student}/id-card', [StudentIdController::class, 'show'])->name('students.id-card');
+        Route::get('students/{student}/id-card/download', [StudentIdController::class, 'download'])->name('students.id-card.download');
     });
