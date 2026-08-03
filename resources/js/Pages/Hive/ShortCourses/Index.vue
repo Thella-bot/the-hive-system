@@ -26,7 +26,14 @@ const typeLabels = {
   'short-course': 'Short Course',
 };
 
+const deliveryModeLabels = {
+  in_person: 'In Person',
+  online: 'Online',
+  hybrid: 'Hybrid',
+};
+
 const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
+const formatDeliveryMode = (mode) => deliveryModeLabels[mode] ?? mode?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
 </script>
 
 <template>
@@ -73,6 +80,13 @@ const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replac
               <div>
                 <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ course.title }}</p>
                 <p v-if="course.description" class="text-xs text-gray-400 dark:text-gray-500 line-clamp-1">{{ course.description }}</p>
+                <p class="mt-1 text-[11px] font-medium uppercase tracking-wide" :class="{
+                  'text-blue-600 dark:text-blue-400': course.delivery_mode === 'in_person',
+                  'text-emerald-600 dark:text-emerald-400': course.delivery_mode === 'online',
+                  'text-purple-600 dark:text-purple-400': course.delivery_mode === 'hybrid'
+                }">
+                  {{ formatDeliveryMode(course.delivery_mode) }}
+                </p>
               </div>
             </td>
             <td class="px-6 py-4">

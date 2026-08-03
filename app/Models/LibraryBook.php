@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LibraryBook extends Model
 {
-    use HasUuids;
+    use HasFactory;
 
     protected $fillable = [
         'isbn',
@@ -44,12 +44,12 @@ class LibraryBook extends Model
 
     public function loans(): HasMany
     {
-        return $this->hasMany(BookLoan::class);
+        return $this->hasMany(BookLoan::class, 'book_id');
     }
 
     public function reservations(): HasMany
     {
-        return $this->hasMany(BookReservation::class);
+        return $this->hasMany(BookReservation::class, 'book_id');
     }
 
     public function scopeAvailable($query): \Illuminate\Database\Eloquent\Builder

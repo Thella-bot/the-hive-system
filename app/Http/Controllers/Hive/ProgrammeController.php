@@ -35,6 +35,10 @@ class ProgrammeController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'duration' => 'required|string|max:255',
+            'delivery_mode' => 'required|string|in:in_person,online,hybrid',
+            'meeting_platform' => 'nullable|string|max:100',
+            'meeting_link' => 'nullable|url|max:500',
+            'location' => 'nullable|string|max:255',
             'department_id' => 'required|exists:departments,id',
         ]);
 
@@ -70,6 +74,10 @@ class ProgrammeController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'duration' => 'required|string|max:255',
+            'delivery_mode' => 'required|string|in:in_person,online,hybrid',
+            'meeting_platform' => 'nullable|string|max:100',
+            'meeting_link' => 'nullable|url|max:500',
+            'location' => 'nullable|string|max:255',
             'modules' => 'nullable|array',
             'modules.*' => 'exists:modules,id',
         ]);

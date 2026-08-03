@@ -14,6 +14,11 @@ class UserPolicy extends BasePolicy
         return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar']);
     }
 
+    public function view(User $user, User $targetUser): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar', 'academic-director', 'program-coordinator', 'career-services', 'events-pr-manager']);
+    }
+
     /**
      * Determine if the user can create users.
      */

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Invoice;
 use App\Models\Payment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -120,6 +121,93 @@ class PaymentController extends Controller
         return Inertia::render('Hive/Finance/Payment/Show', [
             'payment' => $payment,
         ]);
+    }
+
+    public function downloadReceipt(Payment $payment)
+    {
+        $payment->load(['user', 'invoice']);
+
+        $invoice = $payment->invoice;
+        $programme = $invoice?->programme;
+        $studentNumber = $payment->user?->student_number ?? $payment->user?->user_number ?? 'N/A';
+
+        $data = [
+            'receipt_number' => $payment->payment_reference,
+            'date' => $payment->payment_date ?? $payment->created_at,
+            'payer_name' => $payment->user?->name ?? 'N/A',
+            'student_number' => $studentNumber,
+            'programme_name' => $programme?->name ?? 'N/A',
+            'items' => [[
+                'description' => $invoice ? ($invoice->description ?? 'Tuition / fee payment') : 'Payment received',
+                'qty' => 1,
+                'unit_price' => (float) $payment->amount,
+                'total' => (float) $payment->amount,
+            ]],
+            'sub_total' => (float) $payment->amount,
+            'discount' => 0,
+            'total_paid' => (float) $payment->amount,
+            'payment_method' => $this->formatPaymentMethod($payment->payment_method),
+            'bank_ref' => $payment->notes ?? 'N/A',
+            'academic_year' => $invoice?->academic_year ?? date('Y'),
+            'cohort' => $invoice?->semester ? 'Semester ' . $invoice->semester : 'N/A',
+            'amount_words' => $this->numberToWords((float) $payment->amount),
+            'cashier_name' => $this->getSignatory('finance'),
+        ];
+
+        $pdf = Pdf::loadView('pdf.documents.payment_receipt', $data);
+
+        return $pdf->download('Receipt_' . $payment->payment_reference . '.pdf');
+    }
+
+    private function formatPaymentMethod(string $method): string
+    {
+        return match ($method) {
+            'bank_transfer' => 'Bank Transfer',
+            'mobile_money' => 'Mobile Money',
+            'card' => 'Card',
+            'other' => 'Other',
+            default => 'Cash',
+        };
+    }
+
+    private function numberToWords($number)
+    {
+        // Simple placeholder – use a proper converter in production
+        $words = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        $amount = number_format($number, 2);
+        $parts = explode('.', $amount);
+        $dollars = (int) $parts[0];
+        $cents = (int) $parts[1];
+
+        if ($dollars == 0 && $cents == 0) return 'Zero';
+
+        $result = '';
+        if ($dollars > 0) {
+            $result .= $this->convertNumberToWords($dollars);
+        }
+        if ($cents > 0) {
+            $result .= ' and ' . $this->convertNumberToWords($cents) . ' cents';
+        }
+        return trim($result);
+    }
+
+    private function convertNumberToWords($num)
+    {
+        $ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        $tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        $teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+        if ($num < 10) return $ones[$num];
+        if ($num < 20) return $teens[$num - 10];
+        if ($num < 100) return $tens[floor($num / 10)] . ($num % 10 ? ' ' . $ones[$num % 10] : '');
+        if ($num < 1000) return $ones[floor($num / 100)] . ' Hundred' . ($num % 100 ? ' ' . $this->convertNumberToWords($num % 100) : '');
+        return 'Number too large';
+    }
+
+    private function getSignatory($role)
+    {
+        $user = \App\Models\User::role($role)->first();
+        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 
     public function destroy(Payment $payment): RedirectResponse

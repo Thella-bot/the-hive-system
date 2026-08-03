@@ -40,7 +40,7 @@ class BookLoan extends Model
 
     public function book(): BelongsTo
     {
-        return $this->belongsTo(LibraryBook::class);
+        return $this->belongsTo(LibraryBook::class, 'book_id');
     }
 
     public function isOverdue(): bool

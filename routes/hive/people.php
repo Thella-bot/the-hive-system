@@ -34,7 +34,22 @@ Route::middleware(['role:super-admin|it-support'])->name('admin.')->prefix('admi
 // Student management (super-admin, admissions-officer, registrar, program-coordinator)
 Route::resource('students', StudentController::class)
     ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
+Route::get('students/{student}/generate-proof', [StudentController::class, 'generateProof'])
+    ->name('students.generate-proof')
+    ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
+Route::get('students/{student}/generate-certificate', [StudentController::class, 'generateCertificate'])
+    ->name('students.generate-certificate')
+    ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
+Route::get('students/{student}/generate-reference', [StudentController::class, 'generateReference'])
+    ->name('students.generate-reference')
+    ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
 
 // Staff management (super-admin, hr-manager)
 Route::resource('staff', StaffController::class)
+    ->middleware('role:super-admin|hr-manager');
+Route::get('staff/{staff}/generate-appointment', [StaffController::class, 'generateAppointment'])
+    ->name('staff.generate-appointment')
+    ->middleware('role:super-admin|hr-manager');
+Route::get('staff/{staff}/generate-warning', [StaffController::class, 'generateWarning'])
+    ->name('staff.generate-warning')
     ->middleware('role:super-admin|hr-manager');

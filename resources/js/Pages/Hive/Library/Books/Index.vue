@@ -15,7 +15,7 @@ const props = defineProps({
 const search = ref(props.filters.search ?? '');
 
 const applyFilters = () => {
-  router.get(route('library.books.index'),
+  router.get(route('hive.library.books.index'),
     { search: search.value, category_id: props.filters.category_id, available: props.filters.available },
     { preserveState: true, replace: true }
   );
@@ -29,7 +29,7 @@ const formatCurrency = (amount) => {
 <template>
   <HiveLayout title="Library Books" description="Browse and manage library books">
     <template #header-actions>
-      <Link :href="route('library.books.create')"
+      <Link :href="route('hive.library.books.create')"
         class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors">
         <PlusIcon class="w-5 h-5" />
         Add Book
@@ -96,10 +96,10 @@ const formatCurrency = (amount) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-2">
-                <Link :href="route('library.books.show', book.id)" class="p-1 text-gray-500 hover:text-amber-600">
+                <Link :href="route('hive.library.books.show', book.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <EyeIcon class="w-5 h-5" />
                 </Link>
-                <Link :href="route('library.books.edit', book.id)" class="p-1 text-gray-500 hover:text-amber-600">
+                <Link :href="route('hive.library.books.edit', book.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <PencilSquareIcon class="w-5 h-5" />
                 </Link>
               </div>

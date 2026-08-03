@@ -14,11 +14,11 @@ const formatDate = (date) => {
 };
 
 const returnBook = (loanId) => {
-  router.patch(route('library.loans.return', loanId));
+  router.patch(route('hive.library.loans.return', loanId));
 };
 
 const renewBook = (loanId) => {
-  router.patch(route('library.loans.renew', loanId));
+  router.patch(route('hive.library.loans.renew', loanId));
 };
 
 const statusClass = (status) => {
@@ -39,7 +39,7 @@ const isOverdue = (loan) => {
 <template>
   <HiveLayout title="Book Loans" description="Manage book loans">
     <div class="mb-5 flex flex-wrap gap-3 items-center">
-      <select v-model="filters.status" @change="router.get(route('library.loans.index'), { status: filters.status }, { preserveState: true })"
+      <select v-model="filters.status" @change="router.get(route('hive.library.loans.index'), { status: filters.status }, { preserveState: true })"
         class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
         <option value="">All Status</option>
         <option value="active">Active</option>

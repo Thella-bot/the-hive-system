@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreAnnouncementRequest;
-use App\Http\Requests\UpdateAnnouncementRequest;
 use App\Models\Announcement;
 use App\Models\AnnouncementAttachment;
 use App\Models\Module;
 use App\Models\User;
 use App\Events\EmergencyAlert;
 use App\Notifications\NewAnnouncement;
+use App\Http\Requests\StoreAnnouncementRequest;
+use App\Http\Requests\UpdateAnnouncementRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AnnouncementController extends Controller
@@ -35,17 +38,11 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function edit(Announcement $announcement)
-    {
-        return Inertia::render('Hive/Announcements/Edit', [
-            'announcement' => $announcement->load(['targetModules', 'attachments']),
-            'modules' => Module::all(['id', 'name', 'code']),
-        ]);
-    }
-
     public function store(StoreAnnouncementRequest $request)
     {
         $validated = $request->validated();
+
+        $validated['created_by'] = $request->user()->id;
 
         $announcement = Announcement::create($validated);
 
@@ -53,7 +50,6 @@ class AnnouncementController extends Controller
             $announcement->targetModules()->attach($validated['target_modules']);
         }
 
-        // Handle file attachments
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('announcements', 'public');
@@ -69,12 +65,31 @@ class AnnouncementController extends Controller
         $usersToNotify = User::where('id', '!=', $request->user()->id)->get();
         Notification::send($usersToNotify, new NewAnnouncement($announcement));
 
-        // Emergency broadcasts force a fullscreen modal on all clients
         if (($validated['priority'] ?? 'normal') === 'emergency') {
             broadcast(new EmergencyAlert($announcement))->toOthers();
         }
 
-        return redirect()->back()->with('success', 'Announcement created and users notified.');
+        return redirect()->route('hive.announcements.index')->with('success', 'Announcement created and users notified.');
+    }
+
+    public function show(Request $request, Announcement $announcement)
+    {
+        $announcement = Announcement::visibleTo($request->user())
+            ->where('id', $announcement->id)
+            ->with(['attachments', 'targetModules'])
+            ->firstOrFail();
+
+        return Inertia::render('Hive/Announcements/Show', [
+            'announcement' => $announcement,
+        ]);
+    }
+
+    public function edit(Announcement $announcement)
+    {
+        return Inertia::render('Hive/Announcements/Edit', [
+            'announcement' => $announcement->load(['targetModules', 'attachments']),
+            'modules' => Module::all(['id', 'name', 'code']),
+        ]);
     }
 
     public function update(UpdateAnnouncementRequest $request, Announcement $announcement)
@@ -99,30 +114,16 @@ class AnnouncementController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Announcement updated.');
+        return redirect()->route('hive.announcements.index')->with('success', 'Announcement updated.');
     }
 
     public function destroy(Announcement $announcement)
     {
-        // Delete attachment files
-        foreach ($announcement->attachments as $attachment) {
+        foreach ($announcement->attachments()->get() as $attachment) {
             Storage::disk('public')->delete($attachment->file_path);
         }
         $announcement->delete();
-        return redirect()->back()->with('success', 'Announcement deleted.');
-    }
-
-    public function show(Request $request, Announcement $announcement)
-    {
-        // Apply visibility scope so students only see announcements targeting them
-        $announcement = Announcement::visibleTo($request->user())
-            ->where('id', $announcement->id)
-            ->with(['attachments', 'targetModules'])
-            ->firstOrFail();
-
-        return Inertia::render('Hive/Announcements/Show', [
-            'announcement' => $announcement,
-        ]);
+        return redirect()->route('hive.announcements.index')->with('success', 'Announcement deleted.');
     }
 
     public function downloadAttachment(AnnouncementAttachment $attachment)
@@ -132,5 +133,40 @@ class AnnouncementController extends Controller
         }
 
         return Storage::disk('public')->download($attachment->file_path, $attachment->name);
+    }
+
+    // ---------- PDF GENERATION ----------
+
+    /**
+     * Generate Internal Memo PDF.
+     */
+    public function generateMemo(Announcement $announcement)
+    {
+        $creator = $announcement->creator ?? User::find($announcement->created_by);
+
+        $targetRoles = $announcement->target_roles ?? [];
+        $recipients = is_array($targetRoles) && count($targetRoles) > 0
+            ? implode(', ', $targetRoles)
+            : 'All Staff';
+
+        $data = [
+            'office' => 'Administration',
+            'ref' => 'HBCI/MEMO/' . date('Y') . '/' . $announcement->id,
+            'date' => now(),
+            'to' => $recipients,
+            'from_name' => $creator->name ?? 'Administrator',
+            'from_designation' => $creator->profile->designation ?? 'Administrator',
+            'subject' => $announcement->title,
+            'background' => $announcement->body,
+            'key_points' => $announcement->body ? explode("\n", $announcement->body) : ['No key points provided.'],
+            'action_required' => 'Please review the above information.',
+            'contact_name' => $creator->name ?? 'Admin',
+            'contact_email' => $creator->email ?? 'admin@hbci.ac.ls',
+            'contact_ext' => '100',
+            'cc' => $announcement->target_roles ? implode(', ', $targetRoles) : '',
+        ];
+
+        $pdf = Pdf::loadView('pdf.documents.internal_memo', $data);
+        return $pdf->stream('Memo_' . $announcement->id . '.pdf');
     }
 }

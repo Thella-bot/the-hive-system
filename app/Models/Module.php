@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,12 +10,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Module extends Model
 {
-    protected $fillable = ['name', 'code', 'description', 'credits', 'department_id'];
+    use HasFactory;
+
+    protected $fillable = ['name', 'code', 'description', 'credits', 'type', 'programme_id', 'delivery_mode', 'meeting_platform', 'meeting_link', 'location', 'department_id'];
 
     public function programmes(): BelongsToMany
     {
         return $this->belongsToMany(Programme::class, 'programme_module')
-            ->withPivot('order_column')
+            ->withPivot(['order_column', 'year_level', 'semester'])
             ->withTimestamps();
     }
 
@@ -35,8 +38,8 @@ class Module extends Model
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'enrollments')
-                    ->withPivot('academic_year', 'semester')
-                    ->withTimestamps();
+            ->withPivot('academic_year', 'semester')
+            ->withTimestamps();
     }
 
     public function instructors(): BelongsToMany

@@ -31,6 +31,25 @@
               <dt class="text-sm text-gray-500 dark:text-gray-400">Department</dt>
               <dd class="text-base font-medium text-gray-900 dark:text-white">{{ module.department?.name || 'N/A' }}</dd>
             </div>
+            <div class="flex flex-col">
+              <dt class="text-sm text-gray-500 dark:text-gray-400">Delivery Mode</dt>
+              <dd class="text-base font-medium" :class="{
+                'text-blue-600': module.delivery_mode === 'in_person',
+                'text-emerald-600': module.delivery_mode === 'online',
+                'text-purple-600': module.delivery_mode === 'hybrid'
+              }">{{ formatDeliveryMode(module.delivery_mode) }}</dd>
+            </div>
+            <div v-if="module.meeting_platform || module.meeting_link" class="flex flex-col">
+              <dt class="text-sm text-gray-500 dark:text-gray-400">Meeting</dt>
+              <dd class="text-base font-medium text-gray-900 dark:text-white">
+                <span v-if="module.meeting_platform">{{ module.meeting_platform }}</span>
+                <a v-if="module.meeting_link" :href="module.meeting_link" target="_blank" rel="noopener noreferrer" class="text-amber-600 hover:underline">Open link</a>
+              </dd>
+            </div>
+            <div v-if="module.location" class="flex flex-col">
+              <dt class="text-sm text-gray-500 dark:text-gray-400">Location</dt>
+              <dd class="text-base font-medium text-gray-900 dark:text-white">{{ module.location }}</dd>
+            </div>
           </dl>
         </div>
 
@@ -50,4 +69,15 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 defineProps({
   module: Object,
 });
+
+const formatDeliveryMode = (value) => {
+  switch (value) {
+    case 'online':
+      return 'Online';
+    case 'hybrid':
+      return 'Hybrid';
+    default:
+      return 'In Person';
+  }
+};
 </script>

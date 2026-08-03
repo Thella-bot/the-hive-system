@@ -45,7 +45,7 @@ class ModuleControllerTest extends HiveTestCase
         $response = $this->get(route('hive.modules.create'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Modules/Create'));
+        $response->assertInertia(fn($page) => $page->component('Hive/Modules/Create'));
     }
 
     public function test_module_store_creates_new_module(): void
@@ -63,12 +63,22 @@ class ModuleControllerTest extends HiveTestCase
             'code' => 'TEST101',
             'description' => 'A test module',
             'credits' => 3,
+            'delivery_mode' => 'online',
+            'meeting_platform' => 'Zoom',
+            'meeting_link' => 'https://example.com/class',
+            'location' => 'Virtual Classroom',
             'department_id' => Department::first()->id,
             'programme_id' => Programme::first()->id,
         ]);
 
         $response->assertRedirect(route('hive.modules.index'));
-        $this->assertDatabaseHas('modules', ['code' => 'TEST101']);
+        $this->assertDatabaseHas('modules', [
+            'code' => 'TEST101',
+            'delivery_mode' => 'online',
+            'meeting_platform' => 'Zoom',
+            'meeting_link' => 'https://example.com/class',
+            'location' => 'Virtual Classroom',
+        ]);
     }
 
     public function test_module_store_validates_required_fields(): void
@@ -122,7 +132,7 @@ class ModuleControllerTest extends HiveTestCase
         $response = $this->get(route('hive.modules.show', $module));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Modules/Show'));
+        $response->assertInertia(fn($page) => $page->component('Hive/Modules/Show'));
     }
 
     public function test_module_edit_returns_success(): void
@@ -140,7 +150,7 @@ class ModuleControllerTest extends HiveTestCase
         $response = $this->get(route('hive.modules.edit', $module));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Modules/Edit'));
+        $response->assertInertia(fn($page) => $page->component('Hive/Modules/Edit'));
     }
 
     public function test_module_update_updates_module(): void

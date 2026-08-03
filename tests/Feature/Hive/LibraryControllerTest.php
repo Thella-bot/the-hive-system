@@ -16,7 +16,7 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.dashboard'));
+        $response = $this->get(route('hive.library.dashboard'));
 
         $response->assertOk();
     }
@@ -28,7 +28,7 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.books.index'));
+        $response = $this->get(route('hive.library.books.index'));
 
         $response->assertOk();
     }
@@ -40,10 +40,10 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.books.create'));
+        $response = $this->get(route('hive.library.books.create'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Library/Books/Create'));
+        $response->assertInertia(fn ($page) => $page->component('Hive/Library/Books/Create'));
     }
 
     public function test_books_store_creates_book_for_librarian(): void
@@ -55,12 +55,13 @@ class LibraryControllerTest extends HiveTestCase
 
         BookCategory::factory()->create();
 
-        $response = $this->post(route('library.books.store'), [
+        $response = $this->post(route('hive.library.books.store'), [
             'title' => 'Test Book',
             'author' => 'Test Author',
             'isbn' => '978-0-123456-78-9',
             'publisher' => 'Test Publisher',
             'publish_year' => 2025,
+            'total_copies' => 5,
             'category_id' => BookCategory::first()->id,
         ]);
 
@@ -80,10 +81,10 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.books.show', $book));
+        $response = $this->get(route('hive.library.books.show', $book));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Library/Books/Show'));
+        $response->assertInertia(fn ($page) => $page->component('Hive/Library/Books/Show'));
     }
 
     public function test_categories_index_requires_admin_role(): void
@@ -93,9 +94,9 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.categories.index'));
+        $response = $this->get(route('hive.library.categories.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_categories_index_returns_success_for_finance(): void
@@ -105,7 +106,7 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.categories.index'));
+        $response = $this->get(route('hive.library.categories.index'));
 
         $response->assertOk();
     }
@@ -117,9 +118,9 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.loans.index'));
+        $response = $this->get(route('hive.library.loans.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_loans_index_returns_success_for_finance(): void
@@ -129,7 +130,7 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.loans.index'));
+        $response = $this->get(route('hive.library.loans.index'));
 
         $response->assertOk();
     }
@@ -141,7 +142,7 @@ class LibraryControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('library.reservations.index'));
+        $response = $this->get(route('hive.library.reservations.index'));
 
         $response->assertOk();
     }

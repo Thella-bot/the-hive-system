@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PostCategory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Announcement extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'title', 'body', 'body_html', 'category', 'target_roles',
         'target_modules', 'is_pinned', 'priority', 'expires_at', 'created_by',

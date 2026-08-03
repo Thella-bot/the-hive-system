@@ -26,6 +26,13 @@
               <span v-if="course.accepting_applications" class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-full dark:bg-emerald-900/40 dark:text-emerald-300">Open</span>
               <span v-else class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-full dark:bg-gray-700 dark:text-gray-400">Closed</span>
             </div>
+            <p class="text-xs font-semibold uppercase tracking-wide mb-3" :class="{
+              'text-blue-600 dark:text-blue-400': course.delivery_mode === 'in_person',
+              'text-emerald-600 dark:text-emerald-400': course.delivery_mode === 'online',
+              'text-purple-600 dark:text-purple-400': course.delivery_mode === 'hybrid'
+            }">
+              {{ formatDeliveryMode(course.delivery_mode) }}
+            </p>
             <h3 class="text-lg font-bold text-gray-900 mb-2">{{ course.title }}</h3>
             <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ course.description }}</p>
             <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
@@ -89,5 +96,12 @@ const typeLabels = {
   'short-course': 'Short Course',
 };
 
+const deliveryModeLabels = {
+  in_person: 'In Person',
+  online: 'Online',
+  hybrid: 'Hybrid',
+};
+
 const formatType = (type) => typeLabels[type] ?? type?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
+const formatDeliveryMode = (mode) => deliveryModeLabels[mode] ?? mode?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
 </script>

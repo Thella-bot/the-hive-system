@@ -16,6 +16,10 @@ class Programme extends Model
         'name',
         'description',
         'duration',
+        'delivery_mode',
+        'meeting_platform',
+        'meeting_link',
+        'location',
         'duration_months',
         'total_price',
         'monthly_fee',
@@ -48,7 +52,7 @@ class Programme extends Model
     public function modules(): BelongsToMany
     {
         return $this->belongsToMany(Module::class, 'programme_module')
-            ->withPivot('order_column')
+            ->withPivot(['order_column', 'year_level', 'semester'])
             ->withTimestamps()
             ->orderByPivot('order_column');
     }

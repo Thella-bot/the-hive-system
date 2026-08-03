@@ -12,11 +12,11 @@ const props = defineProps({
 });
 
 const markRead = (id) => {
-    router.post(route('notifications.read', { notification: id }));
+    router.post(route('hive.notifications.read', { notification: id }));
 };
 
 const markAllRead = () => {
-    router.post(route('notifications.readAll'));
+    router.post(route('hive.notifications.readAll'));
 };
 
 const formatDate = (date) => {

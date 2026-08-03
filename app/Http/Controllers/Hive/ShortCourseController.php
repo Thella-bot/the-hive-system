@@ -31,7 +31,7 @@ class ShortCourseController extends Controller
         $shortCourses = $query->latest()->paginate(20);
 
         return Inertia::render('Hive/ShortCourses/Index', [
-            'shortCourses' => fn () => $shortCourses,
+            'shortCourses' => fn() => $shortCourses,
             'departmentId' => $departmentId,
         ]);
     }
@@ -56,6 +56,10 @@ class ShortCourseController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'type' => 'required|string|in:workshop,training,short-course',
+            'delivery_mode' => 'required|string|in:in_person,online,hybrid',
+            'meeting_platform' => 'nullable|string|max:100',
+            'meeting_link' => 'nullable|url|max:500',
+            'location' => 'nullable|string|max:255',
             'duration' => 'required|string|max:100',
             'price' => 'nullable|numeric|min:0',
             'start_date' => 'nullable|date',
@@ -91,6 +95,10 @@ class ShortCourseController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'type' => 'required|string|in:workshop,training,short-course',
+            'delivery_mode' => 'required|string|in:in_person,online,hybrid',
+            'meeting_platform' => 'nullable|string|max:100',
+            'meeting_link' => 'nullable|url|max:500',
+            'location' => 'nullable|string|max:255',
             'duration' => 'required|string|max:100',
             'price' => 'nullable|numeric|min:0',
             'start_date' => 'nullable|date',

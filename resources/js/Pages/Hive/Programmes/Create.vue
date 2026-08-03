@@ -11,6 +11,10 @@ const form = useForm({
     name: '',
     description: '',
     duration: '',
+    delivery_mode: 'in_person',
+    meeting_platform: '',
+    meeting_link: '',
+    location: '',
     department_id: '',
 });
 
@@ -46,6 +50,35 @@ const submit = () => {
                     <InputLabel for="duration" value="Duration" />
                     <TextInput id="duration" type="text" class="mt-1 block w-full" v-model="form.duration" placeholder="e.g. 2 years" required />
                     <InputError class="mt-2" :message="form.errors.duration" />
+                </div>
+
+                <div>
+                    <InputLabel for="delivery_mode" value="Delivery Mode" />
+                    <SelectInput id="delivery_mode" class="mt-1 block w-full" v-model="form.delivery_mode" required>
+                        <option value="in_person">In Person</option>
+                        <option value="online">Online</option>
+                        <option value="hybrid">Hybrid</option>
+                    </SelectInput>
+                    <InputError class="mt-2" :message="form.errors.delivery_mode" />
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <InputLabel for="meeting_platform" value="Meeting Platform" />
+                        <TextInput id="meeting_platform" type="text" class="mt-1 block w-full" v-model="form.meeting_platform" placeholder="Zoom, Google Meet, Teams" />
+                        <InputError class="mt-2" :message="form.errors.meeting_platform" />
+                    </div>
+                    <div>
+                        <InputLabel for="meeting_link" value="Meeting Link" />
+                        <TextInput id="meeting_link" type="url" class="mt-1 block w-full" v-model="form.meeting_link" placeholder="https://..." />
+                        <InputError class="mt-2" :message="form.errors.meeting_link" />
+                    </div>
+                </div>
+
+                <div>
+                    <InputLabel for="location" value="Venue / Location" />
+                    <TextInput id="location" type="text" class="mt-1 block w-full" v-model="form.location" placeholder="Physical venue or classroom name" />
+                    <InputError class="mt-2" :message="form.errors.location" />
                 </div>
 
                 <div>

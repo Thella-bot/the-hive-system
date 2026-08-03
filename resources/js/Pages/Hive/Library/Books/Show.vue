@@ -13,7 +13,7 @@ const formatDate = (date) => {
 
 const deleteBook = () => {
   if (confirm('Are you sure you want to delete this book?')) {
-    router.delete(route('library.books.destroy', props.book.id));
+    router.delete(route('hive.library.books.destroy', props.book.id));
   }
 };
 </script>
@@ -22,7 +22,7 @@ const deleteBook = () => {
   <HiveLayout :title="book.title" :description="'by ' + book.author">
     <template #header-actions>
       <div class="flex gap-2">
-        <Link :href="route('library.books.edit', book.id)"
+        <Link :href="route('hive.library.books.edit', book.id)"
           class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
           <PencilSquareIcon class="w-4 h-4" />
           Edit
@@ -36,7 +36,7 @@ const deleteBook = () => {
     </template>
 
     <div class="mb-6">
-      <Link :href="route('library.books.index')"
+      <Link :href="route('hive.library.books.index')"
         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         <ArrowLeftIcon class="w-4 h-4" />
         Back to Books

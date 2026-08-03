@@ -6,6 +6,13 @@
           <h2 class="text-2xl font-bold text-gray-800">{{ programme.name }}</h2>
           <p class="text-gray-600 mt-2">{{ programme.description }}</p>
           <p class="text-sm text-gray-500 mt-4">Duration: {{ programme.duration }}</p>
+          <p class="text-sm font-semibold uppercase tracking-wide mt-2" :class="{
+            'text-blue-600': programme.delivery_mode === 'in_person',
+            'text-emerald-600': programme.delivery_mode === 'online',
+            'text-purple-600': programme.delivery_mode === 'hybrid'
+          }">
+            {{ formatDeliveryMode(programme.delivery_mode) }}
+          </p>
         </div>
         <Link v-if="isAdmin" :href="route('hive.programmes.edit', { programme: programme.id })" class="inline-flex items-center px-4 py-2 bg-amber-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-700 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
           Manage Courses
@@ -38,6 +45,14 @@ import { useUser } from '@/composables/useUser';
 const props = defineProps({
   programme: Object,
 });
+
+const deliveryModeLabels = {
+  in_person: 'In Person',
+  online: 'Online',
+  hybrid: 'Hybrid',
+};
+
+const formatDeliveryMode = (mode) => deliveryModeLabels[mode] ?? mode?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
 
 const { isAdmin } = useUser();
 </script>

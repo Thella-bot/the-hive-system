@@ -97,11 +97,17 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
         Route::get('announcements/{announcement}/attachments/{attachment}/download', [AnnouncementController::class, 'downloadAttachment'])
             ->name('announcements.attachments.download');
+        Route::get('announcements/{announcement}/generate-memo', [AnnouncementController::class, 'generateMemo'])
+            ->name('announcements.generate-memo');
 
         // Applications
-        Route::resource('applications', ApplicationController::class)->except(['create', 'destroy']);
+        Route::resource('applications', ApplicationController::class)->except(['destroy']);
         Route::post('applications/{application}/complete-registration', [ApplicationController::class, 'completeRegistration'])
             ->name('applications.complete-registration');
+        Route::get('applications/{application}/generate-acceptance', [ApplicationController::class, 'generateAcceptance'])
+            ->name('applications.generate-acceptance');
+        Route::get('applications/{application}/generate-rejection', [ApplicationController::class, 'generateRejection'])
+            ->name('applications.generate-rejection');
 
         // Registration (for admitted students)
         Route::get('registration', [RegistrationController::class, 'index'])->name('registration.index');

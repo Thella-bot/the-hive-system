@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Department;
 use App\Models\Programme;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,8 +15,9 @@ class ProgrammeFactory extends Factory
         return [
             'name' => $this->faker->unique()->word() . ' Programme',
             'description' => $this->faker->sentence(10),
-            'duration' => 1,
-            'monthly_fee' => 0,
+            'duration' => '6 months',
+            'monthly_fee' => 500.00,
+            'department_id' => Department::factory(),
         ];
     }
 }

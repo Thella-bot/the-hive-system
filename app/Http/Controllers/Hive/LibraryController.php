@@ -34,7 +34,7 @@ class LibraryController extends Controller
             $query->available();
         }
 
-        return Inertia::render('Library/Books/Index', [
+        return Inertia::render('Hive/Library/Books/Index', [
             'books' => $query->orderBy('title')->paginate(20)->withQueryString(),
             'filters' => $this->getFilterInputs($request, ['search', 'category_id', 'available']),
             'categories' => BookCategory::active()->orderBy('name')->get(),
@@ -45,7 +45,7 @@ class LibraryController extends Controller
     {
         $categories = BookCategory::active()->orderBy('name')->get();
 
-        return Inertia::render('Library/Books/Create', [
+        return Inertia::render('Hive/Library/Books/Create', [
             'categories' => $categories,
         ]);
     }
@@ -71,14 +71,14 @@ class LibraryController extends Controller
 
         LibraryBook::create($data);
 
-        return to_route('library.books.index')->with('success', 'Book added to library.');
+        return to_route('hive.library.books.index')->with('success', 'Book added to library.');
     }
 
     public function booksShow(LibraryBook $book): Response
     {
         $book->load(['category', 'loans.user', 'reservations.user']);
 
-        return Inertia::render('Library/Books/Show', [
+        return Inertia::render('Hive/Library/Books/Show', [
             'book' => $book,
         ]);
     }
@@ -87,7 +87,7 @@ class LibraryController extends Controller
     {
         $categories = BookCategory::active()->orderBy('name')->get();
 
-        return Inertia::render('Library/Books/Edit', [
+        return Inertia::render('Hive/Library/Books/Edit', [
             'book' => $book,
             'categories' => $categories,
         ]);
@@ -120,7 +120,7 @@ class LibraryController extends Controller
 
         $book->update($data);
 
-        return to_route('library.books.show', $book->id)->with('success', 'Book updated.');
+        return to_route('hive.library.books.show', $book->id)->with('success', 'Book updated.');
     }
 
     public function booksDestroy(LibraryBook $book): RedirectResponse
@@ -131,13 +131,13 @@ class LibraryController extends Controller
 
         $book->delete();
 
-        return to_route('library.books.index')->with('success', 'Book deleted.');
+        return to_route('hive.library.books.index')->with('success', 'Book deleted.');
     }
 
     // Book Categories
     public function categoriesIndex(): Response
     {
-        return Inertia::render('Library/Categories/Index', [
+        return Inertia::render('Hive/Library/Categories/Index', [
             'categories' => BookCategory::withCount('books')->orderBy('name')->get(),
         ]);
     }
@@ -194,7 +194,7 @@ class LibraryController extends Controller
             $query->where('user_id', $request->user_id);
         }
 
-        return Inertia::render('Library/Loans/Index', [
+        return Inertia::render('Hive/Library/Loans/Index', [
             'loans' => $query->orderByDesc('loan_date')->paginate(20)->withQueryString(),
             'filters' => $request->only(['status', 'user_id']),
         ]);
@@ -222,7 +222,7 @@ class LibraryController extends Controller
         // Update available copies
         $book->decrement('available_copies');
 
-        return to_route('library.loans.index')->with('success', 'Book loaned successfully.');
+        return to_route('hive.library.loans.index')->with('success', 'Book loaned successfully.');
     }
 
     public function loansReturn(Request $request, BookLoan $loan): RedirectResponse
@@ -264,7 +264,7 @@ class LibraryController extends Controller
 
         $loan->delete();
 
-        return to_route('library.loans.index')->with('success', 'Loan record deleted.');
+        return to_route('hive.library.loans.index')->with('success', 'Loan record deleted.');
     }
 
     // Reservation Management
@@ -276,7 +276,7 @@ class LibraryController extends Controller
             $query->where('status', $request->status);
         }
 
-        return Inertia::render('Library/Reservations/Index', [
+        return Inertia::render('Hive/Library/Reservations/Index', [
             'reservations' => $query->orderByDesc('reserved_at')->paginate(20)->withQueryString(),
             'filters' => $request->only(['status']),
         ]);
@@ -380,7 +380,7 @@ class LibraryController extends Controller
             ->limit(5)
             ->get();
 
-        return Inertia::render('Library/Dashboard', [
+        return Inertia::render('Hive/Library/Dashboard', [
             'stats' => $stats,
             'recentLoans' => $recentLoans,
             'popularBooks' => $popularBooks,

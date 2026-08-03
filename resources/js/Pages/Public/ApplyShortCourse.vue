@@ -33,6 +33,13 @@
               {{ shortCourse.duration }}
               <span v-if="shortCourse.courseable?.name"> · {{ shortCourse.courseable.name }}</span>
             </p>
+            <p class="text-xs font-semibold uppercase tracking-wide mt-1" :class="{
+              'text-blue-600': shortCourse.delivery_mode === 'in_person',
+              'text-emerald-600': shortCourse.delivery_mode === 'online',
+              'text-purple-600': shortCourse.delivery_mode === 'hybrid'
+            }">
+              {{ formatDeliveryMode(shortCourse.delivery_mode) }}
+            </p>
             <p v-if="shortCourse.start_date" class="text-xs text-gray-500 mt-0.5">
               Starts {{ shortCourse.start_date }}
               <span v-if="shortCourse.end_date"> — Ends {{ shortCourse.end_date }}</span>
@@ -167,6 +174,14 @@
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
+
+const deliveryModeLabels = {
+  in_person: 'In Person',
+  online: 'Online',
+  hybrid: 'Hybrid',
+};
+
+const formatDeliveryMode = (mode) => deliveryModeLabels[mode] ?? mode?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '';
 
 const props = defineProps({
   shortCourse: { type: Object, required: true },

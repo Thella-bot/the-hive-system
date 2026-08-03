@@ -93,19 +93,19 @@ const formatDate = (date) => {
 
     <!-- Quick Links -->
     <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Link :href="route('library.books.index')"
+      <Link :href="route('hive.library.books.index')"
         class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:border-amber-500 transition-colors">
         <BookOpenIcon class="w-8 h-8 text-amber-600 mb-2" />
         <p class="font-medium text-gray-900 dark:text-gray-100">Browse Books</p>
         <p class="text-sm text-gray-500">Search and reserve</p>
       </Link>
-      <Link :href="route('library.loans.index')"
+      <Link :href="route('hive.library.loans.index')"
         class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:border-amber-500 transition-colors">
         <ClockIcon class="w-8 h-8 text-amber-600 mb-2" />
         <p class="font-medium text-gray-900 dark:text-gray-100">My Loans</p>
         <p class="text-sm text-gray-500">View borrowed books</p>
       </Link>
-      <Link :href="route('library.reservations.index')"
+      <Link :href="route('hive.library.reservations.index')"
         class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:border-amber-500 transition-colors">
         <BookmarkIcon class="w-8 h-8 text-amber-600 mb-2" />
         <p class="font-medium text-gray-900 dark:text-gray-100">Reservations</p>

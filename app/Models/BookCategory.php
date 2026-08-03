@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BookCategory extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'code',
@@ -20,7 +23,7 @@ class BookCategory extends Model
 
     public function books(): HasMany
     {
-        return $this->hasMany(LibraryBook::class);
+        return $this->hasMany(LibraryBook::class, 'category_id');
     }
 
     // --- Scopes ---

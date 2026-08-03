@@ -27,6 +27,35 @@
         </div>
 
         <div>
+          <label for="delivery_mode" class="block text-sm font-medium text-gray-700">Delivery Mode</label>
+          <select id="delivery_mode" v-model="form.delivery_mode" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+            <option value="in_person">In Person</option>
+            <option value="online">Online</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+          <div v-if="form.errors.delivery_mode" class="text-red-500 text-xs mt-1">{{ form.errors.delivery_mode }}</div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label for="meeting_platform" class="block text-sm font-medium text-gray-700">Meeting Platform</label>
+            <input id="meeting_platform" v-model="form.meeting_platform" type="text" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="Zoom, Google Meet, Teams" />
+            <div v-if="form.errors.meeting_platform" class="text-red-500 text-xs mt-1">{{ form.errors.meeting_platform }}</div>
+          </div>
+          <div>
+            <label for="meeting_link" class="block text-sm font-medium text-gray-700">Meeting Link</label>
+            <input id="meeting_link" v-model="form.meeting_link" type="url" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="https://..." />
+            <div v-if="form.errors.meeting_link" class="text-red-500 text-xs mt-1">{{ form.errors.meeting_link }}</div>
+          </div>
+        </div>
+
+        <div>
+          <label for="location" class="block text-sm font-medium text-gray-700">Venue / Location</label>
+          <input id="location" v-model="form.location" type="text" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" placeholder="Physical venue or classroom name" />
+          <div v-if="form.errors.location" class="text-red-500 text-xs mt-1">{{ form.errors.location }}</div>
+        </div>
+
+        <div>
           <label for="department_id" class="block text-sm font-medium text-gray-700">Department</label>
           <select id="department_id" v-model="form.department_id" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
             <option value="">Select a department</option>
@@ -74,6 +103,10 @@ const form = useForm({
   code: props.module.code,
   description: props.module.description,
   credits: props.module.credits,
+  delivery_mode: props.module.delivery_mode ?? 'in_person',
+  meeting_platform: props.module.meeting_platform ?? '',
+  meeting_link: props.module.meeting_link ?? '',
+  location: props.module.location ?? '',
   department_id: props.module.department_id,
   programme_id: props.module.programme_id,
 });

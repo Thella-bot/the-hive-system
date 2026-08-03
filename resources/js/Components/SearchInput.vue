@@ -24,7 +24,7 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.get(route('search.index'), {
+  form.get(route('hive.search'), {
     preserveState: true,
   });
 };

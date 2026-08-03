@@ -76,16 +76,23 @@ class AdminDashboardData implements DashboardData
 
     private function getNewStudentsByMonth(): array
     {
+        $dbDriver = DB::connection()->getDriverName();
+        
+        $monthExpr = $dbDriver === 'sqlite'
+            ? "strftime('%m', created_at)"
+            : "MONTH(created_at)";
+
         $results = User::role('student')
             ->whereYear('created_at', now()->year)
-            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->selectRaw("$monthExpr as month, COUNT(*) as count")
             ->groupBy('month')
             ->pluck('count', 'month')
             ->toArray();
 
         $months = [];
         for ($i = 1; $i <= 12; $i++) {
-            $months[Carbon::create(null, $i)->format('F')] = $results[$i] ?? 0;
+            $key = $i < 10 ? '0' . $i : (string) $i;
+            $months[Carbon::create(null, $i)->format('F')] = isset($results[$key]) ? (int) $results[$key] : 0;
         }
 
         return $months;

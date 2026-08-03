@@ -21,6 +21,35 @@
         </div>
 
         <div>
+          <label for="delivery_mode" class="block text-sm font-medium text-gray-700">Delivery Mode</label>
+          <select id="delivery_mode" v-model="form.delivery_mode" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+            <option value="in_person">In Person</option>
+            <option value="online">Online</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+          <div v-if="form.errors.delivery_mode" class="mt-1 text-sm text-red-600">{{ form.errors.delivery_mode }}</div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label for="meeting_platform" class="block text-sm font-medium text-gray-700">Meeting Platform</label>
+            <input id="meeting_platform" v-model="form.meeting_platform" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" placeholder="Zoom, Google Meet, Teams" />
+            <div v-if="form.errors.meeting_platform" class="mt-1 text-sm text-red-600">{{ form.errors.meeting_platform }}</div>
+          </div>
+          <div>
+            <label for="meeting_link" class="block text-sm font-medium text-gray-700">Meeting Link</label>
+            <input id="meeting_link" v-model="form.meeting_link" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" placeholder="https://..." />
+            <div v-if="form.errors.meeting_link" class="mt-1 text-sm text-red-600">{{ form.errors.meeting_link }}</div>
+          </div>
+        </div>
+
+        <div>
+          <label for="location" class="block text-sm font-medium text-gray-700">Venue / Location</label>
+          <input id="location" v-model="form.location" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" placeholder="Physical venue or classroom name" />
+          <div v-if="form.errors.location" class="mt-1 text-sm text-red-600">{{ form.errors.location }}</div>
+        </div>
+
+        <div>
           <label for="modules" class="block text-sm font-medium text-gray-700 mb-1">Modules</label>
           <select id="modules" v-model="form.modules" multiple class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 h-48">
             <option v-for="module in allModules" :key="module.id" :value="module.id">
@@ -54,6 +83,10 @@ const form = useForm({
   name: props.programme.name,
   description: props.programme.description,
   duration: props.programme.duration,
+  delivery_mode: props.programme.delivery_mode ?? 'in_person',
+  meeting_platform: props.programme.meeting_platform ?? '',
+  meeting_link: props.programme.meeting_link ?? '',
+  location: props.programme.location ?? '',
   modules: props.programme.modules.map(m => m.id),
 });
 

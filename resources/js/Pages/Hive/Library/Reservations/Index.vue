@@ -14,12 +14,12 @@ const formatDate = (date) => {
 };
 
 const fulfillReservation = (id) => {
-  router.patch(route('library.reservations.fulfill', id));
+  router.patch(route('hive.library.reservations.fulfill', id));
 };
 
 const cancelReservation = (id) => {
   if (confirm('Cancel this reservation?')) {
-    router.patch(route('library.reservations.cancel', id));
+    router.patch(route('hive.library.reservations.cancel', id));
   }
 };
 
@@ -37,7 +37,7 @@ const statusClass = (status) => {
 <template>
   <HiveLayout title="Reservations" description="Manage book reservations">
     <div class="mb-5 flex flex-wrap gap-3 items-center">
-      <select v-model="filters.status" @change="router.get(route('library.reservations.index'), { status: filters.status }, { preserveState: true })"
+      <select v-model="filters.status" @change="router.get(route('hive.library.reservations.index'), { status: filters.status }, { preserveState: true })"
         class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm">
         <option value="">All Status</option>
         <option value="pending">Pending</option>

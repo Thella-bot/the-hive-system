@@ -1,7 +1,7 @@
 <template>
   <HiveLayout title="New User" description="Create a staff member or student account">
     <template #header-actions>
-      <Link :href="route('users.index')"
+      <Link :href="route('hive.users.index')"
         class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
         title="Users">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +177,7 @@
 
         <!-- Submit -->
         <div class="flex justify-end gap-3">
-          <Link :href="route('users.index')"
+          <Link :href="route('hive.users.index')"
             class="px-4 py-2 text-sm text-gray-600 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
             Cancel
           </Link>

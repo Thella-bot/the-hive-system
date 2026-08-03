@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateModuleRequest;
 use App\Models\Department;
 use App\Models\Module;
 use App\Models\Programme;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ModuleController extends Controller

@@ -23,9 +23,21 @@ const filteredModules = computed(() => {
   return props.modules.filter(m =>
     m.name?.toLowerCase().includes(query) ||
     m.code?.toLowerCase().includes(query) ||
-    m.department?.name?.toLowerCase().includes(query)
+    m.department?.name?.toLowerCase().includes(query) ||
+    m.delivery_mode?.toLowerCase().includes(query)
   );
 });
+
+const formatDeliveryMode = (value) => {
+  switch (value) {
+    case 'online':
+      return 'Online';
+    case 'hybrid':
+      return 'Hybrid';
+    default:
+      return 'In Person';
+  }
+};
 </script>
 
 <template>
@@ -63,6 +75,7 @@ const filteredModules = computed(() => {
             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Module</th>
             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Code</th>
             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Department</th>
+            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Delivery</th>
             <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Programmes</th>
             <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Actions</th>
           </tr>
@@ -80,6 +93,15 @@ const filteredModules = computed(() => {
               </span>
             </td>
             <td class="px-6 py-4 text-gray-600 dark:text-gray-400">{{ module.department?.name || '—' }}</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" :class="{
+                'bg-blue-100 text-blue-700': module.delivery_mode === 'in_person',
+                'bg-emerald-100 text-emerald-700': module.delivery_mode === 'online',
+                'bg-purple-100 text-purple-700': module.delivery_mode === 'hybrid'
+              }">
+                {{ formatDeliveryMode(module.delivery_mode) }}
+              </span>
+            </td>
             <td class="px-6 py-4">
               <div v-if="module.programmes?.length" class="flex flex-wrap gap-1">
                 <span v-for="p in module.programmes" :key="p.id" class="inline-flex items-center px-2 py-0.5 bg-amber-50 text-amber-700 text-xs rounded-md dark:bg-amber-900/40 dark:text-amber-300">

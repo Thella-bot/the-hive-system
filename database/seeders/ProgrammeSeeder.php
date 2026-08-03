@@ -34,32 +34,14 @@ class ProgrammeSeeder extends Seeder
             return;
         }
 
-        // Rename previously-seeded programmes in place (rather than letting
-        // updateOrCreate key on a new name and orphan the old row along with
-        // any students/applications already pointing at it). Safe to run
-        // against a fresh DB too — non-matching old names are simply no-ops.
         $renames = [
-            // Reverting an earlier guess: the fee structure shows this is
-            // its own line item named simply "Diploma in Professional Chef".
             'Diploma in Professional Cheffing (Culinary Arts, Italian Cuisine)' => 'Diploma in Professional Chef',
-            // Reverting an earlier guess: the fee structure shows "Diploma in
-            // Culinary Patisserie" is a standalone 2-year diploma, not a
-            // multi-duration bundle — the short course is a separate,
-            // separately-priced programme (see "Gastronomy Cooking and
-            // Patisserie" below).
             'Patisserie and Baking' => 'Diploma in Culinary Patisserie',
-            // The fee structure names the short-course offering "Gastronomy
-            // Cooking and Patisserie" with confirmed 3-month/6-month pricing.
             'Short Courses and Cooking Sessions' => 'Gastronomy Cooking and Patisserie',
         ];
         foreach ($renames as $oldName => $newName) {
             Programme::where('name', $oldName)->update(['name' => $newName]);
         }
-
-        // Uniform and tools are flat, institute-wide costs per the fee
-        // structure (Uniform: M3,400 — 2x chef pants, 2x chef jackets, apron,
-        // chef hat. Tools: M750 — 1x chef's knife, 3x paring knives) and
-        // apply the same to every programme below.
         $uniformFee = 3400.00;
         $toolsCost = 750.00;
 
@@ -74,7 +56,7 @@ class ProgrammeSeeder extends Seeder
                 'payment_method' => 'both',
                 'registration_fee' => 2500.00,
                 'monthly_fee' => 2570.00,
-                'academic_resource_fee' => 1500.00, // "Book Fee" on the fee structure
+                'academic_resource_fee' => 1500.00,
                 'total_price' => 34000.00,
                 'uniform_fee' => $uniformFee,
                 'tools_cost' => $toolsCost,
@@ -96,7 +78,7 @@ class ProgrammeSeeder extends Seeder
                 'total_price' => 99000.00,
                 'uniform_fee' => $uniformFee,
                 'tools_cost' => $toolsCost,
-                'intake_period' => 'January only',
+                'intake_period' => 'January, April & August',
                 'career_opportunities' => 'Commis Chef, Chef de Partie, Sous Chef, Executive Chef, Kitchen Manager',
                 'department_id' => $globalCuisinesDept->id,
             ],
@@ -118,36 +100,8 @@ class ProgrammeSeeder extends Seeder
                 'career_opportunities' => 'Pastry Chef, Baker, Confectioner, Cake Designer, Patisserie Manager',
                 'department_id' => $patisserieDept->id,
             ],
-            // Advanced Diploma in Culinary Arts — 2 Years
-            // NOTE: this programme wasn't in the prospectus at all; it only
-            // surfaced on the fee structure. Requirements below are a
-            // reasonable assumption (LGCSE entry, same as the other
-            // programmes) — confirm whether it actually requires prior
-            // completion of a related certificate/diploma, and confirm the
-            // department (assumed Global Cuisines here, alongside the
-            // Diploma in Professional Chef).
-            [
-                'name' => 'Advanced Diploma in Culinary Arts',
-                'description' => 'An advanced culinary arts diploma covering high-level technique, menu development, and kitchen leadership.',
-                'duration' => '2 Years',
-                'duration_months' => 24,
-                'requirements' => 'LGCSE with at least D in English and Mathematics', // TODO: confirm — may require a prior diploma/certificate
-                'payment_method' => 'both',
-                'registration_fee' => 2500.00,
-                'monthly_fee' => 2570.00,
-                'academic_resource_fee' => 3800.00,
-                'total_price' => 66300.00,
-                'uniform_fee' => $uniformFee,
-                'tools_cost' => $toolsCost,
-                'intake_period' => 'January, April & August', // TODO: confirm intake period
-                'career_opportunities' => 'Senior Chef, Culinary Instructor, Kitchen Manager, Executive Sous Chef',
-                'department_id' => $globalCuisinesDept->id, // TODO: confirm department
-            ],
+
             // Hospitality Management — 1 Year
-            // NOTE: not covered by the fee structure document at all — total
-            // price, registration, monthly and book fees below are still
-            // unconfirmed placeholders from before. Uniform/tools have been
-            // corrected to the confirmed institute-wide flat fees.
             [
                 'name' => 'Hospitality Management',
                 'description' => 'This programme prepares students for supervisory and management positions in the hospitality industry. Topics include hotel operations, food and beverage management, front office management, and event planning.',
@@ -155,10 +109,10 @@ class ProgrammeSeeder extends Seeder
                 'duration_months' => 12,
                 'requirements' => 'LGCSE or JC with at least D in English and Mathematics',
                 'payment_method' => 'both',
-                'registration_fee' => 2800.00, // TODO: not on the fee structure — confirm
-                'monthly_fee' => 2500.00, // TODO: not on the fee structure — confirm
-                'academic_resource_fee' => 2500.00, // TODO: not on the fee structure — confirm
-                'total_price' => 32500.00, // TODO: not on the fee structure — confirm
+                'registration_fee' => 2300.00,
+                'monthly_fee' => 2200.00,
+                'academic_resource_fee' => 2500.00,
+                'total_price' => 32500.00, // 
                 'uniform_fee' => $uniformFee,
                 'tools_cost' => $toolsCost,
                 'intake_period' => 'January, April & August',
@@ -173,7 +127,7 @@ class ProgrammeSeeder extends Seeder
                 'duration_months' => null,
                 'requirements' => 'None required',
                 'payment_method' => 'both',
-                'registration_fee' => 0.00, // superseded by per-duration ProgrammeVariant pricing below
+                'registration_fee' => 0.00,
                 'monthly_fee' => 0.00,
                 'academic_resource_fee' => 0.00,
                 'total_price' => 0.00,
@@ -205,7 +159,6 @@ class ProgrammeSeeder extends Seeder
 
         // Insert data
         foreach ($programmes as $programme) {
-            // Remove fields that don't exist yet if migration hasn't run
             $safeProgramme = $programme;
             $durationVariants = $safeProgramme['duration_variants'] ?? null;
             unset($safeProgramme['duration_variants']);

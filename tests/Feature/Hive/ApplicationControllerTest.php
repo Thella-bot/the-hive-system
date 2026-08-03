@@ -63,6 +63,8 @@ class ApplicationControllerTest extends HiveTestCase
         $this->actingAs($user);
 
         $response = $this->post(route('hive.applications.store'), [
+            'name' => 'Test Applicant',
+            'email' => 'applicant@example.com',
             'programme_id' => Programme::first()->id,
         ]);
 
