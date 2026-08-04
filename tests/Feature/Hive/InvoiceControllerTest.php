@@ -18,7 +18,7 @@ class InvoiceControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.finance.invoices.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_invoice_index_returns_success(): void
@@ -31,7 +31,20 @@ class InvoiceControllerTest extends HiveTestCase
         $response = $this->get(route('hive.finance.invoices.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Finance/Invoice/Index'));
+        $response->assertInertia(fn($page) => $page->component('Hive/Finance/Invoice/Index'));
+    }
+
+    public function test_invoice_create_returns_success(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('finance');
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.finance.invoices.create'));
+
+        $response->assertOk();
+        $response->assertInertia(fn($page) => $page->component('Hive/Finance/Invoice/Create'));
     }
 
     public function test_invoice_store_creates_invoice(): void
@@ -89,7 +102,7 @@ class InvoiceControllerTest extends HiveTestCase
         $response = $this->get(route('hive.finance.invoices.show', $invoice));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Finance/Invoice/Show'));
+        $response->assertInertia(fn($page) => $page->component('Hive/Finance/Invoice/Show'));
     }
 
     public function test_invoice_update_modifies_invoice(): void

@@ -16,7 +16,7 @@ class UserControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.users.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_user_index_returns_success_for_super_admin(): void

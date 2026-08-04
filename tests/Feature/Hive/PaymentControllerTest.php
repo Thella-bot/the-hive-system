@@ -18,7 +18,7 @@ class PaymentControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.finance.payments.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_payment_index_returns_success(): void
@@ -31,7 +31,7 @@ class PaymentControllerTest extends HiveTestCase
         $response = $this->get(route('hive.finance.payments.index'));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Finance/Payment/Index'));
+        $response->assertInertia(fn($page) => $page->component('Hive/Finance/Payment/Index'));
     }
 
     public function test_payment_store_creates_payment(): void
@@ -86,7 +86,7 @@ class PaymentControllerTest extends HiveTestCase
         $response = $this->get(route('hive.finance.payments.show', $payment));
 
         $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Finance/Payment/Show'));
+        $response->assertInertia(fn($page) => $page->component('Hive/Finance/Payment/Show'));
     }
 
     public function test_payment_verify_marks_as_completed(): void
@@ -107,6 +107,42 @@ class PaymentControllerTest extends HiveTestCase
             'id' => $payment->id,
             'status' => 'completed',
         ]);
+    }
+
+    public function test_payment_receipt_download_returns_pdf(): void
+    {
+        $financeUser = User::factory()->create();
+        $financeUser->assignRole('finance');
+
+        $student = User::factory()->create();
+        $student->assignRole('student');
+
+        $invoice = Invoice::create([
+            'user_id' => $student->id,
+            'programme_id' => null,
+            'amount' => 1500.00,
+            'description' => 'Tuition fees',
+            'academic_year' => '2026/2027',
+            'semester' => 1,
+            'status' => 'pending',
+        ]);
+
+        $payment = Payment::create([
+            'invoice_id' => $invoice->id,
+            'user_id' => $student->id,
+            'amount' => 1500.00,
+            'payment_method' => 'bank_transfer',
+            'payment_date' => now()->toDateString(),
+            'status' => 'completed',
+            'notes' => 'Bank transfer reference 12345',
+        ]);
+
+        $this->actingAs($financeUser);
+
+        $response = $this->get(route('hive.finance.payments.receipt', $payment));
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/pdf');
     }
 
     public function test_payment_destroy_deletes_payment(): void

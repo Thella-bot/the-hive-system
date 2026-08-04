@@ -87,10 +87,10 @@ class ApplicationController extends Controller
     public function update(Request $request, Application $application): RedirectResponse
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email',
             'phone' => 'nullable|string',
-            'programme_id' => 'required|exists:programmes,id',
+            'programme_id' => 'nullable|exists:programmes,id',
             'variant_id' => 'nullable|exists:programme_variants,id',
             'status' => 'required|in:pending,approved,rejected',
             'notes' => 'nullable|string',

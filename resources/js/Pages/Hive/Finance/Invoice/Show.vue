@@ -6,9 +6,17 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold">Invoice {{ invoice.invoice_number }}</h1>
-                    <Link :href="route('hive.finance.invoices.index')" class="btn btn-secondary">
-                        Back to Invoices
-                    </Link>
+                    <div class="flex gap-2">
+                        <Link :href="route('hive.finance.invoices.edit', invoice.id)" class="inline-flex items-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Edit
+                        </Link>
+                        <Link :href="route('hive.finance.payments.create') + '?invoice_id=' + invoice.id" class="inline-flex items-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">
+                            Record Payment
+                        </Link>
+                        <Link :href="route('hive.finance.invoices.index')" class="inline-flex items-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Back to Invoices
+                        </Link>
+                    </div>
                 </div>
 
                 <!-- Invoice Info -->
@@ -59,6 +67,14 @@
                                 <td class="border p-2 text-right">M {{ payment.amount }}</td>
                                 <td class="border p-2">{{ payment.payment_method }}</td>
                                 <td class="border p-2 capitalize">{{ payment.status }}</td>
+                                <td class="border p-2">
+                                    <a
+                                        :href="route('hive.finance.payments.receipt', payment.id)"
+                                        class="inline-flex items-center rounded-md bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"
+                                    >
+                                        Generate Receipt
+                                    </a>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

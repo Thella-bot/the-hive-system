@@ -281,6 +281,17 @@ class User extends Authenticatable
         return 'unknown';
     }
 
+    public function getFullNameAttribute(): string
+    {
+        return $this->name;
+    }
+
+    public function getFirstNameAttribute(): string
+    {
+        $parts = explode(' ', $this->name);
+        return $parts[0] ?? $this->name;
+    }
+
     public function toSearchableArray(): array
     {
         return [

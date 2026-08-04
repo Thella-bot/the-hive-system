@@ -16,7 +16,7 @@ class EnrollmentControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.enrollment.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_enrollment_index_returns_success_for_student(): void

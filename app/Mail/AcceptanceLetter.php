@@ -53,9 +53,19 @@ class AcceptanceLetter extends Mailable
 
         return [
             Attachment::fromData(function () {
-                return Pdf::loadView('pdf.acceptance-letter', [
+                $registrar = \App\Models\User::role('registrar')->first();
+                $student = $this->student;
+                $student->loadMissing('profile');
+
+                return Pdf::loadView('pdf.documents.acceptance', [
                     'application' => $this->application,
                     'student' => $this->student,
+                    'programme' => $this->application->programme,
+                    'enrollment' => $this->application,
+                    'intake_date' => $this->application->admitted_at ?? now(),
+                    'deadline' => now()->addDays(14),
+                    'registration_fee' => 500.00,
+                    'registrar_name' => $registrar ? $registrar->name : 'Registrar',
                 ])->output();
             }, 'hbci-acceptance-letter-' . $this->application->id . '.pdf')
                 ->withMime('application/pdf'),

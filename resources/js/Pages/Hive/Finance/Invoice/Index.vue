@@ -5,6 +5,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import { DocumentTextIcon, PlusIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   invoices: { type: Object, required: true },
@@ -42,11 +43,18 @@ const statusClass = (status) => {
 <template>
   <HiveLayout title="Invoices" description="Manage student invoices and billing">
     <template #header-actions>
-      <Link :href="route('hive.finance.invoices.generate')"
-        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-        <DocumentTextIcon class="w-4 h-4" />
-        Generate Invoices
-      </Link>
+      <div class="flex flex-wrap gap-2">
+        <Link :href="route('hive.finance.invoices.create')"
+          class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          <PlusIcon class="w-4 h-4" />
+          Create Invoice
+        </Link>
+        <Link :href="route('hive.finance.invoices.generate')"
+          class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          <DocumentTextIcon class="w-4 h-4" />
+          Generate Invoices
+        </Link>
+      </div>
     </template>
 
     <div class="mb-5 flex flex-wrap gap-3 items-center justify-between">

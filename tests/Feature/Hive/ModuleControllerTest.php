@@ -17,7 +17,7 @@ class ModuleControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.modules.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_module_index_returns_success_for_academic_director(): void

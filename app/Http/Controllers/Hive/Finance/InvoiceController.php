@@ -45,6 +45,41 @@ class InvoiceController extends Controller
         ]);
     }
 
+    public function create(Request $request): Response
+    {
+        $users = User::with('profile')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+
+        $programmes = Programme::with('department')->orderBy('name')->get(['id', 'name', 'department_id']);
+
+        return Inertia::render('Hive/Finance/Invoice/Create', [
+            'users' => $users,
+            'programmes' => $programmes,
+            'types' => ['registration', 'tuition', 'uniform', 'tools', 'resource', 'examination', 'other'],
+            'statuses' => ['pending', 'partial', 'paid', 'overdue', 'cancelled'],
+        ]);
+    }
+
+    public function edit(Invoice $invoice): Response
+    {
+        $invoice->load(['user', 'programme']);
+
+        $users = User::with('profile')
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+
+        $programmes = Programme::with('department')->orderBy('name')->get(['id', 'name', 'department_id']);
+
+        return Inertia::render('Hive/Finance/Invoice/Edit', [
+            'invoice' => $invoice,
+            'users' => $users,
+            'programmes' => $programmes,
+            'types' => ['registration', 'tuition', 'uniform', 'tools', 'resource', 'examination', 'other'],
+            'statuses' => ['pending', 'partial', 'paid', 'overdue', 'cancelled'],
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -61,7 +96,7 @@ class InvoiceController extends Controller
 
         Invoice::create($data);
 
-        return back()->with('success', 'Invoice created successfully.');
+        return redirect()->route('hive.finance.invoices.index')->with('success', 'Invoice created successfully.');
     }
 
     public function update(Request $request, Invoice $invoice): RedirectResponse
@@ -77,7 +112,7 @@ class InvoiceController extends Controller
 
         $invoice->update($data);
 
-        return back()->with('success', 'Invoice updated successfully.');
+        return redirect()->route('hive.finance.invoices.show', $invoice)->with('success', 'Invoice updated successfully.');
     }
 
     public function show(Invoice $invoice): Response

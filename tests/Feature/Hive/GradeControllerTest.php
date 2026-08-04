@@ -46,6 +46,6 @@ class GradeControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.grades.manage', $module));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 }

@@ -19,7 +19,7 @@ class BudgetControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.finance.budgets.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_budget_index_returns_success(): void

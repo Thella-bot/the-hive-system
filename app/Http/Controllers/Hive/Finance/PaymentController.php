@@ -18,7 +18,8 @@ class PaymentController extends Controller
 
     public function index(Request $request): Response
     {
-        $query = Payment::with(['user', 'invoice', 'recorder'])
+        $query = Payment::query()
+            ->with(['user', 'invoice', 'recorder'])
             ->orderByDesc('created_at');
 
         if ($request->has('status') && $request->status) {
@@ -48,6 +49,35 @@ class PaymentController extends Controller
             'filters' => $this->getFilterInputs($request, ['status', 'payment_method', 'search', 'date_from', 'date_to']),
             'statuses' => ['pending', 'completed', 'failed', 'refunded'],
             'methods' => ['cash', 'bank_transfer', 'mobile_money', 'card', 'other'],
+        ]);
+    }
+
+    public function create(Request $request): Response
+    {
+        $invoices = Invoice::with(['user', 'programme'])
+            ->whereNotIn('status', ['paid', 'cancelled'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return Inertia::render('Hive/Finance/Payment/Create', [
+            'invoices' => $invoices,
+            'methods' => ['cash', 'bank_transfer', 'mobile_money', 'card', 'other'],
+            'statuses' => ['pending', 'completed', 'failed', 'refunded'],
+            'selectedInvoiceId' => $request->query('invoice_id'),
+        ]);
+    }
+
+    public function edit(Payment $payment): Response
+    {
+        $payment->load(['user', 'invoice']);
+
+        $invoices = Invoice::with('user')->orderBy('created_at', 'desc')->get(['id', 'invoice_number', 'user_id', 'amount', 'status']);
+
+        return Inertia::render('Hive/Finance/Payment/Edit', [
+            'payment' => $payment,
+            'invoices' => $invoices,
+            'methods' => ['cash', 'bank_transfer', 'mobile_money', 'card', 'other'],
+            'statuses' => ['pending', 'completed', 'failed', 'refunded'],
         ]);
     }
 
@@ -81,7 +111,7 @@ class PaymentController extends Controller
             $invoice->update(['status' => 'partial']);
         }
 
-        return back()->with('success', 'Payment recorded successfully.');
+        return redirect()->route('hive.finance.payments.index')->with('success', 'Payment recorded successfully.');
     }
 
     public function update(Request $request, Payment $payment): RedirectResponse
@@ -170,16 +200,16 @@ class PaymentController extends Controller
         };
     }
 
-    private function numberToWords($number)
+    private function numberToWords(int|float $number): string
     {
-        // Simple placeholder – use a proper converter in production
-        $words = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
         $amount = number_format($number, 2);
         $parts = explode('.', $amount);
         $dollars = (int) $parts[0];
         $cents = (int) $parts[1];
 
-        if ($dollars == 0 && $cents == 0) return 'Zero';
+        if ($dollars === 0 && $cents === 0) {
+            return 'Zero';
+        }
 
         $result = '';
         if ($dollars > 0) {
@@ -188,19 +218,29 @@ class PaymentController extends Controller
         if ($cents > 0) {
             $result .= ' and ' . $this->convertNumberToWords($cents) . ' cents';
         }
+
         return trim($result);
     }
 
-    private function convertNumberToWords($num)
+    private function convertNumberToWords(int $num): string
     {
         $ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
         $tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
         $teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 
-        if ($num < 10) return $ones[$num];
-        if ($num < 20) return $teens[$num - 10];
-        if ($num < 100) return $tens[floor($num / 10)] . ($num % 10 ? ' ' . $ones[$num % 10] : '');
-        if ($num < 1000) return $ones[floor($num / 100)] . ' Hundred' . ($num % 100 ? ' ' . $this->convertNumberToWords($num % 100) : '');
+        if ($num < 10) {
+            return $ones[$num];
+        }
+        if ($num < 20) {
+            return $teens[$num - 10];
+        }
+        if ($num < 100) {
+            return $tens[(int) floor($num / 10)] . ($num % 10 ? ' ' . $ones[$num % 10] : '');
+        }
+        if ($num < 1000) {
+            return $ones[(int) floor($num / 100)] . ' Hundred' . ($num % 100 ? ' ' . $this->convertNumberToWords($num % 100) : '');
+        }
+
         return 'Number too large';
     }
 

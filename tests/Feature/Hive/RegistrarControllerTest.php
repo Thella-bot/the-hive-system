@@ -16,7 +16,7 @@ class RegistrarControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.registrar.registrations.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_registrar_registrations_index_returns_success(): void
@@ -40,7 +40,7 @@ class RegistrarControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.registrar.enrollments.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_registrar_enrollments_index_returns_success(): void

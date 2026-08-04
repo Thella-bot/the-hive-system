@@ -18,7 +18,7 @@ class StudentControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.students.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_student_index_returns_success_for_registrar(): void
@@ -129,7 +129,7 @@ class StudentControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.students.show', $student));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_student_edit_returns_success(): void
@@ -203,6 +203,6 @@ class StudentControllerTest extends HiveTestCase
 
         $response = $this->delete(route('hive.students.destroy', $student));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 }

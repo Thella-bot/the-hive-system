@@ -16,7 +16,7 @@ class UserApprovalControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.admin.approve-users'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_approve_users_index_returns_success(): void

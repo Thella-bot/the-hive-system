@@ -20,7 +20,7 @@ class ExpenseControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.finance.expenses.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_expense_index_returns_success(): void

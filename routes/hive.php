@@ -102,6 +102,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
 
         // Applications
         Route::resource('applications', ApplicationController::class)->except(['destroy']);
+        Route::delete('applications/{application}', [ApplicationController::class, 'destroy'])->name('applications.destroy');
         Route::post('applications/{application}/complete-registration', [ApplicationController::class, 'completeRegistration'])
             ->name('applications.complete-registration');
         Route::get('applications/{application}/generate-acceptance', [ApplicationController::class, 'generateAcceptance'])

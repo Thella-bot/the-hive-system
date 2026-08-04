@@ -2,7 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Models\Department;
+use App\Models\Programme;
 use App\Models\User;
+use App\Services\IdGenerator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,13 +62,27 @@ class ImportUsersJob implements ShouldQueue
                 foreach ($rows as $row) {
                      if (empty(array_filter($row))) { continue; }
 
-                    if (count($row) < 4) {
+                    if (count($row) < 3) {
                         $this->failureCount++;
-                        $this->errors[] = 'Row ' . (array_search($row, $rows) + 2) . ': Expected at least 4 columns (first_name, last_name, email, role).';
+                        $this->errors[] = 'Row ' . (array_search($row, $rows) + 2) . ': Expected at least 3 columns (full_name, email, role).';
                         continue;
                     }
 
-                    [$firstName, $lastName, $email, $role] = $row;
+                    [$fullName, $email, $role] = $row;
+
+                    $nameParts = explode(' ', trim($fullName), 2);
+                    $firstName = $nameParts[0] ?? '';
+                    $lastName = $nameParts[1] ?? '';
+
+                    $dateOfBirth = $row[3] ?? null;
+                    $phone = $row[4] ?? null;
+                    $address = $row[5] ?? null;
+                    $emergencyContactName = $row[6] ?? null;
+                    $emergencyContactPhone = $row[7] ?? null;
+                    $programmeName = $row[8] ?? null;
+                    $yearOfStudy = $row[9] ?? null;
+                    $intakeDate = $row[10] ?? null;
+                    $existingStudentNumber = $row[11] ?? null;
 
                     $password = Str::random(10);
                     $user = User::create([
@@ -76,6 +93,10 @@ class ImportUsersJob implements ShouldQueue
                         'approved_at' => now(),
                     ]);
                     $user->assignRole($role);
+
+                    if ($role === 'student') {
+                        $this->createStudentProfile($user, $dateOfBirth, $phone, $address, $emergencyContactName, $emergencyContactPhone, $programmeName, $yearOfStudy, $intakeDate, $existingStudentNumber);
+                    }
 
                     SendWelcomeEmail::dispatch($user, $password);
                     $this->successCount++;
@@ -112,6 +133,51 @@ class ImportUsersJob implements ShouldQueue
             'message' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
         ]);
+    }
+
+    private function createStudentProfile(User $user, ?string $dateOfBirth, ?string $phone, ?string $address, ?string $emergencyContactName, ?string $emergencyContactPhone, ?string $programmeName, ?string $yearOfStudy, ?string $intakeDate, ?string $existingStudentNumber): void
+    {
+        $departmentId = null;
+        $enrollmentDate = null;
+        $enrollmentYear = null;
+
+        if (!empty($intakeDate)) {
+            $enrollmentDate = $intakeDate;
+            $enrollmentYear = (int) date('Y', strtotime($enrollmentDate));
+        }
+
+        if (!empty($programmeName)) {
+            $programme = Programme::where('name', $programmeName)->first();
+            if ($programme) {
+                $departmentId = $programme->department_id;
+                $user->programme()->associate($programme);
+                $user->save();
+            }
+        }
+
+        if (!$departmentId) {
+            $defaultDept = Department::active()->first();
+            if ($defaultDept) {
+                $departmentId = $defaultDept->id;
+            }
+        }
+
+        $profileData = [
+            'date_of_birth' => $dateOfBirth,
+            'phone' => $phone,
+            'address' => $address,
+            'emergency_contact_name' => $emergencyContactName,
+            'emergency_contact_phone' => $emergencyContactPhone,
+            'enrollment_date' => $enrollmentDate,
+        ];
+
+        if (!empty($existingStudentNumber)) {
+            $profileData['student_number'] = $existingStudentNumber;
+        } elseif ($departmentId && $enrollmentYear) {
+            $profileData['student_number'] = IdGenerator::generateStudentId($departmentId, $enrollmentYear);
+        }
+
+        $user->profile()->create($profileData);
     }
 
     private function validateRows(array $rows): void

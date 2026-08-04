@@ -7,6 +7,9 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold">Payment {{ payment.payment_reference }}</h1>
                     <div class="flex gap-2">
+                        <Link :href="route('hive.finance.payments.edit', payment.id)" class="inline-flex items-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Edit
+                        </Link>
                         <a :href="route('hive.finance.payments.receipt', payment.id)" class="inline-flex items-center rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">
                             Download Receipt
                         </a>

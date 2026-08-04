@@ -5,6 +5,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import { PlusIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   payments: { type: Object, required: true },
@@ -44,6 +45,14 @@ const methodLabel = (method) => {
 
 <template>
   <HiveLayout title="Payments" description="Track and manage student payments">
+    <template #header-actions>
+      <Link :href="route('hive.finance.payments.create')"
+        class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+        <PlusIcon class="w-4 h-4" />
+        Record Payment
+      </Link>
+    </template>
+
     <div class="mb-5 flex flex-wrap gap-3 items-center justify-between">
       <div class="flex flex-wrap gap-3 items-center">
         <div class="max-w-xs">
@@ -116,6 +125,12 @@ const methodLabel = (method) => {
                 <Link :href="route('hive.finance.payments.show', payment.id)" class="p-1 text-gray-500 hover:text-amber-600">
                   <EyeIcon class="w-5 h-5" />
                 </Link>
+                <a
+                  :href="route('hive.finance.payments.receipt', payment.id)"
+                  class="inline-flex items-center rounded-md bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"
+                >
+                  Generate Receipt
+                </a>
               </div>
             </td>
           </tr>

@@ -11,9 +11,9 @@ class IdGenerator
     /**
      * Generate a unique student ID.
      */
-    public static function generateStudentId(int $departmentId): string
+    public static function generateStudentId(int $departmentId, ?int $enrollmentYear = null): string
     {
-        return self::generate('student', $departmentId);
+        return self::generate('student', $departmentId, $enrollmentYear);
     }
 
     /**
@@ -29,12 +29,13 @@ class IdGenerator
      *
      * @param string $type 'student' or 'staff'
      * @param int $departmentId
+     * @param int|null $enrollmentYear Year the student enrolled (uses current year if null)
      * @return string
      */
-    public static function generate(string $type, int $departmentId): string
+    public static function generate(string $type, int $departmentId, ?int $enrollmentYear = null): string
     {
         $prefix = ($type === 'student' ? 'S' : 'E');
-        $year = date('Y');
+        $year = $enrollmentYear ?? date('Y');
         $departmentCode = str_pad($departmentId, 2, '0', STR_PAD_LEFT);
 
         $idPrefix = "{$prefix}{$year}{$departmentCode}";

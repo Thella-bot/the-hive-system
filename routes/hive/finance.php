@@ -21,16 +21,20 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['role:super-admin|finance|hr-manager'])->name('finance.')->prefix('finance')->group(function () {
     // Invoices
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-    Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::get('invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
     Route::get('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
+    Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
     Route::patch('invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
     Route::delete('invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 
     // Payments
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('payments/create', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::get('payments/{payment}/edit', [PaymentController::class, 'edit'])->name('payments.edit');
     Route::get('payments/{payment}/receipt', [PaymentController::class, 'downloadReceipt'])->name('payments.receipt');
     Route::patch('payments/{payment}', [PaymentController::class, 'update'])->name('payments.update');
     Route::delete('payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');

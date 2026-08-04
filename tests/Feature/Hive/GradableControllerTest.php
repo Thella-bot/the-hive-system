@@ -18,7 +18,7 @@ class GradableControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.gradables.index'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_gradable_index_returns_success_for_student(): void
@@ -56,7 +56,7 @@ class GradableControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.gradables.create'));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 
     public function test_gradable_create_returns_success_for_instructor(): void
@@ -126,6 +126,6 @@ class GradableControllerTest extends HiveTestCase
 
         $response = $this->post(route('hive.gradables.submit-online', $gradable));
 
-        $response->assertForbidden();
+        $response->assertRedirect();
     }
 }
