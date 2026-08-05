@@ -11,6 +11,13 @@
     </template>
 
     <div class="max-w-2xl">
+      <div v-if="Object.keys(form.errors).length" class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
+        <p class="font-medium mb-1">Please fix the following before saving:</p>
+        <ul class="list-disc list-inside space-y-0.5">
+          <li v-for="(message, field) in form.errors" :key="field">{{ message }}</li>
+        </ul>
+      </div>
+
       <form @submit.prevent="submit" class="space-y-5">
 
         <!-- Account -->

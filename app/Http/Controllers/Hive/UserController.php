@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
@@ -219,7 +220,10 @@ class UserController extends Controller
             'hire_date'       => 'nullable|date',
             'cohort_id'                  => 'nullable|exists:cohorts,id',
             'enrollment_date'            => 'nullable|date',
-            'expected_graduation_date'   => 'nullable|date|after:enrollment_date',
+            'expected_graduation_date'   => ['nullable', 'date', Rule::when(
+                $request->filled('enrollment_date'),
+                ['after:enrollment_date']
+            )],
             'graduation_date' => 'nullable|date',
             'status' => 'nullable|string',
             'dietary_restrictions'       => 'nullable|array',

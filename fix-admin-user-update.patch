@@ -1,0 +1,42 @@
+diff --git a/app/Http/Controllers/Hive/UserController.php b/app/Http/Controllers/Hive/UserController.php
+index 45111ed..c130711 100644
+--- a/app/Http/Controllers/Hive/UserController.php
++++ b/app/Http/Controllers/Hive/UserController.php
+@@ -11,6 +11,7 @@
+ use Illuminate\Http\RedirectResponse;
+ use Illuminate\Http\Request;
+ use Illuminate\Support\Facades\Hash;
++use Illuminate\Validation\Rule;
+ use Inertia\Inertia;
+ use Inertia\Response;
+ use Spatie\Permission\Models\Role;
+@@ -212,7 +213,10 @@ public function update(Request $request, User $user): RedirectResponse
+             'hire_date'       => 'nullable|date',
+             'cohort_id'                  => 'nullable|exists:cohorts,id',
+             'enrollment_date'            => 'nullable|date',
+-            'expected_graduation_date'   => 'nullable|date|after:enrollment_date',
++            'expected_graduation_date'   => ['nullable', 'date', Rule::when(
++                $request->filled('enrollment_date'),
++                ['after:enrollment_date']
++            )],
+             'graduation_date' => 'nullable|date',
+             'status' => 'nullable|string',
+             'dietary_restrictions'       => 'nullable|array',
+diff --git a/resources/js/Pages/Hive/Users/Edit.vue b/resources/js/Pages/Hive/Users/Edit.vue
+index 07375fc..69cc1ff 100644
+--- a/resources/js/Pages/Hive/Users/Edit.vue
++++ b/resources/js/Pages/Hive/Users/Edit.vue
+@@ -11,6 +11,13 @@
+     </template>
+ 
+     <div class="max-w-2xl">
++      <div v-if="Object.keys(form.errors).length" class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
++        <p class="font-medium mb-1">Please fix the following before saving:</p>
++        <ul class="list-disc list-inside space-y-0.5">
++          <li v-for="(message, field) in form.errors" :key="field">{{ message }}</li>
++        </ul>
++      </div>
++
+       <form @submit.prevent="submit" class="space-y-5">
+ 
+         <!-- Account -->
