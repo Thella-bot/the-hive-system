@@ -37,10 +37,10 @@ class StudentIdController extends Controller
         $target = $this->resolveTarget($request, $student);
 
         $pdf = Pdf::loadView('pdf.student-id-card', [
-            'card' => $this->cardData($target),
+            'card' => $this->pdfCardData($target),
         ])->setPaper([0, 0, 242, 153]); // ~CR80 card size in points (3.375in x 2.125in landscape)
 
-        return $pdf->download('Student_ID_'.($target->profile?->student_number ?? $target->id).'.pdf');
+        return $pdf->download('Student_ID_' . ($target->profile?->student_number ?? $target->id) . '.pdf');
     }
 
     /**
@@ -72,13 +72,26 @@ class StudentIdController extends Controller
             'programme' => $target->programme?->name,
             'cohort' => $profile?->cohort?->name,
             'year' => $profile?->enrollment_date?->format('Y') ?? now()->format('Y'),
-            // dompdf renders from the filesystem, not over HTTP - resolving to a
-            // real local path here (instead of the public URL used on screen)
-            // is what makes the photo actually show up in the PDF.
-            'photo_path' => $this->resolvePhotoPath($target),
+            // A browser-loadable URL for the on-screen preview. Null when the
+            // student hasn't uploaded a custom photo - the UI falls back to
+            // an initials avatar rather than the generic ui-avatars.com image.
+            'photo_url' => $target->profile_photo_path ? $target->profile_photo_url : null,
             'initials' => $this->initials($target->name),
-            'qr_data' => $profile?->student_number ?? 'HBCI-'.$target->id,
+            'qr_data' => $profile?->student_number ?? 'HBCI-' . $target->id,
         ];
+    }
+
+    /**
+     * Same as cardData(), plus a filesystem path dompdf can actually read.
+     * dompdf renders from disk, not over HTTP, and has remote image fetching
+     * disabled by default, so the browser-facing photo_url above won't
+     * render inside the PDF - this resolves the real local file instead.
+     */
+    private function pdfCardData(User $target): array
+    {
+        return array_merge($this->cardData($target), [
+            'photo_path' => $this->resolvePhotoPath($target),
+        ]);
     }
 
     /**
@@ -103,7 +116,7 @@ class StudentIdController extends Controller
     private function initials(string $name): string
     {
         $parts = preg_split('/\s+/', trim($name));
-        $initials = collect($parts)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->take(2)->implode('');
+        $initials = collect($parts)->map(fn($p) => mb_strtoupper(mb_substr($p, 0, 1)))->take(2)->implode('');
 
         return $initials ?: '?';
     }

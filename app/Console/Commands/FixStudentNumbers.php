@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Models\Profile;
+use App\Models\User;
+use App\Services\IdGenerator;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -11,7 +12,7 @@ class FixStudentNumbers extends Command
 {
     protected $signature = 'students:fix-numbers {--dry-run : Show what would be fixed without making changes}';
 
-    protected $description = 'Fix malformed student numbers to use proper format (SYYYYDDDNNNN)';
+    protected $description = 'Fix malformed student numbers to use proper format (SYYYYDDNN)';
 
     public function handle(): int
     {
@@ -30,9 +31,6 @@ class FixStudentNumbers extends Command
             $this->info('No malformed student numbers found.');
             return Command::SUCCESS;
         }
-
-        // Determine the next available sequential number
-        $nextNumber = $this->getNextAvailableNumber();
 
         $fixes = [];
 
@@ -54,9 +52,13 @@ class FixStudentNumbers extends Command
             ];
         }
 
-        // Assign sequential IDs to all fixes
+        // Assign properly formatted IDs using IdGenerator
         foreach ($fixes as &$fix) {
-            $fix['new'] = 'S' . date('Y') . '05' . str_pad($nextNumber++, 4, '0', STR_PAD_LEFT);
+            $user = $fix['type'] === 'user' ? User::find($fix['id']) : null;
+            $profile = $fix['type'] === 'profile' ? Profile::find($fix['id']) : null;
+
+            $departmentId = $profile?->department_id ?? 0;
+            $fix['new'] = IdGenerator::generateStudentId($departmentId);
         }
         unset($fix);
 
@@ -83,30 +85,5 @@ class FixStudentNumbers extends Command
 
         $this->info('Fixed ' . count($fixes) . ' student numbers.');
         return Command::SUCCESS;
-    }
-
-    private function getNextAvailableNumber(): int
-    {
-        $idPrefix = 'S' . date('Y') . '05';
-
-        $latestUser = User::where('student_number', 'like', "{$idPrefix}%")
-            ->orderBy('student_number', 'desc')
-            ->first();
-
-        $latestProfile = Profile::where('student_number', 'like', "{$idPrefix}%")
-            ->orderBy('student_number', 'desc')
-            ->first();
-
-        $nextNumber = 1;
-
-        if ($latestUser) {
-            $nextNumber = max($nextNumber, (int) substr($latestUser->student_number, -4) + 1);
-        }
-
-        if ($latestProfile) {
-            $nextNumber = max($nextNumber, (int) substr($latestProfile->student_number, -4) + 1);
-        }
-
-        return $nextNumber;
     }
 }

@@ -139,11 +139,9 @@ class ImportUsersJob implements ShouldQueue
     {
         $departmentId = null;
         $enrollmentDate = null;
-        $enrollmentYear = null;
 
         if (!empty($intakeDate)) {
             $enrollmentDate = $intakeDate;
-            $enrollmentYear = (int) date('Y', strtotime($enrollmentDate));
         }
 
         if (!empty($programmeName)) {
@@ -173,8 +171,8 @@ class ImportUsersJob implements ShouldQueue
 
         if (!empty($existingStudentNumber)) {
             $profileData['student_number'] = $existingStudentNumber;
-        } elseif ($departmentId && $enrollmentYear) {
-            $profileData['student_number'] = IdGenerator::generateStudentId($departmentId, $enrollmentYear);
+        } elseif ($departmentId) {
+            $profileData['student_number'] = IdGenerator::generateStudentId($departmentId);
         }
 
         $user->profile()->create($profileData);

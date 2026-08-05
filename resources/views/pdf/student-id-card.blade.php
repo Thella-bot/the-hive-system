@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Student ID Card</title>
     <style>
-        @page { margin: 0; }
+        @page {
+            margin: 0;
+        }
+
         body {
             font-family: DejaVu Sans, sans-serif;
             margin: 0;
             width: 242pt;
             height: 153pt;
         }
+
         .card {
             position: relative;
             width: 242pt;
@@ -29,6 +34,7 @@
             background: #FBB040;
             border-radius: 50%;
         }
+
         .blob-bottom-left {
             position: absolute;
             bottom: -68pt;
@@ -38,6 +44,7 @@
             background: #FBB040;
             border-radius: 50%;
         }
+
         .accent-black {
             position: absolute;
             bottom: -6pt;
@@ -54,9 +61,19 @@
             padding: 9pt 13pt;
         }
 
-        .top-row { width: 100%; border-collapse: collapse; }
-        .top-row td { padding: 0; vertical-align: middle; }
-        .logo { height: 20pt; }
+        .top-row {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .top-row td {
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        .logo {
+            height: 20pt;
+        }
 
         .title-badge {
             display: inline-block;
@@ -68,10 +85,22 @@
             border-radius: 12pt;
         }
 
-        .layout { width: 100%; border-collapse: collapse; margin-top: 7pt; }
-        .layout td { padding: 0; vertical-align: middle; }
+        .layout {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 7pt;
+        }
 
-        .photo-cell { width: 62pt; padding-right: 10pt; }
+        .layout td {
+            padding: 0;
+            vertical-align: middle;
+        }
+
+        .photo-cell {
+            width: 62pt;
+            padding-right: 10pt;
+        }
+
         .photo-frame {
             width: 62pt;
             height: 84pt;
@@ -79,7 +108,11 @@
             border-radius: 3pt;
             background: #FBB040;
         }
-        .photo-frame img { width: 62pt; }
+
+        .photo-frame img {
+            width: 62pt;
+        }
+
         .photo-placeholder {
             width: 62pt;
             height: 84pt;
@@ -90,13 +123,34 @@
             font-size: 20pt;
         }
 
-        table.fields { width: 100%; border-collapse: collapse; }
-        table.fields td { padding: 2.5pt 0; font-size: 8.5pt; vertical-align: top; }
-        .field-label { color: #111111; font-weight: bold; width: 62pt; }
-        .field-value { color: #111111; font-weight: bold; }
-        .course-value { text-transform: uppercase; }
+        table.fields {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.fields td {
+            padding: 2.5pt 0;
+            font-size: 8.5pt;
+            vertical-align: top;
+        }
+
+        .field-label {
+            color: #111111;
+            font-weight: bold;
+            width: 62pt;
+        }
+
+        .field-value {
+            color: #111111;
+            font-weight: bold;
+        }
+
+        .course-value {
+            text-transform: uppercase;
+        }
     </style>
 </head>
+
 <body>
     <div class="card">
         <div class="blob-top-right"></div>
@@ -120,9 +174,9 @@
                     <td class="photo-cell">
                         <div class="photo-frame">
                             @if (!empty($card['photo_path']))
-                                <img src="{{ $card['photo_path'] }}">
+                            <img src="{{ $card['photo_path'] }}">
                             @else
-                                <div class="photo-placeholder">{{ $card['initials'] ?? '?' }}</div>
+                            <div class="photo-placeholder">{{ $card['initials'] ?? '?' }}</div>
                             @endif
                         </div>
                     </td>
@@ -141,7 +195,7 @@
                                 <td class="field-value">{{ $card['year'] }}</td>
                             </tr>
                             <tr>
-                                <td class="field-label">COURSE:</td>
+                                <td class="field-label">PROGRAMME:</td>
                                 <td class="field-value course-value">{{ $card['programme'] ?? 'N/A' }}</td>
                             </tr>
                         </table>
@@ -151,4 +205,5 @@
         </div>
     </div>
 </body>
+
 </html>
