@@ -20,6 +20,7 @@ class DepartmentSeeder extends Seeder
             ['name' => 'Food Safety', 'slug' => 'food-safety',],
             ['name' => 'Global Cuisines', 'slug' => 'global-cuisines',],
             ['name' => 'Contemporary Gastronomy', 'slug' => 'contemporary-gastronomy',],
+            ['name' => 'Administration', 'slug' => 'administration',],
         ];
 
         foreach ($departments as $department) {

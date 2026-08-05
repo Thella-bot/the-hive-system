@@ -49,10 +49,15 @@ class UpdateStudent
         Validator::make($input, [
             'email' => ['nullable', 'email', Rule::unique('users')->ignore($student->id)],
             'programme_id' => ['nullable', 'exists:programmes,id'],
+            'student_number' => ['nullable', 'string', Rule::unique('users')->ignore($student->id)],
             'cohort_id' => ['nullable', 'exists:cohorts,id'],
             'status' => ['nullable', Rule::in(['active', 'graduated', 'on_leave', 'suspended', 'withdrawn'])],
             'enrollment_date' => ['nullable', 'date'],
             'expected_graduation_date' => ['nullable', 'date'],
+            'first_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
         ])->validate();
     }
 
@@ -65,8 +70,16 @@ class UpdateStudent
     {
         $userData = ['name' => $input['name']];
 
-        if ($isAdmin && isset($input['email']) && !empty($input['email'])) {
-            $userData['email'] = $input['email'];
+        if ($isAdmin) {
+            if (isset($input['email']) && !empty($input['email'])) {
+                $userData['email'] = $input['email'];
+            }
+            if (isset($input['student_number'])) {
+                $userData['student_number'] = $input['student_number'];
+            }
+            if (isset($input['programme_id'])) {
+                $userData['programme_id'] = $input['programme_id'];
+            }
         }
 
         if (!empty($input['password'])) {
@@ -98,6 +111,18 @@ class UpdateStudent
         }
         if (isset($input['status'])) {
             $profileData['status'] = $input['status'];
+        }
+        if (isset($input['first_name'])) {
+            $profileData['first_name'] = $input['first_name'];
+        }
+        if (isset($input['last_name'])) {
+            $profileData['last_name'] = $input['last_name'];
+        }
+        if (isset($input['phone'])) {
+            $profileData['phone'] = $input['phone'];
+        }
+        if (isset($input['address'])) {
+            $profileData['address'] = $input['address'];
         }
 
         $dates = $this->calculateEnrollmentAndGraduationDates($student, $input);

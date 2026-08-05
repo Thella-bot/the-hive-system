@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cohort;
 use App\Models\Department;
 use App\Models\Profile;
+use App\Models\Programme;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -183,17 +184,21 @@ class UserController extends Controller
             'roles'       => Role::orderBy('name')->get(['id', 'name']),
             'departments' => Department::active()->select('id', 'name')->get(),
             'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
+            'programmes'  => Programme::orderBy('name')->get(['id', 'name']),
             'isAdmin' => $isAdmin,
         ]);
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        $data = $request->validate([
+         $data = $request->validate([
             'name'     => 'required|string|max:255',
-            // Email is read-only - removed from validation to prevent changes
+            'email'    => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'role'     => 'required|exists:roles,name',
+            'student_number' => 'nullable|string|unique:users,student_number,' . $user->id,
+            'programme_id' => 'nullable|exists:programmes,id',
+            'approved_at' => 'nullable|date',
 
             // Profile fields
             'first_name' => 'nullable|string|max:255',
@@ -203,8 +208,10 @@ class UserController extends Controller
             'address' => 'nullable|string|max:500',
             'emergency_contact_name' => 'nullable|string|max:255',
             'emergency_contact_phone' => 'nullable|string|max:20',
+            'emergency_contact_relationship' => 'nullable|string|max:100',
             'annual_leave_days' => 'nullable|integer',
             'leave_balance' => 'nullable|integer',
+            'employee_number' => 'nullable|string|unique:profiles,employee_number,' . ($user->profile?->id ?? 0),
             'department_id'   => 'nullable|exists:departments,id',
             'designation'     => 'nullable|string|max:255',
             'specialization'  => 'nullable|string|max:255',
@@ -216,21 +223,20 @@ class UserController extends Controller
             'graduation_date' => 'nullable|date',
             'status' => 'nullable|string',
             'dietary_restrictions'       => 'nullable|array',
-            'emergency_contact_relationship' => 'nullable|string|max:100',
         ]);
 
         $user->update(array_filter([
             'name'     => $data['name'],
-            // Email is read-only - never allow changes
+            'email'    => $data['email'],
             'password' => isset($data['password']) ? Hash::make($data['password']) : null,
+            'student_number' => $data['student_number'] ?? null,
+            'programme_id' => $data['programme_id'] ?? null,
+            'approved_at' => $data['approved_at'] ?? null,
         ]));
 
         $user->syncRoles([$data['role']]);
 
-        // Preserve existing numbers, never allow edits via this endpoint
-        $existingProfile = $user->profile;
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
-        unset($profileData['employee_number'], $profileData['student_number']);
         $user->profile()->updateOrCreate([], $profileData);
 
         return redirect()->route('hive.users.show', $user)

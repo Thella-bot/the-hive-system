@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             ProgrammeSeeder::class,
             ModuleSeeder::class,
-            ShortCourseSeeder::class,
             ExpenseCategorySeeder::class,
             BookCategorySeeder::class,
         ]);

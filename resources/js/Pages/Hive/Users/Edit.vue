@@ -27,12 +27,18 @@
                 <p v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</p>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
-                  {{ form.email }}
-                </div>
-              </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+            <div v-if="isAdmin" class="w-full">
+              <input v-model="form.email" type="email"
+                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
+                :class="{ 'border-red-400': form.errors.email }" />
+              <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
+            </div>
+            <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+              {{ form.email }}
+            </div>
+          </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
@@ -58,6 +64,12 @@
                 <input v-model="form.password_confirmation" type="password"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
               </div>
+
+              <div v-if="isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Approved At</label>
+                <input v-model="form.approved_at" type="date"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
             </div>
           </div>
         </div>
@@ -70,7 +82,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Employee Number</label>
-                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                <div v-if="isAdmin">
+                  <input v-model="form.employee_number" type="text"
+                    class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+                </div>
+                <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
                     {{ form.employee_number ?? '— Not assigned —' }}
                 </div>
               </div>
@@ -98,6 +114,26 @@
                 <input v-model="form.specialization" type="text"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+                <input v-model="form.phone" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Emergency Contact Name</label>
+                <input v-model="form.emergency_contact_name" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Emergency Contact Phone</label>
+                <input v-model="form.emergency_contact_phone" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Emergency Contact Relationship</label>
+                <input v-model="form.emergency_contact_relationship" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
             </div>
           </div>
         </div>
@@ -110,9 +146,21 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Student Number</label>
-                <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                <div v-if="isAdmin">
+                  <input v-model="form.student_number" type="text"
+                    class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+                </div>
+                <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
                     {{ form.student_number ?? '— Not assigned —' }}
                 </div>
+              </div>
+              <div v-if="isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Programme</label>
+                <select v-model="form.programme_id"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option :value="null">— None —</option>
+                  <option v-for="p in programmes" :key="p.id" :value="p.id">{{ p.name }}</option>
+                </select>
               </div>
               <div v-if="isAdmin">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Cohort</label>
@@ -155,6 +203,26 @@
                 <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
                   {{ formatDate(form.expected_graduation_date) }}
                 </div>
+              </div>
+              <div v-if="isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+                <input v-model="form.phone" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div v-if="isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Emergency Contact Name</label>
+                <input v-model="form.emergency_contact_name" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div v-if="isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Emergency Contact Phone</label>
+                <input v-model="form.emergency_contact_phone" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div v-if="isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Emergency Contact Relationship</label>
+                <input v-model="form.emergency_contact_relationship" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
               </div>
             </div>
           </div>
@@ -210,6 +278,7 @@ const props = defineProps({
   roles:       { type: Array, default: () => [] },
   departments: { type: Array, default: () => [] },
   cohorts:     { type: Array, default: () => [] },
+  programmes:  { type: Array, default: () => [] },
   isAdmin:     { type: Boolean, default: false },
 })
 
@@ -231,12 +300,15 @@ const form = useForm({
   name: props.managedUser.name, email: props.managedUser.email,
   password: '', password_confirmation: '',
   role: props.managedUser.roles?.[0]?.name ?? '',
+  student_number: props.managedUser.student_number ?? p?.student_number ?? '',
+  programme_id: props.managedUser.programme_id ?? null,
+  approved_at: props.managedUser.approved_at ?? null,
   // Staff
   employee_number: p?.employee_number ?? '', department_id: p?.department_id ?? null,
   designation: p?.designation ?? '', specialization: p?.specialization ?? '',
   phone: p?.phone ?? '', hire_date: p?.hire_date ?? '',
   // Student
-  student_number: p?.student_number ?? '', cohort_id: p?.cohort_id ?? null,
+  cohort_id: p?.cohort_id ?? null,
   enrollment_date: p?.enrollment_date ?? '', expected_graduation_date: p?.expected_graduation_date ?? '',
   status: p?.status ?? 'active',
   emergency_contact_name: p?.emergency_contact_name ?? '',

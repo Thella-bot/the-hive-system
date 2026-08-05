@@ -55,7 +55,12 @@
             <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Student Details</h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              <div v-if="isAdmin">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Student Number</label>
+                <input v-model="form.student_number" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+              <div v-else>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Student Number</label>
                 <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
                   {{ form.student_number ?? '— Not assigned —' }}

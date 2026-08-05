@@ -447,8 +447,6 @@ class ModuleSeeder extends Seeder
             'HM201',
             'HM202',
         ]);
-
-        // Advanced Diploma in Culinary Arts — TODO: no outline supplied
     }
 
     private function attach(string $programmeName, $programmes, array $codes): void
