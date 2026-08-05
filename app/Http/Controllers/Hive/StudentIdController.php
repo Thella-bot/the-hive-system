@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class StudentIdController extends Controller
@@ -71,8 +72,39 @@ class StudentIdController extends Controller
             'programme' => $target->programme?->name,
             'cohort' => $profile?->cohort?->name,
             'year' => $profile?->enrollment_date?->format('Y') ?? now()->format('Y'),
-            'photo' => $target->profile_photo_url,
+            // dompdf renders from the filesystem, not over HTTP - resolving to a
+            // real local path here (instead of the public URL used on screen)
+            // is what makes the photo actually show up in the PDF.
+            'photo_path' => $this->resolvePhotoPath($target),
+            'initials' => $this->initials($target->name),
             'qr_data' => $profile?->student_number ?? 'HBCI-'.$target->id,
         ];
+    }
+
+    /**
+     * Resolve the student's uploaded profile photo to an absolute filesystem
+     * path dompdf can read directly. Returns null when no custom photo has
+     * been uploaded (the default ui-avatars.com URL is a remote image and
+     * isn't suitable for the PDF - the template falls back to initials).
+     */
+    private function resolvePhotoPath(User $target): ?string
+    {
+        if (!$target->profile_photo_path) {
+            return null;
+        }
+
+        $disk = Storage::disk($target->profilePhotoDisk());
+
+        return $disk->exists($target->profile_photo_path)
+            ? $disk->path($target->profile_photo_path)
+            : null;
+    }
+
+    private function initials(string $name): string
+    {
+        $parts = preg_split('/\s+/', trim($name));
+        $initials = collect($parts)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->take(2)->implode('');
+
+        return $initials ?: '?';
     }
 }
