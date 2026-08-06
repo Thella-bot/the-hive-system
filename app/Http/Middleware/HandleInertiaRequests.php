@@ -49,7 +49,8 @@ class HandleInertiaRequests extends Middleware
                     'profile_photo_url' => $user->profile_photo_url,
                     'roles'             => $user->getRoleNames(),
                     'permissions'       => collect($user->getAllPermissions())->pluck('name')->toArray(),
-                    'needs_registration'=> $user->hasRole('student') && $user->needsRegistration(),
+                    'needs_registration' => $user->hasRole('student') && $user->needsRegistration(),
+                    'profile'           => $user->profile?->load('department:id,name', 'cohort:id,name') ?? null,
                 ] : null,
             ],
             'flash' => [

@@ -46,6 +46,19 @@
               class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
           </div>
 
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Start Date</label>
+              <input v-model="form.start_date" type="date"
+                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">End Date</label>
+              <input v-model="form.end_date" type="date"
+                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+            </div>
+          </div>
+
           <label class="flex items-center gap-3 cursor-pointer">
             <div class="relative">
               <input v-model="form.is_active" type="checkbox" class="sr-only" />
@@ -112,6 +125,8 @@ const form = useForm({
   academic_year_id: props.cohort.academic_year_id,
   max_students:     props.cohort.max_students,
   is_active:        props.cohort.is_active,
+  start_date:       props.cohort.start_date ?? null,
+  end_date:         props.cohort.end_date ?? null,
 })
 
 const submit = () => form.put(route('hive.cohorts.update', { cohort: props.cohort.id }))

@@ -11,6 +11,7 @@ use App\Models\Programme;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -22,9 +23,9 @@ class UserController extends Controller
     public function index(Request $request): Response
     {
         $paginatedUsers = User::with(['roles', 'profile'])
-            ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%")
+            ->when($request->search, fn($q) => $q->where('name', 'like', "%{$request->search}%")
                 ->orWhere('email', 'like', "%{$request->search}%"))
-            ->when($request->role, fn ($q) => $q->role($request->role))
+            ->when($request->role, fn($q) => $q->role($request->role))
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -136,7 +137,6 @@ class UserController extends Controller
             'roles',
             'profile.department',
             'profile.cohort.department',
-            'profile',
         ]);
 
         // Load applications (for applicants/students) - check if relationship exists
@@ -192,12 +192,12 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
-         $data = $request->validate([
+        $data = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'role'     => 'required|exists:roles,name',
-            'student_number' => 'nullable|string|unique:users,student_number,' . $user->id,
+            'student_number' => ['nullable', 'string', Rule::unique('users')->ignore($user->id), Rule::unique('profiles')->ignore($user->profile?->id)],
             'programme_id' => 'nullable|exists:programmes,id',
             'approved_at' => 'nullable|date',
 
@@ -229,19 +229,31 @@ class UserController extends Controller
             'dietary_restrictions'       => 'nullable|array',
         ]);
 
-        $user->update(array_filter([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => isset($data['password']) ? Hash::make($data['password']) : null,
+        $userData = [
+            'name'          => $data['name'],
+            'email'         => $data['email'],
             'student_number' => $data['student_number'] ?? null,
-            'programme_id' => $data['programme_id'] ?? null,
-            'approved_at' => $data['approved_at'] ?? null,
-        ]));
+            'programme_id'  => $data['programme_id'] ?? null,
+            'approved_at'   => $data['approved_at'] ?? null,
+        ];
 
-        $user->syncRoles([$data['role']]);
+        if (!empty($data['password'])) {
+            $userData['password'] = Hash::make($data['password']);
+        }
 
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
-        $user->profile()->updateOrCreate([], $profileData);
+
+        DB::transaction(function () use ($user, $userData, $data, $profileData) {
+            $updated = $user->update($userData);
+
+            if (! $updated) {
+                throw new \RuntimeException('Failed to update user account details. Please try again.');
+            }
+
+            $user->syncRoles([$data['role']]);
+
+            $user->profile()->updateOrCreate([], $profileData);
+        });
 
         return redirect()->route('hive.users.show', $user)
             ->with('success', 'User updated successfully.');

@@ -35,10 +35,8 @@
           <p class="text-xs text-gray-500 mt-1">Spots Left</p>
         </div>
         <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
-          <Badge :color="cohort.is_active ? 'green' : 'gray'" class="text-sm">
-            {{ cohort.is_active ? 'Active' : 'Closed' }}
-          </Badge>
-          <p class="text-xs text-gray-500 mt-2">Status</p>
+          <p class="text-sm font-medium text-gray-900">{{ formatDate(cohort.start_date) }} – {{ formatDate(cohort.end_date) }}</p>
+          <p class="text-xs text-gray-500 mt-1">Period</p>
         </div>
       </div>
 
@@ -107,5 +105,10 @@ const enrolled = computed(() => props.cohort.students?.length ?? 0)
 const availableSpots = computed(() => Math.max(0, props.cohort.max_students - enrolled.value))
 const capacityPct = computed(() => Math.min(100, Math.round((enrolled.value / props.cohort.max_students) * 100)))
 
-const formatStatus = (s) => s?.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '—'
+const formatDate = (d) => {
+  if (!d) return '—'
+  const date = new Date(d)
+  return isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+const formatStatus = (s) => s?.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? ''
 </script>

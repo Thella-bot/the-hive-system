@@ -44,6 +44,8 @@ class CohortController extends Controller
             'academic_year_id' => 'required|exists:academic_years,id',
             'max_students'     => 'required|integer|min:1|max:200',
             'is_active'        => 'boolean',
+            'start_date'       => 'nullable|date',
+            'end_date'         => 'nullable|date|after:start_date',
         ]);
 
         Cohort::create($data);
@@ -82,6 +84,8 @@ class CohortController extends Controller
             'academic_year_id' => 'required|exists:academic_years,id',
             'max_students'     => 'required|integer|min:1|max:200',
             'is_active'        => 'boolean',
+            'start_date'       => 'nullable|date',
+            'end_date'         => 'nullable|date|after:start_date',
         ]);
 
         $cohort->update($data);

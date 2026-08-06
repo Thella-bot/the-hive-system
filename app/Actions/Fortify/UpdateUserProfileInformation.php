@@ -30,8 +30,10 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             $user->updateProfilePhoto($input['photo']);
         }
 
-        if ($input['email'] !== $user->email &&
-            $user instanceof MustVerifyEmail) {
+        if (
+            $input['email'] !== $user->email &&
+            $user instanceof MustVerifyEmail
+        ) {
             $this->updateVerifiedUser($user, $input);
         } else {
             $user->forceFill([
@@ -40,11 +42,14 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             ])->save();
         }
 
-        $user->profile->forceFill([
-            'bio' => $input['bio'],
-            'twitter_handle' => $input['twitter_handle'],
-            'linkedin_profile' => $input['linkedin_profile'],
-        ])->save();
+        $user->profile()->updateOrCreate(
+            ['profileable_id' => $user->id, 'profileable_type' => User::class],
+            [
+                'bio' => $input['bio'] ?? null,
+                'twitter_handle' => $input['twitter_handle'] ?? null,
+                'linkedin_profile' => $input['linkedin_profile'] ?? null,
+            ]
+        );
     }
 
     /**

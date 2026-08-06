@@ -55,6 +55,21 @@
             <p v-if="form.errors.max_students" class="text-red-500 text-xs mt-1">{{ form.errors.max_students }}</p>
           </div>
 
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Start Date</label>
+              <input v-model="form.start_date" type="date"
+                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              <p v-if="form.errors.start_date" class="text-red-500 text-xs mt-1">{{ form.errors.start_date }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">End Date</label>
+              <input v-model="form.end_date" type="date"
+                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              <p v-if="form.errors.end_date" class="text-red-500 text-xs mt-1">{{ form.errors.end_date }}</p>
+            </div>
+          </div>
+
           <label class="flex items-center gap-3 cursor-pointer">
             <div class="relative">
               <input v-model="form.is_active" type="checkbox" class="sr-only" />
@@ -97,6 +112,8 @@ const form = useForm({
   academic_year_id: null,
   max_students:     20,
   is_active:        true,
+  start_date:       '',
+  end_date:         '',
 })
 
 const submit = () => form.post(route('hive.cohorts.store'))

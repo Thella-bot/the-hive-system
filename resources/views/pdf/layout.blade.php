@@ -27,33 +27,31 @@
             margin-bottom: 25px;
         }
 
-        .letterhead .institute-name {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: #8b0000;
-        }
-
-        .letterhead .office-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-top: 2px;
-        }
-
-        .letterhead .contact-info {
-            font-size: 10px;
-            color: #555;
-            margin-top: 4px;
+        .letterhead img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 15px auto;
         }
 
         .letterhead .ref-date {
             font-size: 11px;
             margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
             border-top: 1px solid #ddd;
             padding-top: 10px;
+            overflow: hidden;
+        }
+
+        .letterhead .ref-date span {
+            display: inline-block;
+        }
+
+        .letterhead .ref-date .ref-label {
+            float: left;
+        }
+
+        .letterhead .ref-date .date-label {
+            float: right;
         }
 
         .content {
@@ -229,14 +227,10 @@
 
 <body>
     <div class="letterhead">
-        <div class="institute-name">HONEY BEE CULINARY INSTITUTE</div>
-        <div class="office-name">Office of the {{ $office ?? 'Administration' }}</div>
-        <div class="contact-info">
-            Tel: {{ $phone ?? '+266 XXXX XXXX' }} | Email: {{ $email ?? 'info@hbci.ac.ls' }} | www.hbci.ac.ls
-        </div>
+        <img src="{{ public_path('images/hbci-letterhead-header.png') }}" alt="HBCI Letterhead">
         <div class="ref-date">
-            <span><strong>Ref:</strong> {{ $ref ?? 'HBCI/GEN/'.date('Y').'/001' }}</span>
-            <span><strong>Date:</strong> {{ $date ?? now()->format('d F Y') }}</span>
+            <span class="ref-label"><strong>Ref:</strong> {{ $ref ?? 'HBCI/GEN/'.date('Y').'/001' }}</span>
+            <span class="date-label"><strong>Date:</strong> {{ $date ?? now()->format('d F Y') }}</span>
         </div>
     </div>
     <div class="content">

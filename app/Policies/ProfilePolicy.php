@@ -10,7 +10,7 @@ class ProfilePolicy extends BasePolicy
 {
     public function view(User $user, Profile $profile)
     {
-        return $user->id === $profile->user_id;
+        return $user->id === $profile->profileable_id;
     }
 
     public function create(User $user)
@@ -20,6 +20,6 @@ class ProfilePolicy extends BasePolicy
 
     public function update(User $user, Profile $profile)
     {
-        return $user->id === $profile->user_id;
+        return $user->id === $profile->profileable_id;
     }
 }

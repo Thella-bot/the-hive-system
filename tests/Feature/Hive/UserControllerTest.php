@@ -155,12 +155,14 @@ class UserControllerTest extends HiveTestCase
         $this->actingAs($admin);
 
         $response = $this->patch(route('hive.users.update', $targetUser), [
-            'name' => 'Updated Name',
-            'role' => 'registrar',
+            'name'  => 'Updated Name',
+            'email' => 'updated@example.com',
+            'role'  => 'registrar',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['id' => $targetUser->id, 'name' => 'Updated Name']);
+        $this->assertDatabaseHas('users', ['id' => $targetUser->id, 'email' => 'updated@example.com']);
         $this->assertTrue($targetUser->fresh()->hasRole('registrar'));
     }
 

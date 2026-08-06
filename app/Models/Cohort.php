@@ -20,6 +20,8 @@ class Cohort extends Model
         'academic_year_id',
         'max_students',
         'is_active',
+        'start_date',
+        'end_date',
     ];
 
     protected function casts(): array
@@ -27,6 +29,8 @@ class Cohort extends Model
         return [
             'is_active'    => 'boolean',
             'max_students' => 'integer',
+            'start_date'   => 'date',
+            'end_date'     => 'date',
         ];
     }
 
@@ -103,4 +107,21 @@ class Cohort extends Model
     {
         return $this->available_spots === 0;
     }
+
+    public function isActive(): bool
+    {
+        if (! $this->start_date || ! $this->end_date) {
+            return (bool) $this->is_active;
+        }
+
+        return now()->between($this->start_date, $this->end_date) || $this->start_date->isFuture();
+    }
+
+    // --- Default cohort definitions ---
+
+    public const DEFAULT_COHORTS = [
+        ['month' => 1,  'month_name' => 'January', 'end_month' => 3,  'end_day' => 31],
+        ['month' => 4,  'month_name' => 'April',   'end_month' => 7,  'end_day' => 31],
+        ['month' => 8,  'month_name' => 'August',  'end_month' => 11, 'end_day' => 31],
+    ];
 }

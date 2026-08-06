@@ -84,22 +84,35 @@ class ImportUsersJob implements ShouldQueue
                     $intakeDate = $row[10] ?? null;
                     $existingStudentNumber = $row[11] ?? null;
 
-                    $password = Str::random(10);
-                    $user = User::create([
-                        'name' => $firstName . ' ' . $lastName,
-                        'email' => $email,
-                        'password' => Hash::make($password),
-                        'email_verified_at' => now(),
-                        'approved_at' => now(),
-                    ]);
-                    $user->assignRole($role);
+$existingUser = User::where('email', $email)->first();
 
-                    if ($role === 'student') {
-                        $this->createStudentProfile($user, $dateOfBirth, $phone, $address, $emergencyContactName, $emergencyContactPhone, $programmeName, $yearOfStudy, $intakeDate, $existingStudentNumber);
-                    }
+                     if ($existingUser) {
+                         $user = $existingUser;
+                         $user->name = $firstName . ' ' . $lastName;
+                         $user->email = $email;
+                         $user->approved_at = now();
+                         $user->save();
+                     } else {
+                         $password = Str::random(10);
+                         $user = User::create([
+                             'name' => $firstName . ' ' . $lastName,
+                             'email' => $email,
+                             'password' => Hash::make($password),
+                             'email_verified_at' => now(),
+                             'approved_at' => now(),
+                         ]);
+                     }
+                     $isNewUser = !$existingUser;
+                     $user->assignRole($role);
 
-                    SendWelcomeEmail::dispatch($user, $password);
-                    $this->successCount++;
+                     if ($role === 'student') {
+                         $this->createStudentProfile($user, $dateOfBirth, $phone, $address, $emergencyContactName, $emergencyContactPhone, $programmeName, $yearOfStudy, $intakeDate, $existingStudentNumber);
+                     }
+
+                     if ($isNewUser) {
+                         SendWelcomeEmail::dispatch($user, $password);
+                     }
+                     $this->successCount++;
                 }
             });
         } catch (\Exception $e) {
@@ -170,9 +183,11 @@ class ImportUsersJob implements ShouldQueue
         ];
 
         if (!empty($existingStudentNumber)) {
-            $profileData['student_number'] = $existingStudentNumber;
+            $user->student_number = $existingStudentNumber;
+            $user->save();
         } elseif ($departmentId) {
-            $profileData['student_number'] = IdGenerator::generateStudentId($departmentId);
+            $user->student_number = IdGenerator::generateStudentId($departmentId);
+            $user->save();
         }
 
         $user->profile()->create($profileData);
@@ -188,7 +203,7 @@ class ImportUsersJob implements ShouldQueue
             $validator = Validator::make($row, [
                 '0' => 'required|string',
                 '1' => 'required|string',
-                '2' => 'required|email|unique:users,email',
+                '2' => 'required|email',
                 '3' => 'required|string|exists:roles,name',
             ]);
 

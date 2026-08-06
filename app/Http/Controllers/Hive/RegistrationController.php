@@ -103,7 +103,7 @@ class RegistrationController extends Controller
         // Update user profile with required info
         $user = $request->user();
         $user->profile()->updateOrCreate(
-            ['user_id' => $user->id],
+            ['profileable_id' => $user->id, 'profileable_type' => $user->getMorphClass()],
             [
                 'date_of_birth' => $data['date_of_birth'],
                 'emergency_contact_name' => $data['emergency_contact_name'],
@@ -212,6 +212,6 @@ class RegistrationController extends Controller
             'modules' => $modules,
         ]);
 
-        return $pdf->download('ProofOfRegistration_'.$student->id.'.pdf');
+        return $pdf->download('ProofOfRegistration_' . $student->id . '.pdf');
     }
 }

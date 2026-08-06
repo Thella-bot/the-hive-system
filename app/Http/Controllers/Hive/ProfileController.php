@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\Hive;
 
@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Cohort;
 use App\Models\Department;
-use App\Models\Profile;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
