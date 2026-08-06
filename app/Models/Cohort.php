@@ -38,7 +38,14 @@ class Cohort extends Model
     {
         static::creating(function (Cohort $cohort) {
             if (empty($cohort->slug)) {
-                $cohort->slug = Str::slug($cohort->name);
+                $baseSlug = Str::slug($cohort->name);
+                $slug = $baseSlug;
+                $counter = 1;
+                while (Cohort::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+                $cohort->slug = $slug;
             }
         });
     }
