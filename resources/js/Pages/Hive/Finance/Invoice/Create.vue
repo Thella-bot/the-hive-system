@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
@@ -23,6 +23,18 @@ const form = ref({
   status: 'pending',
 });
 
+const search = ref('');
+
+const filteredUsers = computed(() => {
+  if (!search.value) return props.users;
+  const q = search.value.toLowerCase();
+  return props.users.filter(u =>
+    u.name.toLowerCase().includes(q) ||
+    u.email.toLowerCase().includes(q) ||
+    (u.student_number && u.student_number.toLowerCase().includes(q))
+  );
+});
+
 const errors = ref({});
 const isSubmitting = ref(false);
 
@@ -44,15 +56,17 @@ const submit = () => {
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Invoice Details</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Student</label>
-            <select v-model="form.user_id" required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              <option value="">Select a student</option>
-              <option v-for="u in users" :key="u.id" :value="u.id">{{ u.name }} ({{ u.email }})</option>
-            </select>
-            <span v-if="errors.user_id" class="text-red-500 text-xs">{{ errors.user_id }}</span>
-          </div>
+<div>
+             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Student</label>
+             <input v-model="search" type="text" placeholder="Search by name, email, or student number..."
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 mb-1" />
+             <select v-model="form.user_id" required
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+               <option value="">Select a student</option>
+               <option v-for="u in filteredUsers" :key="u.id" :value="u.id">{{ u.name }} ({{ u.student_number ?? 'N/A' }}) — {{ u.email }}</option>
+             </select>
+             <span v-if="errors.user_id" class="text-red-500 text-xs">{{ errors.user_id }}</span>
+           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Programme</label>

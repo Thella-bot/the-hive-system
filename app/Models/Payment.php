@@ -77,6 +77,7 @@ class Payment extends Model
         $year = date('Y');
         $last = static::where('payment_reference', 'like', "PAY-{$year}%")
             ->orderByDesc('payment_reference')
+            ->lockForUpdate()
             ->first();
 
         $sequence = $last

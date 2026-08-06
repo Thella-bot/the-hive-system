@@ -77,9 +77,9 @@ class StaffController extends Controller
 
         if (!empty($validated['role_id'])) {
             $role = Role::findById($validated['role_id']);
-            $user->assignRole($role);
+            $user->syncRoles([$role]);
         } elseif (!empty($validated['role'])) {
-            $user->assignRole($validated['role']);
+            $user->syncRoles([$validated['role']]);
         }
 
         return redirect()->route('hive.staff.index')

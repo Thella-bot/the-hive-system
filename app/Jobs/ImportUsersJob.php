@@ -47,24 +47,33 @@ class ImportUsersJob implements ShouldQueue
             ]);
 
             $contents = Storage::get($this->filePath);
-            $rows = array_map('str_getcsv', explode("\n", $contents));
-            array_shift($rows); // remove header row
 
-            // Step 1: Validate all rows before starting the transaction
+            $rows = [];
+            $handle = fopen('php://memory', 'r+');
+            fwrite($handle, $contents);
+            rewind($handle);
+            while (($row = fgetcsv($handle)) !== false) {
+                $rows[] = $row;
+            }
+            fclose($handle);
+
+            array_shift($rows);
+
             $this->validateRows($rows);
 
             if ($this->failureCount > 0) {
                 throw new \Exception("Validation errors occurred during import.");
             }
 
-            // Step 2: If validation passes, create users within a transaction
             DB::transaction(function () use ($rows) {
-                foreach ($rows as $row) {
-                     if (empty(array_filter($row))) { continue; }
+                foreach ($rows as $index => $row) {
+                    if (empty(array_filter($row))) {
+                        continue;
+                    }
 
                     if (count($row) < 3) {
                         $this->failureCount++;
-                        $this->errors[] = 'Row ' . (array_search($row, $rows) + 2) . ': Expected at least 3 columns (full_name, email, role).';
+                        $this->errors[] = 'Row ' . ($index + 2) . ': Expected at least 3 columns (full_name, email, role).';
                         continue;
                     }
 
@@ -84,37 +93,39 @@ class ImportUsersJob implements ShouldQueue
                     $intakeDate = $row[10] ?? null;
                     $existingStudentNumber = $row[11] ?? null;
 
-$existingUser = User::where('email', $email)->first();
+                    $existingUser = User::where('email', $email)->first();
 
-                     if ($existingUser) {
-                         $user = $existingUser;
-                         $user->name = $firstName . ' ' . $lastName;
-                         $user->email = $email;
-                         $user->approved_at = now();
-                         $user->save();
-                     } else {
-                         $password = Str::random(10);
-                         $user = User::create([
-                             'name' => $firstName . ' ' . $lastName,
-                             'email' => $email,
-                             'password' => Hash::make($password),
-                             'email_verified_at' => now(),
-                             'approved_at' => now(),
-                         ]);
-                     }
-                     $isNewUser = !$existingUser;
-                     $user->assignRole($role);
+                    if ($existingUser) {
+                        $user = $existingUser;
+                        $user->name = $firstName . ' ' . $lastName;
+                        $user->email = $email;
+                        $user->approved_at = now();
+                        $user->save();
+                    } else {
+                        $password = Str::random(10);
+                        $user = User::create([
+                            'name' => $firstName . ' ' . $lastName,
+                            'email' => $email,
+                            'password' => Hash::make($password),
+                            'email_verified_at' => now(),
+                            'approved_at' => now(),
+                        ]);
+                    }
+                    $isNewUser = ! $existingUser;
+                    $user->syncRoles([$role]);
 
-                     if ($role === 'student') {
-                         $this->createStudentProfile($user, $dateOfBirth, $phone, $address, $emergencyContactName, $emergencyContactPhone, $programmeName, $yearOfStudy, $intakeDate, $existingStudentNumber);
-                     }
+                    if ($role === 'student') {
+                        $this->createStudentProfile($user, $dateOfBirth, $phone, $address, $emergencyContactName, $emergencyContactPhone, $programmeName, $yearOfStudy, $intakeDate, $existingStudentNumber);
+                    }
 
-                     if ($isNewUser) {
-                         SendWelcomeEmail::dispatch($user, $password);
-                     }
-                     $this->successCount++;
+                    if ($isNewUser) {
+                        SendWelcomeEmail::dispatch($user, $password);
+                    }
+                    $this->successCount++;
                 }
             });
+
+            Storage::delete($this->filePath);
         } catch (\Exception $e) {
             $jobError = $e->getMessage();
             Log::error('import_users.failed', [
@@ -129,11 +140,10 @@ $existingUser = User::where('email', $email)->first();
                 'user_id' => $this->user->id,
                 'success_count' => $this->successCount,
                 'failure_count' => $this->failureCount,
-                'has_job_error' => !is_null($jobError),
+                'has_job_error' => ! is_null($jobError),
             ]);
 
             $this->user->notify(new ImportCompleted($this->successCount, $this->failureCount, $this->errors, $jobError));
-            Storage::delete($this->filePath);
         }
     }
 
@@ -202,9 +212,8 @@ $existingUser = User::where('email', $email)->first();
 
             $validator = Validator::make($row, [
                 '0' => 'required|string',
-                '1' => 'required|string',
-                '2' => 'required|email',
-                '3' => 'required|string|exists:roles,name',
+                '1' => 'required|email',
+                '2' => 'required|string|exists:roles,name',
             ]);
 
             if ($validator->fails()) {

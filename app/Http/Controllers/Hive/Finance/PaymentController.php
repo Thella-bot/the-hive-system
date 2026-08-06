@@ -34,7 +34,7 @@ class PaymentController extends Controller
             $search = $request->search;
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('user_number', 'like', "%{$search}%");
+                    ->orWhere('student_number', 'like', "%{$search}%");
             });
         }
 
@@ -99,17 +99,7 @@ class PaymentController extends Controller
             $data['payment_date'] = now();
         }
 
-        $payment = Payment::create($data);
-
-        // Auto-verify if amount covers the balance
-        if ($payment->amount >= $invoice->balance) {
-            $invoice->update([
-                'status' => 'paid',
-                'paid_at' => now(),
-            ]);
-        } elseif ($invoice->total_paid > 0) {
-            $invoice->update(['status' => 'partial']);
-        }
+        $payment = $invoice->recordPayment($data);
 
         return redirect()->route('hive.finance.payments.index')->with('success', 'Payment recorded successfully.');
     }
@@ -126,19 +116,9 @@ class PaymentController extends Controller
 
         $payment->update($data);
 
-        // Update invoice status if payment status changed
         if (isset($data['status'])) {
             $invoice = $payment->invoice;
-            if ($payment->is_completed || $data['status'] === 'completed') {
-                if ($payment->amount >= $invoice->balance) {
-                    $invoice->update([
-                        'status' => 'paid',
-                        'paid_at' => now(),
-                    ]);
-                } else {
-                    $invoice->update(['status' => 'partial']);
-                }
-            }
+            $invoice->refreshStatus();
         }
 
         return back()->with('success', 'Payment updated successfully.');
@@ -159,7 +139,7 @@ class PaymentController extends Controller
 
         $invoice = $payment->invoice;
         $programme = $invoice?->programme;
-        $studentNumber = $payment->user?->student_number ?? $payment->user?->user_number ?? 'N/A';
+        $studentNumber = $payment->user?->student_number ?? 'N/A';
 
         $data = [
             'receipt_number' => $payment->payment_reference,
@@ -239,6 +219,12 @@ class PaymentController extends Controller
         }
         if ($num < 1000) {
             return $ones[(int) floor($num / 100)] . ' Hundred' . ($num % 100 ? ' ' . $this->convertNumberToWords($num % 100) : '');
+        }
+        if ($num < 1000000) {
+            return $this->convertNumberToWords((int) floor($num / 1000)) . ' Thousand' . ($num % 1000 ? ' ' . $this->convertNumberToWords($num % 1000) : '');
+        }
+        if ($num < 1000000000) {
+            return $this->convertNumberToWords((int) floor($num / 1000000)) . ' Million' . ($num % 1000000 ? ' ' . $this->convertNumberToWords($num % 1000000) : '');
         }
 
         return 'Number too large';

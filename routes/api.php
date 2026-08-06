@@ -4,10 +4,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ChatMessageController;
 use App\Http\Controllers\Api\TaskController;
-use App\Http\Middleware\BypassAuthInLocal;
 
-// Chat routes - auth:sanctum required + BypassAuthInLocal for local dev
-Route::middleware(['auth:sanctum', BypassAuthInLocal::class])->group(function () {
+// Chat routes - auth:sanctum required
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/modules/{module}/messages', [ChatMessageController::class, 'index'])->name('messages.index');
     Route::post('/modules/{module}/messages', [ChatMessageController::class, 'store'])
         ->middleware(['throttle:60,1'])

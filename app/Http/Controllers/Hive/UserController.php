@@ -100,7 +100,7 @@ class UserController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        $user->assignRole($data['role']);
+        $user->syncRoles([$data['role']]);
 
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
 

@@ -18,10 +18,12 @@ use App\Models\Profile;
 use App\Models\ShortCourse;
 use App\Models\ShortCourseApplication;
 use App\Models\Submission;
+use App\Models\ChatChannel;
 use App\Policies\AcademicYearPolicy;
 use App\Policies\AchievementPolicy;
 use App\Policies\ApplicationPolicy;
 use App\Policies\AttendancePolicy;
+use App\Policies\ChatChannelPolicy;
 use App\Policies\CohortPolicy;
 use App\Policies\DepartmentPolicy;
 use App\Policies\EventPolicy;
@@ -56,6 +58,7 @@ class AuthServiceProvider extends ServiceProvider
         Attendance::class => AttendancePolicy::class,
         ShortCourse::class => ShortCoursePolicy::class,
         ShortCourseApplication::class => ShortCourseApplicationPolicy::class,
+        ChatChannel::class => ChatChannelPolicy::class,
     ];
 
     public function boot()

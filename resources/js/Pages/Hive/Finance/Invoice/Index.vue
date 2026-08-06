@@ -18,11 +18,18 @@ const search = ref(props.filters.search ?? '');
 const status = ref(props.filters.status ?? '');
 const academicYear = ref(props.filters.academic_year ?? '');
 
-  const applyFilters = () => router.get(route('hive.finance.invoices.index'), {
+const applyFilters = () => router.get(route('hive.finance.invoices.index'), {
   search: search.value,
   status: status.value,
   academic_year: academicYear.value,
 }, { preserveState: true, replace: true });
+
+const generateInvoices = () => {
+  router.post(route('hive.finance.invoices.generate'), {}, {
+    preserveState: true,
+    onSuccess: () => router.reload({ only: ['invoices'] }),
+  });
+};
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-LS', { style: 'currency', currency: 'ZAR' }).format(amount);
@@ -49,11 +56,11 @@ const statusClass = (status) => {
           <PlusIcon class="w-4 h-4" />
           Create Invoice
         </Link>
-        <Link :href="route('hive.finance.invoices.generate')"
-          class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-          <DocumentTextIcon class="w-4 h-4" />
-          Generate Invoices
-        </Link>
+<button type="button" @click="generateInvoices"
+           class="inline-flex items-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium px-4 py-2 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+           <DocumentTextIcon class="w-4 h-4" />
+           Generate Invoices
+         </button>
       </div>
     </template>
 

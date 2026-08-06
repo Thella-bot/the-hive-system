@@ -10,28 +10,36 @@ use Illuminate\Http\Request;
 
 class ChatMessageController extends Controller
 {
-    // Legacy: module-scoped messages
+    public function __construct()
+    {
+        $this->authorizeResource(ChatChannel::class, 'channel');
+    }
+
     public function index(Module $module)
     {
         $channel = ChatChannel::where('channel_type', 'module')
             ->where('channel_id', $module->id)
             ->first();
 
-        if (!$channel) {
+        if (! $channel) {
             return [];
         }
+
+        $this->authorize('view', $channel);
 
         return $channel->messages()->with('user')->get();
     }
 
     public function store(Request $request, Module $module)
     {
-        $request->validate(['message' => 'required|string|max:5000']);
-
         $channel = ChatChannel::firstOrCreate(
             ['channel_type' => 'module', 'channel_id' => $module->id],
             ['name' => $module->name]
         );
+
+        $this->authorize('create', $channel);
+
+        $request->validate(['message' => 'required|string|max:5000']);
 
         $message = $channel->messages()->create([
             'user_id' => auth()->id(),
@@ -44,14 +52,17 @@ class ChatMessageController extends Controller
         return $message->load('user');
     }
 
-    // New: channel-scoped messages
     public function indexChannel(ChatChannel $channel)
     {
+        $this->authorize('view', $channel);
+
         return $channel->messages()->with('user')->get();
     }
 
     public function storeChannel(Request $request, ChatChannel $channel)
     {
+        $this->authorize('create', $channel);
+
         $request->validate(['message' => 'required|string|max:5000']);
 
         $message = $channel->messages()->create([

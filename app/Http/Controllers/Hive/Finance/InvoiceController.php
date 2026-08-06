@@ -49,7 +49,7 @@ class InvoiceController extends Controller
     {
         $users = User::with('profile')
             ->orderBy('name')
-            ->get(['id', 'name', 'email']);
+            ->get(['id', 'name', 'email', 'student_number']);
 
         $programmes = Programme::with('department')->orderBy('name')->get(['id', 'name', 'department_id']);
 
@@ -58,6 +58,30 @@ class InvoiceController extends Controller
             'programmes' => $programmes,
             'types' => ['registration', 'tuition', 'uniform', 'tools', 'resource', 'examination', 'other'],
             'statuses' => ['pending', 'partial', 'paid', 'overdue', 'cancelled'],
+        ]);
+    }
+
+    public function searchStudents(Request $request): Response
+    {
+        $search = $request->query('q', '');
+
+        $query = User::with('profile')
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->limit(20);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('student_number', 'like', "%{$search}%")
+                    ->orWhereHas('profile', fn($pq) => $pq->where('student_number', 'like', "%{$search}%"));
+            });
+        }
+
+        $students = $query->get(['id', 'name', 'email', 'student_number']);
+
+        return Inertia::render('Hive/Finance/Invoice/Create', [
+            'students' => $students,
         ]);
     }
 
@@ -160,34 +184,37 @@ class InvoiceController extends Controller
             return back()->with('error', 'No fee amount defined for this invoice type.');
         }
 
-        // Get enrolled students for this programme
+        $existingKeys = Invoice::where('programme_id', $data['programme_id'])
+            ->where('academic_year', $data['academic_year'])
+            ->where('semester', $data['semester'])
+            ->where('type', $data['type'])
+            ->pluck('user_id')
+            ->toArray();
+
         $students = User::where('programme_id', $data['programme_id'])
             ->where('status', 'active')
+            ->whereNotIn('id', $existingKeys)
             ->get();
 
-        $created = 0;
-        foreach ($students as $student) {
-            // Skip if invoice already exists for this type/academic_year/semester
-            $exists = Invoice::where('user_id', $student->id)
-                ->where('programme_id', $data['programme_id'])
-                ->where('academic_year', $data['academic_year'])
-                ->where('semester', $data['semester'])
-                ->where('type', $data['type'])
-                ->exists();
+        $invoices = $students->map(function ($student) use ($data, $programme, $amount) {
+            return [
+                'user_id' => $student->id,
+                'programme_id' => $data['programme_id'],
+                'variant_id' => $data['variant_id'] ?? $programme->default_variant?->id,
+                'type' => $data['type'],
+                'amount' => $amount,
+                'academic_year' => $data['academic_year'],
+                'semester' => $data['semester'],
+                'due_date' => $data['due_date'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        });
 
-            if (! $exists) {
-                Invoice::create([
-                    'user_id' => $student->id,
-                    'programme_id' => $data['programme_id'],
-                    'variant_id' => $data['variant_id'] ?? $programme->default_variant?->id,
-                    'type' => $data['type'],
-                    'amount' => $amount,
-                    'academic_year' => $data['academic_year'],
-                    'semester' => $data['semester'],
-                    'due_date' => $data['due_date'],
-                ]);
-                $created++;
-            }
+        $created = 0;
+        if ($invoices->isNotEmpty()) {
+            Invoice::insert($invoices->toArray());
+            $created = $invoices->count();
         }
 
         return back()->with('success', "Generated {$created} invoices.");

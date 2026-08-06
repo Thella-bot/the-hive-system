@@ -139,6 +139,7 @@ class Invoice extends Model
         $year = date('Y');
         $last = static::where('invoice_number', 'like', "INV-{$year}%")
             ->orderByDesc('invoice_number')
+            ->lockForUpdate()
             ->first();
 
         $sequence = $last

@@ -17,12 +17,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Finance routes (super-admin, finance, hr-manager)
-Route::middleware(['role:super-admin|finance|hr-manager'])->name('finance.')->prefix('finance')->group(function () {
+// Finance routes (super-admin, finance)
+Route::middleware(['role:super-admin|finance'])->name('finance.')->prefix('finance')->group(function () {
     // Invoices
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::get('invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
-    Route::get('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
+    Route::get('invoices/search-students', [InvoiceController::class, 'searchStudents'])->name('invoices.searchStudents');
+    Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
     Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
     Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
     Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');

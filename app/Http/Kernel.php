@@ -63,6 +63,5 @@ class Kernel extends HttpKernel
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         'registered' => \App\Http\Middleware\EnsureStudentIsRegistered::class,
-        'dev.auth' => \App\Http\Middleware\BypassAuthInLocal::class,
     ];
 }
