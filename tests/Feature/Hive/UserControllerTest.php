@@ -179,7 +179,7 @@ class UserControllerTest extends HiveTestCase
         $response = $this->delete(route('hive.users.destroy', $targetUser));
 
         $response->assertRedirect(route('hive.users.index'));
-        $this->assertDatabaseMissing('users', ['id' => $targetUser->id]);
+        $this->assertSoftDeleted('users', ['id' => $targetUser->id]);
     }
 
     public function test_user_destroy_prevents_self_deletion(): void

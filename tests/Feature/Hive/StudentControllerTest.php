@@ -188,7 +188,7 @@ class StudentControllerTest extends HiveTestCase
         $response = $this->delete(route('hive.students.destroy', $student));
 
         $response->assertRedirect(route('hive.students.index'));
-        $this->assertDatabaseMissing('users', ['id' => $student->id]);
+        $this->assertSoftDeleted('users', ['id' => $student->id]);
     }
 
     public function test_student_destroy_returns_403_for_non_admin(): void
