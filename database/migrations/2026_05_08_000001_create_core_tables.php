@@ -18,11 +18,11 @@ return new class extends Migration
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
             $table->timestamps();
-            $table->text('two_factor_secret')->after('password')->nullable();
-            $table->text('two_factor_recovery_codes')->after('two_factor_secret')->nullable();
-            $table->timestamp('two_factor_confirmed_at')->after('two_factor_recovery_codes')->nullable();
-            $table->timestamp('approved_at')->nullable()->after('email_verified_at');
-            $table->string('student_number')->unique()->nullable()->after('email');
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->string('student_number')->unique()->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -201,9 +201,9 @@ return new class extends Migration
             $table->string('status')->nullable();
             $table->json('dietary_restrictions')->nullable();
             $table->string('emergency_contact_relationship')->nullable();
-            $table->string('profile_picture_path')->nullable()->after('profileable_id');
-            $table->string('twitter_handle')->nullable()->after('bio');
-            $table->string('linkedin_profile')->nullable()->after('twitter_handle');
+            $table->string('profile_picture_path')->nullable();
+            $table->string('twitter_handle')->nullable();
+            $table->string('linkedin_profile')->nullable();
             $table->timestamps();
         });
 
