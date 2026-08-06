@@ -22,7 +22,10 @@ class BookCategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            BookCategory::create($category);
+            BookCategory::updateOrCreate(
+                ['code' => $category['code']],
+                $category
+            );
         }
     }
 }
