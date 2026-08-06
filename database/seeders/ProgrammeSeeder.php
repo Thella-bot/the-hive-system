@@ -48,6 +48,7 @@ class ProgrammeSeeder extends Seeder
         $programmes = [
             // Higher Certificate in Contemporary Gastronomy — 1 Year
             [
+                'code' => 'HCCG',
                 'name' => 'Higher Certificate in Contemporary Gastronomy',
                 'description' => 'This programme is designed to provide students with foundational knowledge and skills in contemporary gastronomy. Students will learn about food safety, nutrition, culinary techniques, and kitchen operations.',
                 'duration' => '1 Year',
@@ -66,6 +67,7 @@ class ProgrammeSeeder extends Seeder
             ],
             // Diploma in Professional Chef — 3 Years
             [
+                'code' => 'DPC',
                 'name' => 'Diploma in Professional Chef',
                 'description' => 'This comprehensive diploma programme prepares students for a career as a professional chef, with a focus on culinary arts and Italian cuisine. The programme covers advanced cooking techniques, kitchen management, menu planning, and industry placement.',
                 'duration' => '3 Years',
@@ -84,6 +86,7 @@ class ProgrammeSeeder extends Seeder
             ],
             // Diploma in Culinary Patisserie — 2 Years (standalone diploma; no duration variants)
             [
+                'code' => 'DCP',
                 'name' => 'Diploma in Culinary Patisserie',
                 'description' => 'This programme focuses on the art of patisserie and baking. Students will master classical French pastry techniques, chocolate work, sugar art, and bread making.',
                 'duration' => '2 Years',
@@ -103,6 +106,7 @@ class ProgrammeSeeder extends Seeder
 
             // Hospitality Management — 1 Year
             [
+                'code' => 'HM',
                 'name' => 'Hospitality Management',
                 'description' => 'This programme prepares students for supervisory and management positions in the hospitality industry. Topics include hotel operations, food and beverage management, front office management, and event planning.',
                 'duration' => '1 Year',
@@ -121,6 +125,7 @@ class ProgrammeSeeder extends Seeder
             ],
             // Gastronomy Cooking and Patisserie — short course, offered at 3 or 6 months
             [
+                'code' => 'GCP',
                 'name' => 'Gastronomy Cooking and Patisserie',
                 'description' => 'A short, intensive gastronomy and patisserie course for those looking to build practical culinary skills without committing to a full diploma. Offered as a 3-month or 6-month course — see study options below for pricing per duration.',
                 'duration' => '3 Months / 6 Months',
