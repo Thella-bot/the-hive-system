@@ -14,11 +14,11 @@
     </tr>
     <tr>
         <td class="label">Date of Birth</td>
-        <td class="value">{{ $student->dob->format('d F Y') }}</td>
+        <td class="value">{{ $student->dob ? $student->dob->format('d F Y') : 'N/A' }}</td>
     </tr>
     <tr>
         <td class="label">National ID / Passport</td>
-        <td class="value">{{ $student->id_number }}</td>
+        <td class="value">{{ $student->id_number ?? 'N/A' }}</td>
     </tr>
     <tr>
         <td class="label">Programme</td>

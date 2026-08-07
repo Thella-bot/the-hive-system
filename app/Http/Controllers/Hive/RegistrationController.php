@@ -132,7 +132,7 @@ class RegistrationController extends Controller
 
         $updates = [
             'registration_status' => $data['registration_status'],
-            'registration_notes' => $data['registration_notes'],
+            'registration_notes' => $data['registration_notes'] ?? null,
         ];
 
         if ($data['registration_status'] === 'completed') {
@@ -204,14 +204,56 @@ class RegistrationController extends Controller
         abort_unless($application, 403, 'No completed registration found. Please complete your registration first.');
 
         $student = $application->user ?? $user;
+        $profile = $student->profile;
+        $programme = $application->programme;
+        $variant = $application->variant;
+
         $modules = $student->modules()->get();
 
-        $pdf = Pdf::loadView('pdf.proof-of-registration', [
-            'application' => $application->load(['programme', 'variant']),
-            'student' => $student,
+        $enrolmentDate = \Carbon\Carbon::parse($application->registered_at);
+        $durationMonths = $programme->duration_months ?? 6;
+        $expectedCompletion = $enrolmentDate->clone()->addMonths($durationMonths);
+
+        $fullName = $student->name;
+        $dob = null;
+
+        if ($profile) {
+            if ($profile->first_name && $profile->last_name) {
+                $fullName = $profile->first_name . ' ' . $profile->last_name;
+            }
+            if ($profile->date_of_birth) {
+                $dob = \Carbon\Carbon::parse($profile->date_of_birth);
+            }
+        }
+
+        $data = [
+            'student' => (object) [
+                'full_name' => $fullName,
+                'student_number' => $student->student_number ?? 'N/A',
+                'dob' => $dob,
+                'id_number' => null,
+            ],
+            'programme' => $programme,
+            'year_of_study' => 1,
+            'total_years' => $durationMonths >= 12 ? ceil($durationMonths / 12) : 1,
+            'academic_year' => $enrolmentDate->format('Y') . '/' . ($enrolmentDate->format('Y') + 1),
+            'mode_of_study' => $variant->label ?? 'Full-Time',
+            'status' => $application->registration_status,
+            'enrolment_date' => $enrolmentDate,
+            'expected_completion' => $expectedCompletion,
+            'registrar_name' => $this->getSignatory('registrar'),
             'modules' => $modules,
-        ]);
+        ];
+
+        $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);
 
         return $pdf->download('ProofOfRegistration_' . $student->id . '.pdf');
+    }
+
+    private function getSignatory(string $role): string
+    {
+        $user = \App\Models\User::role($role)->first();
+
+        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }
