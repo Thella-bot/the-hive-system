@@ -18,7 +18,6 @@ class Invoice extends Model
         'programme_id',
         'variant_id',
         'academic_year',
-        'semester',
         'type',
         'amount',
         'description',

@@ -1,17 +1,17 @@
 <template>
   <PublicLayout>
     <!-- Hero -->
-    <section class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-16 lg:py-20 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-amber-600 to-amber-700 text-white py-16 lg:py-20 overflow-hidden">
       <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
-      <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
-      <div class="absolute bottom-0 left-0 w-[300px] h-[300px] bg-amber-600/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium mb-4">
-          <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 border border-white/30 rounded-full text-white text-sm font-medium mb-4">
+          <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
           Short Course
         </span>
         <h1 class="text-4xl lg:text-5xl font-bold">Apply Now</h1>
-        <p class="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">Join our short course and develop new skills — quick, practical, and career-focused.</p>
+        <p class="mt-4 text-lg text-white/80 max-w-2xl mx-auto">Join our short course and develop new skills — quick, practical, and career-focused.</p>
       </div>
     </section>
 

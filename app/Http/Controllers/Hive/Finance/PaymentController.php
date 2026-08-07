@@ -85,7 +85,11 @@ class PaymentController extends Controller
     {
         $data = $request->validate([
             'invoice_id' => 'required|exists:invoices,id',
-            'amount' => 'required|numeric|min:0',
+            'items' => 'required|array|min:1',
+            'items.*.description' => 'required|string|max:255',
+            'items.*.qty' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.total' => 'required|numeric|min:0',
             'payment_method' => 'required|in:cash,bank_transfer,mobile_money,card,other',
             'payment_date' => 'nullable|date',
             'notes' => 'nullable|string',
@@ -99,6 +103,8 @@ class PaymentController extends Controller
             $data['payment_date'] = now();
         }
 
+        $data['amount'] = (float) array_sum(array_column($data['items'], 'total'));
+
         $payment = $invoice->recordPayment($data);
 
         return redirect()->route('hive.finance.payments.index')->with('success', 'Payment recorded successfully.');
@@ -107,12 +113,20 @@ class PaymentController extends Controller
     public function update(Request $request, Payment $payment): RedirectResponse
     {
         $data = $request->validate([
-            'amount' => 'sometimes|numeric|min:0',
+            'items' => 'sometimes|array|min:1',
+            'items.*.description' => 'required|string|max:255',
+            'items.*.qty' => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.total' => 'required|numeric|min:0',
             'payment_method' => 'sometimes|in:cash,bank_transfer,mobile_money,card,other',
             'payment_date' => 'nullable|date',
             'status' => 'sometimes|in:pending,completed,failed,refunded',
             'notes' => 'nullable|string',
         ]);
+
+        if (isset($data['items'])) {
+            $data['amount'] = (float) array_sum(array_column($data['items'], 'total'));
+        }
 
         $payment->update($data);
 
@@ -141,26 +155,31 @@ class PaymentController extends Controller
         $programme = $invoice?->programme;
         $studentNumber = $payment->user?->student_number ?? 'N/A';
 
+        $items = $payment->items ?? [[
+            'description' => $invoice ? ($invoice->description ?? 'Tuition / fee payment') : 'Payment received',
+            'qty' => 1,
+            'unit_price' => (float) $payment->amount,
+            'total' => (float) $payment->amount,
+        ]];
+
+        $subTotal = (float) array_sum(array_column($items, 'total'));
+        $discount = 0;
+        $totalPaid = $subTotal - $discount;
+
         $data = [
             'receipt_number' => $payment->payment_reference,
             'date' => $payment->payment_date ?? $payment->created_at,
             'payer_name' => $payment->user?->name ?? 'N/A',
             'student_number' => $studentNumber,
             'programme_name' => $programme?->name ?? 'N/A',
-            'items' => [[
-                'description' => $invoice ? ($invoice->description ?? 'Tuition / fee payment') : 'Payment received',
-                'qty' => 1,
-                'unit_price' => (float) $payment->amount,
-                'total' => (float) $payment->amount,
-            ]],
-            'sub_total' => (float) $payment->amount,
-            'discount' => 0,
-            'total_paid' => (float) $payment->amount,
+            'items' => $items,
+            'sub_total' => $subTotal,
+            'discount' => $discount,
+            'total_paid' => $totalPaid,
             'payment_method' => $this->formatPaymentMethod($payment->payment_method),
             'bank_ref' => $payment->notes ?? 'N/A',
             'academic_year' => $invoice?->academic_year ?? date('Y'),
-            'cohort' => $invoice?->semester ? 'Semester ' . $invoice->semester : 'N/A',
-            'amount_words' => $this->numberToWords((float) $payment->amount),
+            'amount_words' => $this->numberToWords($totalPaid),
             'cashier_name' => $this->getSignatory('finance'),
         ];
 

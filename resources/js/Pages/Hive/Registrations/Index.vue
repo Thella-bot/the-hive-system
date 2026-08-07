@@ -264,22 +264,55 @@ const registrationStatusLabels = {
   rejected: 'Rejected',
 };
 
-const submit = () => {
-  form.post(route('hive.registration.store'), {
-    preserveScroll: true,
-  });
+const submit = async () => {
+  form.processing = true;
+
+  const data = new FormData();
+  data.append('date_of_birth', form.date_of_birth);
+  data.append('emergency_contact_name', form.emergency_contact_name);
+  data.append('emergency_contact_phone', form.emergency_contact_phone);
+  data.append('emergency_contact_relationship', form.emergency_contact_relationship);
+  data.append('dietary_restrictions', JSON.stringify(form.dietary_restrictions || []));
+  if (form.payment_proof instanceof File) {
+    data.append('payment_proof', form.payment_proof);
+  }
+
+  try {
+    const response = await fetch(route('hive.registration.store'), {
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content },
+      body: data,
+    });
+
+    if (response.ok) {
+      router.get(route('hive.registration.index'), {
+        onSuccess: () => {
+          form.processing = false;
+        },
+      });
+    } else {
+      const errorData = await response.json();
+      if (errorData.errors) {
+        form.errors = errorData.errors;
+      }
+      form.processing = false;
+    }
+  } catch (error) {
+    console.error('Submission failed:', error);
+    form.processing = false;
+  }
 };
 
 const completeRegistration = (reg) => {
   if (!confirm(`Approve registration for ${reg.name || reg.user?.name}?`)) return;
-  router.patch(route('hive.registration.update', { registration: reg.id }), {
+  router.patch(route('hive.registration.update', { application: reg.id }), {
     registration_status: 'completed',
   });
 };
 
 const rejectRegistration = (reg) => {
   if (!confirm(`Reject registration for ${reg.name || reg.user?.name}?`)) return;
-  router.patch(route('hive.registration.update', { registration: reg.id }), {
+  router.patch(route('hive.registration.update', { application: reg.id }), {
     registration_status: 'rejected',
   });
 };

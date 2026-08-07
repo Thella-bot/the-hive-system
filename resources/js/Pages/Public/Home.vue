@@ -19,29 +19,29 @@
     </section>
 
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
+    <section class="relative bg-gradient-to-br from-amber-600 to-amber-700 text-white overflow-hidden">
       <!-- Background layers -->
       <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
-      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
-      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-amber-600/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-400/5 rounded-full blur-3xl"></div>
+      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl"></div>
 
       <!-- Decorative elements -->
-      <div class="absolute top-20 left-10 w-20 h-20 border border-amber-500/20 rounded-full"></div>
-      <div class="absolute bottom-32 right-20 w-12 h-12 border border-amber-500/10 rounded-full"></div>
+      <div class="absolute top-20 left-10 w-20 h-20 border border-white/20 rounded-full"></div>
+      <div class="absolute bottom-32 right-20 w-12 h-12 border border-white/10 rounded-full"></div>
 
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
         <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div class="space-y-8">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium">
-              <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 border border-white/30 rounded-full text-white text-sm font-medium">
+              <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
               Lesotho's Premier Culinary Academy
             </div>
             <h1 class="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
               The International Culinary &amp; Hospitality<br>
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-500">Academy of Lesotho</span>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-orange-200">Academy of Lesotho</span>
             </h1>
-            <p class="text-lg text-gray-300 max-w-lg leading-relaxed">
+            <p class="text-lg text-white/80 max-w-lg leading-relaxed">
               Launch your career in culinary arts and hospitality management with world-class training, expert instructors, and internationally recognized certifications.
             </p>
             <div class="flex flex-wrap gap-4">
@@ -56,8 +56,8 @@
             </div>
           </div>
           <div class="hidden lg:flex relative justify-center items-center">
-            <div class="absolute w-80 h-80 bg-amber-500/20 rounded-full blur-3xl"></div>
-            <div class="absolute w-64 h-64 border border-amber-500/10 rounded-full animate-pulse"></div>
+            <div class="absolute w-80 h-80 bg-white/20 rounded-full blur-3xl"></div>
+            <div class="absolute w-64 h-64 border border-white/10 rounded-full animate-pulse"></div>
             <div class="relative animate-float">
               <img src="/images/hbci-logo.png" alt="HBCI" class="w-full max-w-sm mx-auto opacity-90 drop-shadow-2xl" />
             </div>
@@ -67,10 +67,9 @@
     </section>
 
     <!-- Stats Bar -->
-    <section class="bg-gradient-to-r from-amber-600 to-amber-700 py-10 relative overflow-hidden">
-      <div class="absolute inset-0 bg-white/5" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 24px 24px;"></div>
-      <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
-      <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
+    <section class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-10 relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2"></div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
           <div class="text-center relative">
@@ -80,7 +79,7 @@
               </svg>
             </div>
             <p class="text-3xl lg:text-4xl font-bold text-white">500+</p>
-            <p class="text-amber-200 text-sm mt-1">Graduates</p>
+            <p class="text-white/80 text-sm mt-1">Graduates</p>
           </div>
           <div class="text-center relative">
             <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -89,7 +88,7 @@
               </svg>
             </div>
             <p class="text-3xl lg:text-4xl font-bold text-white">15+</p>
-            <p class="text-amber-200 text-sm mt-1">Expert Instructors</p>
+            <p class="text-white/80 text-sm mt-1">Expert Instructors</p>
           </div>
           <div class="text-center relative">
             <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -98,7 +97,7 @@
               </svg>
             </div>
             <p class="text-3xl lg:text-4xl font-bold text-white">6</p>
-            <p class="text-amber-200 text-sm mt-1">Programmes</p>
+            <p class="text-white/80 text-sm mt-1">Programmes</p>
           </div>
           <div class="text-center relative">
             <div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -107,7 +106,7 @@
               </svg>
             </div>
             <p class="text-3xl lg:text-4xl font-bold text-white">95%</p>
-            <p class="text-amber-200 text-sm mt-1">Employment Rate</p>
+            <p class="text-white/80 text-sm mt-1">Employment Rate</p>
           </div>
         </div>
       </div>
@@ -312,29 +311,29 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20 bg-gradient-to-br from-amber-600 to-amber-700 relative overflow-hidden">
+    <section class="py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
       <!-- Background decoration -->
-      <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div class="absolute bottom-0 right-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-3xl"></div>
+      <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-[300px] h-[300px] bg-amber-600/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-400/5 rounded-full blur-3xl"></div>
 
       <!-- Decorative elements -->
-      <div class="absolute top-16 left-16 w-20 h-20 border-2 border-white/10 rounded-full"></div>
-      <div class="absolute bottom-16 right-16 w-12 h-12 border border-white/10 rounded-full"></div>
+      <div class="absolute top-16 left-16 w-20 h-20 border-2 border-amber-500/20 rounded-full"></div>
+      <div class="absolute bottom-16 right-16 w-12 h-12 border border-amber-500/10 rounded-full"></div>
 
       <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-sm font-medium mb-6">
-          <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-          Now Enrolling for 2026
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium mb-6">
+          <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+          Now Enrolling for {{ currentYear }}
         </div>
         <h2 class="text-3xl lg:text-4xl font-bold text-white">Ready to Start Your Culinary Journey?</h2>
-        <p class="mt-4 text-amber-100 text-lg max-w-2xl mx-auto">Applications are now open for the upcoming academic year. Take the first step toward your dream career today.</p>
+        <p class="mt-4 text-gray-300 text-lg max-w-2xl mx-auto">Applications are now open for the upcoming academic year. Take the first step toward your dream career today.</p>
         <div class="mt-8 flex flex-wrap justify-center gap-4">
-          <Link :href="route('apply')" class="group inline-flex items-center gap-2 px-8 py-4 bg-white text-amber-700 font-bold rounded-lg hover:bg-amber-50 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+          <Link :href="route('apply')" class="group inline-flex items-center gap-2 px-8 py-4 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition shadow-lg shadow-amber-600/30 hover:shadow-amber-600/50">
             Apply Now — It's Free
             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
           </Link>
-          <Link :href="route('contact')" class="group inline-flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-white text-white font-bold rounded-lg hover:bg-white/10 transition">
+          <Link :href="route('contact')" class="group inline-flex items-center gap-2 px-8 py-3 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition border border-white/20">
             Have Questions?
             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4 0 .89-.449 1.68-1.13 2.137A4.826 4.826 0 0112 14c-2.21 0-4-1.79-4-4 0-1.17.56-2.21 1.41-2.86A4.694 4.694 0 004.5 4C3.12 4 2 5.12 2 6.5c0 1.64 1.24 2.98 2.81 3.14"/></svg>
           </Link>
@@ -366,6 +365,8 @@ defineProps({
   shortCourses: Array,
   announcements: Array,
 });
+
+const currentYear = new Date().getFullYear();
 
 const showScrollTop = ref(false);
 

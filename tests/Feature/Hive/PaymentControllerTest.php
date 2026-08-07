@@ -45,7 +45,9 @@ class PaymentControllerTest extends HiveTestCase
 
         $response = $this->post(route('hive.finance.payments.store'), [
             'invoice_id' => $invoice->id,
-            'amount' => 100.00,
+            'items' => [
+                ['description' => 'Tuition Fee', 'qty' => 1, 'unit_price' => 100.00, 'total' => 100.00],
+            ],
             'payment_method' => 'bank_transfer',
             'payment_date' => '2026-07-27',
         ]);
@@ -67,11 +69,11 @@ class PaymentControllerTest extends HiveTestCase
 
         $response = $this->post(route('hive.finance.payments.store'), [
             'invoice_id' => '',
-            'amount' => '',
+            'items' => [],
             'payment_method' => '',
         ]);
 
-        $response->assertSessionHasErrors(['invoice_id', 'amount', 'payment_method']);
+        $response->assertSessionHasErrors(['invoice_id', 'items', 'payment_method']);
     }
 
     public function test_payment_show_returns_success(): void
@@ -123,7 +125,6 @@ class PaymentControllerTest extends HiveTestCase
             'amount' => 1500.00,
             'description' => 'Tuition fees',
             'academic_year' => '2026/2027',
-            'semester' => 1,
             'status' => 'pending',
         ]);
 

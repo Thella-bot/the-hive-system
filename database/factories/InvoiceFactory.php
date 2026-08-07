@@ -17,7 +17,6 @@ class InvoiceFactory extends Factory
             'user_id' => User::factory(),
             'programme_id' => Programme::factory(),
             'academic_year' => now()->year . '/' . (now()->year + 1),
-            'semester' => $this->faker->numberBetween(1, 3),
             'type' => $this->faker->randomElement(['registration', 'tuition', 'uniform', 'tools', 'resource', 'examination', 'other']),
             'amount' => $this->faker->randomFloat(2, 100, 5000),
             'due_date' => $this->faker->date(),

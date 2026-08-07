@@ -13,6 +13,7 @@ class ProgrammeFactory extends Factory
     public function definition(): array
     {
         return [
+            'code' => strtoupper($this->faker->unique()->lexify('????')),
             'name' => $this->faker->unique()->word() . ' Programme',
             'description' => $this->faker->sentence(10),
             'duration' => '6 months',

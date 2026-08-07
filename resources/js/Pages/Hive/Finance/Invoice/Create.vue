@@ -18,7 +18,6 @@ const form = ref({
   description: '',
   due_date: '',
   academic_year: '',
-  semester: 1,
   notes: '',
   status: 'pending',
 });
@@ -94,40 +93,29 @@ const submit = () => {
             <span v-if="errors.amount" class="text-red-500 text-xs">{{ errors.amount }}</span>
           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Academic Year</label>
-            <input v-model="form.academic_year" type="text" placeholder="e.g. 2025/2026" required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-            <span v-if="errors.academic_year" class="text-red-500 text-xs">{{ errors.academic_year }}</span>
-          </div>
+<div>
+             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Academic Year</label>
+             <input v-model="form.academic_year" type="text" placeholder="e.g. 2025/2026" required
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+             <span v-if="errors.academic_year" class="text-red-500 text-xs">{{ errors.academic_year }}</span>
+           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Semester</label>
-            <select v-model.number="form.semester" required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              <option :value="1">Semester 1</option>
-              <option :value="2">Semester 2</option>
-              <option :value="3">Semester 3</option>
-            </select>
-            <span v-if="errors.semester" class="text-red-500 text-xs">{{ errors.semester }}</span>
-          </div>
+           <div>
+             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
+             <input v-model="form.due_date" type="date"
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
+             <span v-if="errors.due_date" class="text-red-500 text-xs">{{ errors.due_date }}</span>
+           </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Due Date</label>
-            <input v-model="form.due_date" type="date"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
-            <span v-if="errors.due_date" class="text-red-500 text-xs">{{ errors.due_date }}</span>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-            <select v-model="form.status"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-              <option v-for="s in statuses" :key="s" :value="s">{{ s.charAt(0).toUpperCase() + s.slice(1) }}</option>
-            </select>
-            <span v-if="errors.status" class="text-red-500 text-xs">{{ errors.status }}</span>
-          </div>
-        </div>
+           <div>
+             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+             <select v-model="form.status"
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+               <option v-for="s in statuses" :key="s" :value="s">{{ s.charAt(0).toUpperCase() + s.slice(1) }}</option>
+             </select>
+             <span v-if="errors.status" class="text-red-500 text-xs">{{ errors.status }}</span>
+           </div>
+         </div>
 
         <div class="mt-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description / Notes</label>

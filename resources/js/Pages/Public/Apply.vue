@@ -1,23 +1,23 @@
 <template>
   <PublicLayout>
     <!-- Hero -->
-    <section class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-16 lg:py-20 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-amber-600 to-amber-700 text-white py-16 lg:py-20 overflow-hidden">
       <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
-      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
-      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-amber-600/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-400/5 rounded-full blur-3xl"></div>
+      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl"></div>
 
       <!-- Decorative elements -->
-      <div class="absolute top-20 left-10 w-16 h-16 border border-amber-500/20 rounded-full"></div>
-      <div class="absolute bottom-32 right-16 w-10 h-10 border border-amber-500/10 rounded-full"></div>
+      <div class="absolute top-20 left-10 w-16 h-16 border border-white/20 rounded-full"></div>
+      <div class="absolute bottom-32 right-16 w-10 h-10 border border-white/10 rounded-full"></div>
 
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium mb-6">
-          <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 border border-white/30 rounded-full text-white text-sm font-medium mb-6">
+          <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
           Free Application
         </span>
         <h1 class="text-4xl lg:text-5xl font-bold">Apply Now</h1>
-        <p class="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">Start your journey to becoming a culinary professional. Complete the form below — it's free and takes only a few minutes.</p>
+        <p class="mt-4 text-lg text-white/80 max-w-2xl mx-auto">Start your journey to becoming a culinary professional. Complete the form below — it's free and takes only a few minutes.</p>
       </div>
     </section>
 
@@ -342,7 +342,6 @@ const submit = async () => {
     data.append('variant_id', form.variant_id);
   }
 
-  // Append files only if they exist
   if (form.attachments.certificate instanceof File) {
     data.append('attachments[certificate]', form.attachments.certificate);
   }
@@ -366,22 +365,22 @@ const submit = async () => {
     });
 
     if (response.ok) {
-      // Clear form and show success via Inertia visit
       form.reset();
       uploadedFiles.certificate = null;
       uploadedFiles.employer_letter = null;
       uploadedFiles.id_document = null;
       uploadedFiles.additional = [];
-      router.get(route('public.apply'));
+      router.get(route('public.apply'), {
+        onSuccess: () => {
+          form.processing = false;
+        },
+      });
     } else {
       const errorData = await response.json();
       if (errorData.errors) {
         form.errors = errorData.errors;
       }
-      if (errorData.message) {
-        // Handle server-level error (will be shown via flash)
-        form.processing = false;
-      }
+      form.processing = false;
     }
   } catch (error) {
     console.error('Submission failed:', error);

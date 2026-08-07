@@ -62,7 +62,6 @@ class InvoiceControllerTest extends HiveTestCase
             'type' => 'registration',
             'amount' => 500.00,
             'academic_year' => '2025/2026',
-            'semester' => 1,
             'due_date' => '2026-09-01',
         ]);
 

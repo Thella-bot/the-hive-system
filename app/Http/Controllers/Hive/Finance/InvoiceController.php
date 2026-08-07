@@ -115,7 +115,6 @@ class InvoiceController extends Controller
             'description' => 'nullable|string|max:500',
             'due_date' => 'nullable|date',
             'academic_year' => 'required|string',
-            'semester' => 'required|integer|min:1|max:3',
         ]);
 
         Invoice::create($data);
@@ -165,7 +164,6 @@ class InvoiceController extends Controller
             'variant_id' => 'nullable|exists:programme_variants,id',
             'type' => 'required|in:registration,tuition,uniform,tools,resource,examination,other',
             'academic_year' => 'required|string',
-            'semester' => 'required|integer|min:1|max:3',
             'due_date' => 'nullable|date',
         ]);
 
@@ -186,7 +184,6 @@ class InvoiceController extends Controller
 
         $existingKeys = Invoice::where('programme_id', $data['programme_id'])
             ->where('academic_year', $data['academic_year'])
-            ->where('semester', $data['semester'])
             ->where('type', $data['type'])
             ->pluck('user_id')
             ->toArray();
@@ -204,7 +201,6 @@ class InvoiceController extends Controller
                 'type' => $data['type'],
                 'amount' => $amount,
                 'academic_year' => $data['academic_year'],
-                'semester' => $data['semester'],
                 'due_date' => $data['due_date'],
                 'created_at' => now(),
                 'updated_at' => now(),

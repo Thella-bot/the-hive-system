@@ -15,6 +15,7 @@ class Payment extends Model
         'user_id',
         'payment_reference',
         'amount',
+        'items',
         'payment_method',
         'payment_date',
         'recorded_by',
@@ -27,6 +28,7 @@ class Payment extends Model
         'amount' => 'decimal:2',
         'payment_date' => 'date',
         'recorded_at' => 'date',
+        'items' => 'array',
     ];
 
     protected $attributes = [

@@ -30,14 +30,17 @@ class ApplicationController extends Controller
     public function index(Request $request): \Inertia\Response
     {
         $user = $request->user();
+        $filter = $request->query('filter', 'all');
 
         $applications = Application::with(['user', 'programme', 'variant'])
-            ->when($user->isStaff(), fn($q) => $q, fn($q) => $q->where('user_id', $user->id))
+            ->when(!$user->isStaff(), fn($q) => $q->where('user_id', $user->id))
+            ->when($filter !== 'all', fn($q) => $q->where('status', $filter))
             ->latest()
             ->paginate(12);
 
         return Inertia::render('Hive/Applications/Index', [
             'applications' => $applications,
+            'filter' => $filter,
             'canUpdate' => $user->isAdmin() || $user->hasAnyRole(['registrar', 'program-coordinator', 'admissions-officer']),
         ]);
     }

@@ -1,18 +1,18 @@
 <template>
   <PublicLayout>
     <!-- Page Hero -->
-    <section class="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-20 lg:py-28 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-amber-600 to-amber-700 text-white py-20 lg:py-28 overflow-hidden">
       <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 40px 40px;"></div>
-      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
-      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-amber-600/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-400/5 rounded-full blur-3xl"></div>
+      <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl"></div>
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium mb-6">
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/20 border border-white/30 rounded-full text-white text-sm font-medium mb-6">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
           Accredited Training
         </span>
         <h1 class="text-4xl lg:text-5xl font-bold">Our Programmes</h1>
-        <p class="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">From professional diplomas to short workshops — find the perfect path to launch your culinary career.</p>
+        <p class="mt-4 text-lg text-white/80 max-w-2xl mx-auto">From professional diplomas to short workshops — find the perfect path to launch your culinary career.</p>
       </div>
     </section>
 
@@ -156,22 +156,22 @@
     </section>
 
     <!-- CTA -->
-    <section class="py-16 bg-gradient-to-br from-amber-600 to-amber-700 relative overflow-hidden">
-      <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-      <div class="absolute bottom-0 right-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-3xl"></div>
+    <section class="py-16 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute bottom-0 right-0 w-[300px] h-[300px] bg-amber-600/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-400/5 rounded-full blur-3xl"></div>
       <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white text-sm font-medium mb-4">
-          <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-600/20 border border-amber-500/30 rounded-full text-amber-400 text-sm font-medium mb-4">
+          <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
           Need Help Choosing?
         </span>
         <h2 class="text-2xl lg:text-3xl font-bold text-white">Not Sure Which Programme Is Right for You?</h2>
-        <p class="mt-3 text-amber-100">Our admissions team can help guide you to the best choice based on your goals.</p>
+        <p class="mt-3 text-gray-300">Our admissions team can help guide you to the best choice based on your goals.</p>
         <div class="mt-6 flex flex-wrap justify-center gap-4">
-          <Link :href="route('contact')" class="group inline-flex items-center gap-2 px-6 py-3 bg-white text-amber-700 font-semibold rounded-lg hover:bg-amber-50 transition hover:-translate-y-0.5">Contact Admissions
+          <Link :href="route('contact')" class="group inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 transition shadow-lg shadow-amber-600/30 hover:shadow-amber-600/50">Contact Admissions
             <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
           </Link>
-          <Link :href="route('about')" class="px-6 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition">Learn About HBCI</Link>
+          <Link :href="route('about')" class="px-6 py-3 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition border border-white/20">Learn About HBCI</Link>
         </div>
       </div>
     </section>

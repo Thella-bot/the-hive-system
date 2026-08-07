@@ -111,7 +111,7 @@ const statusClass = (status) => {
             <td class="px-6 py-4">
               <div>
                 <p class="font-medium text-gray-900 dark:text-gray-100">{{ invoice.invoice_number }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ invoice.academic_year }} Semester {{ invoice.semester }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ invoice.academic_year }}</p>
               </div>
             </td>
             <td class="px-6 py-4 hidden md:table-cell">

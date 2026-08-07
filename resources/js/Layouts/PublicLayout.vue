@@ -122,7 +122,7 @@ const isActive = (href) => {
     </main>
 
     <!-- Modern Footer -->
-    <footer class="bg-gradient-to-r from-gray-800 to-gray-900 text-white dark:bg-gray-800">
+    <footer class="bg-gradient-to-r from-amber-600 to-amber-700 text-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           <!-- Brand Column -->
@@ -130,9 +130,9 @@ const isActive = (href) => {
             <Link :href="route('home')" class="inline-block">
               <img src="/images/hbci-logo.png" alt="HBCI" class="h-12 w-auto" />
             </Link>
-            <p class="mt-4 text-gray-400 text-sm max-w-md leading-relaxed">
-              The International Culinary and Hospitality Academy of Lesotho. Empowering the next generation of culinary and hospitality professionals through world-class training.
-            </p>
+             <p class="mt-4 text-white/80 text-sm max-w-md leading-relaxed">
+               The International Culinary and Hospitality Academy of Lesotho. Empowering the next generation of culinary and hospitality professionals through world-class training.
+             </p>
             <div class="mt-6">
               <SocialIcons />
             </div>
@@ -142,33 +142,33 @@ const isActive = (href) => {
           <div>
             <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Quick Links</h3>
             <ul class="mt-4 space-y-3">
-              <li><Link :href="route('about')" class="text-gray-400 hover:text-amber-400 transition text-sm">About Us</Link></li>
-              <li><Link :href="route('programmes')" class="text-gray-400 hover:text-amber-400 transition text-sm">Programmes</Link></li>
-              <li><Link :href="route('apply')" class="text-gray-400 hover:text-amber-400 transition text-sm">Admissions</Link></li>
-              <li><Link :href="route('contact')" class="text-gray-400 hover:text-amber-400 transition text-sm">Contact</Link></li>
-              <li><Link href="/login" class="text-gray-400 hover:text-amber-400 transition text-sm">Student Portal</Link></li>
+              <li><Link :href="route('about')" class="text-white/80 hover:text-white transition text-sm">About Us</Link></li>
+              <li><Link :href="route('programmes')" class="text-white/80 hover:text-white transition text-sm">Programmes</Link></li>
+              <li><Link :href="route('apply')" class="text-white/80 hover:text-white transition text-sm">Admissions</Link></li>
+              <li><Link :href="route('contact')" class="text-white/80 hover:text-white transition text-sm">Contact</Link></li>
+              <li><Link href="/login" class="text-white/80 hover:text-white transition text-sm">Student Portal</Link></li>
             </ul>
           </div>
 
           <!-- Contact Info -->
           <div>
             <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Contact</h3>
-            <ul class="mt-4 space-y-3 text-sm text-gray-400">
+            <ul class="mt-4 space-y-3 text-sm text-white/80">
               <li class="flex items-start gap-2">
-                <svg class="w-4 h-4 mt-0.5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-4 h-4 mt-0.5 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
                 Maseru, Lesotho
               </li>
               <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
                 info@hbci.co.ls
               </li>
               <li class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-4 h-4 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
                 +266 5888 1234
@@ -178,8 +178,8 @@ const isActive = (href) => {
         </div>
 
         <!-- Partnership Logos -->
-        <div class="mt-12 pt-8 border-t border-gray-800">
-          <p class="text-xs text-gray-400 text-center mb-6">Accredited & Affiliated With</p>
+        <div class="mt-12 pt-8 border-t border-white/20">
+          <p class="text-xs text-white/60 text-center mb-6">Accredited & Affiliated With</p>
           <div class="flex flex-wrap items-center justify-center gap-6">
             <div class="bg-white rounded-lg p-3 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
               <img src="/images/cchpl-logo.png" alt="CCHPL" class="h-16 w-auto" />
@@ -203,8 +203,8 @@ const isActive = (href) => {
         </div>
 
         <!-- Copyright -->
-        <div class="mt-8 pt-8 border-t border-gray-800 text-center">
-          <p class="text-sm text-gray-500">
+        <div class="mt-8 pt-8 border-t border-white/20 text-center">
+          <p class="text-sm text-white/60">
             &copy; {{ currentYear }} Honey Bee Culinary Institute. All rights reserved.
           </p>
         </div>

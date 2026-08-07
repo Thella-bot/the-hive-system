@@ -59,7 +59,7 @@
     </tr>
     <tr>
         <td style="border: none;"><strong>Bank Ref:</strong> {{ $bank_ref ?? 'N/A' }}</td>
-        <td style="border: none;"><strong>Cohort:</strong> {{ $cohort }}</td>
+        <td style="border: none;"></td>
     </tr>
 </table>
 
