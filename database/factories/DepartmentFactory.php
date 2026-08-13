@@ -15,6 +15,7 @@ class DepartmentFactory extends Factory
             'name' => $this->faker->unique()->word() . ' Department',
             'description' => $this->faker->sentence(10),
             'is_active' => true,
+            'is_academic' => true,
         ];
     }
 }

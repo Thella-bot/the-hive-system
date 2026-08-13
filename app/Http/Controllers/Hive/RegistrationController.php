@@ -183,8 +183,11 @@ class RegistrationController extends Controller
         }
 
         // Student number
-        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'student_number') && empty($student->student_number)) {
-            $student->forceFill(['student_number' => \App\Services\IdGenerator::generateStudentId($programme?->department_id ?? 0)])->save();
+        if (empty($student->profile?->student_number)) {
+            $student->profile()->updateOrCreate(
+                ['profileable_id' => $student->id, 'profileable_type' => $student->getMorphClass()],
+                ['student_number' => \App\Services\IdGenerator::generateStudentId($programme?->department_id ?? 0)]
+            );
         }
     }
 

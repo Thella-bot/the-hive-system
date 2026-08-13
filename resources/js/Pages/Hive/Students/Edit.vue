@@ -87,7 +87,7 @@
                 <select v-model="form.cohort_id"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
                   <option :value="null">— None —</option>
-                  <option v-for="c in cohorts" :key="c.id" :value="c.id">{{ c.name }}</option>
+                  <option v-for="c in filteredCohorts" :key="c.id" :value="c.id">{{ c.name }}</option>
                 </select>
               </div>
               <div v-if="!isAdmin">
@@ -214,6 +214,13 @@ const form = useForm({
   emergency_contact_name: p?.emergency_contact_name ?? '',
   emergency_contact_phone: p?.emergency_contact_phone ?? '',
   emergency_contact_relationship: p?.emergency_contact_relationship ?? '',
+})
+
+const filteredCohorts = computed(() => {
+  if (!form.programme_id) return props.cohorts
+  const programme = props.programmes.find(p => p.id === form.programme_id)
+  if (!programme?.department_id) return props.cohorts
+  return props.cohorts.filter(c => c.department_id === programme.department_id)
 })
 
 const formatStatus = (s) => s?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '—'

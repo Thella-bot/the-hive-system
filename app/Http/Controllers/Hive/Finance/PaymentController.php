@@ -149,11 +149,13 @@ class PaymentController extends Controller
 
     public function downloadReceipt(Payment $payment)
     {
-        $payment->load(['user', 'invoice']);
+        $payment->load(['user.profile', 'invoice']);
 
         $invoice = $payment->invoice;
         $programme = $invoice?->programme;
-        $studentNumber = $payment->user?->student_number ?? 'N/A';
+        $studentNumber = $payment->user?->profile?->student_number
+            ?? $payment->user?->student_number
+            ?? 'N/A';
 
         $items = $payment->items ?? [[
             'description' => $invoice ? ($invoice->description ?? 'Tuition / fee payment') : 'Payment received',

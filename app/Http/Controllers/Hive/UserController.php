@@ -106,7 +106,7 @@ class UserController extends Controller
 
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
 
-        // Generate student/employee number
+        // Generate student/employee number if not provided
         $isStudent = $user->hasRole('student');
         $departmentId = null;
 
@@ -122,9 +122,9 @@ class UserController extends Controller
         $number = $this->generateUniqueNumber($isStudent, $departmentId);
 
         if ($isStudent) {
-            $profileData['student_number'] = $number;
+            $profileData['student_number'] = $profileData['student_number'] ?? $number;
         } else {
-            $profileData['employee_number'] = $number;
+            $profileData['employee_number'] = $profileData['employee_number'] ?? $number;
         }
 
         $user->profile()->create($profileData);

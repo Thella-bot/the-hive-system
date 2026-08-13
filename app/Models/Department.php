@@ -22,12 +22,14 @@ class Department extends Model
         'head_user_id',
         'color',
         'is_active',
+        'is_academic',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'is_academic' => 'boolean',
         ];
     }
 
@@ -95,6 +97,11 @@ class Department extends Model
     public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeAcademic($query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('is_academic', true);
     }
 
     // --- Helpers ---

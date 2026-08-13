@@ -15,12 +15,12 @@ class DepartmentSeeder extends Seeder
     public function run()
     {
         $departments = [
-            ['name' => 'Hospitality Management', 'slug' => 'hospitality-management',],
-            ['name' => 'Patisseries', 'slug' => 'patisseries',],
-            ['name' => 'Food Safety', 'slug' => 'food-safety',],
-            ['name' => 'Global Cuisines', 'slug' => 'global-cuisines',],
-            ['name' => 'Contemporary Gastronomy', 'slug' => 'contemporary-gastronomy',],
-            ['name' => 'Administration', 'slug' => 'administration',],
+            ['name' => 'Hospitality Management', 'slug' => 'hospitality-management', 'is_academic' => true],
+            ['name' => 'Patisseries', 'slug' => 'patisseries', 'is_academic' => true],
+            ['name' => 'Food Safety', 'slug' => 'food-safety', 'is_academic' => true],
+            ['name' => 'Global Cuisines', 'slug' => 'global-cuisines', 'is_academic' => true],
+            ['name' => 'Contemporary Gastronomy', 'slug' => 'contemporary-gastronomy', 'is_academic' => true],
+            ['name' => 'Administration', 'slug' => 'administration', 'is_academic' => false],
         ];
 
         foreach ($departments as $department) {

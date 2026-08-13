@@ -76,7 +76,7 @@ class StudentController extends Controller
         return Inertia::render('Hive/Students/Edit', [
             'managedStudent' => $student->load(['profile', 'programme']),
             'programmes' => Programme::orderBy('name')->get(),
-            'cohorts' => Cohort::orderBy('name', 'desc')->get(),
+            'cohorts' => Cohort::with('department:id,name')->select('id', 'name', 'department_id')->get(),
             'isAdmin' => $isAdmin,
         ]);
     }

@@ -60,7 +60,7 @@ class AcademicYear extends Model
     {
         $year = $this->start_date->year;
 
-        $departments = \App\Models\Department::whereNotIn('name', ['Administration', 'Admin'])
+        $departments = \App\Models\Department::academic()
             ->where('is_active', true)
             ->get();
 

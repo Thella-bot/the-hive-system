@@ -49,7 +49,7 @@ class UpdateStudent
         Validator::make($input, [
             'email' => ['nullable', 'email', Rule::unique('users')->ignore($student->id)],
             'programme_id' => ['nullable', 'exists:programmes,id'],
-            'student_number' => ['nullable', 'string', Rule::unique('users')->ignore($student->id)],
+            'student_number' => ['nullable', 'string', Rule::unique('profiles')->ignore($student->profile?->id)],
             'cohort_id' => ['nullable', 'exists:cohorts,id'],
             'status' => ['nullable', Rule::in(['active', 'graduated', 'on_leave', 'suspended', 'withdrawn'])],
             'enrollment_date' => ['nullable', 'date'],
@@ -73,9 +73,6 @@ class UpdateStudent
         if ($isAdmin) {
             if (isset($input['email']) && !empty($input['email'])) {
                 $userData['email'] = $input['email'];
-            }
-            if (isset($input['student_number'])) {
-                $userData['student_number'] = $input['student_number'];
             }
             if (isset($input['programme_id'])) {
                 $userData['programme_id'] = $input['programme_id'];
@@ -106,6 +103,9 @@ class UpdateStudent
     {
         $profileData = [];
 
+        if (isset($input['student_number'])) {
+            $profileData['student_number'] = $input['student_number'];
+        }
         if (isset($input['cohort_id'])) {
             $profileData['cohort_id'] = $input['cohort_id'];
         }

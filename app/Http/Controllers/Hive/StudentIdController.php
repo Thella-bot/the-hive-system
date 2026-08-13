@@ -35,10 +35,16 @@ class StudentIdController extends Controller
     public function download(Request $request, ?User $student = null)
     {
         $target = $this->resolveTarget($request, $student);
+        $card = $this->pdfCardData($target);
 
         $pdf = Pdf::loadView('pdf.student-id-card', [
-            'card' => $this->pdfCardData($target),
-        ])->setPaper([0, 0, 242, 153]); // ~CR80 card size in points (3.375in x 2.125in landscape)
+            'name'          => $card['name'],
+            'studentNumber' => $card['student_number'],
+            'year'          => $card['year'],
+            'programme'     => $card['programme'],
+            'initials'      => $card['initials'],
+            'photoPath'     => $card['photo_path'],
+        ])->setPaper([0, 0, 242, 153]);
 
         return $pdf->download('Student_ID_' . ($target->profile?->student_number ?? $target->id) . '.pdf');
     }

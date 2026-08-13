@@ -15,198 +15,174 @@
         }
 
         body {
-            font-family: DejaVu Sans, sans-serif;
             margin: 0;
             padding: 0;
-            width: 242pt;
-            height: 153pt;
-            overflow: hidden;
+            font-family: DejaVu Sans, sans-serif;
         }
 
         .card {
-            position: relative;
             width: 242pt;
             height: 153pt;
             background: #ffffff;
+            border-radius: 12pt;
             overflow: hidden;
-            page-break-inside: avoid;
+            position: relative;
         }
 
-        /* Decorative brand shapes, echoing the HBCI orange/black identity */
-        .blob-top-right {
+        .blob-top {
             position: absolute;
-            top: -78pt;
+            top: -50pt;
             right: -30pt;
-            width: 160pt;
-            height: 160pt;
-            background: #FBB040;
+            width: 140pt;
+            height: 140pt;
             border-radius: 50%;
+            background: #fbbf24;
         }
 
-        .blob-bottom-left {
+        .blob-bottom {
             position: absolute;
-            bottom: -68pt;
-            left: -50pt;
+            bottom: -60pt;
+            left: -40pt;
             width: 130pt;
             height: 130pt;
-            background: #FBB040;
             border-radius: 50%;
+            background: #fbbf24;
         }
 
-        .accent-black {
+        .corner-accent {
             position: absolute;
-            bottom: -6pt;
-            right: -14pt;
-            width: 100pt;
-            height: 46pt;
-            background: #111111;
-            transform: rotate(-10deg);
+            bottom: 0;
+            right: 0;
+            width: 48pt;
+            height: 28pt;
+            background: #000000;
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+        }
+
+        .header {
+            position: absolute;
+            top: 12pt;
+            left: 16pt;
+            right: 16pt;
+            height: 18pt;
+        }
+
+        .header img {
+            height: 18pt;
+        }
+
+        .title {
+            position: absolute;
+            top: 34pt;
+            left: 16pt;
+            background: #f59e0b;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 12pt;
+            letter-spacing: 1.2pt;
+            padding: 3pt 16pt;
+            border-radius: 9999pt;
         }
 
         .content {
-            position: relative;
-            z-index: 2;
-            padding: 9pt 13pt;
+            position: absolute;
+            top: 60pt;
+            left: 16pt;
+            right: 16pt;
+            bottom: 14pt;
         }
 
-        .top-row {
-            width: 100%;
-            border-collapse: collapse;
+        .photo {
+            width: 48pt;
+            height: 60pt;
+            object-fit: cover;
+            border-radius: 4pt;
+            border: 2pt solid #ffffff;
+            box-shadow: 0 1pt 2pt rgba(0, 0, 0, 0.15);
+            background: #fffbeb;
         }
 
-        .top-row td {
-            padding: 0;
-            vertical-align: middle;
+        .details {
+            font-size: 8pt;
+            line-height: 11pt;
+            padding-top: 2pt;
         }
 
-        .logo {
-            height: 20pt;
+        .row {
+            margin-bottom: 5pt;
         }
 
-        .title-badge {
-            display: inline-block;
-            background: #FBB040;
-            color: #ffffff;
-            font-size: 12pt;
-            font-weight: bold;
-            padding: 4pt 13pt;
-            border-radius: 12pt;
+        .label {
+            font-weight: 700;
+            color: #111827;
         }
 
-        .layout {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 7pt;
-        }
-
-        .layout td {
-            padding: 0;
-            vertical-align: middle;
-        }
-
-        .photo-cell {
-            width: 62pt;
-            padding-right: 10pt;
-        }
-
-        .photo-frame {
-            width: 62pt;
-            height: 84pt;
-            overflow: hidden;
-            border-radius: 3pt;
-            background: #FBB040;
-        }
-
-        .photo-frame img {
-            width: 62pt;
-        }
-
-        .photo-placeholder {
-            width: 62pt;
-            height: 84pt;
-            line-height: 84pt;
-            text-align: center;
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 20pt;
-        }
-
-        table.fields {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table.fields td {
-            padding: 2.5pt 0;
-            font-size: 8.5pt;
-            vertical-align: top;
-        }
-
-        .field-label {
-            color: #111111;
-            font-weight: bold;
-            width: 62pt;
-        }
-
-        .field-value {
-            color: #111111;
-            font-weight: bold;
-        }
-
-        .course-value {
+        .value {
+            font-weight: 900;
+            color: #111827;
             text-transform: uppercase;
+            word-wrap: break-word;
+        }
+
+        .initials-fallback {
+            width: 48pt;
+            height: 60pt;
+            border-radius: 4pt;
+            border: 2pt solid #ffffff;
+            box-shadow: 0 1pt 2pt rgba(0, 0, 0, 0.15);
+            background: #fffbeb;
+            color: #92400e;
+            font-weight: 900;
+            font-size: 14pt;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
     </style>
 </head>
 
 <body>
     <div class="card">
-        <div class="blob-top-right"></div>
-        <div class="blob-bottom-left"></div>
-        <div class="accent-black"></div>
+        <div class="blob-top"></div>
+        <div class="blob-bottom"></div>
+        <div class="corner-accent"></div>
+
+        <div class="header">
+            <img src="{{ public_path('images/hbci-logo.png') }}" alt="Honey Bee Culinary Institute">
+        </div>
+
+        <div class="title">STUDENT CARD</div>
 
         <div class="content">
-            <table class="top-row">
+            <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                    <td style="text-align: left;">
-                        <img class="logo" src="{{ public_path('images/hbci-logo.png') }}">
+                    <td width="48pt" valign="top" style="padding-right: 10pt;">
+                        @if($photoPath)
+                            <img class="photo" src="{{ $photoPath }}" alt="Student photo">
+                        @else
+                            <div class="initials-fallback">{{ $initials }}</div>
+                        @endif
                     </td>
-                    <td style="text-align: right;">
-                        <span class="title-badge">STUDENT CARD</span>
-                    </td>
-                </tr>
-            </table>
-
-            <table class="layout">
-                <tr>
-                    <td class="photo-cell">
-                        <div class="photo-frame">
-                            @if (!empty($card['photo_path']))
-                            <img src="{{ $card['photo_path'] }}">
-                            @else
-                            <div class="photo-placeholder">{{ $card['initials'] ?? '?' }}</div>
-                            @endif
+                    <td valign="top">
+                        <div class="details">
+                            <div class="row">
+                                <span class="label">STUDENT NO:</span><br>
+                                <span class="value">{{ $studentNumber ?? 'N/A' }}</span>
+                            </div>
+                            <div class="row">
+                                <span class="label">NAME:</span><br>
+                                <span class="value">{{ $name }}</span>
+                            </div>
+                            <div class="row">
+                                <span class="label">YEAR:</span><br>
+                                <span class="value">{{ $year }}</span>
+                            </div>
+                            <div class="row">
+                                <span class="label">COURSE:</span><br>
+                                <span class="value">{{ $programme ?? 'N/A' }}</span>
+                            </div>
                         </div>
-                    </td>
-                    <td>
-                        <table class="fields">
-                            <tr>
-                                <td class="field-label">STUDENT NO:</td>
-                                <td class="field-value">{{ $card['student_number'] ?? 'N/A' }}</td>
-                            </tr>
-                            <tr>
-                                <td class="field-label">NAME:</td>
-                                <td class="field-value">{{ strtoupper($card['name']) }}</td>
-                            </tr>
-                            <tr>
-                                <td class="field-label">YEAR:</td>
-                                <td class="field-value">{{ $card['year'] }}</td>
-                            </tr>
-                            <tr>
-                                <td class="field-label">PROGRAMME:</td>
-                                <td class="field-value course-value">{{ $card['programme'] ?? 'N/A' }}</td>
-                            </tr>
-                        </table>
                     </td>
                 </tr>
             </table>

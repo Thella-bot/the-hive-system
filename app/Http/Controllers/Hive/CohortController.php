@@ -23,7 +23,7 @@ class CohortController extends Controller
 
         return Inertia::render('Hive/Cohorts/Index', [
             'cohorts'       => $cohorts,
-            'departments'   => Department::active()->select('id', 'name')->get(),
+            'departments'   => Department::academic()->active()->select('id', 'name', 'color')->get(),
             'academicYears' => AcademicYear::orderByDesc('start_date')->select('id', 'name')->get(),
         ]);
     }
@@ -31,7 +31,7 @@ class CohortController extends Controller
     public function create(): Response
     {
         return Inertia::render('Hive/Cohorts/Create', [
-            'departments'   => Department::active()->select('id', 'name', 'color')->get(),
+            'departments'   => Department::academic()->active()->select('id', 'name', 'color')->get(),
             'academicYears' => AcademicYear::orderByDesc('start_date')->select('id', 'name', 'is_current')->get(),
         ]);
     }
@@ -40,7 +40,12 @@ class CohortController extends Controller
     {
         $data = $request->validate([
             'name'             => 'required|string|max:255',
-            'department_id'    => 'required|exists:departments,id',
+            'department_id'    => ['required', 'exists:departments,id', function ($attribute, $value, $fail) {
+                $department = \App\Models\Department::find($value);
+                if (!$department || !$department->is_academic) {
+                    $fail('The selected department is not eligible for cohorts.');
+                }
+            }],
             'academic_year_id' => 'required|exists:academic_years,id',
             'max_students'     => 'required|integer|min:1|max:200',
             'is_active'        => 'boolean',
@@ -71,7 +76,7 @@ class CohortController extends Controller
     {
         return Inertia::render('Hive/Cohorts/Edit', [
             'cohort'        => $cohort,
-            'departments'   => Department::active()->select('id', 'name', 'color')->get(),
+            'departments'   => Department::academic()->active()->select('id', 'name', 'color')->get(),
             'academicYears' => AcademicYear::orderByDesc('start_date')->select('id', 'name', 'is_current')->get(),
         ]);
     }
@@ -80,7 +85,12 @@ class CohortController extends Controller
     {
         $data = $request->validate([
             'name'             => 'required|string|max:255',
-            'department_id'    => 'required|exists:departments,id',
+            'department_id'    => ['required', 'exists:departments,id', function ($attribute, $value, $fail) {
+                $department = \App\Models\Department::find($value);
+                if (!$department || !$department->is_academic) {
+                    $fail('The selected department is not eligible for cohorts.');
+                }
+            }],
             'academic_year_id' => 'required|exists:academic_years,id',
             'max_students'     => 'required|integer|min:1|max:200',
             'is_active'        => 'boolean',

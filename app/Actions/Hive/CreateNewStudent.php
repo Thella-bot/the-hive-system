@@ -29,6 +29,7 @@ class CreateNewStudent
                 Rule::unique(User::class),
             ],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'student_number' => ['nullable', 'string', Rule::unique(Profile::class)->where('profileable_type', User::class)],
             'programme_id' => ['nullable', 'exists:programmes,id'],
         ])->validate();
 
@@ -45,17 +46,19 @@ class CreateNewStudent
         if (!empty($input['programme_id'])) {
             $programme = Programme::with('modules.department')->find($input['programme_id']);
             if ($programme) {
-                // Enroll student in modules
                 $moduleIds = $programme->modules->pluck('id');
                 $user->modules()->sync($moduleIds);
 
-                // Create profile with a student number
                 $department = $programme->department
                     ?? $programme->modules->first()?->department
                     ?? null;
-                if ($department) {
-                    $studentId = IdGenerator::generateStudentId($department->id);
-                    $user->profile()->create(['student_number' => $studentId]);
+
+                $studentNumber = !empty($input['student_number'])
+                    ? $input['student_number']
+                    : ($department ? IdGenerator::generateStudentId($department->id) : null);
+
+                if ($studentNumber) {
+                    $user->profile()->create(['student_number' => $studentNumber]);
                 }
             }
         }
