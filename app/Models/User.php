@@ -62,6 +62,16 @@ class User extends Authenticatable
         return $this->morphOne(Profile::class, 'profileable');
     }
 
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class, 'created_by');
+    }
+
     public function headOfDepartment(): HasOne
     {
         return $this->hasOne(Department::class, 'head_user_id');
@@ -266,11 +276,6 @@ class User extends Authenticatable
     public function bookReservations(): HasMany
     {
         return $this->hasMany(\App\Models\BookReservation::class);
-    }
-
-    public function applications(): HasMany
-    {
-        return $this->hasMany(\App\Models\Application::class);
     }
 
     /**

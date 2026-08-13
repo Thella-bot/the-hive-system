@@ -16,7 +16,6 @@ class Authenticate extends Middleware
             return null;
         }
 
-        // Store intended URL in session for redirect after login
         if ($request->fullUrl()) {
             session(['url.intended' => $request->fullUrl()]);
         }

@@ -11,7 +11,7 @@ class Profile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'first_name', 'last_name', 'date_of_birth',
+        'first_name', 'last_name', 'date_of_birth',
         'phone', 'address', 'emergency_contact_name',
         'emergency_contact_phone', 'annual_leave_days', 'leave_balance',
         'profile_picture_path', 'twitter_handle', 'linkedin_profile',

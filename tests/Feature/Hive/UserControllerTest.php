@@ -87,7 +87,7 @@ class UserControllerTest extends HiveTestCase
             'email' => 'newuser@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'role' => 'student',
+            'roles' => ['student'],
             'department_id' => Department::first()->id,
         ]);
 
@@ -107,7 +107,7 @@ class UserControllerTest extends HiveTestCase
             'email' => 'not-an-email',
         ]);
 
-        $response->assertSessionHasErrors(['name', 'email', 'role']);
+        $response->assertSessionHasErrors(['name', 'email', 'roles']);
     }
 
     public function test_user_show_returns_success(): void
@@ -157,7 +157,7 @@ class UserControllerTest extends HiveTestCase
         $response = $this->patch(route('hive.users.update', $targetUser), [
             'name'  => 'Updated Name',
             'email' => 'updated@example.com',
-            'role'  => 'registrar',
+            'roles'  => ['registrar'],
         ]);
 
         $response->assertRedirect();

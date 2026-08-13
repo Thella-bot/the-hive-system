@@ -92,7 +92,7 @@
           <label>Cohort</label>
           <select v-model="form.cohort_id" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition dark:bg-gray-700 dark:text-white">
             <option :value="null">Select Cohort</option>
-            <option v-for="cohort in cohorts" :key="cohort.id" :value="cohort.id">{{ cohort.name }}</option>
+            <option v-for="cohort in cohorts" :key="cohort.id" :value="cohort.id">{{ cohort.name }} ({{ cohort.department?.name }})</option>
           </select>
         </div>
         <div>

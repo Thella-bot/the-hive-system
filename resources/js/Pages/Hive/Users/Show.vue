@@ -41,10 +41,6 @@
             <p class="text-2xl font-bold text-emerald-600">{{ enrollmentCount }}</p>
             <p class="text-xs text-gray-500 uppercase">Enrollments</p>
           </div>
-          <div v-if="certificationCount > 0" class="px-4">
-            <p class="text-2xl font-bold text-blue-600">{{ certificationCount }}</p>
-            <p class="text-xs text-gray-500 uppercase">Certifications</p>
-          </div>
           <div v-if="documentCount > 0" class="px-4">
             <p class="text-2xl font-bold text-purple-600">{{ documentCount }}</p>
             <p class="text-xs text-gray-500 uppercase">Documents</p>
@@ -195,28 +191,8 @@
         </div>
       </div>
 
-      <!-- Certifications -->
-      <div v-if="certifications?.length" class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div class="px-6 py-4 bg-amber-50 border-b border-gray-100 flex items-center justify-between">
-          <h3 class="font-semibold text-gray-900">Certifications</h3>
-          <span class="text-xs text-gray-500">{{ certifications.length }} earned</span>
-        </div>
-        <div class="divide-y divide-gray-100">
-          <div v-for="cert in certifications" :key="cert.id"
-            class="px-6 py-4 flex items-center justify-between">
-            <div>
-              <p class="font-medium text-gray-900">{{ cert.name }}</p>
-              <p class="text-sm text-gray-500">{{ cert.module?.name ?? '—' }}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-sm text-gray-500">Awarded {{ formatDate(cert.awarded_at) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Empty state for users with no data -->
-      <div v-if="!managedUser.profile && !applications?.length && !enrollments?.length && !certifications?.length"
+      <div v-if="!managedUser.profile && !applications?.length && !enrollments?.length"
         class="bg-white rounded-xl border border-gray-200 p-12 text-center">
         <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
           <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -261,7 +237,6 @@ const primaryRole = computed(() =>
 
 const applicationCount = computed(() => props.applications?.length ?? 0)
 const enrollmentCount = computed(() => props.enrollments?.length ?? 0)
-const certificationCount = computed(() => props.certifications?.length ?? 0)
 
 const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 const formatStatus = (s) => s?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '—'

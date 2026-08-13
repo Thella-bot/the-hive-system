@@ -108,9 +108,17 @@ class StudentIdController extends Controller
 
         $disk = Storage::disk($target->profilePhotoDisk());
 
-        return $disk->exists($target->profile_photo_path)
-            ? $disk->path($target->profile_photo_path)
-            : null;
+        if (!$disk->exists($target->profile_photo_path)) {
+            return null;
+        }
+
+        $path = $disk->path($target->profile_photo_path);
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $path = str_replace('\\', '/', $path);
+        }
+
+        return $path;
     }
 
     private function initials(string $name): string

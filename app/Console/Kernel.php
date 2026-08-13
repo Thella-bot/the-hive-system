@@ -10,6 +10,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('cohorts:update-status')->daily();
+        $schedule->command('academic-year:create')->yearlyOn(12, 1, '00:00');
     }
 
     protected function commands(): void

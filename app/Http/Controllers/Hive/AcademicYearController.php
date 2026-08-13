@@ -32,9 +32,16 @@ class AcademicYearController extends Controller
 
     public function store(StoreAcademicYearRequest $request): RedirectResponse
     {
-        $year = AcademicYear::create($request->validated());
+        $year = (int) $request->validated()['year'];
 
-        $year->generateDefaultCohorts();
+        $academicYear = AcademicYear::create([
+            'name'       => (string) $year,
+            'start_date' => "{$year}-01-01",
+            'end_date'   => "{$year}-12-31",
+            'is_current' => $request->boolean('is_current', false),
+        ]);
+
+        $academicYear->generateDefaultCohorts();
 
         return redirect()->route('hive.academic-years.index')
             ->with('success', 'Academic year created with default cohorts.');
@@ -49,7 +56,14 @@ class AcademicYearController extends Controller
 
     public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear): RedirectResponse
     {
-        $academicYear->update($request->validated());
+        $year = (int) $request->validated()['year'];
+
+        $academicYear->update([
+            'name'       => (string) $year,
+            'start_date' => "{$year}-01-01",
+            'end_date'   => "{$year}-12-31",
+            'is_current' => $request->boolean('is_current', false),
+        ]);
 
         return redirect()->route('hive.academic-years.index')
             ->with('success', 'Academic year updated.');

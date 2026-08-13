@@ -15,24 +15,11 @@
         <div class="p-6 space-y-5">
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Year Name <span class="text-red-500">*</span></label>
-            <input v-model="form.name" type="text"
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Year <span class="text-red-500">*</span></label>
+            <input v-model="form.year" type="number" min="2000" max="2099"
               class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
-              :class="{ 'border-red-400': form.errors.name }" />
-            <p v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Start Date</label>
-              <input v-model="form.start_date" type="date"
-                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">End Date</label>
-              <input v-model="form.end_date" type="date"
-                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
-            </div>
+              :class="{ 'border-red-400': form.errors.year }" />
+            <p v-if="form.errors.year" class="text-red-500 text-xs mt-1">{{ form.errors.year }}</p>
           </div>
 
           <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -73,9 +60,7 @@ const props = defineProps({
 })
 
 const form = useForm({
-  name:       props.year.name,
-  start_date: props.year.start_date,
-  end_date:   props.year.end_date,
+  year:       +props.year.name,
   is_current: props.year.is_current,
 })
 

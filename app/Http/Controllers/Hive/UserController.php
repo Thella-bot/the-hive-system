@@ -57,6 +57,7 @@ class UserController extends Controller
             'roles'       => Role::orderBy('name')->get(['id', 'name']),
             'departments' => Department::active()->select('id', 'name')->get(),
             'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
+            'programmes'  => Programme::orderBy('name')->get(['id', 'name', 'department_id']),
         ]);
     }
 
@@ -66,7 +67,8 @@ class UserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role'     => 'required|exists:roles,name',
+            'roles'    => 'required|array|min:1',
+            'roles.*'  => 'exists:roles,name',
 
             // Profile fields
             'first_name' => 'nullable|string|max:255',
@@ -100,7 +102,7 @@ class UserController extends Controller
             'password' => Hash::make($data['password']),
         ]);
 
-        $user->syncRoles([$data['role']]);
+        $user->syncRoles($data['roles']);
 
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
 
@@ -162,7 +164,7 @@ class UserController extends Controller
         // Get user's programme (for students)
         $programme = null;
         if ($user->profile && $user->profile->cohort_id) {
-            $programme = \App\Models\Programme::whereHas('cohorts', fn($q) => $q->where('cohorts.id', $user->profile->cohort_id))->first();
+            $programme = \App\Models\Programme::where('department_id', $user->profile->cohort?->department_id)->first();
         }
 
         return Inertia::render('Hive/Users/Show', [
@@ -196,8 +198,9 @@ class UserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'role'     => 'required|exists:roles,name',
-            'student_number' => ['nullable', 'string', Rule::unique('users')->ignore($user->id), Rule::unique('profiles')->ignore($user->profile?->id)],
+            'roles'    => 'required|array|min:1',
+            'roles.*'  => 'exists:roles,name',
+            'student_number' => ['nullable', 'string', Rule::unique('profiles')->ignore($user->profile?->id)],
             'programme_id' => 'nullable|exists:programmes,id',
             'approved_at' => 'nullable|date',
 
@@ -232,7 +235,6 @@ class UserController extends Controller
         $userData = [
             'name'          => $data['name'],
             'email'         => $data['email'],
-            'student_number' => $data['student_number'] ?? null,
             'programme_id'  => $data['programme_id'] ?? null,
             'approved_at'   => $data['approved_at'] ?? null,
         ];
@@ -243,16 +245,15 @@ class UserController extends Controller
 
         $profileData = collect($data)->only((new Profile)->getFillable())->all();
 
-        DB::transaction(function () use ($user, $userData, $data, $profileData) {
-            $updated = $user->update($userData);
+        DB::transaction(function () use ($user, $userData, $profileData, $data) {
+            $user->update($userData);
+            $user->syncRoles($data['roles']);
 
-            if (! $updated) {
-                throw new \RuntimeException('Failed to update user account details. Please try again.');
+            if ($user->profile()->exists()) {
+                $user->profile()->update($profileData);
+            } else {
+                $user->profile()->create($profileData);
             }
-
-            $user->syncRoles([$data['role']]);
-
-            $user->profile()->updateOrCreate([], $profileData);
         });
 
         return redirect()->route('hive.users.show', $user)

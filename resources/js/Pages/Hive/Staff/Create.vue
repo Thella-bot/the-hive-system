@@ -1,20 +1,26 @@
 <script setup>
+import { computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputError from '@/Components/InputError.vue';
+import MultiSelect from '@/Components/MultiSelect.vue';
 
 const props = defineProps({
     roles: Array,
 });
 
+const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label: formatRole(r.name) })));
+
 const form = useForm({
     name: '',
     email: '',
-    role_id: '',
+    roles: [],
 });
+
+const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
 const submit = () => {
     form.post(route('hive.staff.store'));
@@ -47,12 +53,15 @@ const submit = () => {
                             </div>
 
                             <div class="mt-4">
-                                <InputLabel for="role" value="Role" />
-                                <select id="role" class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" v-model="form.role_id" required>
-                                    <option value="">Select a role</option>
-                                    <option v-for="role in roles" :key="role.id" :value="role.id">{{ role.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) }}</option>
-                                </select>
-                                <InputError class="mt-2" :message="form.errors.role_id" />
+                                <InputLabel for="roles" value="Roles" />
+                                <MultiSelect
+                                  id="roles"
+                                  v-model="form.roles"
+                                  :options="roleOptions"
+                                  placeholder="Select roles..."
+                                />
+                                <InputError class="mt-2" :message="form.errors.roles" />
+                                <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Cmd (Mac) to select multiple roles.</p>
                             </div>
 
                             <div class="flex items-center justify-end mt-4">

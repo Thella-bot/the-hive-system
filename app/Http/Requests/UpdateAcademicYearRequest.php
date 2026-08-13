@@ -14,9 +14,7 @@ class UpdateAcademicYearRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'       => 'required|string|max:50|unique:academic_years,name,' . $this->route('academic_year')?->id,
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after:start_date',
+            'year'       => 'required|integer|min:2000|max:2099|unique:academic_years,name,' . $this->route('academic_year')?->id,
             'is_current' => 'boolean',
         ];
     }

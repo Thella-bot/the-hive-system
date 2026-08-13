@@ -49,22 +49,30 @@ const studentId = computed(() => props.student_id || {});
             </span>
           </div>
 
-          <div class="mt-5 space-y-2.5 text-sm sm:text-base">
-            <div class="grid grid-cols-[auto,1fr] gap-x-3">
-              <span class="font-bold text-gray-900">STUDENT NO:</span>
-              <span class="font-extrabold text-gray-900">{{ studentId.student_number || 'N/A' }}</span>
+          <div class="mt-5 flex gap-5 text-sm sm:text-base">
+            <div v-if="studentId.photo_url" class="flex-shrink-0">
+              <img :src="studentId.photo_url" alt="Student photo" class="w-20 h-24 object-cover rounded-lg border-2 border-white shadow" />
             </div>
-            <div class="grid grid-cols-[auto,1fr] gap-x-3">
-              <span class="font-bold text-gray-900">NAME:</span>
-              <span class="font-extrabold text-gray-900 uppercase">{{ studentId.name }}</span>
+            <div v-else class="flex-shrink-0 w-20 h-24 rounded-lg border-2 border-white shadow bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-2xl">
+              {{ studentId.initials }}
             </div>
-            <div class="grid grid-cols-[auto,1fr] gap-x-3">
-              <span class="font-bold text-gray-900">YEAR:</span>
-              <span class="font-extrabold text-gray-900">{{ studentId.year }}</span>
-            </div>
-            <div class="grid grid-cols-[auto,1fr] gap-x-3">
-              <span class="font-bold text-gray-900">COURSE:</span>
-              <span class="font-extrabold text-gray-900 uppercase">{{ studentId.programme || 'N/A' }}</span>
+            <div class="space-y-2.5">
+              <div class="grid grid-cols-[auto,1fr] gap-x-3">
+                <span class="font-bold text-gray-900">STUDENT NO:</span>
+                <span class="font-extrabold text-gray-900">{{ studentId.student_number || 'N/A' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto,1fr] gap-x-3">
+                <span class="font-bold text-gray-900">NAME:</span>
+                <span class="font-extrabold text-gray-900 uppercase">{{ studentId.name }}</span>
+              </div>
+              <div class="grid grid-cols-[auto,1fr] gap-x-3">
+                <span class="font-bold text-gray-900">YEAR:</span>
+                <span class="font-extrabold text-gray-900">{{ studentId.year }}</span>
+              </div>
+              <div class="grid grid-cols-[auto,1fr] gap-x-3">
+                <span class="font-bold text-gray-900">COURSE:</span>
+                <span class="font-extrabold text-gray-900 uppercase">{{ studentId.programme || 'N/A' }}</span>
+              </div>
             </div>
           </div>
         </div>

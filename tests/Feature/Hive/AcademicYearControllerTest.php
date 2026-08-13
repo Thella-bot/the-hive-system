@@ -55,9 +55,7 @@ class AcademicYearControllerTest extends HiveTestCase
         $this->actingAsAdmin();
 
         $response = $this->post(route('hive.academic-years.store'), [
-            'name'       => '2027',
-            'start_date' => '2027-01-01',
-            'end_date'   => '2027-12-31',
+            'year'       => 2027,
             'is_current' => true,
         ]);
 
@@ -75,9 +73,7 @@ class AcademicYearControllerTest extends HiveTestCase
         $this->actingAsAdmin();
 
         $this->post(route('hive.academic-years.store'), [
-            'name'       => '2027',
-            'start_date' => '2027-01-01',
-            'end_date'   => '2027-12-31',
+            'year'       => 2027,
         ]);
 
         $adminCohorts = Cohort::whereHas('department', fn ($q) => $q->whereIn('name', ['Administration', 'Admin']))->count();
@@ -116,7 +112,7 @@ class AcademicYearControllerTest extends HiveTestCase
 
             $this->assertEquals('August 2027', $cohorts[2]->name);
             $this->assertEquals('2027-08-01', $cohorts[2]->start_date->format('Y-m-d'));
-            $this->assertEquals('2027-10-31', $cohorts[2]->end_date->format('Y-m-d'));
+            $this->assertEquals('2027-11-30', $cohorts[2]->end_date->format('Y-m-d'));
 
             $this->assertFalse($cohorts[0]->is_active);
             $this->assertFalse($cohorts[1]->is_active);
@@ -130,10 +126,10 @@ class AcademicYearControllerTest extends HiveTestCase
         $this->actingAsAdmin();
 
         $response = $this->post(route('hive.academic-years.store'), [
-            'name' => '',
+            'year' => '',
         ]);
 
-        $response->assertSessionHasErrors(['name', 'start_date', 'end_date']);
+        $response->assertSessionHasErrors(['year']);
     }
 
     public function test_generate_default_cohorts_is_idempotent(): void
@@ -159,6 +155,9 @@ class AcademicYearControllerTest extends HiveTestCase
     {
         $this->seedDepartments();
 
+        $fixedNow = \Carbon\Carbon::create(2026, 8, 15);
+        \Illuminate\Support\Facades\Date::setTestNow($fixedNow);
+
         $year = AcademicYear::create([
             'name'       => '2026',
             'start_date' => '2026-01-01',
@@ -167,14 +166,16 @@ class AcademicYearControllerTest extends HiveTestCase
 
         $year->generateDefaultCohorts();
 
-        $cohorts = Cohort::orderBy('start_date')->get();
+        $cohorts = Cohort::where('academic_year_id', $year->id)->orderBy('start_date')->get();
 
         // January 2026 ended Mar 31 → inactive
         // April 2026 ended Jul 31 → inactive
         // August 2026 runs Aug–Nov → active
-        $this->assertFalse($cohorts[0]->is_active);
-        $this->assertFalse($cohorts[1]->is_active);
-        $this->assertTrue($cohorts[2]->is_active);
+        $this->assertFalse($cohorts->first()->is_active);
+        $this->assertFalse($cohorts->skip(1)->first()->is_active);
+        $this->assertTrue($cohorts->last()->is_active);
+
+        \Illuminate\Support\Facades\Date::setTestNow();
     }
 
     public function test_update_cohort_status_command_deactivates_expired_cohorts(): void

@@ -35,15 +35,16 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-                <div v-if="isAdmin" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm bg-white">
-                  <select v-model="form.role"
-                    class="w-full border-0 p-0 text-sm focus:ring-0 bg-transparent">
-                    <option v-for="r in roles" :key="r.id" :value="r.name">{{ formatRole(r.name) }}</option>
-                  </select>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Roles</label>
+                <div v-if="isAdmin" class="w-full">
+                  <MultiSelect
+                    v-model="form.roles"
+                    :options="roleOptions"
+                    placeholder="Select roles..."
+                  />
                 </div>
                 <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
-                  {{ formatRole(form.role) }}
+                  {{ form.roles.map(formatRole).join(', ') }}
                 </div>
               </div>
 
@@ -141,8 +142,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
+import MultiSelect from '@/Components/MultiSelect.vue'
 
 const props = defineProps({
   managedStaff: { type: Object, required: true },
@@ -151,6 +154,8 @@ const props = defineProps({
   isAdmin: { type: Boolean, default: false },
 })
 
+const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label: formatRole(r.name) })))
+
 const p = props.managedStaff.profile
 
 const form = useForm({
@@ -158,7 +163,7 @@ const form = useForm({
   email: props.managedStaff.email,
   password: '',
   password_confirmation: '',
-  role: props.managedStaff.roles?.[0]?.name ?? '',
+  roles: props.managedStaff.roles?.map(r => r.name) ?? [],
   // Staff profile
   employee_number: p?.employee_number ?? '',
   department_id: p?.department_id ?? null,

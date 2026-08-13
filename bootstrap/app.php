@@ -86,6 +86,20 @@ return Application::configure(basePath: dirname(__DIR__))
             return redirect()->back()->with('error', $message);
         });
 
+        // Handle AuthenticationException - redirect to login with error flash
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+            $loginUrl = route('login', [], false);
+
+            if ($request->header('X-Inertia')) {
+                return redirect($loginUrl)->with('error', [
+                    'title' => 'Sign in required',
+                    'message' => 'You must be signed in to do that. Please sign in and try again.',
+                ]);
+            }
+
+            return redirect($loginUrl)->with('error', 'You must be logged in to access that page.');
+        });
+
         // Configure custom rendering for all requests
         $exceptions->render(function (\Throwable $e, Request $request) {
             // Let Laravel handle ValidationException normally
@@ -126,7 +140,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     ]);
                 }
 
-                return redirect($loginUrl);
+                return redirect($loginUrl)->with('error', 'You must be logged in to access that page.');
             }
 
             // Handle 403 (forbidden/unauthorized) - redirect back with error

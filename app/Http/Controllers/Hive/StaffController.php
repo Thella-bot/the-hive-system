@@ -59,8 +59,8 @@ class StaffController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role_id' => 'nullable|exists:roles,id',
-            'role' => 'nullable|string|exists:roles,name',
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,name',
             'employee_number' => 'nullable|string|unique:users,employee_number',
             'department_id' => 'nullable|exists:departments,id',
             'phone' => 'nullable|string',
@@ -75,11 +75,8 @@ class StaffController extends Controller
             'employee_number' => $validated['employee_number'] ?? 'EMP-' . date('Y') . '-' . rand(1000, 9999),
         ]);
 
-        if (!empty($validated['role_id'])) {
-            $role = Role::findById($validated['role_id']);
-            $user->syncRoles([$role]);
-        } elseif (!empty($validated['role'])) {
-            $user->syncRoles([$validated['role']]);
+        if (!empty($validated['roles'])) {
+            $user->syncRoles($validated['roles']);
         }
 
         return redirect()->route('hive.staff.index')
@@ -123,7 +120,8 @@ class StaffController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $staff->id,
-            'role' => 'nullable|string|exists:roles,name',
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,name',
             'employee_number' => 'nullable|string|unique:users,employee_number,' . $staff->id,
             'department_id' => 'nullable|exists:departments,id',
             'designation' => 'nullable|string|max:255',
@@ -145,8 +143,8 @@ class StaffController extends Controller
             $staff->update(['password' => $validated['password']]);
         }
 
-        if (!empty($validated['role'])) {
-            $staff->syncRoles([$validated['role']]);
+        if (!empty($validated['roles'])) {
+            $staff->syncRoles($validated['roles']);
         }
 
         $staff->profile()->updateOrCreate(

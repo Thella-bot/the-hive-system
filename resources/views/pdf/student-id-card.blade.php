@@ -7,13 +7,20 @@
     <style>
         @page {
             margin: 0;
+            size: 242pt 153pt;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
             font-family: DejaVu Sans, sans-serif;
             margin: 0;
+            padding: 0;
             width: 242pt;
             height: 153pt;
+            overflow: hidden;
         }
 
         .card {
@@ -22,6 +29,7 @@
             height: 153pt;
             background: #ffffff;
             overflow: hidden;
+            page-break-inside: avoid;
         }
 
         /* Decorative brand shapes, echoing the HBCI orange/black identity */

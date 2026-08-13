@@ -10,6 +10,7 @@ import {
   PencilSquareIcon,
   EyeIcon,
   UserPlusIcon,
+  TrashIcon,
 } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
@@ -30,6 +31,16 @@ const clearFilters = () => {
   search.value = ''
   roleFilter.value = ''
   applyFilters()
+}
+
+const canDelete = () => {
+  const roles = $page.props.auth?.user?.roles ?? []
+  return roles.some(r => ['super-admin', 'it-support'].includes(r))
+}
+
+const deleteUser = (user) => {
+  if (!confirm(`Delete user "${user.name}"? This action cannot be undone.`)) return
+  router.delete(route('hive.users.destroy', { user: user.id }))
 }
 
 const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
@@ -152,6 +163,10 @@ const roleColor = (r) => ({
                   class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="Edit">
                   <PencilSquareIcon class="w-4 h-4" />
                 </Link>
+                <button v-if="canDelete()" @click="deleteUser(user)"
+                  class="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition" title="Delete">
+                  <TrashIcon class="w-4 h-4" />
+                </button>
               </div>
             </td>
           </tr>

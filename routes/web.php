@@ -11,6 +11,7 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('hive.dashboard');
     }
+
     return app(PublicController::class)->home();
 })->name('home');
 

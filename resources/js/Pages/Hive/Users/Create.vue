@@ -36,14 +36,14 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Role <span class="text-red-500">*</span></label>
-                <select v-model="form.role"
-                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white"
-                  :class="{ 'border-red-400': form.errors.role }">
-                  <option value="">— Select Role —</option>
-                  <option v-for="role in roles" :key="role.id" :value="role.name">{{ formatRole(role.name) }}</option>
-                </select>
-                <p v-if="form.errors.role" class="text-red-500 text-xs mt-1">{{ form.errors.role }}</p>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Roles <span class="text-red-500">*</span></label>
+                <MultiSelect
+                  v-model="form.roles"
+                  :options="roleOptions"
+                  placeholder="Select roles..."
+                  :error="form.errors.roles"
+                  hint="Hold Ctrl (Windows) or Cmd (Mac) to select multiple roles."
+                />
               </div>
 
               <div>
@@ -128,11 +128,20 @@
               </div>
 
               <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Programme</label>
+                <select v-model="form.programme_id"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option :value="null">— None —</option>
+                  <option v-for="p in programmes" :key="p.id" :value="p.id">{{ p.name }}</option>
+                </select>
+              </div>
+
+              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Cohort</label>
                 <select v-model="form.cohort_id"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
                   <option :value="null">— None —</option>
-                  <option v-for="c in cohorts" :key="c.id" :value="c.id">
+                  <option v-for="c in filteredCohorts" :key="c.id" :value="c.id">
                     {{ c.name }} ({{ c.department?.name }})
                   </option>
                 </select>
@@ -200,11 +209,13 @@
 import { computed } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
+import MultiSelect from '@/Components/MultiSelect.vue'
 
-defineProps({
+const props = defineProps({
   roles:       { type: Array, default: () => [] },
   departments: { type: Array, default: () => [] },
   cohorts:     { type: Array, default: () => [] },
+  programmes:  { type: Array, default: () => [] },
 })
 
 const staffRoles = [
@@ -215,19 +226,28 @@ const staffRoles = [
   'career-services', 'events-pr-manager', 'cafeteria-manager',
 ]
 
+const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
+const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label: formatRole(r.name) })))
+
 const form = useForm({
-  name: '', email: '', password: '', password_confirmation: '', role: '',
+  name: '', email: '', password: '', password_confirmation: '', roles: [],
   // Staff
   employee_number: '', department_id: null, designation: '', specialization: '', phone: '', hire_date: '',
   // Student
-  student_number: '', cohort_id: null, enrollment_date: '', expected_graduation_date: '',
+  student_number: '', programme_id: null, cohort_id: null, enrollment_date: '', expected_graduation_date: '',
   emergency_contact_name: '', emergency_contact_phone: '', emergency_contact_relationship: '',
 })
 
-const isStaffRole = computed(() => staffRoles.includes(form.role))
-const isStudentRole = computed(() => form.role === 'student')
+const isStaffRole = computed(() => form.roles.some(r => staffRoles.includes(r)))
+const isStudentRole = computed(() => form.roles.includes('student'))
 
-const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+const filteredCohorts = computed(() => {
+  if (!form.programme_id) return props.cohorts
+  const programme = props.programmes.find(p => p.id === form.programme_id)
+  if (!programme?.department_id) return props.cohorts
+  return props.cohorts.filter(c => c.department_id === programme.department_id)
+})
 
 const submit = () => form.post(route('hive.users.store'))
 </script>

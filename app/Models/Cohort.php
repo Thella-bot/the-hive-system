@@ -129,6 +129,6 @@ class Cohort extends Model
     public const DEFAULT_COHORTS = [
         ['month' => 1,  'month_name' => 'January', 'end_month' => 3,  'end_day' => 31],
         ['month' => 4,  'month_name' => 'April',   'end_month' => 7,  'end_day' => 31],
-        ['month' => 8,  'month_name' => 'August',  'end_month' => 11, 'end_day' => 31],
+        ['month' => 8,  'month_name' => 'August',  'end_month' => 11, 'end_day' => 30],
     ];
 }

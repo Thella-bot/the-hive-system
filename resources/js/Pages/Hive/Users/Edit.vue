@@ -48,15 +48,16 @@
           </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
-                <div v-if="isAdmin" class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm bg-white">
-                  <select v-model="form.role"
-                    class="w-full border-0 p-0 text-sm focus:ring-0 bg-transparent">
-                    <option v-for="role in roles" :key="role.id" :value="role.name">{{ formatRole(role.name) }}</option>
-                  </select>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Roles</label>
+                <div v-if="isAdmin" class="w-full">
+                  <MultiSelect
+                    v-model="form.roles"
+                    :options="roleOptions"
+                    placeholder="Select roles..."
+                  />
                 </div>
                 <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
-                  {{ formatRole(form.role) }}
+                  {{ form.roles.map(formatRole).join(', ') }}
                 </div>
               </div>
 
@@ -174,13 +175,13 @@
                 <select v-model="form.cohort_id"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
                   <option :value="null">— None —</option>
-                  <option v-for="c in cohorts" :key="c.id" :value="c.id">{{ c.name }}</option>
+                  <option v-for="c in filteredCohorts" :key="c.id" :value="c.id">{{ c.name }} ({{ c.department?.name }})</option>
                 </select>
               </div>
               <div v-if="!isAdmin">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Cohort</label>
                 <div class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
-                  {{ form.cohort_id ? cohorts.find(c => c.id === form.cohort_id)?.name : '—' }}
+                  {{ form.cohort_id ? cohorts.find(c => c.id === form.cohort_id)?.name + ' (' + cohorts.find(c => c.id === form.cohort_id)?.department?.name + ')' : '—' }}
                 </div>
               </div>
               <div v-if="isAdmin">
@@ -277,8 +278,11 @@
 import { ref, computed } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
+import MultiSelect from '@/Components/MultiSelect.vue'
 import { usePermissions } from '@/composables/usePermissions'
 import { useUser } from '@/composables/useUser'
+
+const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label: formatRole(r.name) })))
 
 const props = defineProps({
   managedUser: { type: Object, required: true },
@@ -306,7 +310,7 @@ const p = props.managedUser.profile
 const form = useForm({
   name: props.managedUser.name, email: props.managedUser.email,
   password: '', password_confirmation: '',
-  role: props.managedUser.roles?.[0]?.name ?? '',
+  roles: props.managedUser.roles?.map(r => r.name) ?? [],
   student_number: props.managedUser.student_number ?? p?.student_number ?? '',
   programme_id: props.managedUser.programme_id ?? null,
   approved_at: props.managedUser.approved_at ?? null,
@@ -323,8 +327,15 @@ const form = useForm({
   emergency_contact_relationship: p?.emergency_contact_relationship ?? '',
 })
 
-const isStaffRole = computed(() => staffRoles.includes(form.role))
-const isStudentRole = computed(() => form.role === 'student')
+const isStaffRole = computed(() => form.roles.some(r => staffRoles.includes(r)))
+const isStudentRole = computed(() => form.roles.includes('student'))
+
+const filteredCohorts = computed(() => {
+  if (!form.programme_id) return props.cohorts
+  const programme = props.programmes.find(p => p.id === form.programme_id)
+  if (!programme?.department_id) return props.cohorts
+  return props.cohorts.filter(c => c.department_id === programme.department_id)
+})
 
 const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 const formatStatus = (s) => s?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) ?? '—'
