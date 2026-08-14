@@ -100,6 +100,7 @@ class Expense extends Model
         $month = date('m');
         $last = static::where('expense_number', 'like', "EXP-{$year}{$month}%")
             ->orderByDesc('expense_number')
+            ->lockForUpdate()
             ->first();
 
         $sequence = $last ? (int) substr($last->expense_number, -4) + 1 : 1;

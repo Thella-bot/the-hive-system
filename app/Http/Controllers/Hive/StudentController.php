@@ -8,12 +8,16 @@ use App\Actions\Hive\UpdateStudent;
 use App\Models\Cohort;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Inertia\Inertia;
 
 class StudentController extends Controller
 {
+    public function __construct(protected SignatoryService $signatory) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -120,8 +124,8 @@ class StudentController extends Controller
         $profile = $student->profile;
 
         $data = [
-            'office' => 'Registrar',
-            'ref' => 'HBCI/REG/' . date('Y') . '/' . $student->id,
+            'office' => config('institution.registrar_office'),
+            'ref' => config('institution.abbreviation') . '/REG/' . date('Y') . '/' . $student->id,
             'date' => now(),
             'student' => $student,
             'programme' => $programme ?? (object) ['name' => 'Culinary Arts', 'nqf_level' => 'X', 'duration' => '3 Years'],
@@ -132,7 +136,7 @@ class StudentController extends Controller
             'status' => 'ACTIVE',
             'enrolment_date' => $profile->enrollment_date ?? $student->created_at,
             'expected_completion' => now()->addYears($programme->duration ?? 3),
-            'registrar_name' => $this->getSignatory('registrar'),
+            'registrar_name' => $this->signatory->get('registrar'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);
@@ -153,16 +157,16 @@ class StudentController extends Controller
         }
 
         $data = [
-            'office' => 'Registrar',
-            'ref' => 'HBCI/REG/' . date('Y') . '/' . $student->id,
+            'office' => config('institution.registrar_office'),
+            'ref' => config('institution.abbreviation') . '/REG/' . date('Y') . '/' . $student->id,
             'date' => now(),
             'student' => $student,
             'programme' => $programme ?? (object) ['name' => 'Culinary Arts', 'nqf_level' => 'X', 'duration' => '3 Years'],
             'award' => 'Merit',
-            'director_name' => $this->getSignatory('super-admin'),
-            'registrar_name' => $this->getSignatory('registrar'),
+            'director_name' => $this->signatory->get('super-admin'),
+            'registrar_name' => $this->signatory->get('registrar'),
             'issue_date' => now(),
-            'certificate_number' => 'HBCI-CERT-' . date('Y') . '-' . $student->id,
+            'certificate_number' => config('institution.abbreviation') . '-CERT-' . date('Y') . '-' . $student->id,
         ];
 
         $pdf = Pdf::loadView('pdf.documents.certificate', $data);
@@ -179,8 +183,8 @@ class StudentController extends Controller
         $programme = $student->programme;
 
         $data = [
-            'office' => 'Academic Office',
-            'ref' => 'HBCI/REF/' . date('Y') . '/' . $student->id,
+            'office' => config('institution.academic_office'),
+            'ref' => config('institution.abbreviation') . '/REF/' . date('Y') . '/' . $student->id,
             'date' => now(),
             'recipient_title' => $request->recipient_title ?? 'Dr',
             'recipient_name' => $request->recipient_name ?? 'John Doe',
@@ -202,7 +206,7 @@ class StudentController extends Controller
             'character_examples' => $request->character_examples ?? 'took initiative in organising a charity dinner',
             'character_details' => $request->character_details ?? 'Showed excellent leadership and teamwork skills.',
             'industry_readiness' => $request->industry_readiness ?? 'Ready to work in a fast-paced professional kitchen.',
-            'referee_name' => $this->getSignatory('super-admin'),
+            'referee_name' => $this->signatory->get('super-admin'),
             'referee_title' => 'Senior Lecturer',
             'referee_phone' => '+266 XXXX XXXX',
             'referee_email' => 'lecturer@hbci.ac.ls',
@@ -210,11 +214,5 @@ class StudentController extends Controller
 
         $pdf = Pdf::loadView('pdf.documents.reference', $data);
         return $pdf->stream('Reference_' . $student->name . '.pdf');
-    }
-
-    private function getSignatory($role)
-    {
-        $user = User::role($role)->first();
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

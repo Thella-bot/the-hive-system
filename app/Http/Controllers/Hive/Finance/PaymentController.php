@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\NumberToWords;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +17,8 @@ use Inertia\Response;
 class PaymentController extends Controller
 {
     use HasFilters;
+
+    public function __construct(protected SignatoryService $signatory) {}
 
     public function index(Request $request): Response
     {
@@ -181,8 +185,8 @@ class PaymentController extends Controller
             'payment_method' => $this->formatPaymentMethod($payment->payment_method),
             'bank_ref' => $payment->notes ?? 'N/A',
             'academic_year' => $invoice?->academic_year ?? date('Y'),
-            'amount_words' => $this->numberToWords($totalPaid),
-            'cashier_name' => $this->getSignatory('finance'),
+            'amount_words' => NumberToWords::convert($totalPaid),
+            'cashier_name' => $this->signatory->get('finance'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.payment_receipt', $data);
@@ -199,62 +203,6 @@ class PaymentController extends Controller
             'other' => 'Other',
             default => 'Cash',
         };
-    }
-
-    private function numberToWords(int|float $number): string
-    {
-        $amount = number_format($number, 2);
-        $parts = explode('.', $amount);
-        $dollars = (int) $parts[0];
-        $cents = (int) $parts[1];
-
-        if ($dollars === 0 && $cents === 0) {
-            return 'Zero';
-        }
-
-        $result = '';
-        if ($dollars > 0) {
-            $result .= $this->convertNumberToWords($dollars);
-        }
-        if ($cents > 0) {
-            $result .= ' and ' . $this->convertNumberToWords($cents) . ' cents';
-        }
-
-        return trim($result);
-    }
-
-    private function convertNumberToWords(int $num): string
-    {
-        $ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-        $tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-        $teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-
-        if ($num < 10) {
-            return $ones[$num];
-        }
-        if ($num < 20) {
-            return $teens[$num - 10];
-        }
-        if ($num < 100) {
-            return $tens[(int) floor($num / 10)] . ($num % 10 ? ' ' . $ones[$num % 10] : '');
-        }
-        if ($num < 1000) {
-            return $ones[(int) floor($num / 100)] . ' Hundred' . ($num % 100 ? ' ' . $this->convertNumberToWords($num % 100) : '');
-        }
-        if ($num < 1000000) {
-            return $this->convertNumberToWords((int) floor($num / 1000)) . ' Thousand' . ($num % 1000 ? ' ' . $this->convertNumberToWords($num % 1000) : '');
-        }
-        if ($num < 1000000000) {
-            return $this->convertNumberToWords((int) floor($num / 1000000)) . ' Million' . ($num % 1000000 ? ' ' . $this->convertNumberToWords($num % 1000000) : '');
-        }
-
-        return 'Number too large';
-    }
-
-    private function getSignatory($role)
-    {
-        $user = \App\Models\User::role($role)->first();
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 
     public function destroy(Payment $payment): RedirectResponse

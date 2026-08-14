@@ -16,26 +16,26 @@ class GradeController extends Controller
         $user = $request->user();
 
         if ($user->hasRole('student')) {
-            // Student: Show enrolled modules with gradables and their grades
             $moduleIds = $user->modules()->pluck('module_id')->toArray();
 
             $modules = Module::with(['gradables' => function ($query) {
                 $query->orderBy('due_date', 'desc');
             }])->whereIn('id', $moduleIds)->get();
 
-            // Attach submissions for each gradable
+            $gradableIds = $modules->flatMap(fn ($module) => $module->gradables->pluck('id'));
+            $submissions = Submission::whereIn('gradable_id', $gradableIds)
+                ->where('student_id', $user->id)
+                ->get()
+                ->keyBy('gradable_id');
+
             foreach ($modules as $module) {
                 foreach ($module->gradables as $gradable) {
-                    $submission = Submission::where('gradable_id', $gradable->id)
-                        ->where('student_id', $user->id)
-                        ->first();
-                    $gradable->submission = $submission;
+                    $gradable->submission = $submissions->get($gradable->id);
                 }
             }
 
             return Inertia::render('Hive/Grades/StudentIndex', ['modules' => $modules]);
         } else {
-            // Instructor/Admin: select module to manage grades
             $isAdmin = $user->isAdmin();
 
             if ($isAdmin) {

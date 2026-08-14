@@ -83,7 +83,7 @@ class StudentIdController extends Controller
             // an initials avatar rather than the generic ui-avatars.com image.
             'photo_url' => $target->profile_photo_path ? $target->profile_photo_url : null,
             'initials' => $this->initials($target->name),
-            'qr_data' => $profile?->student_number ?? 'HBCI-' . $target->id,
+            'qr_data' => $profile?->student_number ?? config('institution.abbreviation') . '-' . $target->id,
         ];
     }
 

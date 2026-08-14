@@ -3,18 +3,25 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-use App\Models\Student;
+use App\Models\User;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class ReferenceController extends Controller
 {
-    public function generate(Student $student, Request $request)
+    public function __construct(protected SignatoryService $signatory)
     {
-        // In a real scenario, you'd get these from the request or student grades.
+        $this->authorizeResource(User::class, 'student');
+    }
+
+    public function generate(User $student, Request $request)
+    {
+        $student->load('enrollments.module.programme');
+
         $data = [
-            'office' => 'Academic Office',
-            'ref' => 'HBCI/REF/' . date('Y') . '/' . $student->id,
+            'office' => config('institution.academic_office'),
+            'ref' => config('institution.abbreviation') . '/REF/' . date('Y') . '/' . $student->id,
             'date' => now(),
             'recipient_title' => 'Dr',
             'recipient_name' => 'John Doe',
@@ -23,7 +30,7 @@ class ReferenceController extends Controller
             'recipient_city' => 'Cape Town',
             'recipient_last_name' => 'Doe',
             'student' => $student,
-            'programme' => $student->enrollments->first()->programme ?? (object) ['name' => 'Culinary Arts'],
+            'programme' => $student->enrollments->first()->module->programme ?? (object) ['name' => 'Culinary Arts'],
             'application_for' => 'the position of Sous Chef',
             'relationship' => 'Programme Coordinator',
             'period_known' => '2 years',
@@ -36,7 +43,7 @@ class ReferenceController extends Controller
             'character_examples' => 'took initiative in organising a charity dinner',
             'character_details' => 'Showed excellent leadership and teamwork skills.',
             'industry_readiness' => 'Ready to work in a fast-paced professional kitchen.',
-            'referee_name' => $this->getSignatory('lecturer'),
+            'referee_name' => $this->signatory->get('lecturer'),
             'referee_title' => 'Senior Lecturer',
             'referee_phone' => '+266 XXXX XXXX',
             'referee_email' => 'lecturer@hbci.ac.ls',
@@ -44,11 +51,5 @@ class ReferenceController extends Controller
 
         $pdf = Pdf::loadView('pdf.documents.reference', $data);
         return $pdf->stream('Reference_' . $student->name . '.pdf');
-    }
-
-    private function getSignatory($role)
-    {
-        $user = \App\Models\User::role($role)->first();
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

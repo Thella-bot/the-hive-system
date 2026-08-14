@@ -5,18 +5,24 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\DisciplinaryAction;
 use App\Models\User;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
 class DisciplinaryController extends Controller
 {
+    public function __construct(protected SignatoryService $signatory)
+    {
+        $this->authorizeResource(DisciplinaryAction::class, 'disciplinary');
+    }
+
     /**
      * Display a listing of disciplinary actions.
      */
     public function index()
     {
-        $actions = DisciplinaryAction::with('user')->paginate(15);
+        $actions = DisciplinaryAction::with('user.profile')->paginate(15);
         return inertia('Hive/Disciplinary/Index', ['actions' => $actions]);
     }
 
@@ -127,11 +133,11 @@ class DisciplinaryController extends Controller
         $user = $disciplinary->user;
         $isStudent = $user->hasRole('student');
         $view = $isStudent ? 'pdf.documents.student_warning' : 'pdf.documents.staff_warning';
-        $office = $isStudent ? 'Student Affairs --- Disciplinary' : 'Human Resources';
+        $office = $isStudent ? config('institution.student_affairs_office') . ' --- Disciplinary' : config('institution.hr_office');
 
         $data = [
             'office' => $office,
-            'ref' => 'HBCI/DSC/' . date('Y') . '/' . $disciplinary->id,
+            'ref' => config('institution.abbreviation') . '/DSC/' . date('Y') . '/' . $disciplinary->id,
             'date' => now(),
             'student' => $user,
             'programme' => $user->enrollments->first()->programme ?? (object) ['name' => 'N/A'],
@@ -142,13 +148,13 @@ class DisciplinaryController extends Controller
             'rule_violated' => $disciplinary->policy_violated ?? 'Student Code of Conduct',
             'advisor_name' => $disciplinary->advisor_name ?? 'Dean of Students',
             'meeting_deadline' => now()->addDays(3),
-            'dean_name' => $isStudent ? $this->getSignatory('dean') : $this->getSignatory('hr-manager'),
+            'dean_name' => $isStudent ? $this->signatory->get('dean') : $this->signatory->get('hr-manager'),
             'staff' => $user,
-            'policy_violated' => $disciplinary->policy_violated ?? 'HBCI Employment Policy',
+            'policy_violated' => $disciplinary->policy_violated ?? config('institution.abbreviation') . ' Employment Policy',
             'hr_rep' => $disciplinary->hr_rep ?? 'HR Representative',
             'expiry_date' => $disciplinary->expiry_date ?? now()->addMonths(6),
             'corrective_actions' => $disciplinary->corrective_actions ?? ['Attend training session'],
-            'hr_manager_name' => $this->getSignatory('hr-manager'),
+            'hr_manager_name' => $this->signatory->get('hr-manager'),
         ];
 
         $pdf = Pdf::loadView($view, $data);
@@ -162,8 +168,8 @@ class DisciplinaryController extends Controller
     {
         $user = $disciplinary->user;
         $data = [
-            'office' => 'Student Affairs --- Disciplinary',
-            'ref' => 'HBCI/DSC/' . date('Y') . '/' . $disciplinary->id,
+            'office' => config('institution.student_affairs_office') . ' --- Disciplinary',
+            'ref' => config('institution.abbreviation') . '/DSC/' . date('Y') . '/' . $disciplinary->id,
             'date' => now(),
             'student' => $user,
             'programme' => $user->enrollments->first()->programme ?? (object) ['name' => 'N/A'],
@@ -176,7 +182,7 @@ class DisciplinaryController extends Controller
             'campus_access' => $disciplinary->campus_access ?? 'Prohibited',
             'surrender_date' => $disciplinary->surrender_date ?? now()->addDay(),
             'review_date' => $disciplinary->review_date ?? now()->addWeeks(2),
-            'director_name' => $this->getSignatory('director'),
+            'director_name' => $this->signatory->get('director'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.student_suspension', $data);
@@ -190,8 +196,8 @@ class DisciplinaryController extends Controller
     {
         $user = $disciplinary->user;
         $data = [
-            'office' => 'Student Affairs --- Disciplinary',
-            'ref' => 'HBCI/DSC/' . date('Y') . '/' . $disciplinary->id,
+            'office' => config('institution.student_affairs_office') . ' --- Disciplinary',
+            'ref' => config('institution.abbreviation') . '/DSC/' . date('Y') . '/' . $disciplinary->id,
             'date' => now(),
             'student' => $user,
             'programme' => $user->enrollments->first()->programme ?? (object) ['name' => 'N/A'],
@@ -199,16 +205,10 @@ class DisciplinaryController extends Controller
             'effective_date' => $disciplinary->effective_date,
             'grounds' => $disciplinary->grounds ?? ['Violation of Code of Conduct'],
             'compliance_deadline' => now()->addDays(5),
-            'director_name' => $this->getSignatory('director'),
+            'director_name' => $this->signatory->get('director'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.student_expulsion', $data);
         return $pdf->stream('Expulsion_' . $user->name . '.pdf');
-    }
-
-    private function getSignatory($role)
-    {
-        $user = User::role($role)->first();
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

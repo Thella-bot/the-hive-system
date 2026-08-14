@@ -3,21 +3,23 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Hive\StoreStaffRequest;
+use App\Http\Requests\Hive\UpdateStaffRequest;
 use App\Models\User;
 use App\Models\Department;
 use App\Actions\Hive\CreateNewStaff;
 use App\Actions\Hive\UpdateStaff;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
 class StaffController extends Controller
 {
-    public function __construct()
+    public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(User::class, 'staff');
     }
@@ -29,7 +31,7 @@ class StaffController extends Controller
     {
         $this->authorize('viewAny', User::class);
         $staff = User::role(['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])
-            ->with('roles')
+            ->with(['roles', 'profile'])
             ->paginate(15);
 
         return Inertia::render('Hive/Staff/Index', [
@@ -52,24 +54,11 @@ class StaffController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStaffRequest $request)
     {
         $this->authorize('create', User::class);
 
-        $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'roles'    => 'nullable|array',
-            'roles.*'  => 'exists:roles,name',
-            'employee_number' => ['nullable', 'string', Rule::unique('profiles', 'employee_number')],
-            'department_id'   => 'nullable|exists:departments,id',
-            'designation'     => 'nullable|string|max:255',
-            'specialization'  => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string|max:500',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
             'name'     => $validated['name'],
@@ -123,22 +112,11 @@ class StaffController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $staff)
+    public function update(UpdateStaffRequest $request, User $staff)
     {
         $this->authorize('update', $staff);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $staff->id,
-            'roles' => 'nullable|array',
-            'roles.*' => 'exists:roles,name',
-            'employee_number' => ['nullable', 'string', Rule::unique('profiles', 'employee_number')->when($staff->profile?->id, fn ($q, $id) => $q->ignore($id))],
-            'department_id' => 'nullable|exists:departments,id',
-            'designation' => 'nullable|string|max:255',
-            'specialization' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'hire_date' => 'nullable|date',
-        ]);
+        $validated = $request->validated();
 
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($request->password);
@@ -194,8 +172,8 @@ class StaffController extends Controller
         $staff->load(['profile.department', 'roles']);
 
         $data = [
-            'office' => 'Human Resources',
-            'ref' => 'HBCI/HR/' . date('Y') . '/' . $staff->id,
+            'office' => config('institution.hr_office'),
+            'ref' => config('institution.abbreviation') . '/HR/' . date('Y') . '/' . $staff->id,
             'date' => now(),
             'staff' => $staff,
             'position' => $request->position ?? $staff->profile->designation ?? 'Chef Instructor',
@@ -210,7 +188,7 @@ class StaffController extends Controller
             'pay_day' => $request->pay_day ?? '25th',
             'notice_period' => $request->notice_period ?? '1 Month',
             'acceptance_deadline' => Carbon::parse($request->acceptance_deadline ?? now()->addDays(7)),
-            'director_name' => $this->getSignatory('super-admin'),
+            'director_name' => $this->signatory->get('super-admin'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.staff_appointment', $data);
@@ -225,8 +203,8 @@ class StaffController extends Controller
         $staff->load(['profile.department']);
 
         $data = [
-            'office' => 'Human Resources',
-            'ref' => 'HBCI/HR/DSC/' . date('Y') . '/' . $staff->id,
+            'office' => config('institution.hr_office'),
+            'ref' => config('institution.abbreviation') . '/HR/DSC/' . date('Y') . '/' . $staff->id,
             'date' => now(),
             'staff' => $staff,
             'warning_type' => $request->warning_type ?? 'First',
@@ -237,16 +215,10 @@ class StaffController extends Controller
             'policy_violated' => $request->policy_violated ?? 'Employment Policy Section X',
             'expiry_date' => Carbon::parse($request->expiry_date ?? now()->addMonths(6)),
             'corrective_actions' => $request->corrective_actions ?? ['Attend training session'],
-            'hr_manager_name' => $this->getSignatory('hr-manager'),
+            'hr_manager_name' => $this->signatory->get('hr-manager'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.staff_warning', $data);
         return $pdf->stream('Staff_Warning_' . $staff->name . '.pdf');
-    }
-
-    private function getSignatory($role)
-    {
-        $user = User::role($role)->first();
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

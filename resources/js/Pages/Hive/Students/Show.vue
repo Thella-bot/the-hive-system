@@ -51,13 +51,13 @@
                 <div class="border-t pt-6">
                     <h2 class="text-xl font-semibold mb-3">Documents</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <a :href="route('hive.transcript.download', student.id)" target="_blank" class="btn btn-success text-center">
+                        <a :href="route('hive.students.generate-proof', student.id)" target="_blank" class="btn btn-success text-center">
                             <i class="fas fa-file-pdf"></i> Proof of Enrolment
                         </a>
-                        <a :href="route('hive.transcript.download', student.id)" target="_blank" class="btn btn-warning text-center">
+                        <a :href="route('hive.students.generate-certificate', student.id)" target="_blank" class="btn btn-warning text-center">
                             <i class="fas fa-file-pdf"></i> Certificate
                         </a>
-                        <a :href="route('hive.transcript.download', student.id)" target="_blank" class="btn btn-info text-center">
+                        <a :href="route('hive.students.generate-reference', student.id)" target="_blank" class="btn btn-info text-center">
                             <i class="fas fa-file-pdf"></i> Reference Letter
                         </a>
                     </div>

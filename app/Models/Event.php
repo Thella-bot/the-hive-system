@@ -55,7 +55,7 @@ class Event extends Model
         return implode("\r\n", [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//HBCI//The Hive//EN',
+            'PRODID:-//' . config('institution.abbreviation') . '//The Hive//EN',
             'BEGIN:VEVENT',
             "UID:event-{$this->id}@hbci.edu",
             "DTSTART:{$start}",

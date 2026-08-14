@@ -54,8 +54,11 @@ class LeaveRequest extends Model
                     $profile->decrement('leave_balance', min($this->days(), $profile->leave_balance));
                 }
             } catch (\Exception $e) {
-                // Silently fail if profile relationship isn't set up properly
-                // This prevents approval from failing due to balance update issues
+                \Log::error('Failed to deduct leave balance', [
+                    'leave_request_id' => $this->id,
+                    'user_id' => $this->user_id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
     }

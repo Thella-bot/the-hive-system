@@ -50,8 +50,8 @@ class ApplicationApproved extends Notification implements ShouldQueue
         ], false));
 
         return (new MailMessage)
-            ->subject('Welcome to Honey Bee Culinary Institute!')
-            ->line('Congratulations! Your application to the Honey Bee Culinary Institute has been approved.')
+            ->subject('Welcome to ' . config('institution.name') . '!')
+            ->line('Congratulations! Your application to ' . config('institution.name') . ' has been approved.')
             ->line('An account has been created for you. To get started, you need to set your password.')
             ->action('Set Your Password', $url)
             ->line('This password reset link will expire in :count minutes.', ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')])

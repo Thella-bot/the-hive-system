@@ -19,11 +19,17 @@ const props = defineProps({
 
 const { isAdmin } = useUser();
 const search = ref(props.filters.search ?? '');
+let searchTimeout = null
 
-const applyFilters = () => router.get(route('hive.programmes.index'),
-  { search: search.value },
-  { preserveState: true, replace: true }
-);
+const applyFilters = () => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    router.get(route('hive.programmes.index'),
+      { search: search.value },
+      { preserveState: true, replace: true }
+    )
+  }, 300)
+}
 </script>
 
 <template>

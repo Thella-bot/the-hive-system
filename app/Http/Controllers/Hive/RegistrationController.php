@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\User;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,8 @@ use Redirect;
 
 class RegistrationController extends Controller
 {
+    public function __construct(protected SignatoryService $signatory) {}
+
     public function index(Request $request): Response
     {
         $user = $request->user();
@@ -244,19 +247,12 @@ class RegistrationController extends Controller
             'status' => $application->registration_status,
             'enrolment_date' => $enrolmentDate,
             'expected_completion' => $expectedCompletion,
-            'registrar_name' => $this->getSignatory('registrar'),
+            'registrar_name' => $this->signatory->get('registrar'),
             'modules' => $modules,
         ];
 
         $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);
 
         return $pdf->download('ProofOfRegistration_' . $student->id . '.pdf');
-    }
-
-    private function getSignatory(string $role): string
-    {
-        $user = \App\Models\User::role($role)->first();
-
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

@@ -4,21 +4,27 @@ namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\Placement;
-use App\Models\Student;
+use App\Models\User;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class PlacementController extends Controller
 {
+    public function __construct(protected SignatoryService $signatory)
+    {
+        $this->authorizeResource(Placement::class, 'placement');
+    }
+
     public function index()
     {
-        $placements = Placement::with('student')->paginate(15);
+        $placements = Placement::with('student.profile')->paginate(15);
         return inertia('Hive/Placements/Index', ['placements' => $placements]);
     }
 
     public function create()
     {
-        $students = Student::all();
+        $students = User::role('student')->get();
         return inertia('Hive/Placements/Create', ['students' => $students]);
     }
 
@@ -50,7 +56,7 @@ class PlacementController extends Controller
 
     public function edit(Placement $placement)
     {
-        $students = Student::all();
+        $students = User::role('student')->get();
         return inertia('Hive/Placements/Edit', ['placement' => $placement, 'students' => $students]);
     }
 
@@ -86,8 +92,8 @@ class PlacementController extends Controller
     {
         $student = $placement->student;
         $data = [
-            'office' => 'Academic Affairs --- Work Placement',
-            'ref' => 'HBCI/WP/' . date('Y') . '/' . $placement->id,
+            'office' => config('institution.academic_office') . ' --- Work Placement',
+            'ref' => config('institution.abbreviation') . '/WP/' . date('Y') . '/' . $placement->id,
             'date' => now(),
             'recipient_title' => 'Mr/Ms',
             'recipient_name' => $placement->organisation_name,
@@ -105,16 +111,10 @@ class PlacementController extends Controller
             'proposed_start' => $placement->start_date,
             'placement_type' => $placement->type,
             'industry_sector' => 'culinary / hospitality',
-            'coordinator_name' => $this->getSignatory('academic-director'),
+            'coordinator_name' => $this->signatory->get('academic-director'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.work_placement', $data);
         return $pdf->stream('Placement_' . $student->name . '.pdf');
-    }
-
-    private function getSignatory($role)
-    {
-        $user = \App\Models\User::role($role)->first();
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

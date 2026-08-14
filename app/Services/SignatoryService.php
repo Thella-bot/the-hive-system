@@ -3,26 +3,14 @@
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Config;
+use Spatie\Permission\Models\Role;
 
 class SignatoryService
 {
-    public function forDocument(string $documentType): array
+    public function get(string $role): string
     {
-        $config = Config::get("signatories.documents.{$documentType}");
+        $user = User::role($role)->first();
 
-        if (!$config) {
-            return [
-                'name' => Config::get('signatories.defaults.name'),
-                'title' => 'Authorised Signatory',
-            ];
-        }
-
-        $user = User::role($config['role'])->first();
-
-        return [
-            'name' => $user ? $user->name : Config::get('signatories.defaults.name'),
-            'title' => $config['title'],
-        ];
+        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

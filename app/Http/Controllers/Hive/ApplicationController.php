@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Models\Programme;
 use App\Models\User;
 use App\Services\IdGenerator;
+use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +23,7 @@ use Spatie\Permission\Models\Role;
 
 class ApplicationController extends Controller
 {
-    public function __construct()
+    public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(Application::class, 'application');
     }
@@ -244,8 +245,8 @@ class ApplicationController extends Controller
         $enrollment = $user->enrollments()->where('programme_id', $application->programme_id)->first();
 
         $data = [
-            'office' => 'Registrar --- Admissions',
-            'ref' => 'HBCI/ADM/' . date('Y') . '/' . $application->id,
+            'office' => config('institution.registrar_office') . ' --- Admissions',
+            'ref' => config('institution.abbreviation') . '/ADM/' . date('Y') . '/' . $application->id,
             'date' => now(),
             'student' => $user,
             'programme' => $application->programme,
@@ -253,7 +254,7 @@ class ApplicationController extends Controller
             'intake_date' => $application->admitted_at ?? now(),
             'deadline' => now()->addDays(14),
             'registration_fee' => 500.00,
-            'registrar_name' => $this->getSignatory('registrar'),
+            'registrar_name' => $this->signatory->get('registrar'),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.acceptance', $data);
@@ -268,23 +269,17 @@ class ApplicationController extends Controller
         $user = $application->user;
 
         $data = [
-            'office' => 'Registrar --- Admissions',
-            'ref' => 'HBCI/ADM/' . date('Y') . '/' . $application->id,
+            'office' => config('institution.registrar_office') . ' --- Admissions',
+            'ref' => config('institution.abbreviation') . '/ADM/' . date('Y') . '/' . $application->id,
             'date' => now(),
             'student' => $user,
             'programme' => $application->programme,
             'intake_month' => $application->admitted_at ? $application->admitted_at->format('F Y') : now()->format('F Y'),
-            'registrar_name' => $this->getSignatory('registrar'),
+            'registrar_name' => $this->signatory->get('registrar'),
             'phone' => '+266 XXXX XXXX',
         ];
 
         $pdf = Pdf::loadView('pdf.documents.rejection', $data);
         return $pdf->stream('Rejection_' . $user->name . '.pdf');
-    }
-
-    private function getSignatory($role)
-    {
-        $user = User::role($role)->first();
-        return $user ? $user->name : 'AUTHORISED SIGNATORY';
     }
 }

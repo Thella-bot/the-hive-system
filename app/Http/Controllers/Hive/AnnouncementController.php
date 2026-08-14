@@ -150,8 +150,8 @@ class AnnouncementController extends Controller
             : 'All Staff';
 
         $data = [
-            'office' => 'Administration',
-            'ref' => 'HBCI/MEMO/' . date('Y') . '/' . $announcement->id,
+            'office' => config('institution.academic_office'),
+            'ref' => config('institution.abbreviation') . '/MEMO/' . date('Y') . '/' . $announcement->id,
             'date' => now(),
             'to' => $recipients,
             'from_name' => $creator->name ?? 'Administrator',

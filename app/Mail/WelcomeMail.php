@@ -47,7 +47,7 @@ class WelcomeMail extends Mailable implements ShouldQueue
     public function envelope()
     {
         return new Envelope(
-            subject: 'Welcome Honey Bee Culinary Institute',
+            subject: 'Welcome ' . config('institution.name'),
         );
     }
 

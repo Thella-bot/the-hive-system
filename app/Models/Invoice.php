@@ -159,9 +159,10 @@ class Invoice extends Model
             }
         });
 
-        // Auto-update status based on payments
         static::updated(function (Invoice $invoice) {
-            $invoice->refreshStatus();
+            if ($invoice->isDirty('status')) {
+                $invoice->refreshStatus();
+            }
         });
 
         parent::boot();
@@ -174,7 +175,6 @@ class Invoice extends Model
     {
         $originalStatus = $this->getOriginal('status');
 
-        // If already paid or cancelled, don't change
         if (in_array($originalStatus, ['paid', 'cancelled'])) {
             return;
         }
@@ -183,10 +183,7 @@ class Invoice extends Model
         $amount = $this->amount ?? 0;
 
         if ($totalPaid >= $amount && $amount > 0) {
-            $this->update([
-                'status' => 'paid',
-                'paid_at' => $this->paid_at ?? now(),
-            ]);
+            $this->update(['status' => 'paid', 'paid_at' => $this->paid_at ?? now()]);
         } elseif ($totalPaid > 0 && $totalPaid < $amount) {
             $this->update(['status' => 'partial']);
         } elseif ($this->is_overdue && $originalStatus === 'pending') {
@@ -194,28 +191,6 @@ class Invoice extends Model
         }
     }
 
-    /**
-     * Mark invoice as paid manually
-     */
-    public function markAsPaid(): bool
-    {
-        return $this->update([
-            'status' => 'paid',
-            'paid_at' => now(),
-        ]);
-    }
-
-    /**
-     * Mark invoice as cancelled
-     */
-    public function markAsCancelled(): bool
-    {
-        return $this->update(['status' => 'cancelled']);
-    }
-
-    /**
-     * Record a payment and auto-update status
-     */
     public function recordPayment(array $data): Payment
     {
         $payment = $this->payments()->create($data);

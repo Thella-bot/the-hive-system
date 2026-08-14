@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\Hive\StoreUserRequest;
+use App\Http\Requests\Hive\UpdateUserRequest;
 use App\Models\Cohort;
 use App\Models\Department;
 use App\Models\Profile;
@@ -13,7 +14,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
@@ -61,40 +61,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'roles'    => 'required|array|min:1',
-            'roles.*'  => 'exists:roles,name',
-
-            // Profile fields
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'date_of_birth' => 'nullable|date',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_contact_phone' => 'nullable|string|max:20',
-            'annual_leave_days' => 'nullable|integer',
-            'leave_balance' => 'nullable|integer',
-            'employee_number' => 'nullable|string|unique:profiles,employee_number',
-            'department_id'   => 'nullable|exists:departments,id',
-            'designation'     => 'nullable|string|max:255',
-            'specialization'  => 'nullable|string|max:255',
-            'bio' => 'nullable|string',
-            'hire_date'       => 'nullable|date',
-            'student_number'             => 'nullable|string|unique:profiles,student_number',
-            'cohort_id'                  => 'nullable|exists:cohorts,id',
-            'enrollment_date'            => 'nullable|date',
-            'expected_graduation_date'   => 'nullable|date|after:enrollment_date',
-            'graduation_date' => 'nullable|date',
-            'status' => 'nullable|string',
-            'dietary_restrictions'       => 'nullable|array',
-            'emergency_contact_relationship' => 'nullable|string|max:100',
-        ]);
+        $data = $request->validated();
 
         $user = User::create([
             'name'     => $data['name'],
@@ -187,45 +156,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'roles'    => 'required|array|min:1',
-            'roles.*'  => 'exists:roles,name',
-            'student_number' => ['nullable', 'string', Rule::unique('profiles')->ignore($user->profile?->id)],
-            'programme_id' => 'nullable|exists:programmes,id',
-            'approved_at' => 'nullable|date',
-
-            // Profile fields
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'date_of_birth' => 'nullable|date',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_contact_phone' => 'nullable|string|max:20',
-            'emergency_contact_relationship' => 'nullable|string|max:100',
-            'annual_leave_days' => 'nullable|integer',
-            'leave_balance' => 'nullable|integer',
-            'employee_number' => 'nullable|string|unique:profiles,employee_number,' . ($user->profile?->id ?? 0),
-            'department_id'   => 'nullable|exists:departments,id',
-            'designation'     => 'nullable|string|max:255',
-            'specialization'  => 'nullable|string|max:255',
-            'bio' => 'nullable|string',
-            'hire_date'       => 'nullable|date',
-            'cohort_id'                  => 'nullable|exists:cohorts,id',
-            'enrollment_date'            => 'nullable|date',
-            'expected_graduation_date'   => ['nullable', 'date', Rule::when(
-                $request->filled('enrollment_date'),
-                ['after:enrollment_date']
-            )],
-            'graduation_date' => 'nullable|date',
-            'status' => 'nullable|string',
-            'dietary_restrictions'       => 'nullable|array',
-        ]);
+        $data = $request->validated();
 
         $userData = [
             'name'          => $data['name'],

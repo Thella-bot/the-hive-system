@@ -12,7 +12,9 @@ class AchievementController extends Controller
 {
     public function index()
     {
-        $achievements = Achievement::with('user')
+        $this->authorize('viewAny', Achievement::class);
+
+        $achievements = Achievement::with('user.profile')
             ->public()
             ->latest()
             ->paginate(20);

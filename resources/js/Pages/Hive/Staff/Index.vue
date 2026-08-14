@@ -3,13 +3,14 @@ import { Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import UserRow from '@/Components/UserRow.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import { useUser } from '@/composables/useUser';
 import {
-  MagnifyingGlassIcon,
   PlusIcon,
-  PencilSquareIcon,
   EyeIcon,
-  UserGroupIcon,
+  PencilSquareIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -19,11 +20,17 @@ const props = defineProps({
 
 const { isAdmin } = useUser();
 const search = ref(props.filters.search ?? '');
+let searchTimeout = null
 
-const applyFilters = () => router.get(route('hive.staff.index'),
-  { search: search.value },
-  { preserveState: true, replace: true }
-);
+const applyFilters = () => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    router.get(route('hive.staff.index'),
+      { search: search.value },
+      { preserveState: true, replace: true }
+    )
+  }, 300)
+}
 
 const getRoleName = (roles) => {
   if (!roles || roles.length === 0) return 'N/A';
@@ -61,41 +68,28 @@ const getRoleName = (roles) => {
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           <tr v-if="staff.data.length === 0">
             <td colspan="3" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <UserGroupIcon class="w-8 h-8 text-gray-400" />
-                </div>
-                <p class="text-gray-500 dark:text-gray-400">{{ search ? 'No staff match your search' : 'No staff found' }}</p>
-              </div>
+              <EmptyState type="users" title="No staff found" :description="search ? 'No staff match your search' : 'Get started by adding a staff member'">
+                <template #action>
+                  <Link v-if="isAdmin" :href="route('hive.staff.create')" class="text-amber-600 hover:text-amber-700">Add staff</Link>
+                </template>
+              </EmptyState>
             </td>
           </tr>
-          <tr v-for="staffMember in staff.data" :key="staffMember.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                <img :src="staffMember.profile_photo_url" :alt="staffMember.name"
-                  class="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-amber-100 dark:ring-amber-900" />
-                <div>
-                  <p class="font-medium text-gray-900 dark:text-gray-100">{{ staffMember.name }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ staffMember.email }}</p>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-gray-600 dark:text-gray-400 hidden md:table-cell">
-              {{ getRoleName(staffMember.roles) }}
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center justify-end gap-1">
-                <Link :href="route('hive.users.show', { user: staffMember.id })"
-                  class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="View">
-                  <EyeIcon class="w-4 h-4" />
-                </Link>
-                <Link :href="route('hive.staff.edit', { staff: staffMember.id })"
-                  class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="Edit">
-                  <PencilSquareIcon class="w-4 h-4" />
-                </Link>
-              </div>
-            </td>
-          </tr>
+          <UserRow v-for="staffMember in staff.data" :key="staffMember.id" :user="staffMember">
+            <template #role="{ user }">
+              <span class="text-gray-600 dark:text-gray-400">{{ getRoleName(user.roles) }}</span>
+            </template>
+            <template #actions="{ user }">
+              <Link :href="route('hive.users.show', { user: user.id })"
+                class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="View">
+                <EyeIcon class="w-4 h-4" />
+              </Link>
+              <Link :href="route('hive.staff.edit', { staff: user.id })"
+                class="p-2 text-gray-500 hover:text-amber-600 dark:text-gray-400 dark:hover:text-amber-400 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/30 transition" title="Edit">
+                <PencilSquareIcon class="w-4 h-4" />
+              </Link>
+            </template>
+          </UserRow>
         </tbody>
       </table>
     </div>
