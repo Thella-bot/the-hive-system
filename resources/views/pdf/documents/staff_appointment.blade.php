@@ -1,8 +1,8 @@
 @extends('pdf.layout')
 
 @section('content')
-<p><strong>{{ $staff->title ?? '' }} {{ $staff->full_name }}</strong><br>
-    {{ $staff->address ?? '' }}
+<p><strong>{{ $staff->profile->designation ?? '' }} {{ $staff->full_name }}</strong><br>
+    {{ $staff->profile->address ?? '' }}
 </p>
 
 <p>Dear {{ $staff->first_name ?? 'Candidate' }},</p>

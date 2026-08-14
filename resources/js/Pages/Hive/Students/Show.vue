@@ -29,21 +29,17 @@
                         <thead>
                             <tr class="bg-gray-100">
                                 <th class="border p-2 text-left">Programme</th>
-                                <th class="border p-2 text-left">Intake Date</th>
-                                <th class="border p-2 text-left">Status</th>
+                                <th class="border p-2 text-left">Academic Year</th>
+                                <th class="border p-2 text-left">Semester</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="enrollment in student.enrollments" :key="enrollment.id">
-                                <td class="border p-2">{{ enrollment.programme.name }}</td>
-                                <td class="border p-2">{{ enrollment.intake_date }}</td>
+                                <td class="border p-2">{{ enrollment.module?.programme?.name ?? 'Unknown Programme' }}</td>
+                                <td class="border p-2">{{ enrollment.academic_year ?? '—' }}</td>
                                 <td class="border p-2">
-                                    <span :class="{
-                                        'bg-green-100 text-green-800 px-2 py-1 rounded': enrollment.status === 'active',
-                                        'bg-gray-100 text-gray-800 px-2 py-1 rounded': enrollment.status === 'completed',
-                                        'bg-red-100 text-red-800 px-2 py-1 rounded': enrollment.status === 'suspended',
-                                    }">
-                                        {{ enrollment.status.toUpperCase() }}
+                                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                                        {{ enrollment.semester === '1' ? 'SEMESTER 1' : enrollment.semester === '2' ? 'SEMESTER 2' : '—' }}
                                     </span>
                                 </td>
                             </tr>

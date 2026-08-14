@@ -10,6 +10,7 @@ use App\Actions\Hive\UpdateStaff;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
 use Inertia\Inertia;
@@ -56,28 +57,37 @@ class StaffController extends Controller
         $this->authorize('create', User::class);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'roles' => 'nullable|array',
-            'roles.*' => 'exists:roles,name',
-            'employee_number' => 'nullable|string|unique:users,employee_number',
-            'department_id' => 'nullable|exists:departments,id',
-            'phone' => 'nullable|string',
+            'roles'    => 'nullable|array',
+            'roles.*'  => 'exists:roles,name',
+            'employee_number' => ['nullable', 'string', Rule::unique('profiles', 'employee_number')],
+            'department_id'   => 'nullable|exists:departments,id',
+            'designation'     => 'nullable|string|max:255',
+            'specialization'  => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
             'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string',
+            'address' => 'nullable|string|max:500',
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'employee_number' => $validated['employee_number'] ?? 'EMP-' . date('Y') . '-' . rand(1000, 9999),
         ]);
 
-        if (!empty($validated['roles'])) {
-            $user->syncRoles($validated['roles']);
-        }
+        $user->syncRoles($validated['roles'] ?? []);
+
+        $user->profile()->create([
+            'employee_number' => $validated['employee_number'] ?? null,
+            'department_id'   => $validated['department_id'] ?? null,
+            'designation'     => $validated['designation'] ?? null,
+            'specialization'  => $validated['specialization'] ?? null,
+            'phone'           => $validated['phone'] ?? null,
+            'date_of_birth'   => $validated['date_of_birth'] ?? null,
+            'address'         => $validated['address'] ?? null,
+        ]);
 
         return redirect()->route('hive.staff.index')
             ->with('success', 'Staff member created successfully.');
@@ -88,7 +98,7 @@ class StaffController extends Controller
      */
     public function show(User $staff)
     {
-        $staff->load(['profile', 'roles']);
+        $staff->load(['profile.department', 'roles']);
         return Inertia::render('Hive/Staff/Show', [
             'staff' => $staff,
         ]);
@@ -103,7 +113,7 @@ class StaffController extends Controller
         $roles = Role::whereIn('name', ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])->get();
         $isAdmin = auth()->user()?->isAdmin();
         return Inertia::render('Hive/Staff/Edit', [
-            'managedStaff' => $staff->load(['roles', 'profile', 'department']),
+            'managedStaff' => $staff->load(['roles', 'profile.department']),
             'roles' => $roles,
             'departments' => Department::orderBy('name')->get(),
             'isAdmin' => $isAdmin,
@@ -122,7 +132,7 @@ class StaffController extends Controller
             'email' => 'required|email|unique:users,email,' . $staff->id,
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,name',
-            'employee_number' => 'nullable|string|unique:users,employee_number,' . $staff->id,
+            'employee_number' => ['nullable', 'string', Rule::unique('profiles', 'employee_number')->when($staff->profile?->id, fn ($q, $id) => $q->ignore($id))],
             'department_id' => 'nullable|exists:departments,id',
             'designation' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
@@ -181,13 +191,15 @@ class StaffController extends Controller
      */
     public function generateAppointment(User $staff, Request $request)
     {
+        $staff->load(['profile.department', 'roles']);
+
         $data = [
             'office' => 'Human Resources',
             'ref' => 'HBCI/HR/' . date('Y') . '/' . $staff->id,
             'date' => now(),
             'staff' => $staff,
-            'position' => $request->position ?? $staff->position ?? 'Chef Instructor',
-            'department' => $request->department ?? $staff->department ?? 'Culinary Arts',
+            'position' => $request->position ?? $staff->profile->designation ?? 'Chef Instructor',
+            'department' => $request->department ?? $staff->profile->department->name ?? 'Culinary Arts',
             'contract_type' => $request->contract_type ?? 'Permanent',
             'contract_start' => Carbon::parse($request->contract_start ?? now()),
             'contract_end' => $request->contract_end ? Carbon::parse($request->contract_end) : null,
@@ -210,6 +222,8 @@ class StaffController extends Controller
      */
     public function generateWarning(User $staff, Request $request)
     {
+        $staff->load(['profile.department']);
+
         $data = [
             'office' => 'Human Resources',
             'ref' => 'HBCI/HR/DSC/' . date('Y') . '/' . $staff->id,

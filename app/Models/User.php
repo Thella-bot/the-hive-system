@@ -324,16 +324,6 @@ class User extends Authenticatable
         });
     }
 
-    public function scopeStudents($query): \Illuminate\Database\Eloquent\Builder
-    {
-        return $query->whereHas('roles', fn ($q) => $q->where('name', 'student'));
-    }
-
-    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
-    {
-        return $query->where('is_active', true);
-    }
-
     public function scopeSearch($query, string $search): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where(function ($q) use ($search) {

@@ -176,17 +176,11 @@
             class="px-6 py-4 flex items-center justify-between">
             <div class="flex-1">
               <p class="font-medium text-gray-900">{{ enrollment.module?.name ?? 'Unknown Module' }}</p>
-              <p class="text-sm text-gray-500">{{ enrollment.cohort?.name ?? '—' }}</p>
+              <p class="text-sm text-gray-500">{{ enrollment.academic_year ?? '—' }} &bull; Semester {{ enrollment.semester ?? '—' }}</p>
             </div>
-            <div class="flex items-center gap-4">
-              <span v-if="enrollment.grade" class="text-sm font-semibold"
-                :class="enrollment.grade >= 50 ? 'text-emerald-600' : 'text-red-600'">
-                {{ enrollment.grade }}%
-              </span>
-              <Badge :color="enrollment.status === 'active' ? 'green' : enrollment.status === 'completed' ? 'blue' : 'gray'">
-                {{ enrollment.status }}
-              </Badge>
-            </div>
+            <Badge :color="enrollment.semester === '1' ? 'green' : enrollment.semester === '2' ? 'blue' : 'gray'">
+              {{ enrollment.semester === '1' ? 'Semester 1' : enrollment.semester === '2' ? 'Semester 2' : 'Enrolled' }}
+            </Badge>
           </div>
         </div>
       </div>

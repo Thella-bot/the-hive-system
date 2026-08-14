@@ -31,20 +31,20 @@
 
         .blob-top {
             position: absolute;
-            top: -50pt;
-            right: -30pt;
-            width: 140pt;
-            height: 140pt;
+            top: -36pt;
+            right: -20pt;
+            width: 128pt;
+            height: 128pt;
             border-radius: 50%;
             background: #fbbf24;
         }
 
         .blob-bottom {
             position: absolute;
-            bottom: -60pt;
-            left: -40pt;
-            width: 130pt;
-            height: 130pt;
+            bottom: -48pt;
+            left: -32pt;
+            width: 112pt;
+            height: 112pt;
             border-radius: 50%;
             background: #fbbf24;
         }
@@ -53,8 +53,8 @@
             position: absolute;
             bottom: 0;
             right: 0;
-            width: 48pt;
-            height: 28pt;
+            width: 64pt;
+            height: 38pt;
             background: #000000;
             clip-path: polygon(100% 0, 100% 100%, 0 100%);
         }
@@ -64,54 +64,54 @@
             top: 12pt;
             left: 16pt;
             right: 16pt;
-            height: 18pt;
+            height: 24pt;
         }
 
         .header img {
-            height: 18pt;
+            height: 24pt;
         }
 
         .title {
             position: absolute;
-            top: 34pt;
+            top: 40pt;
             left: 16pt;
             background: #f59e0b;
             color: #ffffff;
             font-weight: 900;
-            font-size: 12pt;
-            letter-spacing: 1.2pt;
-            padding: 3pt 16pt;
+            font-size: 15pt;
+            letter-spacing: 0.8pt;
+            padding: 5pt 18pt;
             border-radius: 9999pt;
         }
 
         .content {
             position: absolute;
-            top: 60pt;
+            top: 74pt;
             left: 16pt;
             right: 16pt;
-            bottom: 14pt;
+            bottom: 12pt;
         }
 
         .photo {
-            width: 48pt;
-            height: 60pt;
+            width: 60pt;
+            height: 72pt;
             object-fit: cover;
             border-radius: 4pt;
             border: 2pt solid #ffffff;
             box-shadow: 0 1pt 2pt rgba(0, 0, 0, 0.15);
-            background: #fffbeb;
+            background: #fef3c7;
         }
 
         .initials-fallback {
-            width: 48pt;
-            height: 60pt;
+            width: 60pt;
+            height: 72pt;
             border-radius: 4pt;
             border: 2pt solid #ffffff;
             box-shadow: 0 1pt 2pt rgba(0, 0, 0, 0.15);
-            background: #fffbeb;
-            color: #92400e;
+            background: #fef3c7;
+            color: #b45309;
             font-weight: 900;
-            font-size: 14pt;
+            font-size: 18pt;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -119,24 +119,36 @@
         }
 
         .details {
-            font-size: 7.5pt;
-            line-height: 11pt;
+            font-size: 9pt;
+            line-height: 13pt;
         }
 
         .row {
-            margin-bottom: 4pt;
+            margin-bottom: 5pt;
         }
 
         .label {
             font-weight: 700;
             color: #111827;
+            font-size: 7.5pt;
         }
 
         .value {
             font-weight: 900;
             color: #111827;
+            font-size: 9pt;
             text-transform: uppercase;
             word-wrap: break-word;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 3pt;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 6pt;
+            color: #9ca3af;
         }
     </style>
 </head>
@@ -156,14 +168,14 @@
         <div class="content">
             <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                    <td width="48pt" valign="top">
+                    <td width="60pt" valign="top">
                         @if($photoPath)
                             <img class="photo" src="{{ $photoPath }}" alt="Student photo">
                         @else
                             <div class="initials-fallback">{{ $initials }}</div>
                         @endif
                     </td>
-                    <td valign="top" style="padding-left: 10pt;">
+                    <td valign="top" style="padding-left: 12pt;">
                         <div class="details">
                             <div class="row">
                                 <span class="label">STUDENT NO:</span><br>
@@ -185,6 +197,10 @@
                     </td>
                 </tr>
             </table>
+        </div>
+
+        <div class="footer">
+            This card is the property of Honey Bee Culinary Institute. Return to reception if found.
         </div>
     </div>
 </body>

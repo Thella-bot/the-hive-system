@@ -302,17 +302,6 @@ class UserModelTest extends TestCase
         $this->assertTrue($results->first()->isStudent());
     }
 
-    public function test_active_scope_filters_active_users(): void
-    {
-        $activeUser = User::factory()->create();
-        User::factory()->create(['is_active' => false]);
-
-        $results = User::active()->get();
-
-        $this->assertCount(1, $results);
-        $this->assertTrue($results->first()->is_active);
-    }
-
     public function test_needs_registration_returns_false_for_no_application(): void
     {
         $user = User::factory()->create();

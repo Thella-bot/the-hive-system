@@ -22,7 +22,7 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
-        $paginatedUsers = User::with(['roles', 'profile'])
+        $paginatedUsers = User::with(['roles', 'profile.department', 'profile.cohort'])
             ->when($request->search, fn($q) => $q->where('name', 'like', "%{$request->search}%")
                 ->orWhere('email', 'like', "%{$request->search}%"))
             ->when($request->role, fn($q) => $q->role($request->role))
@@ -149,7 +149,7 @@ class UserController extends Controller
 
         // Load enrollments (for students) - check if relationship exists
         $enrollments = method_exists($user, 'enrollments')
-            ? $user->enrollments()->with(['cohort', 'module'])->latest()->limit(10)->get()
+            ? $user->enrollments()->with(['module'])->latest()->limit(10)->get()
             : collect();
 
         // Load certifications if relationship exists

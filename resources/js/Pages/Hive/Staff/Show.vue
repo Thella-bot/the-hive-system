@@ -15,12 +15,12 @@
 
                 <!-- Staff Info -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div><strong>Employee Number:</strong> {{ staff.employee_number || 'N/A' }}</div>
+                    <div><strong>Employee Number:</strong> {{ staff.profile?.employee_number || 'N/A' }}</div>
                     <div><strong>Email:</strong> {{ staff.email }}</div>
-                    <div><strong>Position:</strong> {{ staff.position || 'N/A' }}</div>
-                    <div><strong>Department:</strong> {{ staff.department || 'N/A' }}</div>
+                    <div><strong>Position:</strong> {{ staff.profile?.designation || 'N/A' }}</div>
+                    <div><strong>Department:</strong> {{ staff.profile?.department?.name || 'N/A' }}</div>
                     <div><strong>Role:</strong> {{ staff.roles.map(r => r.name).join(', ') }}</div>
-                    <div><strong>Phone:</strong> {{ staff.phone || 'N/A' }}</div>
+                    <div><strong>Phone:</strong> {{ staff.profile?.phone || 'N/A' }}</div>
                 </div>
 
                 <!-- Payroll -->

@@ -3,8 +3,8 @@
 @section('content')
 <p style="font-weight:700; color:#8b0000;">STRICTLY PRIVATE AND CONFIDENTIAL</p>
 <p><strong>{{ $staff->full_name }}</strong><br>
-    Position: {{ $staff->position }}<br>
-    Department: {{ $staff->department }}</p>
+    Position: {{ $staff->profile->designation ?? 'N/A' }}<br>
+    Department: {{ $staff->profile->department->name ?? 'N/A' }}</p>
 
 <p>Dear {{ $staff->first_name }},</p>
 
