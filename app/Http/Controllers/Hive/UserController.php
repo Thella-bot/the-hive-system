@@ -139,6 +139,7 @@ class UserController extends Controller
             'roles',
             'profile.department',
             'profile.cohort.department',
+            'programme',
         ]);
 
         // Load applications (for applicants/students) - check if relationship exists
@@ -161,19 +162,13 @@ class UserController extends Controller
             ? $user->documents()->count()
             : 0;
 
-        // Get user's programme (for students)
-        $programme = null;
-        if ($user->profile && $user->profile->cohort_id) {
-            $programme = \App\Models\Programme::where('department_id', $user->profile->cohort?->department_id)->first();
-        }
-
         return Inertia::render('Hive/Users/Show', [
             'managedUser' => $user,
             'applications' => $applications,
             'enrollments' => $enrollments,
             'certifications' => $certifications,
             'documentCount' => $documentCount,
-            'programme' => $programme,
+            'programme' => $user->programme,
         ]);
     }
 

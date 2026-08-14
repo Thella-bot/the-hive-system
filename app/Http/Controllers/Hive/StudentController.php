@@ -21,7 +21,7 @@ class StudentController extends Controller
     {
         $this->authorize('viewAny', User::class);
         $students = User::role(['student', 'parent-guardian', 'alumni'])
-            ->with(['profile', 'programme'])
+            ->with(['profile', 'profile.cohort', 'programme'])
             ->paginate(15);
 
         return Inertia::render('Hive/Students/Index', [

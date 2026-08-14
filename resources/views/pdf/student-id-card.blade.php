@@ -102,28 +102,6 @@
             background: #fffbeb;
         }
 
-        .details {
-            font-size: 8pt;
-            line-height: 11pt;
-            padding-top: 2pt;
-        }
-
-        .row {
-            margin-bottom: 5pt;
-        }
-
-        .label {
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .value {
-            font-weight: 900;
-            color: #111827;
-            text-transform: uppercase;
-            word-wrap: break-word;
-        }
-
         .initials-fallback {
             width: 48pt;
             height: 60pt;
@@ -138,6 +116,27 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+        }
+
+        .details {
+            font-size: 7.5pt;
+            line-height: 11pt;
+        }
+
+        .row {
+            margin-bottom: 4pt;
+        }
+
+        .label {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .value {
+            font-weight: 900;
+            color: #111827;
+            text-transform: uppercase;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -157,14 +156,14 @@
         <div class="content">
             <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                    <td width="48pt" valign="top" style="padding-right: 10pt;">
+                    <td width="48pt" valign="top">
                         @if($photoPath)
                             <img class="photo" src="{{ $photoPath }}" alt="Student photo">
                         @else
                             <div class="initials-fallback">{{ $initials }}</div>
                         @endif
                     </td>
-                    <td valign="top">
+                    <td valign="top" style="padding-left: 10pt;">
                         <div class="details">
                             <div class="row">
                                 <span class="label">STUDENT NO:</span><br>

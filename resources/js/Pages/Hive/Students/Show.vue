@@ -15,11 +15,11 @@
 
                 <!-- Student Info -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div><strong>Student Number:</strong> {{ student.student_number }}</div>
+                    <div><strong>Student Number:</strong> {{ student.profile?.student_number ?? '—' }}</div>
                     <div><strong>Email:</strong> {{ student.email }}</div>
-                    <div><strong>Date of Birth:</strong> {{ student.date_of_birth }}</div>
-                    <div><strong>Phone:</strong> {{ student.phone || 'N/A' }}</div>
-                    <div class="col-span-2"><strong>Address:</strong> {{ student.address || 'N/A' }}</div>
+                    <div><strong>Date of Birth:</strong> {{ student.profile?.date_of_birth ?? '—' }}</div>
+                    <div><strong>Phone:</strong> {{ student.profile?.phone || 'N/A' }}</div>
+                    <div class="col-span-2"><strong>Address:</strong> {{ student.profile?.address || 'N/A' }}</div>
                 </div>
 
                 <!-- Programme Info -->
