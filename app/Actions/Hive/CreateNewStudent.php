@@ -2,8 +2,9 @@
 
 namespace App\Actions\Hive;
 
-use App\Models\User;
+use App\Models\Profile;
 use App\Models\Programme;
+use App\Models\User;
 use App\Services\IdGenerator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;

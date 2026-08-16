@@ -146,7 +146,7 @@ class UpdateStudent
 
             $programme = isset($input['programme_id'])
                 ? Programme::find($input['programme_id'])
-                : $cohort?->department?->programme;
+                : $student->programme;
 
             if ($cohort?->academicYear && !$enrollmentDate) {
                 $enrollmentDate = $cohort->academicYear->start_date;

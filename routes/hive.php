@@ -18,6 +18,8 @@ use App\Http\Controllers\Hive\LeaveRequestController;
 use App\Http\Controllers\Hive\ModuleController;
 use App\Http\Controllers\Hive\NotificationController;
 use App\Http\Controllers\Hive\PayslipController;
+use App\Http\Controllers\Hive\PlacementController;
+use App\Http\Controllers\Hive\DisciplinaryController;
 use App\Http\Controllers\Hive\PollController;
 use App\Http\Controllers\Hive\ProfileController;
 use App\Http\Controllers\Hive\RegistrationController;
@@ -140,6 +142,26 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::post('programmes', [ModuleController::class, 'storeProgramme'])->name('programmes.store');
         Route::resource('modules', ModuleController::class)->only(['create', 'store', 'show', 'edit', 'update', 'destroy'])
             ->middleware('role:super-admin|academic-director|program-coordinator');
+
+        // Placements (career-services, academic-director, program-coordinator)
+        Route::resource('placements', PlacementController::class)
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|career-services');
+        Route::get('placements/{placement}/letter-pdf', [PlacementController::class, 'generateLetter'])
+            ->name('placements.letter-pdf')
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|career-services');
+
+        // Disciplinary Actions (hr-manager, registrar, academic-director)
+        Route::resource('disciplinary', DisciplinaryController::class)
+            ->middleware('role:super-admin|it-support|academic-director|registrar|hr-manager');
+        Route::get('disciplinary/{disciplinary}/warning-pdf', [DisciplinaryController::class, 'generateWarning'])
+            ->name('disciplinary.warning-pdf')
+            ->middleware('role:super-admin|it-support|academic-director|registrar|hr-manager');
+        Route::get('disciplinary/{disciplinary}/suspension-pdf', [DisciplinaryController::class, 'generateSuspension'])
+            ->name('disciplinary.suspension-pdf')
+            ->middleware('role:super-admin|it-support|academic-director|registrar|hr-manager');
+        Route::get('disciplinary/{disciplinary}/expulsion-pdf', [DisciplinaryController::class, 'generateExpulsion'])
+            ->name('disciplinary.expulsion-pdf')
+            ->middleware('role:super-admin|it-support|academic-director|registrar|hr-manager');
 
         // Notifications
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');

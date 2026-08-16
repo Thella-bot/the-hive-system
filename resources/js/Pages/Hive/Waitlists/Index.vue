@@ -24,10 +24,10 @@
     </div>
 
     <!-- Student own waitlist -->
-    <div v-if="!isAdmin && waitlists.length">
+    <div v-if="!isAdmin && waitlists.data.length">
       <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-3">Your Waitlist Positions</h2>
       <div class="space-y-3 mb-8">
-        <div v-for="w in waitlists" :key="w.id" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 flex justify-between items-center">
+        <div v-for="w in waitlists.data" :key="w.id" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 flex justify-between items-center">
           <div>
             <h3 class="font-semibold text-gray-900 dark:text-gray-100">{{ w.programme?.name }}</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400">Position #{{ w.position }} · Joined {{ formatDate(w.joined_at) }}</p>

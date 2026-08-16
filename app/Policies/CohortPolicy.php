@@ -77,7 +77,7 @@ class CohortPolicy
      */
     public function restore(User $user, Cohort $cohort)
     {
-        return $user->can('restore-cohorts');
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 
     /**
@@ -89,6 +89,6 @@ class CohortPolicy
      */
     public function forceDelete(User $user, Cohort $cohort)
     {
-        return $user->can('force-delete-cohorts');
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 }

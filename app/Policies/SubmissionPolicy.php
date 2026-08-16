@@ -20,10 +20,7 @@ class SubmissionPolicy extends BasePolicy
 
     public function create(User $user, Gradable $gradable = null)
     {
-        // Called as authorize('create', [Submission::class, $gradable]) from controller
-        // Allow if user has student role OR the permission
-        if ($user->hasRole('student') || $user->can('create-submissions')) {
-            // Check if gradable is open (not overdue)
+        if ($user->hasAnyRole(['student', 'chef-instructor', 'pastry-instructor', 'sous-chef'])) {
             if ($gradable && $gradable->due_date && now()->gt($gradable->due_date)) {
                 return false;
             }
@@ -34,7 +31,8 @@ class SubmissionPolicy extends BasePolicy
 
     public function update(User $user, Submission $submission)
     {
-        return $user->can('grade-submissions') && $user->id === $submission->gradable->instructor_id;
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+            && $user->id === $submission->gradable->instructor_id;
     }
 
     public function delete(User $user, Submission $submission)
@@ -44,6 +42,7 @@ class SubmissionPolicy extends BasePolicy
 
     public function grade(User $user, Submission $submission)
     {
-        return $user->can('grade-submissions') && $user->id === $submission->gradable->instructor_id;
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+            && $user->id === $submission->gradable->instructor_id;
     }
 }

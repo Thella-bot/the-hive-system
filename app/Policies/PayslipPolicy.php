@@ -24,12 +24,13 @@ class PayslipPolicy extends BasePolicy
 
     public function update(User $user, Payslip $payslip): bool
     {
-        return $user->can('edit-payslips') || $payslip->user_id === $user->id;
+        return $user->hasAnyRole(['super-admin', 'it-support', 'finance', 'hr-manager'])
+            || $payslip->user_id === $user->id;
     }
 
     public function delete(User $user, Payslip $payslip): bool
     {
-        return $user->can('delete-payslips');
+        return $user->hasAnyRole(['super-admin', 'it-support', 'finance', 'hr-manager']);
     }
 
     public function generateBatch(User $user): bool
