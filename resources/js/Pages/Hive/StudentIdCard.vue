@@ -29,52 +29,74 @@ const studentId = computed(() => props.student_id || {});
         </a>
       </div>
 
-      <!-- Card, matching HBCI brand ID design -->
-      <div class="relative w-full aspect-[16/10] rounded-3xl overflow-hidden bg-white shadow-2xl border border-gray-100">
+      <!-- Card, matching the PDF student ID card design exactly -->
+      <div class="relative mx-auto rounded-[12pt] overflow-hidden bg-white shadow-2xl"
+           style="width: 484px; height: 306px;">
+
         <!-- Decorative orange blobs -->
-        <div class="absolute -top-16 -right-10 w-64 h-64 rounded-full bg-amber-400"></div>
-        <div class="absolute -bottom-20 -left-16 w-56 h-56 rounded-full bg-amber-400"></div>
+        <div class="absolute rounded-full bg-amber-400"
+             style="top: -48px; right: -40px; width: 256px; height: 256px;"></div>
+        <div class="absolute rounded-full bg-amber-400"
+             style="bottom: -96px; left: -64px; width: 224px; height: 224px;"></div>
+
         <!-- Diagonal black accent, bottom right -->
-        <div class="absolute bottom-0 right-0 w-40 h-24 bg-black" style="clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
+        <div class="absolute bottom-0 right-0 bg-black"
+             style="width: 128px; height: 76px; clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
 
         <!-- Content -->
-        <div class="relative z-10 p-6 sm:p-8 h-full flex flex-col">
-          <div class="flex items-center justify-between">
-            <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" class="h-9 sm:h-10" />
+        <div class="relative z-10 p-8 h-full flex flex-col">
+          <!-- Logo -->
+          <div>
+            <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" style="height: 32px;" />
           </div>
 
-          <div class="mt-3">
-            <span class="inline-block bg-amber-500 text-white font-extrabold text-xl sm:text-2xl tracking-wide px-6 py-2 rounded-full">
+          <!-- STUDENT CARD pill -->
+          <div class="mt-2">
+            <span class="inline-block text-white font-black tracking-widest"
+                  style="background: #f59e0b; font-size: 20px; padding: 6px 24px; border-radius: 9999px; letter-spacing: 1px;">
               STUDENT CARD
             </span>
           </div>
 
-          <div class="mt-5 flex gap-5 text-sm sm:text-base">
+          <!-- Details row -->
+          <div class="mt-4 flex gap-5">
+            <!-- Photo -->
             <div v-if="studentId.photo_url" class="flex-shrink-0">
-              <img :src="studentId.photo_url" alt="Student photo" class="w-20 h-24 object-cover rounded-lg border-2 border-white shadow" />
+              <img :src="studentId.photo_url" alt="Student photo"
+                   class="object-cover border-2 border-white shadow"
+                   style="width: 120px; height: 144px; border-radius: 4px;" />
             </div>
-            <div v-else class="flex-shrink-0 w-20 h-24 rounded-lg border-2 border-white shadow bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-2xl">
+            <div v-else class="flex-shrink-0 flex items-center justify-center border-2 border-white shadow"
+                 style="width: 120px; height: 144px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 900; font-size: 36px;">
               {{ studentId.initials }}
             </div>
-            <div class="space-y-2.5">
-              <div class="grid grid-cols-[auto,1fr] gap-x-3">
-                <span class="font-bold text-gray-900">STUDENT NO:</span>
-                <span class="font-extrabold text-gray-900">{{ studentId.student_number || 'N/A' }}</span>
+
+            <!-- Text details -->
+            <div class="space-y-2" style="font-size: 12px; line-height: 17px;">
+              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 10px;">STUDENT NO:</span>
+                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.student_number || 'N/A' }}</span>
               </div>
-              <div class="grid grid-cols-[auto,1fr] gap-x-3">
-                <span class="font-bold text-gray-900">NAME:</span>
-                <span class="font-extrabold text-gray-900 uppercase">{{ studentId.name }}</span>
+              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 10px;">NAME:</span>
+                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.name }}</span>
               </div>
-              <div class="grid grid-cols-[auto,1fr] gap-x-3">
-                <span class="font-bold text-gray-900">YEAR:</span>
-                <span class="font-extrabold text-gray-900">{{ studentId.year }}</span>
+              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 10px;">YEAR:</span>
+                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.year }}</span>
               </div>
-              <div class="grid grid-cols-[auto,1fr] gap-x-3">
-                <span class="font-bold text-gray-900">COURSE:</span>
-                <span class="font-extrabold text-gray-900 uppercase">{{ studentId.programme || 'N/A' }}</span>
+              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 10px;">COURSE:</span>
+                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.programme || 'N/A' }}</span>
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="absolute left-0 right-0 text-center"
+             style="bottom: 4px; font-size: 8px; color: #9ca3af;">
+          This card is the property of Honey Bee Culinary Institute. Return to reception if found.
         </div>
       </div>
 
