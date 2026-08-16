@@ -31,20 +31,20 @@
 
         .blob-top {
             position: absolute;
-            top: -36pt;
-            right: -20pt;
-            width: 128pt;
-            height: 128pt;
+            top: -40pt;
+            right: -70pt;
+            width: 230pt;
+            height: 140pt;
             border-radius: 50%;
             background: #fbbf24;
         }
 
         .blob-bottom {
             position: absolute;
-            bottom: -48pt;
-            left: -32pt;
-            width: 112pt;
-            height: 112pt;
+            bottom: -55pt;
+            left: -90pt;
+            width: 230pt;
+            height: 140pt;
             border-radius: 50%;
             background: #fbbf24;
         }
@@ -53,48 +53,61 @@
             position: absolute;
             bottom: 0;
             right: 0;
-            width: 64pt;
-            height: 38pt;
+            width: 70pt;
+            height: 42pt;
             background: #000000;
             clip-path: polygon(100% 0, 100% 100%, 0 100%);
         }
 
+        .corner-accent-left {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 26pt;
+            height: 13pt;
+            background: #000000;
+            clip-path: polygon(0 0, 100% 100%, 0 100%);
+        }
+
         .header {
             position: absolute;
-            top: 12pt;
-            left: 16pt;
-            right: 16pt;
-            height: 24pt;
+            top: 10pt;
+            left: 14pt;
+            right: 14pt;
+            height: 26pt;
+        }
+
+        .header table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .header img {
-            height: 24pt;
+            height: 22pt;
         }
 
         .title {
-            position: absolute;
-            top: 40pt;
-            left: 16pt;
+            display: inline-block;
             background: #f59e0b;
             color: #ffffff;
             font-weight: 900;
-            font-size: 15pt;
-            letter-spacing: 0.8pt;
-            padding: 5pt 18pt;
+            font-size: 13pt;
+            letter-spacing: 0.6pt;
+            padding: 5pt 16pt;
             border-radius: 9999pt;
         }
 
         .content {
             position: absolute;
-            top: 74pt;
-            left: 16pt;
-            right: 16pt;
-            bottom: 12pt;
+            top: 44pt;
+            left: 14pt;
+            right: 14pt;
+            bottom: 10pt;
         }
 
         .photo {
-            width: 60pt;
-            height: 72pt;
+            width: 78pt;
+            height: 108pt;
             object-fit: cover;
             border-radius: 4pt;
             border: 2pt solid #ffffff;
@@ -103,42 +116,58 @@
         }
 
         .initials-fallback {
-            width: 60pt;
-            height: 72pt;
+            width: 78pt;
+            height: 108pt;
             border-radius: 4pt;
             border: 2pt solid #ffffff;
             box-shadow: 0 1pt 2pt rgba(0, 0, 0, 0.15);
             background: #fef3c7;
             color: #b45309;
             font-weight: 900;
-            font-size: 18pt;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 22pt;
+            display: table-cell;
+            vertical-align: middle;
             text-align: center;
         }
 
         .details {
             font-size: 9pt;
-            line-height: 13pt;
         }
 
-        .row {
-            margin-bottom: 5pt;
+        .details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .details td {
+            padding-bottom: 7pt;
+            vertical-align: baseline;
         }
 
         .label {
             font-weight: 700;
             color: #111827;
-            font-size: 7.5pt;
+            font-size: 8pt;
+            white-space: nowrap;
+            padding-right: 8pt;
         }
 
         .value {
             font-weight: 900;
             color: #111827;
-            font-size: 9pt;
+            font-size: 10pt;
             text-transform: uppercase;
-            word-wrap: break-word;
+        }
+
+        /* Distinct condensed treatment for the course value, to echo the
+           reference design's contrasting display font. Swap in a real
+           condensed webfont (e.g. Oswald) via @font-face for an exact match. */
+        .value-course {
+            font-weight: 900;
+            color: #111827;
+            font-size: 10.5pt;
+            text-transform: uppercase;
+            letter-spacing: -0.2pt;
         }
 
         .footer {
@@ -158,17 +187,25 @@
         <div class="blob-top"></div>
         <div class="blob-bottom"></div>
         <div class="corner-accent"></div>
+        <div class="corner-accent-left"></div>
 
         <div class="header">
-            <img src="{{ public_path('images/hbci-logo.png') }}" alt="Honey Bee Culinary Institute">
+            <table>
+                <tr>
+                    <td align="left" valign="middle">
+                        <img src="{{ public_path('images/hbci-logo.png') }}" alt="Honey Bee Culinary Institute">
+                    </td>
+                    <td align="right" valign="middle">
+                        <span class="title">STUDENT CARD</span>
+                    </td>
+                </tr>
+            </table>
         </div>
-
-        <div class="title">STUDENT CARD</div>
 
         <div class="content">
             <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                    <td width="60pt" valign="top">
+                    <td width="78pt" valign="top">
                         @if($photoPath)
                             <img class="photo" src="{{ $photoPath }}" alt="Student photo">
                         @else
@@ -177,22 +214,24 @@
                     </td>
                     <td valign="top" style="padding-left: 12pt;">
                         <div class="details">
-                            <div class="row">
-                                <span class="label">STUDENT NO:</span><br>
-                                <span class="value">{{ $studentNumber ?? 'N/A' }}</span>
-                            </div>
-                            <div class="row">
-                                <span class="label">NAME:</span><br>
-                                <span class="value">{{ $name }}</span>
-                            </div>
-                            <div class="row">
-                                <span class="label">YEAR:</span><br>
-                                <span class="value">{{ $year }}</span>
-                            </div>
-                            <div class="row">
-                                <span class="label">COURSE:</span><br>
-                                <span class="value">{{ $programme ?? 'N/A' }}</span>
-                            </div>
+                            <table>
+                                <tr>
+                                    <td class="label">STUDENT NO:</td>
+                                    <td class="value">{{ $studentNumber ?? 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">NAME:</td>
+                                    <td class="value">{{ $name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">YEAR:</td>
+                                    <td class="value">{{ $year }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">COURSE:</td>
+                                    <td class="value-course">{{ $programme ?? 'N/A' }}</td>
+                                </tr>
+                            </table>
                         </div>
                     </td>
                 </tr>

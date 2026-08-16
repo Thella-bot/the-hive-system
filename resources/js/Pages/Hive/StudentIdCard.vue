@@ -35,59 +35,60 @@ const studentId = computed(() => props.student_id || {});
 
         <!-- Decorative orange blobs -->
         <div class="absolute rounded-full bg-amber-400"
-             style="top: -48px; right: -40px; width: 256px; height: 256px;"></div>
+             style="top: -80px; right: -140px; width: 460px; height: 280px;"></div>
         <div class="absolute rounded-full bg-amber-400"
-             style="bottom: -96px; left: -64px; width: 224px; height: 224px;"></div>
+             style="bottom: -110px; left: -180px; width: 460px; height: 280px;"></div>
 
-        <!-- Diagonal black accent, bottom right -->
+        <!-- Diagonal black accents -->
         <div class="absolute bottom-0 right-0 bg-black"
-             style="width: 128px; height: 76px; clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
+             style="width: 140px; height: 84px; clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
+        <div class="absolute bottom-0 left-0 bg-black"
+             style="width: 52px; height: 26px; clip-path: polygon(0 0, 100% 100%, 0 100%);"></div>
 
         <!-- Content -->
-        <div class="relative z-10 p-8 h-full flex flex-col">
-          <!-- Logo -->
-          <div>
-            <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" style="height: 32px;" />
-          </div>
-
-          <!-- STUDENT CARD pill -->
-          <div class="mt-2">
-            <span class="inline-block text-white font-black tracking-widest"
-                  style="background: #f59e0b; font-size: 20px; padding: 6px 24px; border-radius: 9999px; letter-spacing: 1px;">
+        <div class="relative z-10 h-full" style="padding: 20px 28px;">
+          <!-- Header row: logo + STUDENT CARD pill side by side -->
+          <div class="flex items-center justify-between">
+            <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" style="height: 44px;" />
+            <span class="text-white font-black tracking-widest"
+                  style="background: #f59e0b; font-size: 22px; padding: 10px 32px; border-radius: 9999px; letter-spacing: 1px;">
               STUDENT CARD
             </span>
           </div>
 
           <!-- Details row -->
-          <div class="mt-4 flex gap-5">
+          <div class="flex gap-5" style="margin-top: 24px;">
             <!-- Photo -->
             <div v-if="studentId.photo_url" class="flex-shrink-0">
               <img :src="studentId.photo_url" alt="Student photo"
                    class="object-cover border-2 border-white shadow"
-                   style="width: 120px; height: 144px; border-radius: 4px;" />
+                   style="width: 156px; height: 216px; border-radius: 4px;" />
             </div>
             <div v-else class="flex-shrink-0 flex items-center justify-center border-2 border-white shadow"
-                 style="width: 120px; height: 144px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 900; font-size: 36px;">
+                 style="width: 156px; height: 216px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 900; font-size: 44px;">
               {{ studentId.initials }}
             </div>
 
             <!-- Text details -->
-            <div class="space-y-2" style="font-size: 12px; line-height: 17px;">
-              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
-                <span style="font-weight: 700; color: #111827; font-size: 10px;">STUDENT NO:</span>
-                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.student_number || 'N/A' }}</span>
+            <div class="space-y-3" style="font-size: 13px; line-height: 18px; padding-top: 6px;">
+              <div class="grid gap-x-3 items-baseline" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 11px;">STUDENT NO:</span>
+                <span style="font-weight: 900; color: #111827; font-size: 14px; text-transform: uppercase;">{{ studentId.student_number || 'N/A' }}</span>
               </div>
-              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
-                <span style="font-weight: 700; color: #111827; font-size: 10px;">NAME:</span>
-                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.name }}</span>
+              <div class="grid gap-x-3 items-baseline" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 11px;">NAME:</span>
+                <span style="font-weight: 900; color: #111827; font-size: 14px; text-transform: uppercase;">{{ studentId.name }}</span>
               </div>
-              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
-                <span style="font-weight: 700; color: #111827; font-size: 10px;">YEAR:</span>
-                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.year }}</span>
+              <div class="grid gap-x-3 items-baseline" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 11px;">YEAR:</span>
+                <span style="font-weight: 900; color: #111827; font-size: 14px; text-transform: uppercase;">{{ studentId.year }}</span>
               </div>
-              <div class="grid gap-x-3" style="grid-template-columns: auto 1fr;">
-                <span style="font-weight: 700; color: #111827; font-size: 10px;">COURSE:</span>
-                <span style="font-weight: 900; color: #111827; font-size: 12px; text-transform: uppercase;">{{ studentId.programme || 'N/A' }}</span>
+              <div class="grid gap-x-3 items-baseline" style="grid-template-columns: auto 1fr;">
+                <span style="font-weight: 700; color: #111827; font-size: 11px;">COURSE:</span>
+                <!-- Distinct condensed treatment to echo the reference's
+                     contrasting display font. Swap in a real condensed
+                     webfont (e.g. Oswald) for an exact match. -->
+                <span style="font-weight: 900; color: #111827; font-size: 14.5px; text-transform: uppercase; letter-spacing: -0.3px;">{{ studentId.programme || 'N/A' }}</span>
               </div>
             </div>
           </div>
@@ -95,7 +96,7 @@ const studentId = computed(() => props.student_id || {});
 
         <!-- Footer -->
         <div class="absolute left-0 right-0 text-center"
-             style="bottom: 4px; font-size: 8px; color: #9ca3af;">
+             style="bottom: 6px; font-size: 9px; color: #9ca3af;">
           This card is the property of Honey Bee Culinary Institute. Return to reception if found.
         </div>
       </div>
