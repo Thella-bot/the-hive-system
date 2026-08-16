@@ -15,7 +15,7 @@ class DepartmentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view-departments');
+        return true;
     }
 
     /**
@@ -23,7 +23,7 @@ class DepartmentPolicy
      */
     public function view(User $user, Department $department): bool
     {
-        return $user->can('view-departments');
+        return true;
     }
 
     /**
@@ -31,7 +31,7 @@ class DepartmentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create-departments');
+        return $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']);
     }
 
     /**
@@ -39,7 +39,7 @@ class DepartmentPolicy
      */
     public function update(User $user, Department $department): bool
     {
-        return $user->can('update-departments');
+        return $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']);
     }
 
     /**
@@ -47,7 +47,7 @@ class DepartmentPolicy
      */
     public function delete(User $user, Department $department): bool
     {
-        return $user->can('delete-departments');
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 
     /**
@@ -55,7 +55,7 @@ class DepartmentPolicy
      */
     public function restore(User $user, Department $department): bool
     {
-        return $user->can('restore-departments');
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 
     /**
@@ -63,6 +63,6 @@ class DepartmentPolicy
      */
     public function forceDelete(User $user, Department $department): bool
     {
-        return $user->can('force-delete-departments');
+        return $user->hasAnyRole(['super-admin', 'it-support']);
     }
 }

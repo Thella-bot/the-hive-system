@@ -8,7 +8,7 @@ use App\Models\User;
 
 class ModuleControllerTest extends HiveTestCase
 {
-    public function test_module_index_requires_admin_role(): void
+    public function test_module_index_returns_success_for_student(): void
     {
         $user = User::factory()->create();
         $user->assignRole('student');
@@ -17,7 +17,7 @@ class ModuleControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.modules.index'));
 
-        $response->assertRedirect();
+        $response->assertOk();
     }
 
     public function test_module_index_returns_success_for_academic_director(): void

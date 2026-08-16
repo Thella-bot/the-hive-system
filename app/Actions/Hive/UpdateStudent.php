@@ -10,10 +10,8 @@ use Illuminate\Validation\Rule;
 
 class UpdateStudent
 {
-    public function update(User $student, array $input): User
+    public function update(User $student, array $input, bool $isAdmin): User
     {
-        $isAdmin = $student->isAdmin();
-
         $this->validateBaseFields($input);
 
         if ($isAdmin) {
@@ -143,7 +141,7 @@ class UpdateStudent
 
         if (isset($input['cohort_id']) || isset($input['programme_id'])) {
             $cohort = isset($input['cohort_id'])
-                ? Cohort::with('academicYear', 'department.programme')->find($input['cohort_id'])
+                ? Cohort::with('academicYear', 'department.programmes')->find($input['cohort_id'])
                 : $student->profile?->cohort;
 
             $programme = isset($input['programme_id'])

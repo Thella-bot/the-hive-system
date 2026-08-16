@@ -9,18 +9,20 @@ import {
   PencilSquareIcon,
   EyeIcon,
 } from '@heroicons/vue/24/outline';
+import Pagination from '@/Components/Pagination.vue';
 
 const props = defineProps({
-  modules: Array,
+  modules: { type: Object, required: true },
 });
 
 const { isAdmin, isStudent } = useUser();
 const searchQuery = ref('');
 
 const filteredModules = computed(() => {
-  if (!searchQuery.value) return props.modules;
+  const data = props.modules.data || [];
+  if (!searchQuery.value) return data;
   const query = searchQuery.value.toLowerCase();
-  return props.modules.filter(m =>
+  return data.filter(m =>
     m.name?.toLowerCase().includes(query) ||
     m.code?.toLowerCase().includes(query) ||
     m.department?.name?.toLowerCase().includes(query) ||
@@ -64,7 +66,7 @@ const formatDeliveryMode = (value) => {
 
     <!-- Results count -->
     <p v-if="searchQuery" class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-      Showing {{ filteredModules.length }} of {{ modules.length }} modules
+      Showing {{ filteredModules.length }} of {{ modules.data.length }} modules
     </p>
 
     <!-- Modules table -->
@@ -142,6 +144,8 @@ const formatDeliveryMode = (value) => {
           <Link :href="route('hive.modules.create')" class="text-amber-600 hover:text-amber-700 dark:text-amber-400">Create a module</Link> to get started
         </p>
       </div>
+
+      <Pagination v-if="modules.data.length > 0" :links="modules.links" :meta="modules.meta" />
     </div>
   </HiveLayout>
 </template>

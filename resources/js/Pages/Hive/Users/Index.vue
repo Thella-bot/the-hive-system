@@ -144,7 +144,3 @@ const deleteUser = (user) => {
     <Pagination v-if="users.data.length > 0" :links="users.links" :meta="users.meta" />
   </HiveLayout>
 </template>
-
-<style>
-@import 'tailwindcss';
-</style>

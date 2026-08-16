@@ -188,6 +188,7 @@
 
 <script setup>
 import { Link, useForm } from '@inertiajs/vue3'
+import { computed } from 'vue'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 
 const props = defineProps({

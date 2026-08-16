@@ -92,7 +92,7 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
 
-        $updater->update($student, $request->all());
+        $updater->update($student, $request->all(), $request->user()->isAdmin());
 
         return redirect()->route('hive.students.index');
     }
