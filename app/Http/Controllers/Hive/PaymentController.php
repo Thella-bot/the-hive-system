@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\Payment;
 use App\Models\Invoice;
 use App\Services\NumberToWords;
@@ -13,6 +14,7 @@ use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
+    use GeneratesDocumentPdfs;
     public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(Payment::class, 'payment');
@@ -179,7 +181,6 @@ class PaymentController extends Controller
             'cashier_name' => $this->signatory->get('finance'),
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.payment_receipt', $data);
-        return $pdf->stream('Receipt_' . $payment->receipt_number . '.pdf');
+        return $this->generatePdf('pdf.documents.payment_receipt', $data, 'Receipt_' . $payment->receipt_number . '.pdf', $payment->user_id);
     }
 }

@@ -35,11 +35,20 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error'   => $request->session()->get('error'),
             ],
-            'unreadNotificationsCount' => $user ? cache()->remember(
+            'unreadNotificationsCount' => $user ? $this->cachedNotificationsCount($user) : 0,
+        ]);
+    }
+
+    private function cachedNotificationsCount($user): int
+    {
+        try {
+            return cache()->remember(
                 "notifications.unread.{$user->id}",
                 60,
                 fn() => $user->unreadNotifications()->count()
-            ) : 0,
-        ]);
+            );
+        } catch (\Throwable) {
+            return $user->unreadNotifications()->count();
+        }
     }
 }

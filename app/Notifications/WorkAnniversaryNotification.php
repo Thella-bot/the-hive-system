@@ -2,10 +2,14 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class WorkAnniversaryNotification extends Notification
+class WorkAnniversaryNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(public $user, public $years) {}
 
     public function via($notifiable): array

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\Placement;
 use App\Models\User;
 use App\Services\SignatoryService;
@@ -11,6 +12,8 @@ use Illuminate\Http\Request;
 
 class PlacementController extends Controller
 {
+    use GeneratesDocumentPdfs;
+
     public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(Placement::class, 'placement');
@@ -114,7 +117,6 @@ class PlacementController extends Controller
             'coordinator_name' => $this->signatory->get('academic-director'),
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.work_placement', $data);
-        return $pdf->stream('Placement_' . $student->name . '.pdf');
+        return $this->generatePdf('pdf.documents.work_placement', $data, 'Placement_' . $student->name . '.pdf', $student->id);
     }
 }

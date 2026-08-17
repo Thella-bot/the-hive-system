@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Http\Controllers\Concerns\VerifiesUploadedFiles;
 use App\Models\Announcement;
 use App\Models\AnnouncementAttachment;
@@ -20,7 +21,7 @@ use Inertia\Inertia;
 
 class AnnouncementController extends Controller
 {
-    use VerifiesUploadedFiles;
+    use VerifiesUploadedFiles, GeneratesDocumentPdfs;
 
     public function __construct()
     {
@@ -179,7 +180,6 @@ class AnnouncementController extends Controller
             'cc' => $announcement->target_roles ? implode(', ', $targetRoles) : '',
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.internal_memo', $data);
-        return $pdf->stream('Memo_' . $announcement->id . '.pdf');
+        return $this->generatePdf('pdf.documents.internal_memo', $data, 'Memo_' . $announcement->id . '.pdf', $announcement->created_by ?? auth()->id());
     }
 }

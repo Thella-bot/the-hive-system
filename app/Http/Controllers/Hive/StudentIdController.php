@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -11,6 +12,7 @@ use Inertia\Inertia;
 
 class StudentIdController extends Controller
 {
+    use GeneratesDocumentPdfs;
     /**
      * Show the ID card for the current user, or (for staff who can manage
      * students) for a specific student.
@@ -37,16 +39,14 @@ class StudentIdController extends Controller
         $target = $this->resolveTarget($request, $student);
         $card = $this->pdfCardData($target);
 
-        $pdf = Pdf::loadView('pdf.student-id-card', [
+        return $this->generatePdf('pdf.student-id-card', [
             'name'          => $card['name'],
             'studentNumber' => $card['student_number'],
             'year'          => $card['year'],
             'programme'     => $card['programme'],
             'initials'      => $card['initials'],
             'photoPath'     => $card['photo_path'],
-        ])->setPaper([0, 0, 242, 153]);
-
-        return $pdf->download('Student_ID_' . ($target->profile?->student_number ?? $target->id) . '.pdf');
+        ], 'Student_ID_' . ($target->profile?->student_number ?? $target->id) . '.pdf', $target->id, 'local', [0, 0, 242, 153]);
     }
 
     /**

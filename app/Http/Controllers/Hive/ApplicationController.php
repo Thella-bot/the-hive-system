@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Mail\AcceptanceLetter;
 use App\Models\Application;
 use App\Models\Programme;
@@ -23,6 +24,8 @@ use Spatie\Permission\Models\Role;
 
 class ApplicationController extends Controller
 {
+    use GeneratesDocumentPdfs;
+
     public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(Application::class, 'application');
@@ -262,8 +265,7 @@ class ApplicationController extends Controller
             'registrar_name' => $this->signatory->get('registrar'),
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.acceptance', $data);
-        return $pdf->stream('Acceptance_' . $user->name . '.pdf');
+        return $this->generatePdf('pdf.documents.acceptance', $data, 'Acceptance_' . $user->name . '.pdf', $user->id);
     }
 
     /**
@@ -286,7 +288,6 @@ class ApplicationController extends Controller
             'phone' => '+266 XXXX XXXX',
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.rejection', $data);
-        return $pdf->stream('Rejection_' . $user->name . '.pdf');
+        return $this->generatePdf('pdf.documents.rejection', $data, 'Rejection_' . $user->name . '.pdf', $user->id);
     }
 }

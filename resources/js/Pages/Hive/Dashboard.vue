@@ -586,12 +586,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
-import LeaveRequestsChart from './LeaveRequestsChart.vue';
-import ClassAveragesChart from './ClassAveragesChart.vue';
+const LeaveRequestsChart = defineAsyncComponent(() => import('./LeaveRequestsChart.vue'));
+const ClassAveragesChart = defineAsyncComponent(() => import('./ClassAveragesChart.vue'));
 import ProgressTracker from '@/Components/ProgressTracker.vue';
 import GradeAnalytics from '@/Components/GradeAnalytics.vue';
 import AcademicCalendar from '@/Components/AcademicCalendar.vue';

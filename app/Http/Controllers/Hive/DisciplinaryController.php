@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\DisciplinaryAction;
 use App\Models\User;
 use App\Services\SignatoryService;
@@ -12,6 +13,8 @@ use Spatie\Permission\Models\Role;
 
 class DisciplinaryController extends Controller
 {
+    use GeneratesDocumentPdfs;
+
     public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(DisciplinaryAction::class, 'disciplinary');
@@ -157,8 +160,7 @@ class DisciplinaryController extends Controller
             'hr_manager_name' => $this->signatory->get('hr-manager'),
         ];
 
-        $pdf = Pdf::loadView($view, $data);
-        return $pdf->stream('Warning_' . $user->name . '.pdf');
+        return $this->generatePdf($view, $data, 'Warning_' . $user->name . '.pdf', $user->id);
     }
 
     /**
@@ -185,8 +187,7 @@ class DisciplinaryController extends Controller
             'director_name' => $this->signatory->get('director'),
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.student_suspension', $data);
-        return $pdf->stream('Suspension_' . $user->name . '.pdf');
+        return $this->generatePdf('pdf.documents.student_suspension', $data, 'Suspension_' . $user->name . '.pdf', $user->id);
     }
 
     /**
@@ -208,7 +209,6 @@ class DisciplinaryController extends Controller
             'director_name' => $this->signatory->get('director'),
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.student_expulsion', $data);
-        return $pdf->stream('Expulsion_' . $user->name . '.pdf');
+        return $this->generatePdf('pdf.documents.student_expulsion', $data, 'Expulsion_' . $user->name . '.pdf', $user->id);
     }
 }

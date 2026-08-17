@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\LeaveRequest;
 use App\Models\Payslip;
 use App\Models\SalaryProfile;
@@ -15,6 +16,7 @@ use Inertia\Response;
 
 class PayslipController extends Controller
 {
+    use GeneratesDocumentPdfs;
     // ─── Index: staff sees own, admin sees all ────────────────────
     public function index(): Response
     {
@@ -350,9 +352,7 @@ class PayslipController extends Controller
 
         $payslip->load('user');
 
-        $pdf = Pdf::loadView('pdf.payslip', ['payslip' => $payslip]);
-
-        return $pdf->download('payslip-' . $payslip->user->name . '-' . $payslip->pay_period_end->format('Y-m') . '.pdf');
+        return $this->generatePdf('pdf.payslip', ['payslip' => $payslip], 'payslip-' . $payslip->user->name . '-' . $payslip->pay_period_end->format('Y-m') . '.pdf', $payslip->user_id);
     }
 
     // ─── Admin: delete payslip ────────────────────────────────────

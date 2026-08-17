@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\User;
 use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 
 class ReferenceController extends Controller
 {
+    use GeneratesDocumentPdfs;
+
     public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(User::class, 'student');
@@ -49,7 +52,6 @@ class ReferenceController extends Controller
             'referee_email' => 'lecturer@hbci.ac.ls',
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.reference', $data);
-        return $pdf->stream('Reference_' . $student->name . '.pdf');
+        return $this->generatePdf('pdf.documents.reference', $data, 'Reference_' . $student->name . '.pdf', $student->id);
     }
 }

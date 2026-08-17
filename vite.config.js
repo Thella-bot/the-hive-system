@@ -26,6 +26,22 @@ export default defineConfig({
     optimizeDeps: {
         include: ['@heroicons/vue/24/outline'],
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-vue': ['vue', 'vue-router', 'pinia'],
+                    'vendor-chart': ['chart.js', 'vue-chartjs'],
+                    'vendor-calendar': ['@fullcalendar/core', '@fullcalendar/daygrid', '@fullcalendar/timegrid', '@fullcalendar/interaction', '@fullcalendar/vue3'],
+                    'vendor-inertia': ['@inertiajs/vue3', 'laravel-vite-plugin'],
+                    'vendor-icons': ['@heroicons/vue'],
+                },
+                chunkSizeWarningLimit: 500,
+            },
+        },
+        cssCodeSplit: true,
+        sourcemap: false,
+    },
     server: {
         host: 'localhost',
         port: 5173,

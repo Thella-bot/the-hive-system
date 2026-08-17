@@ -33,7 +33,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
-import { Html5Qrcode } from 'html5-qrcode';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 const scanResult = ref('');
@@ -62,6 +61,7 @@ const onScanSuccess = (decodedText) => {
 
 onMounted(async () => {
   try {
+    const { Html5Qrcode } = await import('html5-qrcode');
     html5QrCode = new Html5Qrcode('qr-reader');
     await html5QrCode.start(
       { facingMode: 'environment' },

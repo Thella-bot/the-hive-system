@@ -43,13 +43,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
-import FullCalendar from '@fullcalendar/vue3';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
+const FullCalendar = defineAsyncComponent(() => import('@fullcalendar/vue3'));
+const dayGridPlugin = defineAsyncComponent(() => import('@fullcalendar/daygrid'));
+const timeGridPlugin = defineAsyncComponent(() => import('@fullcalendar/timegrid'));
+const interactionPlugin = defineAsyncComponent(() => import('@fullcalendar/interaction'));
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';

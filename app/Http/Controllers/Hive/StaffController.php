@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Http\Requests\Hive\StoreStaffRequest;
 use App\Http\Requests\Hive\UpdateStaffRequest;
 use App\Models\User;
@@ -19,6 +20,8 @@ use Inertia\Inertia;
 
 class StaffController extends Controller
 {
+    use GeneratesDocumentPdfs;
+
     public function __construct(protected SignatoryService $signatory)
     {
         $this->authorizeResource(User::class, 'staff');
@@ -191,8 +194,7 @@ class StaffController extends Controller
             'director_name' => $this->signatory->get('super-admin'),
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.staff_appointment', $data);
-        return $pdf->stream('Appointment_' . $staff->name . '.pdf');
+        return $this->generatePdf('pdf.documents.staff_appointment', $data, 'Appointment_' . $staff->name . '.pdf', $staff->id);
     }
 
     /**
@@ -218,7 +220,6 @@ class StaffController extends Controller
             'hr_manager_name' => $this->signatory->get('hr-manager'),
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.staff_warning', $data);
-        return $pdf->stream('Staff_Warning_' . $staff->name . '.pdf');
+        return $this->generatePdf('pdf.documents.staff_warning', $data, 'Staff_Warning_' . $staff->name . '.pdf', $staff->id);
     }
 }

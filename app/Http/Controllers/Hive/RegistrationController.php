@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Http\Controllers\Concerns\VerifiesUploadedFiles;
 use App\Models\Application;
 use App\Models\User;
@@ -17,7 +18,7 @@ use Redirect;
 
 class RegistrationController extends Controller
 {
-    use VerifiesUploadedFiles;
+    use VerifiesUploadedFiles, GeneratesDocumentPdfs;
 
     public function __construct(protected SignatoryService $signatory) {}
 
@@ -255,9 +256,7 @@ class RegistrationController extends Controller
             'modules' => $modules,
         ];
 
-        $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);
-
-        return $pdf->download('ProofOfRegistration_' . $student->id . '.pdf');
+        return $this->generatePdf('pdf.documents.proof_of_enrolment', $data, 'ProofOfRegistration_' . $student->id . '.pdf', $student->id);
     }
 
     /**

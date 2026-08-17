@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
 
 class TranscriptController extends Controller
 {
+    use GeneratesDocumentPdfs;
     public function index()
     {
         $student = auth()->user();
@@ -81,12 +83,10 @@ class TranscriptController extends Controller
 
         $weightedGpa = $totalCredits > 0 ? round($totalGradeCreditPoints / $totalCredits, 1) : 'N/A';
 
-        $pdf = Pdf::loadView('pdf.transcript', [
+        return $this->generatePdf('pdf.transcript', [
             'student' => $student,
             'modules' => $modules,
             'gpa' => $weightedGpa,
-        ]);
-
-        return $pdf->download('Transcript_'.$student->id.'.pdf');
+        ], 'Transcript_'.$student->id.'.pdf', $student->id);
     }
 }

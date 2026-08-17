@@ -9,7 +9,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 trait GeneratesDocumentPdfs
 {
-    protected function generatePdf(string $view, array $data, string $fileName, int $userId, string $disk = 'local'): Response
+    protected function generatePdf(string $view, array $data, string $fileName, int $userId, string $disk = 'local', array|string|null $paper = null): Response
     {
         $cacheKey = "document.pdf.{$fileName}";
         
@@ -22,6 +22,11 @@ trait GeneratesDocumentPdfs
         }
 
         $pdf = Pdf::loadView($view, $data);
+        
+        if ($paper) {
+            $pdf->setPaper($paper);
+        }
+        
         return $pdf->stream($fileName);
     }
 }

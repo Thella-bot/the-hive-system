@@ -2,10 +2,11 @@
 
 use App\Models\LeaveRequest;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class LeaveStatusChanged extends Notification
+class LeaveStatusChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
