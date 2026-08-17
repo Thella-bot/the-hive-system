@@ -166,7 +166,7 @@ const execCmd = (command) => {
 
 const onEditorInput = () => {
   if (editorEl.value) {
-    form.body_html = editorEl.value.innerHTML;
+    form.body_html = sanitizeHtml(editorEl.value.innerHTML);
     form.body = editorEl.value.innerText?.trim() || '';
   }
 };
@@ -176,6 +176,24 @@ const onPaste = (e) => {
   const text = e.clipboardData.getData('text/plain');
   document.execCommand('insertText', false, text);
 };
+
+function sanitizeHtml(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+
+  const dangerous = div.querySelectorAll('script, iframe, object, embed, form, input[type="submit"], input[type="button"]');
+  dangerous.forEach(el => el.remove());
+
+  div.querySelectorAll('*').forEach(el => {
+    Array.from(el.attributes).forEach(attr => {
+      if (attr.name.startsWith('on') || attr.value.includes('javascript:')) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+
+  return div.innerHTML;
+}
 
 const onFilesChanged = (e) => {
   selectedFiles.value = Array.from(e.target.files);

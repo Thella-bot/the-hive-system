@@ -52,7 +52,15 @@ class StudentController extends Controller
     {
         $this->authorize('create', User::class);
 
-        $creator->create($request->all());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'nullable|string|min:8|confirmed',
+            'student_number' => 'nullable|string',
+            'programme_id' => 'nullable|exists:programmes,id',
+        ]);
+
+        $creator->create($validated);
 
         return redirect()->route('hive.students.index');
     }
@@ -92,9 +100,25 @@ class StudentController extends Controller
     {
         $this->authorize('update', $student);
 
-        $updater->update($student, $request->all(), $request->user()->isAdmin());
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $student->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'student_number' => 'nullable|string',
+            'programme_id' => 'nullable|exists:programmes,id',
+            'cohort_id' => 'nullable|exists:cohorts,id',
+            'enrollment_date' => 'nullable|date',
+            'expected_graduation_date' => 'nullable|date',
+            'status' => 'nullable|string',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_phone' => 'nullable|string|max:20',
+            'emergency_contact_relationship' => 'nullable|string|max:255',
+        ]);
 
-        return redirect()->route('hive.students.index');
+        $updater->update($student, $validated, $request->user()->isAdmin());
+
+        return redirect()->route('hive.students.index')
+            ->with('success', 'Student updated successfully.');
     }
 
     /**

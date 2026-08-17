@@ -10,7 +10,7 @@
     <div class="min-h-screen flex items-center justify-center p-6">
         <div class="max-w-xl w-full text-center">
             <h1 class="text-2xl font-semibold mb-4">{{ $title ?? 'Something went wrong' }}</h1>
-            <p class="text-gray-600 mb-6">{!! $message ?? 'An unexpected error occurred. Please try again later.' !!}</p>
+            <p class="text-gray-600 mb-6">{{ $message ?? 'An unexpected error occurred. Please try again later.' }}</p>
             @isset($errorId)
             <p class="text-sm text-gray-400 mb-6">Reference: <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ $errorId }}</code></p>
             @endisset
