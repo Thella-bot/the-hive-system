@@ -11,7 +11,7 @@ class StudentControllerTest extends HiveTestCase
 {
     public function test_student_index_requires_admin_role(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('student');
 
         $this->actingAs($user);
@@ -23,7 +23,7 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_index_returns_success_for_registrar(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
         $this->actingAs($user);
@@ -36,7 +36,7 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_index_paginates_students(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
         User::factory()->count(5)->create()->each(fn ($u) => $u->assignRole('student'));
@@ -50,7 +50,7 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_create_returns_success(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
         $this->actingAs($user);
@@ -63,7 +63,7 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_store_creates_new_student(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
         $this->actingAs($user);
@@ -88,7 +88,7 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_store_validates_required_fields(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
         $this->actingAs($user);
@@ -103,10 +103,10 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_show_returns_success(): void
     {
-        $viewer = User::factory()->create();
+        $viewer = User::factory()->create(['approved_at' => now()]);
         $viewer->assignRole('registrar');
 
-        $student = User::factory()->create();
+        $student = User::factory()->create(['approved_at' => now()]);
         $student->assignRole('student');
 
         $this->actingAs($viewer);
@@ -119,10 +119,10 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_show_returns_403_for_unauthorized_user(): void
     {
-        $viewer = User::factory()->create();
+        $viewer = User::factory()->create(['approved_at' => now()]);
         $viewer->assignRole('student');
 
-        $student = User::factory()->create();
+        $student = User::factory()->create(['approved_at' => now()]);
         $student->assignRole('student');
 
         $this->actingAs($viewer);
@@ -134,10 +134,10 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_edit_returns_success(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
-        $student = User::factory()->create();
+        $student = User::factory()->create(['approved_at' => now()]);
         $student->assignRole('student');
 
         $this->actingAs($user);
@@ -153,10 +153,10 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_update_updates_student(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
-        $student = User::factory()->create();
+        $student = User::factory()->create(['approved_at' => now()]);
         $student->assignRole('student');
 
         $this->actingAs($user);
@@ -177,10 +177,10 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_destroy_deletes_student(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('registrar');
 
-        $student = User::factory()->create();
+        $student = User::factory()->create(['approved_at' => now()]);
         $student->assignRole('student');
 
         $this->actingAs($user);
@@ -193,10 +193,10 @@ class StudentControllerTest extends HiveTestCase
 
     public function test_student_destroy_returns_403_for_non_admin(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('student');
 
-        $student = User::factory()->create();
+        $student = User::factory()->create(['approved_at' => now()]);
         $student->assignRole('student');
 
         $this->actingAs($user);

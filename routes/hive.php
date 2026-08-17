@@ -122,6 +122,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::get('registration/proof', [RegistrationController::class, 'downloadProof'])
             ->name('registration.proof')
             ->middleware('registered');
+        Route::get('registration/payment-proof/{application}', [RegistrationController::class, 'viewPaymentProof'])
+            ->name('registration.payment-proof')
+            ->middleware('role:super-admin|it-support|admissions-officer|registrar');
 
         // Documents
         Route::resource('documents', DocumentController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])

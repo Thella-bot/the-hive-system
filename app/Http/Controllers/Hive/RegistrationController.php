@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\VerifiesUploadedFiles;
 use App\Models\Application;
 use App\Models\User;
 use App\Services\SignatoryService;
@@ -16,6 +17,8 @@ use Redirect;
 
 class RegistrationController extends Controller
 {
+    use VerifiesUploadedFiles;
+
     public function __construct(protected SignatoryService $signatory) {}
 
     public function index(Request $request): Response
@@ -100,8 +103,9 @@ class RegistrationController extends Controller
             'dietary_restrictions' => 'nullable|array',
         ]);
 
-        // Store payment proof
-        $path = $request->file('payment_proof')->store('payment-proofs', 'public');
+        // Store payment proof on private disk
+        $this->verifyFileContent($request->file('payment_proof'));
+        $path = $request->file('payment_proof')->store('payment-proofs', 'local');
 
         // Update user profile with required info
         $user = $request->user();
@@ -254,5 +258,17 @@ class RegistrationController extends Controller
         $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);
 
         return $pdf->download('ProofOfRegistration_' . $student->id . '.pdf');
+    }
+
+    /**
+     * View payment proof for a specific application (staff only).
+     */
+    public function viewPaymentProof(Application $application)
+    {
+        $this->authorize('view', $application);
+
+        abort_unless($application->payment_proof_path, 404, 'No payment proof uploaded.');
+
+        return Storage::disk('local')->download($application->payment_proof_path);
     }
 }

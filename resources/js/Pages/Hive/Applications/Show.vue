@@ -114,11 +114,11 @@
           <!-- Payment proof -->
           <div v-if="application.payment_proof_path" class="p-4 bg-gray-50 rounded-lg">
             <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Payment Proof</h3>
-            <a :href="'/storage/' + application.payment_proof_path" target="_blank"
+            <Link :href="route('hive.registration.payment-proof', application.id)" method="get" as="a" target="_blank"
               class="inline-flex items-center gap-2 text-sm text-amber-600 hover:text-amber-700 font-medium">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               View Payment Proof
-            </a>
+            </Link>
           </div>
 
           <!-- Admin complete registration -->

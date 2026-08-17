@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\GradableViewData;
+use App\Http\Controllers\Concerns\VerifiesUploadedFiles;
 use App\Http\Requests\StoreGradableRequest;
 use App\Http\Requests\UpdateGradableRequest;
 use App\Http\Requests\SubmitOnlineAssessmentRequest;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Storage;
 
 class GradableController extends Controller
 {
-    use GradableViewData;
+    use GradableViewData, VerifiesUploadedFiles;
     /**
      * Display module selection page for assessments.
      */
@@ -109,8 +110,9 @@ class GradableController extends Controller
         // Handle attachments
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $idx => $file) {
+                $this->verifyFileContent($file);
                 $title = $request->input("attachments.{$idx}.title") ?? $file->getClientOriginalName();
-                $safeTitle = preg_replace('/[^a-zA-Z0-9._-]/', '_', $title);
+                $safeTitle = $this->safeDownloadName($title);
                 $path = $file->store('private/gradables/' . $gradable->id);
 
                 $gradable->attachments()->create([

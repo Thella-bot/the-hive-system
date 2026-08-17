@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\VerifiesUploadedFiles;
 use App\Models\Document;
 use App\Models\DocumentVersion;
 use App\Models\Module;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
+    use VerifiesUploadedFiles;
+
     public function __construct()
     {
         $this->authorizeResource(Document::class, 'document');
@@ -152,6 +155,7 @@ class DocumentController extends Controller
 
         // Store first version
         $file = $request->file('file');
+        $this->verifyFileContent($file);
         $path = $file->store('private/documents/' . $document->id);
         $document->versions()->create([
             'version_number' => 1,
@@ -237,6 +241,7 @@ class DocumentController extends Controller
         $newNumber = $latestVersion ? $latestVersion->version_number + 1 : 1;
 
         $file = $request->file('file');
+        $this->verifyFileContent($file);
         $path = $file->store('private/documents/' . $document->id);
 
         $document->versions()->create([

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\VerifiesUploadedFiles;
 use App\Models\Announcement;
 use App\Models\AnnouncementAttachment;
 use App\Models\Module;
@@ -19,6 +20,8 @@ use Inertia\Inertia;
 
 class AnnouncementController extends Controller
 {
+    use VerifiesUploadedFiles;
+
     public function __construct()
     {
         $this->authorizeResource(Announcement::class, 'announcement');
@@ -57,8 +60,9 @@ class AnnouncementController extends Controller
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
+                $this->verifyFileContent($file);
                 $path = $file->store('announcements', 'public');
-                $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+                $safeName = $this->safeDownloadName($file->getClientOriginalName());
                 $announcement->attachments()->create([
                     'name' => $safeName,
                     'file_path' => $path,
@@ -110,8 +114,9 @@ class AnnouncementController extends Controller
 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
+                $this->verifyFileContent($file);
                 $path = $file->store('announcements', 'public');
-                $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+                $safeName = $this->safeDownloadName($file->getClientOriginalName());
                 $announcement->attachments()->create([
                     'name' => $safeName,
                     'file_path' => $path,
