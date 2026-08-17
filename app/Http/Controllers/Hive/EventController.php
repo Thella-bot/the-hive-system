@@ -105,6 +105,8 @@ class EventController extends Controller
 
     public function rsvp(Request $request, Event $event)
     {
+        $this->authorize('view', $event);
+
         $validated = $request->validate([
             'status' => 'required|in:attending,maybe,declined',
         ]);

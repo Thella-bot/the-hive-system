@@ -95,7 +95,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
 
         // Announcements
-        Route::resource('announcements', AnnouncementController::class)->except(['destroy']);
+        Route::resource('announcements', AnnouncementController::class)->except(['destroy'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
         Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
         Route::get('announcements/{announcement}/attachments/{attachment}/download', [AnnouncementController::class, 'downloadAttachment'])
             ->name('announcements.attachments.download');
@@ -123,7 +124,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->middleware('registered');
 
         // Documents
-        Route::resource('documents', DocumentController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+        Route::resource('documents', DocumentController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
         Route::get('documents/modules', [DocumentController::class, 'moduleSelect'])->name('documents.module-select');
         Route::post('documents/{document}/versions', [DocumentController::class, 'addVersion'])->name('documents.versions.store');
         Route::get('document-versions/{version}/download', [DocumentController::class, 'download'])->name('documents.version.download');
@@ -164,9 +166,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->middleware('role:super-admin|it-support|academic-director|registrar|hr-manager');
 
         // Notifications
-        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
-        Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
-        Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index')->middleware('auth');
+        Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read')->middleware('auth');
+        Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll')->middleware('auth');
 
         // Payslips
         Route::get('payslips', [PayslipController::class, 'index'])->name('payslips.index');
@@ -180,8 +182,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::get('payslips/{payslip}/download', [PayslipController::class, 'download'])->name('payslips.download');
 
         // Transcript
-        Route::get('transcript', [TranscriptController::class, 'index'])->name('transcript.index');
-        Route::get('transcript/{student}/download', [TranscriptController::class, 'show'])->name('transcript.download');
+        Route::get('transcript', [TranscriptController::class, 'index'])->name('transcript.index')->middleware('auth');
+        Route::get('transcript/{student}/download', [TranscriptController::class, 'show'])->name('transcript.download')->middleware('auth');
 
         // Enrollment (for students)
         Route::get('enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index')
@@ -192,13 +194,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->middleware('registered');
 
         // Search
-        Route::get('search', SearchController::class)->name('search');
+        Route::get('search', SearchController::class)->name('search')->middleware('auth');
 
         // Events Calendar
-        Route::resource('events', EventController::class);
-        Route::post('events/{event}/rsvp', [EventController::class, 'rsvp'])->name('events.rsvp');
-        Route::get('events/{event}/ical', [EventController::class, 'exportICal'])->name('events.ical');
-        Route::get('events/{event}/qrcode', [EventController::class, 'qrCode'])->name('events.qrcode');
+        Route::resource('events', EventController::class)
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
+        Route::post('events/{event}/rsvp', [EventController::class, 'rsvp'])->name('events.rsvp')->middleware('auth');
+        Route::get('events/{event}/ical', [EventController::class, 'exportICal'])->name('events.ical')->middleware('auth');
+        Route::get('events/{event}/qrcode', [EventController::class, 'qrCode'])->name('events.qrcode')->middleware('auth');
 
         // Chat
         Route::get('chat', [ChatController::class, 'index'])->name('chat.index')
@@ -209,41 +212,49 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->middleware('registered');
 
         // Achievements (leaderboard)
-        Route::resource('achievements', AchievementController::class)->only(['index', 'store', 'destroy']);
+        Route::resource('achievements', AchievementController::class)->only(['index', 'store', 'destroy'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
 
         // Polls & surveys
-        Route::resource('polls', PollController::class)->only(['index', 'store', 'destroy']);
-        Route::post('polls/{poll}/vote', [PollController::class, 'vote'])->name('polls.vote');
+        Route::resource('polls', PollController::class)->only(['index', 'store', 'destroy'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
+        Route::post('polls/{poll}/vote', [PollController::class, 'vote'])->name('polls.vote')->middleware('auth');
 
         // Programme waitlist
-        Route::get('waitlist', [WaitlistController::class, 'index'])->name('waitlist.index');
-        Route::post('waitlist', [WaitlistController::class, 'join'])->name('waitlist.join');
-        Route::delete('waitlist/{waitlist}', [WaitlistController::class, 'leave'])->name('waitlist.leave');
+        Route::get('waitlist', [WaitlistController::class, 'index'])->name('waitlist.index')->middleware('auth');
+        Route::post('waitlist', [WaitlistController::class, 'join'])->name('waitlist.join')->middleware('auth');
+        Route::delete('waitlist/{waitlist}', [WaitlistController::class, 'leave'])->name('waitlist.leave')->middleware('auth');
 
         // Keys & access management
-        Route::resource('keys', KeyController::class)->only(['index', 'store']);
+        Route::resource('keys', KeyController::class)->only(['index', 'store'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
         Route::post('keys/{key}/issue', [KeyController::class, 'issue'])->name('keys.issue');
         Route::post('keys/{key}/return', [KeyController::class, 'return'])->name('keys.return');
         Route::post('keys/{key}/report-lost', [KeyController::class, 'reportLost'])->name('keys.report-lost');
 
         // Attendance / QR check-in
-        Route::get('attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
-        Route::post('attendance/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin');
+        Route::get('attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan')
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar');
+        Route::post('attendance/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin')
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar');
 
         // Visitor log
-        Route::resource('visitor-logs', VisitorLogController::class)->only(['index', 'store']);
+        Route::resource('visitor-logs', VisitorLogController::class)->only(['index', 'store'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
         Route::post('visitor-logs/{log}/checkout', [VisitorLogController::class, 'checkOut'])->name('visitor-logs.checkout');
 
         // Suppliers
-        Route::resource('suppliers', SupplierController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('suppliers', SupplierController::class)->only(['index', 'store', 'update', 'destroy'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
 
         // Uniform requests
-        Route::resource('uniform-requests', UniformRequestController::class)->only(['index', 'store']);
+        Route::resource('uniform-requests', UniformRequestController::class)->only(['index', 'store'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
         Route::post('uniform-requests/{uniform_request}/review', [UniformRequestController::class, 'review'])->name('uniform-requests.review');
 
         // Student ID card
-        Route::get('student-id', [StudentIdController::class, 'show'])->name('student-id');
-        Route::get('student-id/download', [StudentIdController::class, 'download'])->name('student-id.download');
-        Route::get('students/{student}/id-card', [StudentIdController::class, 'show'])->name('students.id-card');
-        Route::get('students/{student}/id-card/download', [StudentIdController::class, 'download'])->name('students.id-card.download');
+        Route::get('student-id', [StudentIdController::class, 'show'])->name('student-id')->middleware('auth');
+        Route::get('student-id/download', [StudentIdController::class, 'download'])->name('student-id.download')->middleware('auth');
+        Route::get('students/{student}/id-card', [StudentIdController::class, 'show'])->name('students.id-card')->middleware('auth');
+        Route::get('students/{student}/id-card/download', [StudentIdController::class, 'download'])->name('students.id-card.download')->middleware('auth');
     });

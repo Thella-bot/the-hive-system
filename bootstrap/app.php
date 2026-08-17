@@ -53,6 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\RequestLogging::class,
+            \App\Http\Middleware\EnsureUserIsApproved::class,
         ]);
 
         $middleware->alias([
@@ -60,6 +61,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'registered' => \App\Http\Middleware\EnsureStudentIsRegistered::class,
+            'approved' => \App\Http\Middleware\EnsureUserIsApproved::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

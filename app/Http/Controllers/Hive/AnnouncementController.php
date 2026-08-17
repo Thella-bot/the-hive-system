@@ -19,6 +19,11 @@ use Inertia\Inertia;
 
 class AnnouncementController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Announcement::class, 'announcement');
+    }
+
     public function index(Request $request)
     {
         $announcements = Announcement::visibleTo($request->user())

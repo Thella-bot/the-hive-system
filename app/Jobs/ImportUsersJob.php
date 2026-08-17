@@ -119,7 +119,7 @@ class ImportUsersJob implements ShouldQueue
                     }
 
                     if ($isNewUser) {
-                        SendWelcomeEmail::dispatch($user, $password);
+                        SendWelcomeEmail::dispatch($user);
                     }
                     $this->successCount++;
                 }

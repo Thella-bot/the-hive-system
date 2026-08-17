@@ -61,9 +61,10 @@ class ApplicationController extends Controller
             'phone' => 'nullable|string',
             'programme_id' => 'required|exists:programmes,id',
             'variant_id' => 'nullable|exists:programme_variants,id',
-            'status' => 'nullable|in:pending,approved,rejected',
             'notes' => 'nullable|string',
         ]);
+
+        $data['status'] = 'pending';
 
         $request->user()->applications()->create($data);
 
@@ -90,6 +91,8 @@ class ApplicationController extends Controller
 
     public function update(Request $request, Application $application): RedirectResponse
     {
+        $this->authorize('update', $application);
+
         $data = $request->validate([
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email',
@@ -241,6 +244,8 @@ class ApplicationController extends Controller
      */
     public function generateAcceptance(Application $application)
     {
+        $this->authorize('update', $application);
+
         $user = $application->user;
         $enrollment = $user->enrollments()->where('programme_id', $application->programme_id)->first();
 
@@ -266,6 +271,8 @@ class ApplicationController extends Controller
      */
     public function generateRejection(Application $application)
     {
+        $this->authorize('update', $application);
+
         $user = $application->user;
 
         $data = [

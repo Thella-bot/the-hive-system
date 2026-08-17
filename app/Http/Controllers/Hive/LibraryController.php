@@ -17,6 +17,12 @@ class LibraryController extends Controller
 {
     use HasFilters;
 
+    public function __construct()
+    {
+        $this->authorizeResource(LibraryBook::class, 'book');
+        $this->authorizeResource(BookCategory::class, 'category');
+    }
+
     // Book Management
     public function booksIndex(Request $request): Response
     {

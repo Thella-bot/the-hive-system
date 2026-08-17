@@ -11,6 +11,11 @@ use Inertia\Inertia;
 
 class WaitlistController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(ProgrammeWaitlist::class, 'waitlist');
+    }
+
     public function index()
     {
         $user = auth()->user();

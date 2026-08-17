@@ -22,21 +22,13 @@ class WelcomeMail extends Mailable implements ShouldQueue
     public $user;
 
     /**
-     * The plain-text password.
-     *
-     * @var string
-     */
-    public $password;
-
-    /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $user, string $password)
+    public function __construct(User $user)
     {
         $this->user = $user;
-        $this->password = $password;
     }
 
     /**

@@ -19,12 +19,14 @@ Route::middleware(['auth'])->name('library.')->prefix('library')->group(function
 
     // Books
     Route::get('books', [LibraryController::class, 'booksIndex'])->name('books.index');
-    Route::get('books/create', [LibraryController::class, 'booksCreate'])->name('books.create');
-    Route::post('books', [LibraryController::class, 'booksStore'])->name('books.store');
+    Route::middleware(['role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager'])->group(function () {
+        Route::get('books/create', [LibraryController::class, 'booksCreate'])->name('books.create');
+        Route::post('books', [LibraryController::class, 'booksStore'])->name('books.store');
+        Route::get('books/{book}/edit', [LibraryController::class, 'booksEdit'])->name('books.edit');
+        Route::patch('books/{book}', [LibraryController::class, 'booksUpdate'])->name('books.update');
+        Route::delete('books/{book}', [LibraryController::class, 'booksDestroy'])->name('books.destroy');
+    });
     Route::get('books/{book}', [LibraryController::class, 'booksShow'])->name('books.show');
-    Route::get('books/{book}/edit', [LibraryController::class, 'booksEdit'])->name('books.edit');
-    Route::patch('books/{book}', [LibraryController::class, 'booksUpdate'])->name('books.update');
-    Route::delete('books/{book}', [LibraryController::class, 'booksDestroy'])->name('books.destroy');
 
     // Categories (admin/super-admin only)
     Route::middleware(['role:super-admin|finance'])->group(function () {

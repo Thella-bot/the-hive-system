@@ -34,10 +34,9 @@ class SendWelcomeEmail implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(User $user, string $password)
+    public function __construct(User $user)
     {
         $this->user = $user;
-        $this->password = $password;
     }
 
     /**
@@ -47,6 +46,6 @@ class SendWelcomeEmail implements ShouldQueue
      */
     public function handle()
     {
-        Mail::to($this->user)->send(new WelcomeMail($this->user, $this->password));
+        Mail::to($this->user)->send(new WelcomeMail($this->user));
     }
 }

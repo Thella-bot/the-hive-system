@@ -58,6 +58,8 @@ class PollController extends Controller
             return back()->withErrors(['poll' => 'You have already voted.']);
         }
 
+        $this->authorize('vote', $poll);
+
         $choice = $request->validate(['choice' => 'required|string'])['choice'];
         $poll->votes()->create(['user_id' => $request->user()->id, 'choice' => $choice]);
 
