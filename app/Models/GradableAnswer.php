@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a gradable answer.
+ *
+ * @package App\Models
+ */
 class GradableAnswer extends Model
 {
     protected $fillable = [

@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents an attendance record.
+ *
+ * @package App\Models
+ */
 class Attendance extends Model
 {
     protected $fillable = [

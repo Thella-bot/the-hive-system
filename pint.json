@@ -1,0 +1,25 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "declare_strict_types": true,
+        "braces": true,
+        "no_spaces_inside_parentheses": true,
+        "space_after_semicolon": true,
+        "single_quote": true,
+        "trailing_comma_in_multiline": true,
+        "method_argument_space": {
+            "on_multiline": "ensure_fully_multiline"
+        }
+    },
+    "finder": {
+        "exclude": [
+            "vendor",
+            "node_modules",
+            "storage",
+            "bootstrap/cache"
+        ],
+        "name": [
+            "*.php"
+        ]
+    }
+}

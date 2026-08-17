@@ -5,6 +5,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Represents a document version.
+ *
+ * @package App\Models
+ */
 class DocumentVersion extends Model
 {
     protected $fillable = [

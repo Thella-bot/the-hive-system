@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * Represents a user bookmark.
+ *
+ * @package App\Models
+ */
 class Bookmark extends Model
 {
     protected $fillable = [

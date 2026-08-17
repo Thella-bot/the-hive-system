@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Payment;
 
+/**
+ * Represents a financial invoice.
+ *
+ * @package App\Models
+ */
 class Invoice extends Model
 {
     use HasFactory;
@@ -41,6 +46,20 @@ class Invoice extends Model
 
     // Types: registration, tuition, uniform, tools, resource, examination, other
     // Status: pending, partial, paid, overdue, cancelled
+
+    public const TYPE_REGISTRATION = 'registration';
+    public const TYPE_TUITION = 'tuition';
+    public const TYPE_UNIFORM = 'uniform';
+    public const TYPE_TOOLS = 'tools';
+    public const TYPE_RESOURCE = 'resource';
+    public const TYPE_EXAMINATION = 'examination';
+    public const TYPE_OTHER = 'other';
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PARTIAL = 'partial';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_OVERDUE = 'overdue';
+    public const STATUS_CANCELLED = 'cancelled';
 
     public function user(): BelongsTo
     {

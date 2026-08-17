@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents an event RSVP.
+ *
+ * @package App\Models
+ */
 class EventRsvp extends Model
 {
     protected $fillable = [

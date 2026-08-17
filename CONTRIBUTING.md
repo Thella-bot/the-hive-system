@@ -18,10 +18,27 @@ Please be respectful and constructive in all interactions. We are committed to p
 
 ## Coding Standards
 
-- PHP: Follow PSR-12. We use Laravel Pint for formatting: `php artisan pint`
-- JavaScript/Vue: We use Prettier for formatting
-- PHPStatic Analysis: We use PHPStan at level 8: `composer analyse`
-- Tests: We use PHPUnit. Write tests for all new features and bug fixes.
+### PHP
+- Follow **PSR-12** coding style
+- All PHP files must start with `declare(strict_types=1);`
+- Use **Laravel Pint** for formatting: `vendor/bin/pint`
+- Use **PHPStan** for static analysis at level 8: `vendor/bin/phpstan analyse`
+- Add `: void` to all empty constructors
+- Use meaningful variable and method names
+- Add PHPDoc to all public methods
+
+### JavaScript/Vue
+- Use **Prettier** for formatting
+- Use Vue 3 Composition API with `<script setup>`
+- Use Tailwind CSS for styling
+- Follow the component structure in `resources/js/`
+
+### Commit Messages
+- Use clear, descriptive commit messages
+- Reference issue numbers when applicable
+- Format: `type(scope): description`
+
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ## Directory Structure
 
@@ -45,9 +62,9 @@ Please be respectful and constructive in all interactions. We are committed to p
 
 1. Create a feature branch from `main`
 2. Write or update tests for your changes
-3. Ensure all tests pass: `composer test`
-4. Ensure PHPStan passes: `composer analyse`
-5. Ensure code is formatted: `php artisan pint`
+3. Ensure all tests pass: `php artisan test`
+4. Ensure PHPStan passes: `vendor/bin/phpstan analyse`
+5. Ensure code is formatted: `vendor/bin/pint`
 6. Commit with a clear, descriptive message
 7. Open a pull request with a detailed description
 
@@ -55,18 +72,62 @@ Please be respectful and constructive in all interactions. We are committed to p
 
 Run the full test suite:
 ```bash
-composer test
+php artisan test
+```
+
+Run with coverage:
+```bash
+php artisan test --coverage
 ```
 
 Run a specific test file:
 ```bash
-php artisan test --filter=AuthenticationTest
+php artisan test tests/Feature/ExampleTest.php
 ```
 
-Run with verbose output:
+Run with stop on failure:
 ```bash
-php artisan test -v
+php artisan test --stop-on-failure
 ```
+
+## Architecture
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for system design, data flow, and service boundaries.
+
+## Frontend
+
+See [FRONTEND.md](./FRONTEND.md) for Vue component hierarchy, composables, and Inertia patterns.
+
+## Testing Guide
+
+See [TESTING.md](./TESTING.md) for test structure, factories, and coverage expectations.
+
+## Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for production setup, SSL, queues, and backups.
+
+## Security
+
+See [SECURITY.md](./SECURITY.md) for security policy, auth flow, and vulnerability reporting.
+
+## API
+
+See [API.md](./API.md) for API endpoints, request/response schemas, and authentication.
+
+## Code Style Tools
+
+We use the following tools to maintain code quality:
+
+| Tool | Purpose | Command |
+|------|---------|---------|
+| Laravel Pint | Code formatting | `vendor/bin/pint` |
+| PHPStan | Static analysis | `vendor/bin/phpstan analyse` |
+| PHPUnit | Testing | `php artisan test` |
+| Prettier | JS/Vue formatting | `npx prettier --write resources/js/` |
+
+## EditorConfig
+
+We use `.editorconfig` to maintain consistent coding styles. Ensure your editor supports EditorConfig.
 
 ## Questions?
 

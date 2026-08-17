@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents a book category.
+ *
+ * @package App\Models
+ */
 class BookCategory extends Model
 {
     use HasFactory;

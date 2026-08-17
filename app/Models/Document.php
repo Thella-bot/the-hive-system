@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents an institutional document.
+ *
+ * @package App\Models
+ */
 class Document extends Model
 {
     // Audience types: module_students, student_only, staff_only, all_users, everyone

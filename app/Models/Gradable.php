@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents a gradable item.
+ *
+ * @package App\Models
+ */
 class Gradable extends Model
 {
     use HasFactory;

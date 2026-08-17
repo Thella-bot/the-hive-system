@@ -5,6 +5,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Represents a student grade record.
+ *
+ * @package App\Models
+ */
 class StudentGrade extends Model
 {
     protected $fillable = ['gradable_id', 'student_id', 'marks', 'comments'];

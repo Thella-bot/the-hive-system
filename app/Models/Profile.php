@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * Represents a user profile.
+ *
+ * @package App\Models
+ */
 class Profile extends Model
 {
     use HasFactory;

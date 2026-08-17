@@ -12,8 +12,7 @@ use Inertia\Response;
 
 class ShortCourseApplicationController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(ShortCourseApplication::class, 'short_course_application');
     }
 

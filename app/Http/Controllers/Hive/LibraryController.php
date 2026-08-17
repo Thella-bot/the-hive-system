@@ -18,8 +18,7 @@ class LibraryController extends Controller
 {
     use HasFilters;
 
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(LibraryBook::class, 'book');
         $this->authorizeResource(BookCategory::class, 'category');
     }

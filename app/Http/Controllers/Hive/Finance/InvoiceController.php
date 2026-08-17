@@ -17,8 +17,7 @@ class InvoiceController extends Controller
 {
     use HasFilters;
 
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(Invoice::class, 'invoice');
     }
 

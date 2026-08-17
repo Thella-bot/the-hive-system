@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents an announcement attachment.
+ *
+ * @package App\Models
+ */
 class AnnouncementAttachment extends Model
 {
     protected $fillable = [

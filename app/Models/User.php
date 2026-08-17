@@ -19,6 +19,11 @@ use Laravel\Scout\Searchable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * Represents a system user (student, staff, or admin).
+ *
+ * @package App\Models
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, HasRoles, Searchable, TwoFactorAuthenticatable, SoftDeletes;
@@ -122,6 +127,8 @@ class User extends Authenticatable
 
     /**
      * Check if user is staff (not student, parent, or alumni)
+     *
+     * @return bool
      */
     public function isStaff(): bool
     {
@@ -130,6 +137,8 @@ class User extends Authenticatable
 
     /**
      * Check if user has student role
+     *
+     * @return bool
      */
     public function isStudent(): bool
     {
@@ -138,6 +147,8 @@ class User extends Authenticatable
 
     /**
      * Check if user is parent/guardian
+     *
+     * @return bool
      */
     public function isParentGuardian(): bool
     {
@@ -146,6 +157,8 @@ class User extends Authenticatable
 
     /**
      * Check if user is alumni
+     *
+     * @return bool
      */
     public function isAlumni(): bool
     {
@@ -154,6 +167,8 @@ class User extends Authenticatable
 
     /**
      * Check if user is faculty (instructor role)
+     *
+     * @return bool
      */
     public function isFaculty(): bool
     {
@@ -167,6 +182,8 @@ class User extends Authenticatable
 
     /**
      * Check if user is a admin or IT support
+     *
+     * @return bool
      */
     public function isAdmin(): bool
     {
@@ -175,6 +192,8 @@ class User extends Authenticatable
 
     /**
      * Check if user can manage finances
+     *
+     * @return bool
      */
     public function canAccessFinance(): bool
     {
@@ -183,6 +202,8 @@ class User extends Authenticatable
 
     /**
      * Check if user can manage students (admissions, registrar, etc.)
+     *
+     * @return bool
      */
     public function canManageStudents(): bool
     {
@@ -198,6 +219,8 @@ class User extends Authenticatable
 
     /**
      * Check if user can access kitchen operations
+     *
+     * @return bool
      */
     public function canAccessKitchen(): bool
     {
@@ -214,6 +237,8 @@ class User extends Authenticatable
 
     /**
      * Check if user needs registration completion
+     *
+     * @return bool
      */
     public function needsRegistration(): bool
     {
@@ -229,6 +254,8 @@ class User extends Authenticatable
 
     /**
      * Get user's primary role name
+     *
+     * @return ?string
      */
     public function getPrimaryRole(): ?string
     {
@@ -237,6 +264,8 @@ class User extends Authenticatable
 
     /**
      * Get user's role display name
+     *
+     * @return string
      */
     public function getRoleDisplayName(): string
     {
@@ -248,6 +277,8 @@ class User extends Authenticatable
 
     /**
      * Get all role names as array
+     *
+     * @return array<int, string>
      */
     public function getRoleNames(): array
     {

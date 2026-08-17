@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * Represents a book reservation.
+ *
+ * @package App\Models
+ */
 class BookReservation extends Model
 {
     use HasUuids;

@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a payment transaction.
+ *
+ * @package App\Models
+ */
 class Payment extends Model
 {
     use HasFactory;

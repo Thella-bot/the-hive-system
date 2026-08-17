@@ -10,6 +10,8 @@ class DeleteUser implements DeletesUsers
 {
     /**
      * Delete the given user.
+     *
+     * @return void
      */
     public function delete(User $user): void
     {

@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a poll.
+ *
+ * @package App\Models
+ */
 class Poll extends Model
 {
     protected $fillable = [

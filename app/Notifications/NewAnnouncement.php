@@ -33,6 +33,8 @@ class NewAnnouncement extends Notification implements ShouldBroadcast, ShouldQue
 
     /**
      * Get the broadcastable representation of the notification.
+     *
+     * @return \Illuminate\Notifications\Messages\BroadcastMessage
      */
     public function toBroadcast(object $notifiable): BroadcastMessage
     {

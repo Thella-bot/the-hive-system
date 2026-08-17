@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents a budget.
+ *
+ * @package App\Models
+ */
 class Budget extends Model
 {
     use HasFactory;

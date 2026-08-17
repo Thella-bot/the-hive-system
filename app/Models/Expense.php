@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents an expense record.
+ *
+ * @package App\Models
+ */
 class Expense extends Model
 {
     use HasFactory;
@@ -42,6 +47,17 @@ class Expense extends Model
 
     // Status: pending, approved, rejected, paid, cancelled
     // Payment Method: cash, bank_transfer, mobile_money, cheque
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_CANCELLED = 'cancelled';
+
+    public const PAYMENT_CASH = 'cash';
+    public const PAYMENT_BANK_TRANSFER = 'bank_transfer';
+    public const PAYMENT_MOBILE_MONEY = 'mobile_money';
+    public const PAYMENT_CHEQUE = 'cheque';
 
     public function category(): BelongsTo
     {

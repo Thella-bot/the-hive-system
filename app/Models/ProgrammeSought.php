@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Represents a sought or applied programme.
+ *
+ * @package App\Models
+ */
 class ProgrammeSought extends Model
 {
     use HasFactory;

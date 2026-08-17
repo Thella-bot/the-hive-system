@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Represents a gradable attachment.
+ *
+ * @package App\Models
+ */
 class GradableAttachment extends Model
 {
     protected $fillable = [

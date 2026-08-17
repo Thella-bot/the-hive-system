@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a uniform request.
+ *
+ * @package App\Models
+ */
 class UniformRequest extends Model
 {
     protected $fillable = [

@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 
+/**
+ * Represents convectionary income.
+ *
+ * @package App\Models
+ */
 class ConvectionaryIncome extends Model
 {
     use HasFactory;

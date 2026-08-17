@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+/**
+ * Represents a student cohort.
+ *
+ * @package App\Models
+ */
 class Cohort extends Model
 {
     use HasFactory, SoftDeletes;

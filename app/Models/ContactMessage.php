@@ -5,6 +5,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Represents a contact message.
+ *
+ * @package App\Models
+ */
 class ContactMessage extends Model
 {
     protected $fillable = ['name', 'email', 'subject', 'message', 'read'];

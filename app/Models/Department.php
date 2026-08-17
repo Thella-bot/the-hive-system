@@ -12,6 +12,11 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+/**
+ * Represents an organizational department.
+ *
+ * @package App\Models
+ */
 class Department extends Model
 {
     use HasFactory, SoftDeletes;

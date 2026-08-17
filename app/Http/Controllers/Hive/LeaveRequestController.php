@@ -15,8 +15,7 @@ use Inertia\Inertia;
 
 class LeaveRequestController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(LeaveRequest::class, 'leave');
     }
 

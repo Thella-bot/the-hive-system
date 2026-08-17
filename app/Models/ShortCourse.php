@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * Represents a short course offering.
+ *
+ * @package App\Models
+ */
 class ShortCourse extends Model
 {
     protected $fillable = [

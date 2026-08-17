@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents a gradable question.
+ *
+ * @package App\Models
+ */
 class GradableQuestion extends Model
 {
     protected $fillable = [

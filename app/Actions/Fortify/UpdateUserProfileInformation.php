@@ -15,6 +15,8 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      * Validate and update the given user's profile information.
      *
      * @param  array<string, mixed>  $input
+     *
+     * @return void
      */
     public function update(User $user, array $input): void
     {

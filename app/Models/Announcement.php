@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents an announcement.
+ *
+ * @package App\Models
+ */
 class Announcement extends Model
 {
     use HasFactory;

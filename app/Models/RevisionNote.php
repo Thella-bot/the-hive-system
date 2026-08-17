@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a revision note.
+ *
+ * @package App\Models
+ */
 class RevisionNote extends Model
 {
     protected $fillable = [

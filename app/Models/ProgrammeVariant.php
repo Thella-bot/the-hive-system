@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a programme variant.
+ *
+ * @package App\Models
+ */
 class ProgrammeVariant extends Model
 {
     protected $fillable = [

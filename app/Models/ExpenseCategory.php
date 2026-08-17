@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents an expense category.
+ *
+ * @package App\Models
+ */
 class ExpenseCategory extends Model
 {
     use HasFactory;

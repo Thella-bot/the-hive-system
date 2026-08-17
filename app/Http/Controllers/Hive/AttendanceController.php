@@ -11,8 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(Attendance::class, 'attendance');
     }
 

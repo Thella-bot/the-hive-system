@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Represents a supplier or vendor.
+ *
+ * @package App\Models
+ */
 class Supplier extends Model
 {
     protected $fillable = [

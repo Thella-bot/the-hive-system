@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+/**
+ * Represents a book loan.
+ *
+ * @package App\Models
+ */
 class BookLoan extends Model
 {
     use HasUuids;

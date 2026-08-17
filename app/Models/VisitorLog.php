@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a visitor log entry.
+ *
+ * @package App\Models
+ */
 class VisitorLog extends Model
 {
     protected $fillable = [

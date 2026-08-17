@@ -9,12 +9,19 @@ class UserPolicy extends BasePolicy
 {
     /**
      * Determine if the user can view the student list.
+     *
+     * @return bool
      */
     public function viewAny(User $user): bool
     {
         return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar']);
     }
 
+    /**
+     * Determine if the user can view the user.
+     *
+     * @return bool
+     */
     public function view(User $user, User $targetUser): bool
     {
         return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar', 'academic-director', 'program-coordinator', 'career-services', 'events-pr-manager']);
@@ -22,6 +29,8 @@ class UserPolicy extends BasePolicy
 
     /**
      * Determine if the user can create users.
+     *
+     * @return bool
      */
     public function create(User $user): bool
     {
@@ -30,6 +39,8 @@ class UserPolicy extends BasePolicy
 
     /**
      * Determine if the user can update a user.
+     *
+     * @return bool
      */
     public function update(User $user, User $targetUser): bool
     {
@@ -38,6 +49,8 @@ class UserPolicy extends BasePolicy
 
     /**
      * Determine if the user can delete a user.
+     *
+     * @return bool
      */
     public function delete(User $user, User $targetUser): bool
     {

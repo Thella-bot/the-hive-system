@@ -24,8 +24,7 @@ class AnnouncementController extends Controller
 {
     use VerifiesUploadedFiles, GeneratesDocumentPdfs;
 
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(Announcement::class, 'announcement');
     }
 

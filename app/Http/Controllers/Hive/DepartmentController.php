@@ -15,8 +15,7 @@ use Inertia\Response;
 
 class DepartmentController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(Department::class, 'department');
     }
 

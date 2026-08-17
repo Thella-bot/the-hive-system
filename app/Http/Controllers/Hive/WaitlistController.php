@@ -12,8 +12,7 @@ use Inertia\Inertia;
 
 class WaitlistController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(ProgrammeWaitlist::class, 'waitlist');
     }
 

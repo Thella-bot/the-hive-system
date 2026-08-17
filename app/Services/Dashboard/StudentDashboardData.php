@@ -32,7 +32,6 @@ class StudentDashboardData implements DashboardData
         $moduleProgress = $this->buildModuleProgress($user, $moduleIds);
 
         return [
-            // Programme with modules (Bug D fix: was using belongsTo with first())
             'programme' => $user->programme_id
                 ? Programme::with('modules:id,name,code')->find($user->programme_id)
                 : null,
@@ -80,7 +79,6 @@ class StudentDashboardData implements DashboardData
             'averageGrade' => $this->calculateAverageGrade($user),
             'completedModules' => $this->getCompletedModulesCount($user, $moduleIds),
 
-            // Bug B fix: these were undefined — now populated
             'gradeHistory' => Submission::where('student_id', $user->id)
                 ->whereNotNull('grade')
                 ->with('gradable.module')
@@ -122,7 +120,7 @@ class StudentDashboardData implements DashboardData
 
         $assessments = Gradable::whereIn('module_id', $moduleIds)
             ->where('due_date', '>', now())
-            ->whereNotNull('due_date') // Bug E: guard against null due_date
+                ->whereNotNull('due_date')
             ->orderBy('due_date')
             ->with('module')
             ->take(5)

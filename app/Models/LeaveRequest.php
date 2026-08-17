@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a leave request.
+ *
+ * @package App\Models
+ */
 class LeaveRequest extends Model
 {
     protected $fillable = [
@@ -27,6 +32,14 @@ class LeaveRequest extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
+    public const TYPE_ANNUAL = 'annual';
+    public const TYPE_SICK = 'sick';
+    public const TYPE_OTHER = 'other';
 
     public function approvedBy(): BelongsTo
     {

@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a staff salary profile.
+ *
+ * @package App\Models
+ */
 class SalaryProfile extends Model
 {
     protected $fillable = [

@@ -17,8 +17,7 @@ class DocumentController extends Controller
 {
     use VerifiesUploadedFiles;
 
-    public function __construct()
-    {
+    public function __construct(): void {
         $this->authorizeResource(Document::class, 'document');
     }
 

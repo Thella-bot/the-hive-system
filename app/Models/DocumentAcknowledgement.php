@@ -6,6 +6,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Represents a document acknowledgement.
+ *
+ * @package App\Models
+ */
 class DocumentAcknowledgement extends Model
 {
     protected $fillable = [
