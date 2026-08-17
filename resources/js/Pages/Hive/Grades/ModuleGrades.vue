@@ -47,6 +47,7 @@
                 <div class="flex items-center gap-3">
                   <img :src="submission.student?.profile_photo_url || '/images/default-avatar.png'"
                     :alt="submission.student?.name"
+                    loading="lazy"
                     class="w-8 h-8 rounded-full object-cover" />
                   <div>
                     <p class="font-medium text-gray-900">{{ submission.student?.name || 'Unknown' }}</p>
@@ -93,6 +94,7 @@
           <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
             <img :src="selectedSubmission.student?.profile_photo_url || '/images/default-avatar.png'"
               :alt="selectedSubmission.student?.name"
+              loading="lazy"
               class="w-10 h-10 rounded-full object-cover" />
             <div>
               <p class="font-medium text-gray-900">{{ selectedSubmission.student?.name }}</p>

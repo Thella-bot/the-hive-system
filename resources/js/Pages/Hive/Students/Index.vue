@@ -73,6 +73,7 @@ const formatCohort = (student) => student.profile?.cohort?.name ?? '—';
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
                 <img :src="student.profile_photo_url" :alt="student.name"
+                  loading="lazy"
                   class="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-amber-100 dark:ring-amber-900" />
                 <div>
                   <p class="font-medium text-gray-900 dark:text-gray-100">{{ student.name }}</p>

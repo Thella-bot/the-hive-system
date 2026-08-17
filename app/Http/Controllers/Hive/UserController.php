@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\Profile;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\ReferenceDataService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,18 +47,20 @@ class UserController extends Controller
                     'total' => $users['total'],
                 ],
             ],
-            'roles'   => Role::orderBy('name')->pluck('name'),
+            'roles'   => app(ReferenceDataService::class)->roles()->pluck('name'),
             'filters' => $request->only('search', 'role'),
         ]);
     }
 
     public function create(): Response
     {
+        $ref = app(ReferenceDataService::class);
+
         return Inertia::render('Hive/Users/Create', [
-            'roles'       => Role::orderBy('name')->get(['id', 'name']),
-            'departments' => Department::active()->select('id', 'name')->get(),
+            'roles'       => $ref->roles(),
+            'departments' => $ref->departments(),
             'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
-            'programmes'  => Programme::orderBy('name')->get(['id', 'name', 'department_id']),
+            'programmes'  => $ref->programmes(),
         ]);
     }
 
@@ -145,13 +148,14 @@ class UserController extends Controller
     {
         $user->load(['roles', 'profile']);
         $isAdmin = auth()->user()?->isAdmin();
+        $ref = app(ReferenceDataService::class);
 
         return Inertia::render('Hive/Users/Edit', [
             'managedUser'        => $user,
-            'roles'       => Role::orderBy('name')->get(['id', 'name']),
-            'departments' => Department::active()->select('id', 'name')->get(),
+            'roles'       => $ref->roles(),
+            'departments' => $ref->departments(),
             'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
-            'programmes'  => Programme::orderBy('name')->get(['id', 'name']),
+            'programmes'  => $ref->programmes(),
             'isAdmin' => $isAdmin,
         ]);
     }

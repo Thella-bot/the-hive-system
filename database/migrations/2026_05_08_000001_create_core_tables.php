@@ -23,6 +23,8 @@ return new class extends Migration
             $table->timestamp('two_factor_confirmed_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->string('student_number')->unique()->nullable();
+            $table->index('approved_at', 'idx_users_approved_at');
+            $table->index('created_at', 'idx_users_created_at');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -205,6 +207,9 @@ return new class extends Migration
             $table->string('twitter_handle')->nullable();
             $table->string('linkedin_profile')->nullable();
             $table->timestamps();
+            $table->index('status', 'idx_profiles_status');
+            $table->index('department_id', 'idx_profiles_department_id');
+            $table->index('cohort_id', 'idx_profiles_cohort_id');
         });
 
         Schema::create('enrollments', function (Blueprint $table) {

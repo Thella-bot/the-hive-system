@@ -12,7 +12,7 @@
         <ul class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           <li v-for="user in users" :key="user.id" class="col-span-1 flex flex-col text-center bg-white rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200">
             <div class="flex-1 flex flex-col p-8">
-              <img class="w-32 h-32 flex-shrink-0 mx-auto rounded-full" :src="user.profile_photo_url" :alt="user.name" />
+              <img class="w-32 h-32 flex-shrink-0 mx-auto rounded-full" :src="user.profile_photo_url" :alt="user.name" loading="lazy" />
               <h3 class="mt-6 text-gray-900 text-sm font-medium">{{ user.name }}</h3>
               <dl class="mt-1 flex-grow flex flex-col justify-between">
                 <dt class="sr-only">Email</dt>

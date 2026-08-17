@@ -13,16 +13,21 @@ class PollController extends Controller
     public function index()
     {
         $polls = Poll::with('user')
+            ->withCount('votes')
+            ->with(['votes' => function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            }])
             ->where(function ($q) {
                 $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
             })
             ->latest()
             ->paginate(20);
 
-        $userId = auth()->id();
-        $polls->each(function ($poll) use ($userId) {
-            $poll->user_vote = $poll->votes()->where('user_id', $userId)->first();
-            $poll->vote_counts = $poll->voteCounts();
+        $polls->each(function ($poll) {
+            $poll->user_vote = $poll->votes->first();
+            $poll->vote_counts = cache()->remember("poll.votes.{$poll->id}", 300, function () use ($poll) {
+                return $poll->voteCounts();
+            });
         });
 
         return Inertia::render('Hive/Polls/Index', ['polls' => $polls]);

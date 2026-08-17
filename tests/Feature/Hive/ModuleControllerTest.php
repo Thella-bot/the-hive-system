@@ -10,7 +10,7 @@ class ModuleControllerTest extends HiveTestCase
 {
     public function test_module_index_returns_success_for_student(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('student');
 
         $this->actingAs($user);
@@ -22,7 +22,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_index_returns_success_for_academic_director(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $this->actingAs($user);
@@ -34,7 +34,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_create_returns_success(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $this->actingAs($user);
@@ -50,7 +50,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_store_creates_new_module(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $this->actingAs($user);
@@ -83,7 +83,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_store_validates_required_fields(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $this->actingAs($user);
@@ -98,7 +98,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_store_validates_unique_code(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $this->actingAs($user);
@@ -122,7 +122,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_show_returns_success(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $module = \App\Models\Module::factory()->create();
@@ -137,7 +137,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_edit_returns_success(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $module = \App\Models\Module::factory()->create();
@@ -155,7 +155,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_update_updates_module(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $module = \App\Models\Module::factory()->create();
@@ -180,7 +180,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_destroy_deletes_module(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $module = \App\Models\Module::factory()->create();
@@ -195,7 +195,7 @@ class ModuleControllerTest extends HiveTestCase
 
     public function test_module_store_programme_creates_programme(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['approved_at' => now()]);
         $user->assignRole('academic-director');
 
         $this->actingAs($user);

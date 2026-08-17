@@ -49,7 +49,7 @@ const deleteBook = () => {
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div class="flex items-start gap-6">
             <div v-if="book.cover_image" class="w-32 h-48 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-              <img :src="book.cover_image" :alt="book.title" class="w-full h-full object-cover" />
+              <img :src="book.cover_image" :alt="book.title" class="w-full h-full object-cover" loading="lazy" />
             </div>
             <div v-else class="w-32 h-48 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
               <span class="text-4xl text-gray-400">📚</span>

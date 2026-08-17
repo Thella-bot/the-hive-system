@@ -49,7 +49,7 @@ class ApplicationController extends Controller
     public function create(): \Inertia\Response
     {
         return Inertia::render('Hive/Applications/Create', [
-            'programmes' => Programme::orderBy('name')->get(),
+            'programmes' => app(ReferenceDataService::class)->programmes(),
         ]);
     }
 
@@ -234,7 +234,7 @@ class ApplicationController extends Controller
             'email' => $student->getEmailForPasswordReset(),
         ], false));
 
-        Mail::to($student->email)->send(new AcceptanceLetter($application, $student, $passwordResetUrl));
+        Mail::to($student->email)->queue(new AcceptanceLetter($application, $student, $passwordResetUrl));
     }
 
     // ---------- PDF GENERATION ----------

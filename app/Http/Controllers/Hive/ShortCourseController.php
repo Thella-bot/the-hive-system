@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Programme;
 use App\Models\ShortCourse;
+use App\Services\ReferenceDataService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -39,13 +40,11 @@ class ShortCourseController extends Controller
     public function create(Request $request): Response
     {
         $departmentId = $request->query('departmentId');
-
-        $departments = Department::active()->orderBy('name')->get();
-        $programmes = Programme::with('department')->get();
+        $ref = app(ReferenceDataService::class);
 
         return Inertia::render('Hive/ShortCourses/Create', [
-            'departments' => $departments,
-            'programmes' => $programmes,
+            'departments' => $ref->departments(),
+            'programmes' => $ref->programmes(),
             'departmentId' => $departmentId ? (int) $departmentId : null,
         ]);
     }

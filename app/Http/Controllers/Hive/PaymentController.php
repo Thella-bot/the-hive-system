@@ -37,7 +37,7 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $invoices = Invoice::where('status', 'pending')->get();
+        $invoices = Invoice::where('status', 'pending')->paginate(20);
         return Inertia::render('Hive/Finance/Payments/Create', [
             'invoices' => $invoices,
         ]);

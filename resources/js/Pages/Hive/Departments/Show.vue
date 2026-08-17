@@ -96,6 +96,7 @@
             <div v-for="member in department.staff" :key="member.id"
               class="flex items-center gap-3 px-6 py-4 hover:bg-gray-50 transition-colors">
               <img :src="member.user.profile_photo_url" :alt="member.user.name"
+                loading="lazy"
                 class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-gray-900 truncate">{{ member.user.name }}</p>
@@ -153,6 +154,7 @@
       <!-- Head info -->
       <div v-if="department.head" class="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-center gap-4">
         <img :src="department.head.profile_photo_url" :alt="department.head.name"
+          loading="lazy"
           class="w-12 h-12 rounded-full object-cover" />
         <div>
           <p class="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-0.5">Department Head</p>

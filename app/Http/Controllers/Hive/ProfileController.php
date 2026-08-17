@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Cohort;
 use App\Models\Department;
+use App\Services\ReferenceDataService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -18,7 +19,7 @@ class ProfileController extends Controller
 
         return Inertia::render('Hive/Profile/Edit', [
             'profile'     => $user->profile,
-            'departments' => Department::active()->select('id', 'name')->get(),
+            'departments' => app(ReferenceDataService::class)->departments(),
             'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
         ]);
     }

@@ -84,12 +84,16 @@ class DocumentController extends Controller
             $documentsQuery->where('category', $request->category);
         }
 
-        $documents = $documentsQuery->latest()->get();
+        $documents = $documentsQuery->latest()
+            ->withCount('acknowledgements')
+            ->with(['acknowledgements' => function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            }])
+            ->get();
 
-        // Add acknowledgement counts
+        // Add acknowledgement flags
         $documents->each(function ($doc) {
-            $doc->acknowledgements_count = $doc->acknowledgements()->count();
-            $doc->is_acknowledged = $doc->isAcknowledgedBy(auth()->user());
+            $doc->is_acknowledged = $doc->acknowledgements->isNotEmpty();
         });
 
         // Get modules for filtering (staff/admin only)

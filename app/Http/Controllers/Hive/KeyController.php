@@ -12,7 +12,7 @@ class KeyController extends Controller
 {
     public function index()
     {
-        $keys = Key::with(['currentAssignment.user'])->get();
+        $keys = Key::with(['currentAssignment.user'])->paginate(20);
         return Inertia::render('Hive/Keys/Index', ['keys' => $keys]);
     }
 

@@ -11,7 +11,7 @@ class SupplierController extends Controller
 {
     public function index()
     {
-        $suppliers = Supplier::latest()->get();
+        $suppliers = Supplier::latest()->paginate(20);
         return Inertia::render('Hive/Suppliers/Index', ['suppliers' => $suppliers]);
     }
 

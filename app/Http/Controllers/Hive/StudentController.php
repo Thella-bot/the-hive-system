@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Actions\Hive\CreateNewStudent;
 use App\Actions\Hive\UpdateStudent;
+use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\Cohort;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\ReferenceDataService;
 use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -16,6 +18,7 @@ use Inertia\Inertia;
 
 class StudentController extends Controller
 {
+    use GeneratesDocumentPdfs;
     public function __construct(protected SignatoryService $signatory) {}
 
     /**
@@ -41,7 +44,7 @@ class StudentController extends Controller
         $this->authorize('create', User::class);
 
         return Inertia::render('Hive/Students/Create', [
-            'programmes' => Programme::orderBy('name')->get(),
+            'programmes' => app(ReferenceDataService::class)->programmes(),
         ]);
     }
 
@@ -87,7 +90,7 @@ class StudentController extends Controller
         $isAdmin = auth()->user()?->isAdmin();
         return Inertia::render('Hive/Students/Edit', [
             'managedStudent' => $student->load(['profile', 'programme']),
-            'programmes' => Programme::orderBy('name')->get(),
+            'programmes' => app(ReferenceDataService::class)->programmes(),
             'cohorts' => Cohort::with('department:id,name')->select('id', 'name', 'department_id')->get(),
             'isAdmin' => $isAdmin,
         ]);

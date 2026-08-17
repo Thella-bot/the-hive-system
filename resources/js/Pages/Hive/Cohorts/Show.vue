@@ -69,6 +69,7 @@
           <div v-for="student in cohort.students" :key="student.id"
             class="flex items-center gap-4 px-6 py-3.5 hover:bg-gray-50 transition-colors">
             <img :src="student.user?.profile_photo_url" :alt="student.user?.name"
+              loading="lazy"
               class="w-9 h-9 rounded-full object-cover flex-shrink-0" />
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-gray-900 truncate">{{ student.user?.name }}</p>
