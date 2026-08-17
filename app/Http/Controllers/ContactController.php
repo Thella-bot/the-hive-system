@@ -1,4 +1,7 @@
-<?php namespace App\Http\Controllers;
+<?php
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
 use Illuminate\Http\Request;
@@ -16,8 +19,7 @@ class ContactController extends Controller
 
         ContactMessage::create($data);
 
-        // Send email notification to admin (queue later)
-        // Mail::to('admin@hbculinaryinstitute.co.ls')->queue(new \App\Mail\ContactFormMail($data));
+        Mail::to('admin@hbculinaryinstitute.co.ls')->queue(new \App\Mail\ContactFormMail($data));
 
         return redirect()->route('contact')->with('success', 'Thank you for your message.');
     }

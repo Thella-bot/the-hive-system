@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -68,7 +69,7 @@ class LibraryBook extends Model
         return $query->where('category_id', $categoryId);
     }
 
-    public function scopesearch($query, string $term): \Illuminate\Database\Eloquent\Builder
+    public function scopeSearch($query, string $term): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where(function ($q) use ($term) {
             $q->where('title', 'like', "%{$term}%")

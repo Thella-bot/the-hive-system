@@ -205,7 +205,7 @@ npm run dev
 php artisan queue:work
 
 # Or start multiple workers with a single command
-php artisan queue:workers --workers=4
+php artisan queue:work --workers=4
 ```
 
 Visit `http://localhost:8000` and log in with the seeded admin account:

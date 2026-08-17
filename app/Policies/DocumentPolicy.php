@@ -1,4 +1,7 @@
-<?php namespace App\Policies;
+<?php
+declare(strict_types=1);
+
+namespace App\Policies;
 
 use App\Models\Document;
 use App\Models\User;

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Services\Dashboard;
 
@@ -247,20 +248,28 @@ class StudentDashboardData implements DashboardData
 
     private function getTotalFees(User $user): float
     {
-        return Invoice::where('user_id', $user->id)->sum('amount');
+        $result = Invoice::where('user_id', $user->id)
+            ->selectRaw('SUM(amount) as total, SUM(total_paid) as paid, SUM(balance) as balance')
+            ->first();
+
+        return (float) ($result->total ?? 0);
     }
 
     private function getTotalPaid(User $user): float
     {
-        return Invoice::where('user_id', $user->id)
-            ->get()
-            ->sum('total_paid');
+        $result = Invoice::where('user_id', $user->id)
+            ->selectRaw('SUM(amount) as total, SUM(total_paid) as paid, SUM(balance) as balance')
+            ->first();
+
+        return (float) ($result->paid ?? 0);
     }
 
     private function getRemainingBalance(User $user): float
     {
-        return Invoice::where('user_id', $user->id)
-            ->get()
-            ->sum('balance');
+        $result = Invoice::where('user_id', $user->id)
+            ->selectRaw('SUM(amount) as total, SUM(total_paid) as paid, SUM(balance) as balance')
+            ->first();
+
+        return (float) ($result->balance ?? 0);
     }
 }
