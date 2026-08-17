@@ -49,7 +49,13 @@ trait HasFilters
         }
 
         if ($config['category_id'] && $request->has('category_id') && $request->category_id) {
+            $allowedColumns = ['category_id', 'expense_category_id', 'budget_id'];
             $column = $config['categoryColumn'] ?? 'expense_category_id';
+            
+            if (!in_array($column, $allowedColumns, true)) {
+                throw new \InvalidArgumentException('Invalid filter column');
+            }
+            
             $query->where($column, $request->category_id);
         }
 

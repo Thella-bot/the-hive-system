@@ -26,9 +26,8 @@ class SubmissionController extends Controller
         if ($gradable->max_file_size) {
             $rules[] = 'max:' . $gradable->max_file_size;
         }
-        if ($gradable->allowed_types) {
-            $rules[] = 'mimes:' . $gradable->allowed_types;
-        }
+        $allowedTypes = $gradable->allowed_types ?: 'pdf,doc,docx,jpg,jpeg,png,txt';
+        $rules[] = 'mimes:' . $allowedTypes;
 
         $request->validate(['file' => $rules]);
 

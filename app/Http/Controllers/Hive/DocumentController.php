@@ -136,7 +136,7 @@ class DocumentController extends Controller
             'audience' => 'required|string|in:module_students,student_only,staff_only,all_users,everyone',
             'module_id' => 'required|exists:modules,id',
             'visible_to_roles' => 'nullable|array',
-            'file' => 'required|file|max:20480', // 20 MB max
+            'file' => 'required|file|mimes:pdf,doc,docx,txt,ppt,pptx,xls,xlsx|max:20480',
         ]);
 
         $document = Document::create([
@@ -231,7 +231,7 @@ class DocumentController extends Controller
     public function addVersion(Request $request, Document $document)
     {
         $this->authorize('update', $document);
-        $request->validate(['file' => 'required|file|max:20480']);
+        $request->validate(['file' => 'required|file|mimes:pdf,doc,docx,txt,ppt,pptx,xls,xlsx|max:20480']);
 
         $latestVersion = $document->latestVersion;
         $newNumber = $latestVersion ? $latestVersion->version_number + 1 : 1;

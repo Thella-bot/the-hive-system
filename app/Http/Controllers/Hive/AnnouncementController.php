@@ -58,8 +58,9 @@ class AnnouncementController extends Controller
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('announcements', 'public');
+                $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
                 $announcement->attachments()->create([
-                    'name' => $file->getClientOriginalName(),
+                    'name' => $safeName,
                     'file_path' => $path,
                     'size' => $file->getSize(),
                     'uploaded_by' => $request->user()->id,
@@ -110,8 +111,9 @@ class AnnouncementController extends Controller
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('announcements', 'public');
+                $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
                 $announcement->attachments()->create([
-                    'name' => $file->getClientOriginalName(),
+                    'name' => $safeName,
                     'file_path' => $path,
                     'size' => $file->getSize(),
                     'uploaded_by' => $request->user()->id,
@@ -137,7 +139,8 @@ class AnnouncementController extends Controller
             abort(403);
         }
 
-        return Storage::disk('public')->download($attachment->file_path, $attachment->name);
+        $downloadName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $attachment->name);
+        return Storage::disk('public')->download($attachment->file_path, $downloadName);
     }
 
     // ---------- PDF GENERATION ----------

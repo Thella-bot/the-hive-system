@@ -41,7 +41,7 @@ class StoreGradableRequest extends FormRequest
             'allowed_types' => 'nullable|string',
             'attachments' => 'nullable|array',
             'attachments.*.title' => 'required|string|max:255',
-            'attachments.*.file' => 'required|file|max:51200',
+            'attachments.*.file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,zip,txt|max:51200',
         ];
     }
 

@@ -37,17 +37,16 @@ class IdGenerator
         $field = $type === 'student' ? 'student_number' : 'employee_number';
         $idPrefix = $prefix . date('Y') . str_pad($departmentId, 2, '0', STR_PAD_LEFT);
 
+        $allowedFields = ['student_number', 'employee_number'];
+        if (!in_array($field, $allowedFields, true)) {
+            throw new \InvalidArgumentException('Invalid field for ID generation');
+        }
+
         return DB::transaction(function () use ($idPrefix, $field, $type) {
-            // Lock matching rows and read the highest sequence already
-            // issued under this prefix in a single pass — no generate/
-            // check/regenerate loop needed since the lock guarantees
-            // no concurrent writer can slip in before we commit.
             $maxSeq = Profile::where($field, 'like', "{$idPrefix}%")
                 ->lockForUpdate()
-                ->max(DB::raw("CAST(SUBSTRING({$field}, -2) AS UNSIGNED)"));
+                ->max(DB::raw("CAST(SUBSTRING(" . $field . ", -2) AS UNSIGNED)"));
 
-            // Student numbers can also live on the User table directly,
-            // so fold that in too when generating a student ID.
             if ($type === 'student') {
                 $maxUserSeq = User::where('student_number', 'like', "{$idPrefix}%")
                     ->lockForUpdate()

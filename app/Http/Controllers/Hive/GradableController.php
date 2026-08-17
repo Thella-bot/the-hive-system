@@ -110,10 +110,11 @@ class GradableController extends Controller
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $idx => $file) {
                 $title = $request->input("attachments.{$idx}.title") ?? $file->getClientOriginalName();
+                $safeTitle = preg_replace('/[^a-zA-Z0-9._-]/', '_', $title);
                 $path = $file->store('private/gradables/' . $gradable->id);
 
                 $gradable->attachments()->create([
-                    'title' => $title,
+                    'title' => $safeTitle,
                     'file_path' => $path,
                     'file_size' => $file->getSize(),
                     'mime_type' => $file->getMimeType(),
@@ -380,7 +381,8 @@ class GradableController extends Controller
             abort(403);
         }
 
-        return Storage::download($attachment->file_path, $attachment->title);
+        $downloadName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $attachment->title);
+        return Storage::download($attachment->file_path, $downloadName);
     }
 
     /**

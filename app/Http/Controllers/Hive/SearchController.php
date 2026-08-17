@@ -18,7 +18,7 @@ class SearchController extends Controller
     public function __invoke(Request $request)
     {
         $query = trim((string) $request->input('query', ''));
-        $like = '%' . addcslashes($query, '%_\\') . '%';
+        $like = '%' . $query . '%';
         $user = $request->user();
         $roles = $user?->getRoleNames()->toArray() ?? [];
         $isAdmin = $user?->isAdmin() ?? false;

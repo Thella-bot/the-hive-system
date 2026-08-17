@@ -16,6 +16,11 @@ class InvoiceController extends Controller
 {
     use HasFilters;
 
+    public function __construct()
+    {
+        $this->authorizeResource(Invoice::class, 'invoice');
+    }
+
     public function index(Request $request): Response
     {
         $query = Invoice::with(['user', 'programme'])

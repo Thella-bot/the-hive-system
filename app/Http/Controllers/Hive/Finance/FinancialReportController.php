@@ -15,6 +15,17 @@ use Inertia\Response;
 
 class FinancialReportController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = $request->user();
+            if (!$user->hasAnyRole(['super-admin', 'it-support', 'finance', 'registrar'])) {
+                abort(403, 'You do not have permission to access financial reports.');
+            }
+            return $next($request);
+        });
+    }
+
     /**
      * Financial dashboard overview.
      */
