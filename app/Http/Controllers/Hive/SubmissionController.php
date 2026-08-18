@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
 {
-    public function __construct(): void {
+    public function __construct() {
         $this->authorizeResource(Submission::class, 'submission');
     }
 

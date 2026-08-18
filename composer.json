@@ -22,7 +22,6 @@
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^11.1",
         "laravel/tinker": "^2.10.1",
-        "maatwebsite/excel": "^3.3",
         "opcodesio/log-viewer": "^3.24",
         "spatie/laravel-permission": "^6.25",
         "tightenco/ziggy": "^2.0"    },

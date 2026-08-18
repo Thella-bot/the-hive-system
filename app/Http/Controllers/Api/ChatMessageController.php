@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class ChatMessageController extends Controller
 {
-    public function __construct(): void {
+    public function __construct() {
         $this->authorizeResource(ChatChannel::class, 'channel');
     }
 

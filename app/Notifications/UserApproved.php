@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace App\Notifications;
 
@@ -12,7 +11,7 @@ class UserApproved extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(): void {
+    public function __construct() {
         //
     }
 
