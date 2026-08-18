@@ -1,10 +1,8 @@
 <?php
-declare(strict_types=1);
 
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -13,7 +11,6 @@ use Inertia\Inertia;
 
 class StudentIdController extends Controller
 {
-    use GeneratesDocumentPdfs;
     /**
      * Show the ID card for the current user, or (for staff who can manage
      * students) for a specific student.
@@ -40,14 +37,27 @@ class StudentIdController extends Controller
         $target = $this->resolveTarget($request, $student);
         $card = $this->pdfCardData($target);
 
-        return $this->generatePdf('pdf.student-id-card', [
+        $pdf = Pdf::loadView('pdf.student-id-card', [
             'name'          => $card['name'],
             'studentNumber' => $card['student_number'],
             'year'          => $card['year'],
             'programme'     => $card['programme'],
             'initials'      => $card['initials'],
             'photoPath'     => $card['photo_path'],
-        ], 'Student_ID_' . ($target->profile?->student_number ?? $target->id) . '.pdf', $target->id, 'local', [0, 0, 242, 153]);
+        ])->setPaper([0, 0, 242, 153]);
+
+        // The COURSE value uses a condensed display font (matching the
+        // card's reference design) so longer programme names still fit
+        // on one line. Declaring it via @font-face in the blade file is
+        // NOT sufficient - dompdf silently ignored it in testing and fell
+        // back to a default serif font. It must be registered directly
+        // with dompdf's FontMetrics before the PDF is rendered.
+        $pdf->getDomPDF()->getFontMetrics()->registerFont(
+            ['family' => 'Oswald', 'style' => 'normal', 'weight' => 'bold'],
+            public_path('fonts/Oswald-Bold.ttf')
+        );
+
+        return $pdf->download('Student_ID_' . ($target->profile?->student_number ?? $target->id) . '.pdf');
     }
 
     /**

@@ -30,46 +30,42 @@ const studentId = computed(() => props.student_id || {});
       </div>
 
       <!-- Card, matching the PDF student ID card design exactly -->
-      <div class="relative mx-auto overflow-hidden shadow-2xl"
+      <div class="relative mx-auto rounded-[12pt] overflow-hidden bg-white shadow-2xl"
            style="width: 484px; height: 306px;">
 
-        <!-- Decorative background: traced from the reference design
-             (yellow field, one large rotated white ellipse, three black
-             shard accents) - viewBox coordinates are 1:1 with the
-             reference image (1011x639), scaled to fill the card. -->
-        <svg viewBox="0 0 1011 639" preserveAspectRatio="none"
-             class="absolute inset-0" style="width: 100%; height: 100%;">
-          <rect x="0" y="0" width="1011" height="639" fill="#FFBD59" />
-          <ellipse cx="522.6" cy="284.5" rx="312.2" ry="572.7" fill="#ffffff"
-                   transform="rotate(99.6 522.6 284.5)" />
-          <polygon points="24,0 0,1 0,40" fill="#000000" />
-          <polygon points="1010,404 937,469 843,523 735,560 623,577 829,564 1009,531" fill="#000000" />
-          <polygon points="0,560 0,588 50,638 78,638" fill="#000000" />
-        </svg>
+        <!-- Decorative orange blobs -->
+        <div class="absolute rounded-full bg-amber-400"
+             style="top: -80px; right: -140px; width: 460px; height: 280px;"></div>
+        <div class="absolute rounded-full bg-amber-400"
+             style="bottom: -110px; left: -180px; width: 460px; height: 280px;"></div>
+
+        <!-- Diagonal black accents -->
+        <div class="absolute bottom-0 right-0 bg-black"
+             style="width: 140px; height: 84px; clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
+        <div class="absolute bottom-0 left-0 bg-black"
+             style="width: 52px; height: 26px; clip-path: polygon(0 0, 100% 100%, 0 100%);"></div>
 
         <!-- Content -->
         <div class="relative z-10 h-full" style="padding: 20px 28px;">
           <!-- Header row: logo + STUDENT CARD pill side by side -->
           <div class="flex items-center justify-between">
-            <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" style="height: 40px;" />
-            <!-- Pill uses the same yellow as the background field, per the
-                 reference design - it reads as a cutout, not a darker accent. -->
+            <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" style="height: 44px;" />
             <span class="text-white font-black tracking-widest"
-                  style="background: #FFBD59; font-size: 21px; padding: 9px 30px; border-radius: 9999px; letter-spacing: 1px;">
+                  style="background: #f59e0b; font-size: 22px; padding: 10px 32px; border-radius: 9999px; letter-spacing: 1px;">
               STUDENT CARD
             </span>
           </div>
 
           <!-- Details row -->
-          <div class="flex gap-5" style="margin-top: 18px;">
-            <!-- Photo: sized/positioned to match the reference's bounding box -->
+          <div class="flex gap-5" style="margin-top: 24px;">
+            <!-- Photo -->
             <div v-if="studentId.photo_url" class="flex-shrink-0">
               <img :src="studentId.photo_url" alt="Student photo"
                    class="object-cover border-2 border-white shadow"
-                   style="width: 144px; height: 188px; border-radius: 4px;" />
+                   style="width: 156px; height: 216px; border-radius: 4px;" />
             </div>
             <div v-else class="flex-shrink-0 flex items-center justify-center border-2 border-white shadow"
-                 style="width: 144px; height: 188px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 900; font-size: 40px;">
+                 style="width: 156px; height: 216px; border-radius: 4px; background: #fef3c7; color: #b45309; font-weight: 900; font-size: 44px;">
               {{ studentId.initials }}
             </div>
 
