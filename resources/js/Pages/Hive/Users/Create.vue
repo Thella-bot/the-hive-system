@@ -28,6 +28,30 @@
               </div>
 
               <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">First Name</label>
+                <input v-model="form.first_name" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Last Name</label>
+                <input v-model="form.last_name" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Date of Birth</label>
+                <input v-model="form.date_of_birth" type="date"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+                <textarea v-model="form.address" rows="2"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"></textarea>
+              </div>
+
+              <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Email <span class="text-red-500">*</span></label>
                 <input v-model="form.email" type="email"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
@@ -109,6 +133,24 @@
                 <input v-model="form.hire_date" type="date"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
               </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Annual Leave Days</label>
+                <input v-model="form.annual_leave_days" type="number"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Leave Balance</label>
+                <input v-model="form.leave_balance" type="number"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Bio</label>
+                <textarea v-model="form.bio" rows="3"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"></textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -156,6 +198,30 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Expected Graduation</label>
                 <input v-model="form.expected_graduation_date" type="date"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Graduation Date</label>
+                <input v-model="form.graduation_date" type="date"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+                <select v-model="form.status"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option :value="null">— None —</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="graduated">Graduated</option>
+                  <option value="withdrawn">Withdrawn</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Dietary Restrictions</label>
+                <input v-model="form.dietary_restrictions" type="text" placeholder="e.g. Vegetarian, Halal"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
               </div>
             </div>
@@ -232,10 +298,13 @@ const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label:
 
 const form = useForm({
   name: '', email: '', password: '', password_confirmation: '', roles: [],
+  first_name: '', last_name: '', date_of_birth: '', address: '',
   // Staff
   employee_number: '', department_id: null, designation: '', specialization: '', phone: '', hire_date: '',
+  annual_leave_days: '', leave_balance: '', bio: '',
   // Student
   student_number: '', programme_id: null, cohort_id: null, enrollment_date: '', expected_graduation_date: '',
+  graduation_date: '', status: null, dietary_restrictions: '',
   emergency_contact_name: '', emergency_contact_phone: '', emergency_contact_relationship: '',
 })
 

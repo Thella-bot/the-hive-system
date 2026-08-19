@@ -28,6 +28,7 @@ export default defineConfig({
     },
     build: {
         rollupOptions: {
+            external: ['fsevents'],
             output: {
                 manualChunks: {
                     'vendor-vue': ['vue', 'vue-router', 'pinia'],
@@ -36,7 +37,6 @@ export default defineConfig({
                     'vendor-inertia': ['@inertiajs/vue3', 'laravel-vite-plugin'],
                     'vendor-icons': ['@heroicons/vue'],
                 },
-                chunkSizeWarningLimit: 500,
             },
         },
         cssCodeSplit: true,
@@ -53,23 +53,23 @@ export default defineConfig({
         },
         proxy: {
             '/api': {
-                target: 'http://127.0.0.1:8000',
+                target: 'http://192.168.1.61:8000',
                 changeOrigin: true,
             },
             '/login': {
-                target: 'http://127.0.0.1:8000',
+                target: 'http://192.168.1.61:8000',
                 changeOrigin: true,
             },
             '/logout': {
-                target: 'http://127.0.0.1:8000',
+                target: 'http://192.168.1.61:8000',
                 changeOrigin: true,
             },
             '/sanctum': {
-                target: 'http://127.0.0.1:8000',
+                target: 'http://192.168.1.61:8000',
                 changeOrigin: true,
             },
             '/register': {
-                target: 'http://127.0.0.1:8000',
+                target: 'http://192.168.1.61:8000',
                 changeOrigin: true,
             },
         },

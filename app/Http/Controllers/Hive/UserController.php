@@ -59,7 +59,7 @@ class UserController extends Controller
         return Inertia::render('Hive/Users/Create', [
             'roles'       => $ref->roles(),
             'departments' => $ref->departments(),
-            'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
+            'cohorts'     => Cohort::with('department:id,name')->select('id', 'name', 'department_id')->get(),
             'programmes'  => $ref->programmes(),
         ]);
     }
@@ -69,9 +69,12 @@ class UserController extends Controller
         $data = $request->validated();
 
         $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
+            'name'          => $data['name'],
+            'email'         => $data['email'],
+            'password'      => Hash::make($data['password']),
+            'programme_id'  => $data['programme_id'] ?? null,
+            'student_number'=> $data['student_number'] ?? null,
+            'approved_at'   => $data['approved_at'] ?? null,
         ]);
 
         $user->syncRoles($data['roles']);
@@ -154,7 +157,7 @@ class UserController extends Controller
             'managedUser'        => $user,
             'roles'       => $ref->roles(),
             'departments' => $ref->departments(),
-            'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
+            'cohorts'     => Cohort::with('department:id,name')->select('id', 'name', 'department_id')->get(),
             'programmes'  => $ref->programmes(),
             'isAdmin' => $isAdmin,
         ]);
@@ -168,6 +171,7 @@ class UserController extends Controller
             'name'          => $data['name'],
             'email'         => $data['email'],
             'programme_id'  => $data['programme_id'] ?? null,
+            'student_number'=> $data['student_number'] ?? null,
             'approved_at'   => $data['approved_at'] ?? null,
         ];
 

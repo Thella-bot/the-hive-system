@@ -139,7 +139,7 @@ Subscribe to security advisories:
 
 | Date | Issue | Severity | Resolution |
 |------|-------|----------|------------|
-| 2025-06 | Plaintext passwords in welcome emails | High | Removed passwords, added password reset link |
-| 2025-06 | Missing MIME validation on uploads | High | Added magic bytes verification |
-| 2025-06 | XSS in announcement HTML | Medium | Added HTML sanitization |
-| 2025-06 | Unauthorized API access | Medium | Added role middleware to 16+ routes |
+| 2026-06 | Plaintext passwords in welcome emails | High | Removed passwords, added password reset link |
+| 2026-06 | Missing MIME validation on uploads | High | Added magic bytes verification |
+| 2026-06 | XSS in announcement HTML | Medium | Added HTML sanitization |
+| 2026-06 | Unauthorized API access | Medium | Added role middleware to 16+ routes |

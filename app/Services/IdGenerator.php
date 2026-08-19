@@ -36,7 +36,7 @@ class IdGenerator
     {
         $prefix = $type === 'student' ? 'S' : 'E';
         $field = $type === 'student' ? 'student_number' : 'employee_number';
-        $idPrefix = $prefix . date('Y') . str_pad($departmentId, 2, '0', STR_PAD_LEFT);
+        $idPrefix = $prefix . date('Y') . str_pad((string) $departmentId, 2, '0', STR_PAD_LEFT);
 
         $allowedFields = ['student_number', 'employee_number'];
         if (!in_array($field, $allowedFields, true)) {
@@ -58,7 +58,7 @@ class IdGenerator
 
             $nextSeq = ($maxSeq ?? 0) + 1;
 
-            return $idPrefix . str_pad($nextSeq, 2, '0', STR_PAD_LEFT);
+            return $idPrefix . str_pad((string) $nextSeq, 2, '0', STR_PAD_LEFT);
         });
     }
 }

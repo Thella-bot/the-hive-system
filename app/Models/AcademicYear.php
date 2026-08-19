@@ -55,7 +55,7 @@ class AcademicYear extends Model
 
     public function getIsOngoingAttribute(): bool
     {
-        return now()->between($this->start_date, $this->end_date);
+        return today()->between($this->start_date, $this->end_date);
     }
 
     /**
