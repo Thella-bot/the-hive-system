@@ -20,7 +20,11 @@ class EnsureUserIsApproved
                 // Session may not be available in test environment
             }
 
-            if ($request->expectsJson() || $request->header('X-Inertia')) {
+            if ($request->header('X-Inertia')) {
+                return redirect()->route('login')->with('error', 'Your account is pending approval. Please contact an administrator.');
+            }
+
+            if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Your account is pending approval. Please contact an administrator.',
                     'error_id' => 'account_pending_approval',

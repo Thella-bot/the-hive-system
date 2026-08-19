@@ -9,6 +9,7 @@ use App\Models\Bookmark;
 use App\Models\Event;
 use App\Models\Gradable;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Programme;
 use App\Models\StudentTask;
 use App\Models\Submission;
@@ -30,6 +31,8 @@ class StudentDashboardData implements DashboardData
         $moduleIds = DB::table('module_user')->where('user_id', $user->id)->pluck('module_id')->toArray();
 
         $moduleProgress = $this->buildModuleProgress($user, $moduleIds);
+
+        $invoiceTotals = $this->getInvoiceTotals($user);
 
         return [
             'programme' => $user->programme_id
@@ -106,9 +109,9 @@ class StudentDashboardData implements DashboardData
 
             // Fee Information
             'invoices' => $this->getInvoices($user),
-            'totalFees' => $this->getTotalFees($user),
-            'totalPaid' => $this->getTotalPaid($user),
-            'remainingBalance' => $this->getRemainingBalance($user),
+            'totalFees' => $invoiceTotals['totalFees'],
+            'totalPaid' => $invoiceTotals['totalPaid'],
+            'remainingBalance' => $invoiceTotals['remainingBalance'],
         ];
     }
 
@@ -244,30 +247,18 @@ class StudentDashboardData implements DashboardData
             ]);
     }
 
-    private function getTotalFees(User $user): float
+    private function getInvoiceTotals(User $user): array
     {
-        $result = Invoice::where('user_id', $user->id)
-            ->selectRaw('SUM(amount) as total, SUM(total_paid) as paid, SUM(balance) as balance')
-            ->first();
+        $totalFees = (float) Invoice::where('user_id', $user->id)->sum('amount');
 
-        return (float) ($result->total ?? 0);
-    }
+        $totalPaid = (float) Payment::where('user_id', $user->id)
+            ->where('status', 'completed')
+            ->sum('amount');
 
-    private function getTotalPaid(User $user): float
-    {
-        $result = Invoice::where('user_id', $user->id)
-            ->selectRaw('SUM(amount) as total, SUM(total_paid) as paid, SUM(balance) as balance')
-            ->first();
-
-        return (float) ($result->paid ?? 0);
-    }
-
-    private function getRemainingBalance(User $user): float
-    {
-        $result = Invoice::where('user_id', $user->id)
-            ->selectRaw('SUM(amount) as total, SUM(total_paid) as paid, SUM(balance) as balance')
-            ->first();
-
-        return (float) ($result->balance ?? 0);
+        return [
+            'totalFees' => $totalFees,
+            'totalPaid' => $totalPaid,
+            'remainingBalance' => $totalFees - $totalPaid,
+        ];
     }
 }

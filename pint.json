@@ -3,7 +3,7 @@
     "rules": {
         "declare_strict_types": true,
         "braces": true,
-        "no_spaces_inside_parentheses": true,
+        "no_spaces_inside_parenthesis": true,
         "space_after_semicolon": true,
         "single_quote": true,
         "trailing_comma_in_multiline": true,

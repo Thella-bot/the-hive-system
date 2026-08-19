@@ -40,6 +40,21 @@ if (!function_exists('friendlyTitleForStatus')) {
     }
 }
 
+if (!function_exists('inertiaErrorRedirect')) {
+    function inertiaErrorRedirect(Request $request, int $status, string $message, string $errorId): \Illuminate\Http\RedirectResponse
+    {
+        // Never redirect back to the URL that just errored (avoids redirect loops).
+        $previous = $request->headers->get('referer');
+        $target = ($previous && $previous !== $request->fullUrl()) ? $previous : url('/');
+
+        return redirect($target)->with('error', [
+            'title'    => friendlyTitleForStatus($status),
+            'message'  => $message,
+            'error_id' => $errorId,
+        ]);
+    }
+}
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders()
     ->withRouting(
@@ -69,7 +84,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e, Request $request) {
             $message = 'The requested resource was not found.';
 
-            if ($request->header('X-Inertia') || $request->expectsJson()) {
+            if ($request->header('X-Inertia')) {
+                return inertiaErrorRedirect($request, 404, $message, (string) Str::uuid());
+            }
+
+            if ($request->expectsJson()) {
                 return response()->json(['message' => $message, 'error_id' => (string) Str::uuid()], 404);
             }
 
@@ -81,7 +100,11 @@ return Application::configure(basePath: dirname(__DIR__))
             Log::error('Database error', ['message' => $e->getMessage()]);
             $message = 'A database error occurred. Please try again later.';
 
-            if ($request->header('X-Inertia') || $request->expectsJson()) {
+            if ($request->header('X-Inertia')) {
+                return inertiaErrorRedirect($request, 500, $message, (string) Str::uuid());
+            }
+
+            if ($request->expectsJson()) {
                 return response()->json(['message' => $message, 'error_id' => (string) Str::uuid()], 500);
             }
 
@@ -161,23 +184,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 return $redirect->with('error', $message);
             }
 
-            // Inertia request (other errors)
+            // Inertia request (other errors) - redirect with flash so the
+            // frontend receives a valid response instead of plain JSON, which
+            // Inertia rejects with "All Inertia requests must receive a valid
+            // Inertia response".
             if ($request->header('X-Inertia')) {
-                if ($request->wantsJson()) {
-                    return response()->json([
-                        'message' => $message,
-                        'error_id' => $errorId,
-                    ], $status);
-                }
-
-                $backUrl = url()->previous();
-                $redirect = $backUrl ? redirect($backUrl) : redirect('/');
-
-                return $redirect->with('error', [
-                    'title' => $title,
-                    'message' => $message,
-                    'error_id' => $errorId,
-                ]);
+                return inertiaErrorRedirect($request, $status, $message, $errorId);
             }
 
             // AJAX / JSON request
