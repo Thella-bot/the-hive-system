@@ -55,7 +55,7 @@
         .title {
             position: absolute;
             top: 6pt;
-            right: 13pt;
+            right: 6pt;
             background: #FFBD59;
             color: #ffffff;
             font-weight: 900;
@@ -135,7 +135,7 @@
             left: 128pt;
             width: 101pt;
             font-family: 'Oswald', 'DejaVu Sans', sans-serif;
-            font-weight: bold;
+            font-weight: 900;
             font-size: 7pt;
             text-transform: uppercase;
             letter-spacing: -0.1pt;

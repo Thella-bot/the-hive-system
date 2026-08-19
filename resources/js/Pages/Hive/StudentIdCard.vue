@@ -29,24 +29,14 @@ const studentId = computed(() => props.student_id || {});
         </a>
       </div>
 
-      <!-- Card, matching the PDF student ID card design exactly -->
-      <div class="relative mx-auto rounded-[12pt] overflow-hidden bg-white shadow-2xl"
-           style="width: 484px; height: 306px;">
+       <!-- Card, matching the PDF student ID card design exactly -->
+       <div class="relative mx-auto rounded-[12pt] overflow-hidden shadow-2xl"
+            style="width: 484px; height: 306px;">
+         <img src="/images/id-card-bg.png" alt=""
+              class="absolute inset-0 w-full h-full object-cover" />
 
-        <!-- Decorative orange blobs -->
-        <div class="absolute rounded-full bg-amber-400"
-             style="top: -80px; right: -140px; width: 460px; height: 280px;"></div>
-        <div class="absolute rounded-full bg-amber-400"
-             style="bottom: -110px; left: -180px; width: 460px; height: 280px;"></div>
-
-        <!-- Diagonal black accents -->
-        <div class="absolute bottom-0 right-0 bg-black"
-             style="width: 140px; height: 84px; clip-path: polygon(100% 0, 100% 100%, 0 100%);"></div>
-        <div class="absolute bottom-0 left-0 bg-black"
-             style="width: 52px; height: 26px; clip-path: polygon(0 0, 100% 100%, 0 100%);"></div>
-
-        <!-- Content -->
-        <div class="relative z-10 h-full" style="padding: 20px 28px;">
+         <!-- Content -->
+         <div class="relative z-10 h-full bg-white" style="padding: 20px 28px;">
           <!-- Header row: logo + STUDENT CARD pill side by side -->
           <div class="flex items-center justify-between">
             <img src="/images/hbci-logo.png" alt="Honey Bee Culinary Institute" style="height: 44px;" />

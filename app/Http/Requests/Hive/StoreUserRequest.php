@@ -39,6 +39,7 @@ class StoreUserRequest extends FormRequest
             'bio'                        => 'nullable|string',
             'hire_date'                  => 'nullable|date',
             'student_number'             => 'nullable|string|unique:profiles,student_number',
+            'programme_id'               => 'nullable|exists:programmes,id',
             'cohort_id'                  => 'nullable|exists:cohorts,id',
             'enrollment_date'            => 'nullable|date',
             'expected_graduation_date'   => ['nullable', 'date', 'after:enrollment_date'],

@@ -17,6 +17,10 @@ class StudentIdController extends Controller
      */
     public function show(Request $request, ?User $student = null)
     {
+        if ($request->routeIs('hive.students.id-card') && $student === null) {
+            abort(404);
+        }
+
         $target = $this->resolveTarget($request, $student);
         $viewingOther = $target->id !== $request->user()->id;
 
@@ -34,6 +38,10 @@ class StudentIdController extends Controller
      */
     public function download(Request $request, ?User $student = null)
     {
+        if ($request->routeIs('hive.students.id-card.download') && $student === null) {
+            abort(404);
+        }
+
         $target = $this->resolveTarget($request, $student);
         $card = $this->pdfCardData($target);
 
@@ -53,7 +61,7 @@ class StudentIdController extends Controller
         // back to a default serif font. It must be registered directly
         // with dompdf's FontMetrics before the PDF is rendered.
         $pdf->getDomPDF()->getFontMetrics()->registerFont(
-            ['family' => 'Oswald', 'style' => 'normal', 'weight' => 'bold'],
+            ['family' => 'Oswald', 'style' => 'normal', 'weight' => '900'],
             public_path('fonts/Oswald-Bold.ttf')
         );
 
