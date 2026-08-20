@@ -122,7 +122,7 @@
                 </div>
                 <div>
                   <h3 class="font-semibold text-gray-900 dark:text-white">Call Us</h3>
-                  <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">+266 5888 1234</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">+266 2231 7317</p>
                 </div>
               </div>
             </div>

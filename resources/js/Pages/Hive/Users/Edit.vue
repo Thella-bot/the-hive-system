@@ -34,18 +34,38 @@
                 <p v-if="form.errors.name" class="text-red-500 text-xs mt-1">{{ form.errors.name }}</p>
               </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-            <div v-if="isAdmin" class="w-full">
-              <input v-model="form.email" type="email"
-                class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
-                :class="{ 'border-red-400': form.errors.email }" />
-              <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
-            </div>
-            <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
-              {{ form.email }}
-            </div>
-          </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <div v-if="isAdmin" class="w-full">
+                  <input v-model="form.email" type="email"
+                    class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
+                    :class="{ 'border-red-400': form.errors.email }" />
+                  <p v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</p>
+                </div>
+                <div v-else class="text-sm text-gray-900 bg-gray-50 rounded-lg px-3.5 py-2.5">
+                  {{ form.email }}
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Gender</label>
+                <select v-model="form.gender"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option :value="null">— None —</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">National ID Number</label>
+                <input v-model="form.national_id_number" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition"
+                  :class="{ 'border-red-400': form.errors.national_id_number }" />
+                <p v-if="form.errors.national_id_number" class="text-red-500 text-xs mt-1">{{ form.errors.national_id_number }}</p>
+              </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Roles</label>
@@ -314,6 +334,8 @@ const form = useForm({
   student_number: props.managedUser.student_number ?? p?.student_number ?? '',
   programme_id: props.managedUser.programme_id ?? null,
   approved_at: props.managedUser.approved_at ?? null,
+  gender: props.managedUser.gender ?? null,
+  national_id_number: props.managedUser.national_id_number ?? '',
   // Staff
   employee_number: p?.employee_number ?? '', department_id: p?.department_id ?? null,
   designation: p?.designation ?? '', specialization: p?.specialization ?? '',

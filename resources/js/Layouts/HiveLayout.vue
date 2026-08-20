@@ -169,7 +169,7 @@
                 </span>
               </Link>
               <Link
-                :href="route('hive.profile.edit')"
+                :href="route('hive.profile.show')"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 title="Profile"
               >

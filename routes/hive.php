@@ -91,7 +91,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         require __DIR__ . '/hive/registrar.php';
 
         // Profile
-        Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+        Route::get('profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::post('profile', [ProfileController::class, 'update'])->name('profile.update');
 
         // Announcements

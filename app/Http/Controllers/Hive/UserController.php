@@ -69,12 +69,14 @@ class UserController extends Controller
         $data = $request->validated();
 
         $user = User::create([
-            'name'          => $data['name'],
-            'email'         => $data['email'],
-            'password'      => Hash::make($data['password']),
-            'programme_id'  => $data['programme_id'] ?? null,
-            'student_number'=> $data['student_number'] ?? null,
-            'approved_at'   => $data['approved_at'] ?? null,
+            'name'               => $data['name'],
+            'email'              => $data['email'],
+            'password'           => Hash::make($data['password']),
+            'programme_id'       => $data['programme_id'] ?? null,
+            'student_number'     => $data['student_number'] ?? null,
+            'approved_at'        => $data['approved_at'] ?? null,
+            'gender'             => $data['gender'] ?? null,
+            'national_id_number' => $data['national_id_number'] ?? null,
         ]);
 
         $user->syncRoles($data['roles']);
@@ -168,11 +170,13 @@ class UserController extends Controller
         $data = $request->validated();
 
         $userData = [
-            'name'          => $data['name'],
-            'email'         => $data['email'],
-            'programme_id'  => $data['programme_id'] ?? null,
-            'student_number'=> $data['student_number'] ?? null,
-            'approved_at'   => $data['approved_at'] ?? null,
+            'name'               => $data['name'],
+            'email'              => $data['email'],
+            'programme_id'       => $data['programme_id'] ?? null,
+            'student_number'     => $data['student_number'] ?? null,
+            'approved_at'        => $data['approved_at'] ?? null,
+            'gender'             => $data['gender'] ?? null,
+            'national_id_number' => $data['national_id_number'] ?? null,
         ];
 
         if (!empty($data['password'])) {

@@ -6,6 +6,7 @@ namespace App\Services\Dashboard;
 use App\Contracts\DashboardData;
 use App\Models\Announcement;
 use App\Models\Bookmark;
+use App\Models\Enrollment;
 use App\Models\Event;
 use App\Models\Gradable;
 use App\Models\Invoice;
@@ -30,7 +31,23 @@ class StudentDashboardData implements DashboardData
     {
         $moduleIds = DB::table('module_user')->where('user_id', $user->id)->pluck('module_id')->toArray();
 
-        $moduleProgress = $this->buildModuleProgress($user, $moduleIds);
+        $currentYear = now()->format('Y');
+        $currentSemester = now()->month <= 6 ? '1' : '2';
+
+        $currentModuleIds = Enrollment::where('user_id', $user->id)
+            ->where(function ($q) use ($currentYear) {
+                $q->where('academic_year', $currentYear)
+                  ->orWhere('academic_year', (now()->year - 1) . '/' . $currentYear);
+            })
+            ->where('semester', $currentSemester)
+            ->pluck('module_id')
+            ->toArray();
+
+        if (empty($currentModuleIds)) {
+            $currentModuleIds = $moduleIds;
+        }
+
+        $moduleProgress = $this->buildModuleProgress($user, $currentModuleIds);
 
         $invoiceTotals = $this->getInvoiceTotals($user);
 
@@ -40,7 +57,7 @@ class StudentDashboardData implements DashboardData
                 : null,
 
             // Student Stats
-            'totalModules' => count($moduleIds),
+            'totalModules' => count($currentModuleIds),
             'totalSubmissions' => Submission::where('student_id', $user->id)->count(),
             'pendingSubmissions' => Submission::where('student_id', $user->id)
                 ->whereNull('submitted_at')
@@ -145,13 +162,13 @@ class StudentDashboardData implements DashboardData
         return DB::table('module_user')
             ->where('user_id', $user->id)
             ->join('modules', 'module_user.module_id', '=', 'modules.id')
-            ->whereIn('module_user.module_id', $moduleIds)
+            ->whereIn('module_user.module_id', $currentModuleIds)
             ->select('modules.id', 'modules.name', 'modules.code')
             ->get()
             ->map(fn($m) => [
                 'id' => $m->id,
                 'name' => $m->code ? "{$m->code} — {$m->name}" : $m->name,
-                'percentage' => 0, // placeholder; real percentage needs module-level grade calc
+                'percentage' => 0,
             ])
             ->toArray();
     }

@@ -5,7 +5,7 @@ return [
     'abbreviation' => env('INSTITUTION_ABBREVIATION', 'HBCI'),
     'registrar_office' => env('REGISTRAR_OFFICE', 'Registrar'),
     'address' => env('INSTITUTION_ADDRESS', 'Maseru, Lesotho'),
-    'phone' => env('INSTITUTION_PHONE', '+266 2231 2345'),
+    'phone' => env('INSTITUTION_PHONE', '+266 2231 7317'),
     'email' => env('INSTITUTION_EMAIL', 'info@hbci.ac.ls'),
     'finance_office' => env('FINANCE_OFFICE', 'Finance'),
     'hr_office' => env('HR_OFFICE', 'Human Resources'),

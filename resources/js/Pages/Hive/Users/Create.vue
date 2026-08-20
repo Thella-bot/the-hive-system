@@ -45,6 +45,24 @@
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
               </div>
 
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Gender</label>
+                <select v-model="form.gender"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
+                  <option :value="null">— None —</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">National ID Number</label>
+                <input v-model="form.national_id_number" type="text"
+                  class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition" />
+              </div>
+
               <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
                 <textarea v-model="form.address" rows="2"
@@ -298,7 +316,7 @@ const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label:
 
 const form = useForm({
   name: '', email: '', password: '', password_confirmation: '', roles: [],
-  first_name: '', last_name: '', date_of_birth: '', address: '',
+  first_name: '', last_name: '', date_of_birth: '', gender: null, national_id_number: '', address: '',
   // Staff
   employee_number: '', department_id: null, designation: '', specialization: '', phone: '', hire_date: '',
   annual_leave_days: '', leave_balance: '', bio: '',

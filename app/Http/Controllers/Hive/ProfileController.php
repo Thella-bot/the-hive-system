@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\UpdateOwnProfileRequest;
 use App\Models\Cohort;
 use App\Models\Department;
 use Illuminate\Http\Request;
@@ -11,6 +11,21 @@ use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    public function show(Request $request)
+    {
+        $user = $request->user()->load([
+            'profile.department',
+            'profile.cohort.department',
+            'roles',
+            'programme',
+        ]);
+
+        return Inertia::render('Hive/Profile/Show', [
+            'managedUser' => $user,
+            'programme'   => $user->programme,
+        ]);
+    }
+
     public function edit(Request $request)
     {
         $user = $request->user()->load('profile');
@@ -23,7 +38,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(UpdateProfileRequest $request)
+    public function update(UpdateOwnProfileRequest $request)
     {
         $user = $request->user();
         $profile = $user->profile()->firstOrCreate();

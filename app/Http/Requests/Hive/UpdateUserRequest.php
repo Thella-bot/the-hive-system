@@ -25,6 +25,8 @@ class UpdateUserRequest extends FormRequest
             'roles'    => 'required|array|min:1',
             'roles.*'  => 'exists:roles,name',
             'student_number' => ['nullable', 'string', Rule::unique('profiles', 'student_number')->ignore($user->profile?->id)],
+            'gender'         => 'nullable|string|max:20',
+            'national_id_number' => ['nullable', 'string', 'max:50', Rule::unique('users', 'national_id_number')->ignore($user->id)],
             'programme_id'   => 'nullable|exists:programmes,id',
             'approved_at'    => 'nullable|date',
 
