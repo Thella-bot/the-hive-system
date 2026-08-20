@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateOwnProfileRequest;
 use App\Models\Cohort;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
@@ -32,9 +33,10 @@ class ProfileController extends Controller
         $this->authorize('view', $user->profile);
 
         return Inertia::render('Hive/Profile/Edit', [
-            'profile'     => $user->profile,
-            'departments' => Department::active()->select('id', 'name')->get(),
-            'cohorts'     => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
+            'user'                 => $user,
+            'profile'              => $user->profile,
+            'departments'          => Department::active()->select('id', 'name')->get(),
+            'cohorts'              => Cohort::active()->with('department:id,name')->select('id', 'name', 'department_id')->get(),
         ]);
     }
 
@@ -44,7 +46,32 @@ class ProfileController extends Controller
         $profile = $user->profile()->firstOrCreate();
         $this->authorize('update', $profile);
 
-        $profile->update($request->validated());
+        $data = $request->validated();
+
+        $userFields = [];
+        if (array_key_exists('gender', $data)) {
+            $userFields['gender'] = $data['gender'];
+        }
+        if (array_key_exists('national_id_number', $data)) {
+            $userFields['national_id_number'] = $data['national_id_number'];
+        }
+
+        if ($userFields) {
+            $user->update($userFields);
+        }
+
+        $profileFields = $data;
+        unset($profileFields['gender'], $profileFields['national_id_number'], $profileFields['profile_picture']);
+
+        if ($request->hasFile('profile_picture')) {
+            if ($profile->profile_picture_path) {
+                Storage::disk('public')->delete($profile->profile_picture_path);
+            }
+            $profileFields['profile_picture_path'] = $request->file('profile_picture')->store('profile-pictures', 'public');
+        }
+
+        $profile->update($profileFields);
+
         return back()->with('success', 'Profile updated.');
     }
 }

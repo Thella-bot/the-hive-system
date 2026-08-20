@@ -94,6 +94,7 @@ class RegistrationController extends Controller
             'payment_proof' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // max 5MB
             // Required profile info
             'date_of_birth' => 'required|date',
+            'phone' => 'nullable|string|max:20',
             'emergency_contact_name' => 'required|string|max:255',
             'emergency_contact_phone' => 'required|string|max:20',
             'emergency_contact_relationship' => 'required|string|max:100',
@@ -109,6 +110,7 @@ class RegistrationController extends Controller
             ['profileable_id' => $user->id, 'profileable_type' => $user->getMorphClass()],
             [
                 'date_of_birth' => $data['date_of_birth'],
+                'phone' => $data['phone'] ?? null,
                 'emergency_contact_name' => $data['emergency_contact_name'],
                 'emergency_contact_phone' => $data['emergency_contact_phone'],
                 'emergency_contact_relationship' => $data['emergency_contact_relationship'],
@@ -237,7 +239,7 @@ class RegistrationController extends Controller
                 'full_name' => $fullName,
                 'student_number' => $student->student_number ?? 'N/A',
                 'dob' => $dob,
-                'id_number' => null,
+                'id_number' => $student->national_id_number ?? null,
             ],
             'programme' => $programme,
             'year_of_study' => 1,

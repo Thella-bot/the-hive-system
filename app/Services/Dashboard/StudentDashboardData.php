@@ -35,10 +35,7 @@ class StudentDashboardData implements DashboardData
         $currentSemester = now()->month <= 6 ? '1' : '2';
 
         $currentModuleIds = Enrollment::where('user_id', $user->id)
-            ->where(function ($q) use ($currentYear) {
-                $q->where('academic_year', $currentYear)
-                  ->orWhere('academic_year', (now()->year - 1) . '/' . $currentYear);
-            })
+            ->where('academic_year', $currentYear)
             ->where('semester', $currentSemester)
             ->pluck('module_id')
             ->toArray();
@@ -159,6 +156,29 @@ class StudentDashboardData implements DashboardData
             return [];
         }
 
+        $currentYear = now()->format('Y');
+        $currentSemester = now()->month <= 6 ? '1' : '2';
+
+        $currentModuleIds = Enrollment::where('user_id', $user->id)
+            ->where('academic_year', $currentYear)
+            ->where('semester', $currentSemester)
+            ->pluck('module_id')
+            ->toArray();
+
+        if (empty($currentModuleIds)) {
+            $upcomingModuleIds = Gradable::whereIn('module_id', $moduleIds)
+                ->where('due_date', '>', now())
+                ->whereNotNull('due_date')
+                ->orderBy('due_date')
+                ->take(10)
+                ->pluck('module_id')
+                ->toArray();
+
+            $currentModuleIds = array_slice(array_unique(array_merge($upcomingModuleIds, $moduleIds)), 0, 10);
+        } else {
+            $currentModuleIds = array_slice($currentModuleIds, 0, 10);
+        }
+
         return DB::table('module_user')
             ->where('user_id', $user->id)
             ->join('modules', 'module_user.module_id', '=', 'modules.id')
@@ -167,7 +187,8 @@ class StudentDashboardData implements DashboardData
             ->get()
             ->map(fn($m) => [
                 'id' => $m->id,
-                'name' => $m->code ? "{$m->code} — {$m->name}" : $m->name,
+                'name' => $m->name,
+                'code' => $m->code,
                 'percentage' => 0,
             ])
             ->toArray();

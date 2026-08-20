@@ -55,7 +55,7 @@
         .title {
             position: absolute;
             top: 6pt;
-            right: 6pt;
+            right: 13pt;
             background: #FFBD59;
             color: #ffffff;
             font-weight: 900;

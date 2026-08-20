@@ -150,11 +150,23 @@ class StudentController extends Controller
         $programme = $enrollment->module?->programme ?? $student->programme;
         $profile = $student->profile;
 
+        $fullName = $student->name;
+        if ($profile && $profile->first_name && $profile->last_name) {
+            $fullName = $profile->first_name . ' ' . $profile->last_name;
+        }
+
+        $dob = $profile?->date_of_birth ? \Carbon\Carbon::parse($profile->date_of_birth) : null;
+
         $data = [
             'office' => config('institution.registrar_office'),
             'ref' => config('institution.abbreviation') . '/REG/' . date('Y') . '/' . $student->id,
             'date' => now(),
-            'student' => $student,
+            'student' => (object) [
+                'full_name' => $fullName,
+                'student_number' => $student->student_number ?? ($profile?->student_number ?? 'N/A'),
+                'dob' => $dob,
+                'id_number' => $student->national_id_number ?? null,
+            ],
             'programme' => $programme ?? (object) ['name' => 'Culinary Arts', 'nqf_level' => 'X', 'duration' => '3 Years'],
             'year_of_study' => 1,
             'total_years' => $programme->duration ?? 3,
@@ -164,6 +176,7 @@ class StudentController extends Controller
             'enrolment_date' => $profile->enrollment_date ?? $student->created_at,
             'expected_completion' => now()->addYears($programme->duration ?? 3),
             'registrar_name' => $this->signatory->get('registrar'),
+            'modules' => $student->modules()->get(),
         ];
 
         $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);

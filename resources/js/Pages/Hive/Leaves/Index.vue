@@ -71,8 +71,8 @@
       <div v-if="leaves.total > leaves.per_page" class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center text-sm text-gray-600 dark:text-gray-400">
         <span>Showing {{ leaves.from }} to {{ leaves.to }} of {{ leaves.total }}</span>
         <div class="flex gap-2">
-          <Link v-if="leaves.prev_page_url" :href="leaves.prev_page_url" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700">&laquo; Prev</Link>
-          <Link v-if="leaves.next_page_url" :href="leaves.next_page_url" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700">Next &raquo;</Link>
+          <Link v-if="leaves.prev_page_url" :href="leaves.prev_page_url" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700">« Prev</Link>
+          <Link v-if="leaves.next_page_url" :href="leaves.next_page_url" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700">Next »</Link>
         </div>
       </div>
     </div>

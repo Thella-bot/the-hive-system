@@ -11,7 +11,7 @@
 
       <!-- Profile header card -->
       <div class="bg-white rounded-xl border border-gray-200 p-6 flex items-center gap-6">
-        <img :src="managedUser.profile_photo_url" :alt="managedUser.name"
+        <img :src="managedUser.profile?.profile_picture_path ? '/storage/' + managedUser.profile.profile_picture_path : managedUser.profile_photo_url" :alt="managedUser.name"
           class="w-24 h-24 rounded-full object-cover flex-shrink-0 ring-4 ring-amber-100" />
         <div class="flex-1 min-w-0">
           <h2 class="text-2xl font-bold text-gray-900">{{ managedUser.name }}</h2>

@@ -54,6 +54,8 @@ class TranscriptController extends Controller
             if ($studentModuleIds->intersect($instructorModuleIds)->isEmpty()) abort(403);
         }
 
+        $student->load('programme');
+
         $modules = $student->modules()->with(['gradables.submissions' => function($q) use ($student) {
             $q->where('student_id', $student->id);
         }])->get();

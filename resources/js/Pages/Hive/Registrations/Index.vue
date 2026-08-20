@@ -135,6 +135,14 @@
                       :class="form.errors.date_of_birth ? 'border-red-400' : ''" />
                     <div v-if="form.errors.date_of_birth" class="text-red-600 dark:text-red-400 text-xs mt-1">{{ form.errors.date_of_birth }}</div>
                   </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Phone Number</label>
+                    <input v-model="form.phone" type="tel"
+                      placeholder="+266..."
+                      class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2.5 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition"
+                      :class="form.errors.phone ? 'border-red-400' : ''" />
+                    <div v-if="form.errors.phone" class="text-red-600 dark:text-red-400 text-xs mt-1">{{ form.errors.phone }}</div>
+                  </div>
                 </div>
               </div>
 
@@ -239,6 +247,7 @@ const props = defineProps({
 
 const form = useForm({
   date_of_birth: '',
+  phone: '',
   emergency_contact_name: '',
   emergency_contact_phone: '',
   emergency_contact_relationship: '',
@@ -269,6 +278,7 @@ const submit = async () => {
 
   const data = new FormData();
   data.append('date_of_birth', form.date_of_birth);
+  data.append('phone', form.phone || '');
   data.append('emergency_contact_name', form.emergency_contact_name);
   data.append('emergency_contact_phone', form.emergency_contact_phone);
   data.append('emergency_contact_relationship', form.emergency_contact_relationship);

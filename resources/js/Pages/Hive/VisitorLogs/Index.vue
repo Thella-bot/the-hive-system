@@ -94,11 +94,11 @@
         <div class="flex gap-2">
           <Link v-if="logs.prev_page_url" :href="logs.prev_page_url"
             class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium transition-colors">
-            &laquo; Prev
+            « Prev
           </Link>
           <Link v-if="logs.next_page_url" :href="logs.next_page_url"
             class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium transition-colors">
-            Next &raquo;
+            Next »
           </Link>
         </div>
       </div>

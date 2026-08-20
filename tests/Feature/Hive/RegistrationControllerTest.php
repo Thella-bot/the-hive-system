@@ -49,6 +49,7 @@ class RegistrationControllerTest extends HiveTestCase
 
         $response = $this->post(route('hive.registration.store'), [
             'date_of_birth' => '2000-01-01',
+            'phone' => '+266 1234 5678',
             'emergency_contact_name' => 'Jane Doe',
             'emergency_contact_phone' => '+266 1234 5678',
             'emergency_contact_relationship' => 'Parent',

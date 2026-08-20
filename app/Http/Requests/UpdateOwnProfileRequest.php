@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOwnProfileRequest extends FormRequest
 {
@@ -26,6 +27,9 @@ class UpdateOwnProfileRequest extends FormRequest
             'dietary_restrictions'       => 'nullable|string',
             'bio'                        => 'nullable|string',
             'specialization'             => 'nullable|string|max:255',
+            'gender'                     => 'nullable|string|max:20',
+            'national_id_number'         => ['nullable', 'string', 'max:50', Rule::unique('users', 'national_id_number')->ignore($this->user()->id)],
+            'profile_picture'            => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 }
