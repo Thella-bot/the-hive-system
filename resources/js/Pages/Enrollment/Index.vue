@@ -8,6 +8,7 @@ const props = defineProps({
     modules: Array,
     enrolledModuleIds: Array,
     semesterContext: Object,
+    isRepeatingYear: Boolean,
 });
 
 const form = useForm({
@@ -38,7 +39,10 @@ const leave = (moduleId) => {
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">Available Modules</h3>
-                <p v-if="semesterContext?.year_level && semesterContext?.semester" class="mt-1 text-sm text-gray-600">
+                <p v-if="isRepeatingYear" class="mt-1 text-sm text-amber-600">
+                    You are viewing modules from your current year and the previous year. Please ensure you enroll in the correct modules for your repeat year.
+                </p>
+                <p v-else-if="semesterContext?.year_level && semesterContext?.semester" class="mt-1 text-sm text-gray-600">
                     Showing modules for Year {{ semesterContext.year_level }}, Semester {{ semesterContext.semester }}.
                 </p>
                 <p v-else class="mt-1 text-sm text-gray-600">

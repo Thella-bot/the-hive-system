@@ -34,11 +34,16 @@ class EnrollmentController extends Controller
         if ($isAdmin) {
             $modules = Module::with('department')->orderBy('name')->get();
         } else {
+            $yearLevels = [$yearLevel];
+            if ($yearLevel > 1) {
+                $yearLevels[] = $yearLevel - 1;
+            }
+
             $modules = Module::with('department')
-                ->whereHas('programmes', function ($q) use ($user, $yearLevel, $semester) {
-                    if ($user->programme_id && $yearLevel) {
+                ->whereHas('programmes', function ($q) use ($user, $yearLevels, $semester) {
+                    if ($user->programme_id) {
                         $q->where('programme_module.programme_id', $user->programme_id)
-                          ->where('programme_module.year_level', $yearLevel)
+                          ->whereIn('programme_module.year_level', $yearLevels)
                           ->where('programme_module.semester', $semester);
                     }
                 })
@@ -50,6 +55,7 @@ class EnrollmentController extends Controller
             'modules' => $modules,
             'enrolledModuleIds' => $enrolledModuleIds,
             'semesterContext' => $context,
+            'isRepeatingYear' => !$isAdmin && $yearLevel > 1 && $modules->isNotEmpty(),
         ]);
     }
 
@@ -71,9 +77,14 @@ class EnrollmentController extends Controller
             $module = Module::findOrFail($data['module_id']);
 
             if ($user->programme_id && $context['year_level']) {
+                $yearLevels = [$context['year_level']];
+                if ($context['year_level'] > 1) {
+                    $yearLevels[] = $context['year_level'] - 1;
+                }
+
                 $isValidModule = $module->programmes()
                     ->wherePivot('programme_id', $user->programme_id)
-                    ->wherePivot('year_level', $context['year_level'])
+                    ->whereIn('programme_module.year_level', $yearLevels)
                     ->wherePivot('semester', $context['semester'])
                     ->exists();
 
