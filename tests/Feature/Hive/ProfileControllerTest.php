@@ -59,6 +59,29 @@ class ProfileControllerTest extends HiveTestCase
         $this->assertSame('active', $profile->status);
     }
 
+    public function test_user_can_upload_profile_picture(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+        $profile = $user->profile()->create([
+            'first_name' => 'Test',
+            'last_name' => 'User',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.profile.update'), [
+            'first_name' => 'Test',
+            'last_name' => 'User',
+            'profile_picture' => \Illuminate\Http\UploadedFile::fake()->image('profile.jpg'),
+        ]);
+
+        $response->assertRedirect();
+        $profile->refresh();
+        $this->assertNotNull($profile->profile_picture_path);
+        $this->assertStringContainsString('profile-pictures', $profile->profile_picture_path);
+    }
+
     public function test_user_can_view_own_profile_edit_page(): void
     {
         $user = User::factory()->create();

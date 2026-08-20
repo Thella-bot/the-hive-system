@@ -7,6 +7,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 const props = defineProps({
     modules: Array,
     enrolledModuleIds: Array,
+    semesterContext: Object,
 });
 
 const form = useForm({
@@ -37,7 +38,10 @@ const leave = (moduleId) => {
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">Available Modules</h3>
-                <p class="mt-1 text-sm text-gray-600">
+                <p v-if="semesterContext?.year_level && semesterContext?.semester" class="mt-1 text-sm text-gray-600">
+                    Showing modules for Year {{ semesterContext.year_level }}, Semester {{ semesterContext.semester }}.
+                </p>
+                <p v-else class="mt-1 text-sm text-gray-600">
                     Below are the modules available. You can enroll or leave a module at any time.
                 </p>
             </div>
@@ -62,7 +66,12 @@ const leave = (moduleId) => {
                 </li>
             </ul>
             <div v-else class="text-center py-12">
-                <p class="text-gray-500">There are no modules available at this time.</p>
+                <p v-if="semesterContext?.year_level" class="text-gray-500">
+                    There are no modules available for your current semester.
+                </p>
+                <p v-else class="text-gray-500">
+                    There are no modules available at this time.
+                </p>
             </div>
         </div>
     </HiveLayout>

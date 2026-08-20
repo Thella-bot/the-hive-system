@@ -2,6 +2,12 @@
 
 namespace Tests\Feature\Hive;
 
+use App\Models\AcademicYear;
+use App\Models\Cohort;
+use App\Models\Department;
+use App\Models\Enrollment;
+use App\Models\Module;
+use App\Models\Programme;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -39,7 +45,7 @@ class EnrollmentControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $module = \App\Models\Module::factory()->create();
+        $module = Module::factory()->create();
 
         $response = $this->post(route('hive.enrollment.store'), [
             'module_id' => $module->id,
@@ -57,8 +63,8 @@ class EnrollmentControllerTest extends HiveTestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $module = \App\Models\Module::factory()->create();
-        \App\Models\Enrollment::factory()->create([
+        $module = Module::factory()->create();
+        Enrollment::factory()->create([
             'user_id' => $user->id,
             'module_id' => $module->id,
         ]);
@@ -71,6 +77,144 @@ class EnrollmentControllerTest extends HiveTestCase
         $this->assertDatabaseMissing('enrollments', [
             'user_id' => $user->id,
             'module_id' => $module->id,
+        ]);
+    }
+
+    public function test_student_sees_only_current_semester_modules(): void
+    {
+        $department = Department::factory()->create();
+        $currentYear = AcademicYear::create([
+            'name' => '2026',
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-12-31',
+            'is_current' => true,
+        ]);
+        $cohort = Cohort::create([
+            'name' => 'January 2026',
+            'slug' => 'january-2026',
+            'department_id' => $department->id,
+            'academic_year_id' => $currentYear->id,
+            'max_students' => 20,
+            'is_active' => true,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-03-31',
+        ]);
+        $programme = Programme::factory()->create(['department_id' => $department->id]);
+
+        $semester1Module = Module::factory()->create(['programme_id' => $programme->id, 'department_id' => $department->id]);
+        $semester2Module = Module::factory()->create(['programme_id' => $programme->id, 'department_id' => $department->id]);
+        $otherYearModule = Module::factory()->create(['programme_id' => $programme->id, 'department_id' => $department->id]);
+
+        $programme->modules()->attach($semester1Module->id, ['year_level' => 1, 'semester' => '1', 'order_column' => 1]);
+        $programme->modules()->attach($semester2Module->id, ['year_level' => 1, 'semester' => '2', 'order_column' => 2]);
+        $programme->modules()->attach($otherYearModule->id, ['year_level' => 2, 'semester' => '2', 'order_column' => 3]);
+
+        $user = User::factory()->create(['programme_id' => $programme->id]);
+        $user->assignRole('student');
+        $user->profile()->create([
+            'cohort_id' => $cohort->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.enrollment.index'));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->has('modules')
+            ->where('modules', fn ($modules) => collect($modules)->contains('id', $semester2Module->id))
+            ->where('modules', fn ($modules) => ! collect($modules)->contains('id', $semester1Module->id))
+            ->where('modules', fn ($modules) => ! collect($modules)->contains('id', $otherYearModule->id))
+        );
+    }
+
+    public function test_student_cannot_enroll_in_out_of_semester_module(): void
+    {
+        $department = Department::factory()->create();
+        $currentYear = AcademicYear::create([
+            'name' => '2026',
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-12-31',
+            'is_current' => true,
+        ]);
+        $cohort = Cohort::create([
+            'name' => 'January 2026',
+            'slug' => 'january-2026',
+            'department_id' => $department->id,
+            'academic_year_id' => $currentYear->id,
+            'max_students' => 20,
+            'is_active' => true,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-03-31',
+        ]);
+        $programme = Programme::factory()->create(['department_id' => $department->id]);
+
+        $semester1Module = Module::factory()->create(['programme_id' => $programme->id, 'department_id' => $department->id]);
+        $semester2Module = Module::factory()->create(['programme_id' => $programme->id, 'department_id' => $department->id]);
+
+        $programme->modules()->attach($semester1Module->id, ['year_level' => 1, 'semester' => '1', 'order_column' => 1]);
+        $programme->modules()->attach($semester2Module->id, ['year_level' => 1, 'semester' => '2', 'order_column' => 2]);
+
+        $user = User::factory()->create(['programme_id' => $programme->id]);
+        $user->assignRole('student');
+        $user->profile()->create([
+            'cohort_id' => $cohort->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.enrollment.store'), [
+            'module_id' => $semester1Module->id,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('enrollments', [
+            'user_id' => $user->id,
+            'module_id' => $semester1Module->id,
+        ]);
+    }
+
+    public function test_student_can_enroll_in_current_semester_module(): void
+    {
+        $department = Department::factory()->create();
+        $currentYear = AcademicYear::create([
+            'name' => '2026',
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-12-31',
+            'is_current' => true,
+        ]);
+        $cohort = Cohort::create([
+            'name' => 'January 2026',
+            'slug' => 'january-2026',
+            'department_id' => $department->id,
+            'academic_year_id' => $currentYear->id,
+            'max_students' => 20,
+            'is_active' => true,
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-03-31',
+        ]);
+        $programme = Programme::factory()->create(['department_id' => $department->id]);
+
+        $semester2Module = Module::factory()->create(['programme_id' => $programme->id, 'department_id' => $department->id]);
+
+        $programme->modules()->attach($semester2Module->id, ['year_level' => 1, 'semester' => '2', 'order_column' => 1]);
+
+        $user = User::factory()->create(['programme_id' => $programme->id]);
+        $user->assignRole('student');
+        $user->profile()->create([
+            'cohort_id' => $cohort->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.enrollment.store'), [
+            'module_id' => $semester2Module->id,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('enrollments', [
+            'user_id' => $user->id,
+            'module_id' => $semester2Module->id,
         ]);
     }
 }

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\AcademicYear;
+use App\Models\Cohort;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -252,6 +254,35 @@ class User extends Authenticatable
                     ->orWhereNull('registration_status');
             })
             ->exists();
+    }
+
+    public function getCurrentSemesterContext(): array
+    {
+        $profile = $this->profile;
+        if (!$profile || !$profile->cohort_id) {
+            return ['year_level' => null, 'semester' => null];
+        }
+
+        $cohort = $profile->cohort;
+        if (!$cohort || !$cohort->academic_year_id) {
+            return ['year_level' => null, 'semester' => null];
+        }
+
+        $cohortAcademicYear = $cohort->academicYear;
+        $currentAcademicYear = AcademicYear::current()->first();
+
+        if (!$cohortAcademicYear || !$currentAcademicYear) {
+            return ['year_level' => null, 'semester' => null];
+        }
+
+        $yearLevel = (int) $currentAcademicYear->name - (int) $cohortAcademicYear->name + 1;
+        $semester = now()->month <= 6 ? '1' : '2';
+
+        if ($yearLevel < 1) {
+            $yearLevel = 1;
+        }
+
+        return ['year_level' => $yearLevel, 'semester' => $semester];
     }
 
     /**
