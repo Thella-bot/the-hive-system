@@ -2,13 +2,45 @@
 
 namespace Tests\Feature\Hive;
 
+use App\Models\Enrollment;
 use App\Models\Gradable;
 use App\Models\Module;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\Hive\Traits\CreatesAssessmentFixture;
 
 class GradableControllerTest extends HiveTestCase
 {
+    use CreatesAssessmentFixture;
+
+    public function test_assessment_fixture_is_valid(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+
+        $this->assertTrue($fixture['instructor']->hasRole('chef-instructor'), 'Instructor must have chef-instructor role');
+        $this->assertTrue($fixture['student1']->hasRole('student'), 'Student 1 must have student role');
+        $this->assertTrue($fixture['student2']->hasRole('student'), 'Student 2 must have student role');
+
+        $this->assertTrue(
+            $fixture['module']->instructors()->where('users.id', $fixture['instructor']->id)->exists(),
+            'Module must have instructor attached'
+        );
+        $this->assertTrue(
+            Enrollment::where('user_id', $fixture['student1']->id)
+                ->where('module_id', $fixture['module']->id)
+                ->exists(),
+            'Student 1 must be enrolled in module'
+        );
+        $this->assertFalse(
+            Enrollment::where('user_id', $fixture['student2']->id)->exists(),
+            'Student 2 must not be enrolled in any module'
+        );
+
+        $this->assertSame('assignment', $fixture['gradable']->type->value);
+        $this->assertSame($fixture['module']->id, $fixture['gradable']->module_id);
+        $this->assertSame($fixture['instructor']->id, $fixture['gradable']->instructor_id);
+        $this->assertTrue($fixture['gradable']->due_date->gt(now()));
+    }
     public function test_gradable_index_requires_registered_role(): void
     {
         $user = User::factory()->create();

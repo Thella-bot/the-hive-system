@@ -328,4 +328,75 @@ class EnrollmentControllerTest extends HiveTestCase
             'module_id' => $year1Module->id,
         ]);
     }
+
+    public function test_enrolling_twice_is_idempotent(): void
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $module = Module::factory()->create();
+
+        $this->actingAs($user);
+
+        $first = $this->post(route('hive.enrollment.store'), [
+            'module_id' => $module->id,
+        ]);
+
+        $second = $this->post(route('hive.enrollment.store'), [
+            'module_id' => $module->id,
+        ]);
+
+        $first->assertRedirect();
+        $second->assertRedirect();
+
+        $this->assertDatabaseCount('enrollments', 1);
+        $this->assertDatabaseHas('enrollments', [
+            'user_id' => $user->id,
+            'module_id' => $module->id,
+        ]);
+    }
+
+    public function test_dropping_unenrolled_module_succeeds_silently(): void
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $module = Module::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->delete(route('hive.enrollment.destroy', $module));
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('enrollments', [
+            'user_id' => $user->id,
+            'module_id' => $module->id,
+        ]);
+    }
+
+    public function test_module_capacity_is_not_enforced(): void
+    {
+        $this->withoutMiddleware();
+
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $module = Module::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.enrollment.store'), [
+            'module_id' => $module->id,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('enrollments', [
+            'user_id' => $user->id,
+            'module_id' => $module->id,
+        ]);
+    }
 }

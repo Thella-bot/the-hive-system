@@ -5,9 +5,12 @@ namespace Tests\Feature\Hive;
 use App\Models\Department;
 use App\Models\Programme;
 use App\Models\User;
+use Tests\Feature\Hive\Traits\CreatesAssessmentFixture;
 
 class ModuleControllerTest extends HiveTestCase
 {
+    use CreatesAssessmentFixture;
+
     public function test_module_index_returns_success_for_student(): void
     {
         $user = User::factory()->create(['approved_at' => now()]);
@@ -222,5 +225,32 @@ class ModuleControllerTest extends HiveTestCase
 
         $response->assertRedirect(route('hive.programmes.index'));
         $this->assertDatabaseHas('programmes', ['name' => 'Test Programme']);
+    }
+
+    public function test_student_sees_enrolled_module_in_index(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+
+        $this->actingAs($fixture['student1']);
+
+        $response = $this->get(route('hive.modules.index'));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->has('modules.data', fn ($modules) => collect($modules)
+                ->contains('id', $fixture['module']->id)
+            )
+        );
+    }
+
+    public function test_student_cannot_view_module_show_due_to_role_middleware(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+
+        $this->actingAs($fixture['student1']);
+
+        $response = $this->get(route('hive.modules.show', $fixture['module']));
+
+        $response->assertRedirect();
     }
 }
