@@ -269,10 +269,16 @@ class DocumentController extends Controller
         return back()->with('success', 'Document acknowledged.');
     }
 
-    // View acknowledgement stats (admin only)
+    // View acknowledgement stats (admin/instructor only)
     public function acknowledgements(Document $document)
     {
         $this->authorize('view', $document);
+
+        $user = auth()->user();
+
+        if ($user->hasRole('student')) {
+            abort(403, 'You do not have permission to view acknowledgements.');
+        }
 
         $acknowledgements = $document->acknowledgements()
             ->with('user')

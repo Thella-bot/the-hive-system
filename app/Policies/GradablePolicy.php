@@ -55,7 +55,7 @@ class GradablePolicy extends BasePolicy
         }
 
         // Instructor can update their own gradables
-        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef', 'examination-cell'])
             && $gradable->instructor_id === $user->id;
     }
 
@@ -67,7 +67,7 @@ class GradablePolicy extends BasePolicy
         }
 
         // Instructor can delete their own gradables
-        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef', 'examination-cell'])
             && $gradable->instructor_id === $user->id;
     }
 }

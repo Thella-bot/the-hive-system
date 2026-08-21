@@ -41,6 +41,7 @@ class GradableControllerTest extends HiveTestCase
         $this->assertSame($fixture['instructor']->id, $fixture['gradable']->instructor_id);
         $this->assertTrue($fixture['gradable']->due_date->gt(now()));
     }
+
     public function test_gradable_index_requires_registered_role(): void
     {
         $user = User::factory()->create();
@@ -193,5 +194,47 @@ class GradableControllerTest extends HiveTestCase
 
         $response->assertOk();
         $response->assertInertia(fn ($page) => $page->component('Hive/Gradables/Show'));
+    }
+
+    public function test_student_is_rejected_from_all_staff_gradable_actions(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        $this->actingAs($fixture['student1']);
+
+        $gradable = $fixture['gradable'];
+
+        $staffRoutes = [
+            'hive.gradables.create' => 'GET',
+            'hive.gradables.store' => 'POST',
+            'hive.gradables.update' => 'PUT',
+            'hive.gradables.destroy' => 'DELETE',
+            'hive.gradables.questions.store' => 'POST',
+            'hive.gradables.attachments.store' => 'POST',
+        ];
+
+        foreach ($staffRoutes as $routeName => $method) {
+            $params = in_array($method, ['POST', 'PUT']) ? [
+                'type' => 'quiz',
+                'module_id' => $fixture['module']->id,
+                'title' => 'Test',
+                'description' => 'Test',
+                'due_date' => now()->addDay(),
+                'max_marks' => 100,
+                'weight' => 20,
+            ] : [];
+
+            $response = $this->call($method, route($routeName, $gradable), $params);
+            $this->assertNotEquals(200, $response->status(), "Student should not get 200 from $routeName");
+        }
+    }
+
+    public function test_policy_route_mismatch_it_support(): void
+    {
+        $this->markTestIncomplete('Policy/route mismatch: it-support is in GradablePolicy::create/update/delete but NOT in the route middleware group. See routes/hive/assessments.php:27 vs app/Policies/GradablePolicy.php:39-47, 50-59, 62-72.');
+    }
+
+    public function test_policy_route_mismatch_examination_cell(): void
+    {
+        $this->markTestIncomplete('Policy/route mismatch: examination-cell is in the route middleware group (assessments.php:27) but NOT in GradablePolicy::update/delete (policy lines 50-59, 62-72). It IS in GradablePolicy::create (line 46).');
     }
 }

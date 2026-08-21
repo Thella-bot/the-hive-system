@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Document;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class DocumentFactory extends Factory
@@ -17,7 +18,7 @@ class DocumentFactory extends Factory
             'category' => 'general',
             'visible_to_roles' => null,
             'is_published' => true,
-            'created_by' => null,
+            'created_by' => User::factory(),
         ];
     }
 }

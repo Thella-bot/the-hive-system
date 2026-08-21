@@ -128,9 +128,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->middleware('role:super-admin|it-support|admissions-officer|registrar');
 
         // Documents
+        Route::get('documents/modules', [DocumentController::class, 'moduleSelect'])->name('documents.module-select');
         Route::resource('documents', DocumentController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
             ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
-        Route::get('documents/modules', [DocumentController::class, 'moduleSelect'])->name('documents.module-select');
         Route::post('documents/{document}/versions', [DocumentController::class, 'addVersion'])->name('documents.versions.store');
         Route::get('document-versions/{version}/download', [DocumentController::class, 'download'])->name('documents.version.download');
         Route::post('documents/{document}/acknowledge', [DocumentController::class, 'acknowledge'])->name('documents.acknowledge');

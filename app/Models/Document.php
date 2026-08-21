@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Document extends Model
 {
+    use HasFactory;
     // Audience types: module_students, student_only, staff_only, all_users, everyone
     const AUDIENCE_MODULE_STUDENTS = 'module_students';
     const AUDIENCE_STUDENT_ONLY = 'student_only';

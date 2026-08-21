@@ -7,9 +7,12 @@ use App\Models\Module;
 use App\Models\Programme;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\Hive\Traits\CreatesAssessmentFixture;
 
 class ChatControllerTest extends HiveTestCase
 {
+    use CreatesAssessmentFixture;
+
     public function test_chat_index_returns_success_for_student(): void
     {
         $user = User::factory()->create();
@@ -85,5 +88,15 @@ class ChatControllerTest extends HiveTestCase
         $response = $this->get(route('hive.chat.module', $module));
 
         $response->assertOk();
+    }
+
+    public function test_chat_module_rejects_student_not_enrolled(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        $this->actingAs($fixture['student2']);
+
+        $response = $this->get(route('hive.chat.module', $fixture['module']));
+
+        $response->assertRedirect();
     }
 }
