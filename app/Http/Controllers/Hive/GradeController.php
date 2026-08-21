@@ -28,13 +28,19 @@ class GradeController extends Controller
                 ->get()
                 ->keyBy('gradable_id');
 
-            foreach ($modules as $module) {
-                foreach ($module->gradables as $gradable) {
-                    $gradable->submission = $submissions->get($gradable->id);
-                }
-            }
+            $modulesData = $modules->map(function ($module) use ($submissions) {
+                return [
+                    'id' => $module->id,
+                    'name' => $module->name,
+                    'gradables' => $module->gradables->map(function ($gradable) use ($submissions) {
+                        return array_merge($gradable->toArray(), [
+                            'submission' => $submissions->get($gradable->id)?->toArray(),
+                        ]);
+                    })->toArray(),
+                ];
+            })->toArray();
 
-            return Inertia::render('Hive/Grades/StudentIndex', ['modules' => $modules]);
+            return Inertia::render('Hive/Grades/StudentIndex', ['modules' => $modulesData]);
         } else {
             $isAdmin = $user->isAdmin();
 

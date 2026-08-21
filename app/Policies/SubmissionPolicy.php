@@ -22,7 +22,7 @@ class SubmissionPolicy extends BasePolicy
     public function create(User $user, Gradable $gradable = null)
     {
         if ($user->hasAnyRole(['student', 'chef-instructor', 'pastry-instructor', 'sous-chef'])) {
-            if ($gradable && $gradable->due_date && now()->gt($gradable->due_date)) {
+            if ($gradable && $gradable->due_date && now()->gt($gradable->due_date->addHour())) {
                 return false;
             }
 

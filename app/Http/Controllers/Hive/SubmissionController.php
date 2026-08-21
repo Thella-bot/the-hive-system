@@ -32,6 +32,14 @@ class SubmissionController extends Controller
 
         $request->validate(['file' => $rules]);
 
+        $existingSubmission = Submission::where('gradable_id', $gradable->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if ($existingSubmission && $existingSubmission->file_path) {
+            Storage::delete($existingSubmission->file_path);
+        }
+
         $submission = Submission::updateOrCreate(
             [
                 'gradable_id' => $gradable->id,

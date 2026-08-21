@@ -90,6 +90,17 @@ class EnrollmentController extends Controller
 
                 abort_unless($isValidModule, 403, 'This module is not available for your current semester.');
             }
+
+            $profile = $user->profile;
+            if ($profile && $profile->cohort_id) {
+                $cohort = $profile->cohort;
+                if ($cohort && $cohort->max_students > 0) {
+                    $cohortStudentCount = \App\Models\Profile::where('cohort_id', $cohort->id)->count();
+                    if ($cohortStudentCount >= $cohort->max_students) {
+                        abort(403, 'This cohort has reached its maximum enrollment capacity.');
+                    }
+                }
+            }
         }
 
         Enrollment::firstOrCreate([

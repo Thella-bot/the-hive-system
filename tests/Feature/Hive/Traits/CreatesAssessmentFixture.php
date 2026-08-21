@@ -30,6 +30,8 @@ trait CreatesAssessmentFixture
             'semester' => now()->month <= 6 ? '1' : '2',
         ]);
 
+        $student1->modules()->attach($module->id);
+
         $gradable = Gradable::create([
             'type' => 'assignment',
             'submission_type' => 'file_upload',
