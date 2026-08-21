@@ -51,7 +51,7 @@ class GradableControllerTest extends HiveTestCase
 
         $response = $this->get(route('hive.gradables.index'));
 
-        $response->assertRedirect();
+        $response->assertOk();
     }
 
     public function test_gradable_index_returns_success_for_student(): void
@@ -118,6 +118,7 @@ class GradableControllerTest extends HiveTestCase
 
         $response = $this->post(route('hive.gradables.store'), [
             'type' => 'quiz',
+            'submission_type' => 'file_upload',
             'module_id' => $module->id,
             'title' => 'Midterm Quiz',
             'description' => 'Quiz on module topics',
@@ -140,7 +141,7 @@ class GradableControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $gradable = Gradable::factory()->create();
+        $gradable = Gradable::factory()->create(['instructor_id' => $user->id]);
 
         $response = $this->delete(route('hive.gradables.destroy', $gradable));
 

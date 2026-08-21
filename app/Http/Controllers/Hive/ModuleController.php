@@ -88,6 +88,7 @@ class ModuleController extends Controller
     {
         $this->authorize('create', Module::class);
         $data = $request->validate([
+            'code' => 'required|string|max:255|unique:programmes,code',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'duration' => 'nullable|string|max:255',

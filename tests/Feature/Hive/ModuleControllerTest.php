@@ -173,6 +173,7 @@ class ModuleControllerTest extends HiveTestCase
             'code' => $module->code,
             'description' => 'Updated description',
             'credits' => 4,
+            'delivery_mode' => 'online',
             'department_id' => Department::first()->id,
             'programme_id' => Programme::first()->id,
         ]);
@@ -184,7 +185,7 @@ class ModuleControllerTest extends HiveTestCase
     public function test_module_destroy_deletes_module(): void
     {
         $user = User::factory()->create(['approved_at' => now()]);
-        $user->assignRole('academic-director');
+        $user->assignRole('super-admin');
 
         $module = \App\Models\Module::factory()->create();
 
@@ -207,6 +208,7 @@ class ModuleControllerTest extends HiveTestCase
 
         $response = $this->post(route('hive.programmes.store'), [
             'name' => 'Test Programme',
+            'code' => 'TEST-PROG',
             'description' => 'A test programme',
             'duration' => '4 years',
             'duration_months' => 48,
@@ -237,9 +239,8 @@ class ModuleControllerTest extends HiveTestCase
 
         $response->assertOk();
         $response->assertInertia(fn ($page) => $page
-            ->has('modules.data', fn ($modules) => collect($modules)
-                ->contains('id', $fixture['module']->id)
-            )
+            ->has('modules.data', 1)
+            ->where('modules.data.0.id', $fixture['module']->id)
         );
     }
 

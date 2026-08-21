@@ -74,7 +74,7 @@ class EnrollmentControllerTest extends HiveTestCase
         $response = $this->delete(route('hive.enrollment.destroy', $module));
 
         $response->assertRedirect();
-        $this->assertDatabaseMissing('enrollments', [
+        $this->assertSoftDeleted('enrollments', [
             'user_id' => $user->id,
             'module_id' => $module->id,
         ]);

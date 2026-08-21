@@ -5,6 +5,7 @@ namespace Tests\Feature\Hive;
 use App\Models\Module;
 use App\Models\Submission;
 use App\Models\User;
+use App\Models\Enrollment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
@@ -107,6 +108,12 @@ class GradeControllerTest extends HiveTestCase
         $fixture = $this->createAssessmentFixture();
 
         $fixture['student2']->modules()->attach($fixture['module']->id);
+        Enrollment::create([
+            'user_id' => $fixture['student2']->id,
+            'module_id' => $fixture['module']->id,
+            'academic_year' => now()->format('Y'),
+            'semester' => now()->month <= 6 ? '1' : '2',
+        ]);
 
         $gradable = $fixture['gradable'];
         $gradable->update([

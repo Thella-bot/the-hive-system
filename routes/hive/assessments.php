@@ -19,10 +19,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('gradables/{type}/modules', [GradableController::class, 'moduleSelect'])
     ->name('gradables.module-select');
 
-// Public listing (filtered by role via controller)
-Route::resource('gradables', GradableController::class)->only(['index', 'show'])
-    ->middleware('registered');
-
 // Staff-only gradable management (super-admin, academic-director, it-support, chef-instructor, pastry-instructor, sous-chef, examination-cell)
 Route::middleware(['role:super-admin|academic-director|it-support|chef-instructor|pastry-instructor|sous-chef|examination-cell'])->group(function () {
     Route::resource('gradables', GradableController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
@@ -43,6 +39,10 @@ Route::middleware(['role:super-admin|academic-director|it-support|chef-instructo
     Route::delete('gradables/{gradable}/questions/{question}', [GradableController::class, 'deleteQuestion'])
         ->name('gradables.questions.destroy');
 });
+
+// Public listing (filtered by role via controller)
+Route::resource('gradables', GradableController::class)->only(['index', 'show'])
+    ->middleware('registered');
 
 // Student submission for online assessments
 Route::post('gradables/{gradable}/submit-online', [GradableController::class, 'submitOnline'])
