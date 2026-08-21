@@ -111,7 +111,7 @@
 
                                 <!-- MCQ -->
                                 <div v-if="q.type === 'multiple_choice'" class="space-y-2 ml-4">
-                                    <label v-for="opt in q.options" :key="opt.id"
+                                    <label v-for="opt in (q.studentOptions || q.options)" :key="opt.id"
                                         class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition"
                                         :class="selectedAnswers[q.id]?.option_id === opt.id
                                             ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
@@ -159,6 +159,9 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Submit Your Work</h3>
                 </div>
                 <div class="px-6 py-4">
+                    <div v-if="submitError" class="mb-3 p-3 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 rounded-lg text-sm">
+                        {{ submitError }}
+                    </div>
                     <form @submit.prevent="submitWork" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">File *</label>
@@ -207,6 +210,7 @@ const props = defineProps({
 const form = ref({ file: null });
 const isSubmitting = ref(false);
 const submittingAnswers = ref(false);
+const submitError = ref('');
 
 const selectedAnswers = reactive({});
 if (props.studentAnswers) {
@@ -220,8 +224,8 @@ if (props.gradable.questions) {
     });
 }
 
-const formatDate = (d) => dayjs(d).format('MMM D, YYYY h:mm A');
-const isOverdue = (d) => dayjs(d).isBefore(dayjs());
+const formatDate = (d) => d ? dayjs(d).format('MMM D, YYYY h:mm A') : 'No due date';
+const isOverdue = (d) => d ? dayjs(d).isBefore(dayjs()) : false;
 const formatType = (t) => ({ quiz: 'Quiz', test: 'Test', assignment: 'Assignment', mid_term_exam: 'Mid-Term', final_exam: 'Final' }[t] || t);
 const formatSubmissionType = (t) => ({ file_upload: 'File Upload', online_fillable: 'Online Fill', online_multiple_choice: 'Online MCQ' }[t] || t);
 const formatQuestionType = (t) => ({ multiple_choice: 'MCQ', fill_in_blank: 'Fill Blank', short_answer: 'Short Ans', essay: 'Essay' }[t] || t);
@@ -232,10 +236,16 @@ const getQuestionTypeClass = (t) => ({ multiple_choice: 'bg-blue-100 text-blue-8
 const submitWork = async () => {
     if (!form.value.file) return;
     isSubmitting.value = true;
+    submitError.value = '';
     const data = new FormData();
     data.append('file', form.value.file);
-    await router.post(route('hive.submissions.store', { gradable: props.gradable.id }), data, { forceFormData: true });
-    isSubmitting.value = false;
+    try {
+        await router.post(route('hive.submissions.store', { gradable: props.gradable.id }), data, { forceFormData: true });
+    } catch (e) {
+        submitError.value = e.response?.data?.message || 'Upload failed. Please try again.';
+    } finally {
+        isSubmitting.value = false;
+    }
 };
 
 const submitOnlineAnswers = async () => {

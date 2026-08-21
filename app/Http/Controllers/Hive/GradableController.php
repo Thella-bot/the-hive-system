@@ -141,6 +141,8 @@ class GradableController extends Controller
         if ($isInstructor) {
             $relations[] = 'questions.options';
             $relations[] = 'submissions.student';
+        } elseif ($isStudent && $gradable->isOnlineAssessment()) {
+            $relations[] = 'questions.studentOptions';
         }
 
         $gradable->load($relations);

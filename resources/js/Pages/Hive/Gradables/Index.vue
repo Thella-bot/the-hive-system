@@ -121,15 +121,15 @@ const assessmentTypes = [
 ];
 
 const formatDate = (date) => {
-    return dayjs(date).format('MMM D, YYYY h:mm A');
+    return date ? dayjs(date).format('MMM D, YYYY h:mm A') : 'No due date';
 };
 
 const isOverdue = (date) => {
-    return dayjs(date).isBefore(dayjs());
+    return date ? dayjs(date).isBefore(dayjs()) : false;
 };
 
 const getTimeRemaining = (date) => {
-    return dayjs(date).fromNow();
+    return date ? dayjs(date).fromNow() : '';
 };
 
 const formatType = (type) => {

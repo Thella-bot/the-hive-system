@@ -16,11 +16,14 @@ class GradeController extends Controller
         $user = $request->user();
 
         if ($user->hasRole('student')) {
-            $moduleIds = $user->modules()->pluck('module_id')->toArray();
+            $enrollmentIds = $user->enrollments()
+                ->withTrashed()
+                ->pluck('module_id')
+                ->toArray();
 
             $modules = Module::with(['gradables' => function ($query) {
                 $query->orderBy('due_date', 'desc');
-            }])->whereIn('id', $moduleIds)->get();
+            }])->whereIn('id', $enrollmentIds)->get();
 
             $gradableIds = $modules->flatMap(fn ($module) => $module->gradables->pluck('id'));
             $submissions = Submission::whereIn('gradable_id', $gradableIds)

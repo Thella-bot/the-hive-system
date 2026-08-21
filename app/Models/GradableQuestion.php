@@ -45,6 +45,11 @@ class GradableQuestion extends Model
         return $this->hasMany(GradableQuestionOption::class)->orderBy('sort_order');
     }
 
+    public function studentOptions(): HasMany
+    {
+        return $this->hasMany(GradableQuestionOption::class)->select('id', 'gradable_question_id', 'option_text', 'sort_order')->orderBy('sort_order');
+    }
+
     public function correctOptions(): HasMany
     {
         return $this->hasMany(GradableQuestionOption::class)->where('is_correct', true);

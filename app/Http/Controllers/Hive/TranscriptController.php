@@ -15,9 +15,11 @@ class TranscriptController extends Controller
     {
         $student = auth()->user();
 
-        $modules = $student->modules()
-            ->with(['gradables.submissions' => fn($q) => $q->where('student_id', $student->id)])
+        $modules = $student->enrollments()
+            ->withTrashed()
+            ->with(['module.gradables.submissions' => fn($q) => $q->where('student_id', $student->id)])
             ->get()
+            ->pluck('module')
             ->map(fn($module) => $this->enrichModule($module, $student));
 
         return Inertia::render('Hive/Transcript/Index', [
@@ -49,16 +51,20 @@ class TranscriptController extends Controller
 
         if (!$user->can('view-student-grades') && $user->id !== $student->id) abort(403);
         if ($user->can('manage-student-grades')) {
-            $studentModuleIds = $student->modules()->pluck('id');
+            $studentModuleIds = $student->enrollments()->withTrashed()->pluck('module_id');
             $instructorModuleIds = $user->instructedModules()->pluck('id');
             if ($studentModuleIds->intersect($instructorModuleIds)->isEmpty()) abort(403);
         }
 
         $student->load('programme');
 
-        $modules = $student->modules()->with(['gradables.submissions' => function($q) use ($student) {
-            $q->where('student_id', $student->id);
-        }])->get();
+        $modules = $student->enrollments()
+            ->withTrashed()
+            ->with(['module.gradables.submissions' => function($q) use ($student) {
+                $q->where('student_id', $student->id);
+            }])
+            ->get()
+            ->pluck('module');
 
         $totalGradeCreditPoints = 0;
         $totalCredits = 0;

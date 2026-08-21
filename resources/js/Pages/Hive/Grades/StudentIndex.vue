@@ -108,8 +108,8 @@ const averageGrade = computed(() => {
   return (total / graded.length).toFixed(1);
 });
 
-const formatDate = (date) => dayjs(date).format('MMM D, YYYY');
-const isOverdue = (date) => dayjs(date).isBefore(dayjs());
+const formatDate = (date) => date ? dayjs(date).format('MMM D, YYYY') : 'No due date';
+const isOverdue = (date) => date ? dayjs(date).isBefore(dayjs()) : false;
 
 const formatType = (type) => {
   const labels = {

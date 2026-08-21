@@ -361,7 +361,7 @@ class SubmissionControllerTest extends HiveTestCase
 
         $gradable = $fixture['gradable'];
         $gradable->update([
-            'due_date' => now()->subMinutes(1),
+            'due_date' => now()->subHours(2),
             'max_file_size' => 1000,
             'allowed_types' => 'pdf,doc,docx',
         ]);
@@ -379,5 +379,193 @@ class SubmissionControllerTest extends HiveTestCase
             'gradable_id' => $gradable->id,
             'student_id' => $fixture['student1']->id,
         ]);
+    }
+
+    public function test_student_cannot_grade_other_student_submission(): void
+    {
+        Notification::fake();
+
+        $fixture = $this->createAssessmentFixture();
+
+        $gradable = $fixture['gradable'];
+        $gradable->update([
+            'due_date' => now()->addDay(),
+            'max_file_size' => 1000,
+            'allowed_types' => 'pdf,doc,docx',
+        ]);
+
+        $submission = \App\Models\Submission::create([
+            'gradable_id' => $gradable->id,
+            'student_id' => $fixture['student2']->id,
+            'file_path' => 'private/submissions/student2.pdf',
+            'submitted_at' => now(),
+            'is_late' => false,
+        ]);
+
+        $this->actingAs($fixture['student1']);
+
+        $response = $this->post(route('hive.submissions.grade', $submission), [
+            'grade' => 85,
+            'feedback' => 'Good',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('submissions', [
+            'id' => $submission->id,
+            'grade' => 85,
+        ]);
+    }
+
+    public function test_wrong_instructor_cannot_grade_submission(): void
+    {
+        Notification::fake();
+
+        $fixture = $this->createAssessmentFixture();
+
+        $otherInstructor = User::factory()->create();
+        $otherInstructor->assignRole('chef-instructor');
+
+        $gradable = $fixture['gradable'];
+        $gradable->update([
+            'due_date' => now()->addDay(),
+            'max_file_size' => 1000,
+            'allowed_types' => 'pdf,doc,docx',
+        ]);
+
+        $submission = \App\Models\Submission::create([
+            'gradable_id' => $gradable->id,
+            'student_id' => $fixture['student2']->id,
+            'file_path' => 'private/submissions/student2.pdf',
+            'submitted_at' => now(),
+            'is_late' => false,
+        ]);
+
+        $this->actingAs($otherInstructor);
+
+        $response = $this->post(route('hive.submissions.grade', $submission), [
+            'grade' => 90,
+            'feedback' => 'Excellent',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('submissions', [
+            'id' => $submission->id,
+            'grade' => 90,
+        ]);
+    }
+
+    public function test_student_cannot_download_other_student_submission(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+
+        $gradable = $fixture['gradable'];
+        $gradable->update([
+            'due_date' => now()->addDay(),
+            'max_file_size' => 1000,
+            'allowed_types' => 'pdf,doc,docx',
+        ]);
+
+        $submission = \App\Models\Submission::create([
+            'gradable_id' => $gradable->id,
+            'student_id' => $fixture['student1']->id,
+            'file_path' => 'private/submissions/student1.pdf',
+            'submitted_at' => now(),
+            'is_late' => false,
+        ]);
+
+        $this->actingAs($fixture['student2']);
+
+        $response = $this->get(route('hive.submissions.download', $submission));
+
+        $response->assertRedirect();
+    }
+
+    public function test_own_student_can_download_submission(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+
+        $gradable = $fixture['gradable'];
+        $gradable->update([
+            'due_date' => now()->addDay(),
+            'max_file_size' => 1000,
+            'allowed_types' => 'pdf,doc,docx',
+        ]);
+
+        $filePath = 'private/submissions/student1.pdf';
+        Storage::fake('local');
+        Storage::put($filePath, 'test content');
+
+        $submission = \App\Models\Submission::create([
+            'gradable_id' => $gradable->id,
+            'student_id' => $fixture['student1']->id,
+            'file_path' => $filePath,
+            'submitted_at' => now(),
+            'is_late' => false,
+        ]);
+
+        $this->actingAs($fixture['student1']);
+
+        $response = $this->get(route('hive.submissions.download', $submission));
+
+        $response->assertOk();
+    }
+
+    public function test_instructor_can_download_student_submission(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+
+        $gradable = $fixture['gradable'];
+        $gradable->update([
+            'due_date' => now()->addDay(),
+            'max_file_size' => 1000,
+            'allowed_types' => 'pdf,doc,docx',
+        ]);
+
+        $filePath = 'private/submissions/student1.pdf';
+        Storage::fake('local');
+        Storage::put($filePath, 'test content');
+
+        $submission = \App\Models\Submission::create([
+            'gradable_id' => $gradable->id,
+            'student_id' => $fixture['student1']->id,
+            'file_path' => $filePath,
+            'submitted_at' => now(),
+            'is_late' => false,
+        ]);
+
+        $this->actingAs($fixture['instructor']);
+
+        $response = $this->get(route('hive.submissions.download', $submission));
+
+        $response->assertOk();
+    }
+
+    public function test_wrong_instructor_cannot_download_submission(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+
+        $otherInstructor = User::factory()->create();
+        $otherInstructor->assignRole('chef-instructor');
+
+        $gradable = $fixture['gradable'];
+        $gradable->update([
+            'due_date' => now()->addDay(),
+            'max_file_size' => 1000,
+            'allowed_types' => 'pdf,doc,docx',
+        ]);
+
+        $submission = \App\Models\Submission::create([
+            'gradable_id' => $gradable->id,
+            'student_id' => $fixture['student1']->id,
+            'file_path' => 'private/submissions/student1.pdf',
+            'submitted_at' => now(),
+            'is_late' => false,
+        ]);
+
+        $this->actingAs($otherInstructor);
+
+        $response = $this->get(route('hive.submissions.download', $submission));
+
+        $response->assertRedirect();
     }
 }
