@@ -27,7 +27,7 @@ class GradablePolicy extends BasePolicy
 
         // Students can view enrolled gradables
         if ($user->hasRole('student')) {
-            return true;
+            return $user->modules()->where('modules.id', $gradable->module_id)->exists();
         }
 
         return false;

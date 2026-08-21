@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it privately via email to **security@hbci.ac.ls**.
+If you discover a security vulnerability, please report it privately via email to **admin@hbci.ac.ls**.
 
 **Do not** open a public GitHub issue for security vulnerabilities.
 

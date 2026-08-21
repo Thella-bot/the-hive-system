@@ -25,6 +25,11 @@ class SubmissionPolicy extends BasePolicy
             if ($gradable && $gradable->due_date && now()->gt($gradable->due_date)) {
                 return false;
             }
+
+            if ($user->hasRole('student') && $gradable) {
+                return $user->modules()->where('modules.id', $gradable->module_id)->exists();
+            }
+
             return true;
         }
         return false;

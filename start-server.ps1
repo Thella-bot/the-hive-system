@@ -1,10 +1,10 @@
 $ip = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.*" } | Select-Object -First 1).IPAddress
 if (-not $ip) {
-    Write-Host "No network IP found"
-    exit 1
+    $ip = "127.0.0.1"
+    Write-Host "No network IP found, defaulting to localhost"
+} else {
+    Write-Host "Detected IP: $ip"
 }
-
-Write-Host "Detected IP: $ip"
 
 $envPath = ".env"
 $content = Get-Content $envPath

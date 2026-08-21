@@ -128,4 +128,38 @@ class GradableControllerTest extends HiveTestCase
 
         $response->assertRedirect();
     }
+
+    public function test_student_not_enrolled_cannot_view_gradable(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $module = Module::factory()->create();
+        $gradable = Gradable::factory()->create(['module_id' => $module->id]);
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.gradables.show', $gradable));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+    }
+
+    public function test_student_enrolled_can_view_gradable(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $module = Module::factory()->create();
+        $gradable = Gradable::factory()->create(['module_id' => $module->id]);
+
+        $user->modules()->attach($module->id);
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.gradables.show', $gradable));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page->component('Hive/Gradables/Show'));
+    }
 }
