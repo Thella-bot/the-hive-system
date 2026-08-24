@@ -56,6 +56,10 @@ class AcademicYearController extends Controller
 
     public function update(UpdateAcademicYearRequest $request, AcademicYear $academicYear): RedirectResponse
     {
+        if ($academicYear->cohorts()->whereHas('students')->exists()) {
+            return back()->with('error', 'Cannot edit an academic year that has cohorts with enrolled students.');
+        }
+
         $year = (int) $request->validated()['year'];
 
         $academicYear->update([

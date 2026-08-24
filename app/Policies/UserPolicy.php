@@ -34,7 +34,7 @@ class UserPolicy extends BasePolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar', 'program-coordinator']);
     }
 
     /**
@@ -44,7 +44,7 @@ class UserPolicy extends BasePolicy
      */
     public function update(User $user, User $targetUser): bool
     {
-        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar', 'program-coordinator']);
     }
 
     /**
@@ -54,6 +54,6 @@ class UserPolicy extends BasePolicy
      */
     public function delete(User $user, User $targetUser): bool
     {
-        return $user->hasAnyRole(['super-admin', 'it-support']);
+        return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar', 'program-coordinator']);
     }
 }

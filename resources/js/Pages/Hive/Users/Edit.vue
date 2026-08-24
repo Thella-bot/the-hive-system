@@ -302,7 +302,13 @@ import MultiSelect from '@/Components/MultiSelect.vue'
 import { usePermissions } from '@/composables/usePermissions'
 import { useUser } from '@/composables/useUser'
 
-const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label: formatRole(r.name) })))
+const ADMIN_ROLES = ['super-admin', 'it-support']
+
+const roleOptions = computed(() => {
+  const base = props.roles.map(r => ({ value: r.name, label: formatRole(r.name) }))
+  if (isAdmin.value) return base
+  return base.filter(r => !ADMIN_ROLES.includes(r.value))
+})
 
 const props = defineProps({
   managedUser: { type: Object, required: true },

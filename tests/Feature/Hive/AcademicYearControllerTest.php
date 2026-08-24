@@ -12,9 +12,9 @@ class AcademicYearControllerTest extends HiveTestCase
 {
     private function seedDepartments(): void
     {
-        Department::create(['name' => 'Hospitality Management', 'slug' => 'hospitality-management', 'is_active' => true]);
-        Department::create(['name' => 'Patisseries', 'slug' => 'patisseries', 'is_active' => true]);
-        Department::create(['name' => 'Administration', 'slug' => 'administration', 'is_active' => true]);
+        Department::create(['name' => 'Hospitality Management', 'slug' => 'hospitality-management', 'is_active' => true, 'is_academic' => true]);
+        Department::create(['name' => 'Patisseries', 'slug' => 'patisseries', 'is_active' => true, 'is_academic' => true]);
+        Department::create(['name' => 'Administration', 'slug' => 'administration', 'is_active' => true, 'is_academic' => false]);
     }
 
     public function test_academic_year_index_requires_admin_role(): void

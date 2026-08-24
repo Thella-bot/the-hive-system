@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\UserApproved;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UserApprovalController extends Controller
 {
@@ -15,7 +16,9 @@ class UserApprovalController extends Controller
         if (!auth()->user()->isAdmin()) {
             abort(403);
         }
+
         $unapproved = User::role('unapproved')->get();
+
         return Inertia::render('Hive/Admin/ApproveUsers', [
             'unapprovedUsers' => $unapproved,
         ]);

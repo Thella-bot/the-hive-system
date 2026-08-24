@@ -29,6 +29,26 @@ class ImportCompleted extends Notification implements ShouldQueue
         $this->jobError = $jobError;
     }
 
+    public function getSuccessCount(): int
+    {
+        return $this->successCount;
+    }
+
+    public function getFailureCount(): int
+    {
+        return $this->failureCount;
+    }
+
+    public function getJobError(): ?string
+    {
+        return $this->jobError;
+    }
+
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
     /**
      * Get the notification's delivery channels.
      *

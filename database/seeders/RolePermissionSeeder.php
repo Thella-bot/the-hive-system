@@ -63,6 +63,7 @@ class RolePermissionSeeder extends Seeder
             'it-support',           // Intranet uptime, device management, help desk
             'parent-guardian',      // Academic progress, fee status, attendance (limited view)
             'alumni',               // Network portal, job board, institute updates
+            'unapproved',           // Pending user registration
         ];
 
         foreach ($roles as $role) {

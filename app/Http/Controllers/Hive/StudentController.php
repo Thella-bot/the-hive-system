@@ -59,6 +59,7 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|min:8|confirmed',
+            'password_confirmation' => 'nullable|string',
             'student_number' => 'nullable|string',
             'programme_id' => 'nullable|exists:programmes,id',
         ]);

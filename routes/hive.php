@@ -73,9 +73,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->name('short-course-applications.review')
             ->middleware('role:super-admin|admissions-officer');
 
-        // Cohorts (super-admin, program-coordinator)
+        // Cohorts (super-admin, it-support, program-coordinator, academic-director)
         Route::resource('cohorts', CohortController::class)
-            ->middleware('role:super-admin|program-coordinator');
+            ->middleware('role:super-admin|it-support|program-coordinator|academic-director');
 
         // Academic Years (super-admin, academic-director)
         Route::resource('academic-years', AcademicYearController::class)

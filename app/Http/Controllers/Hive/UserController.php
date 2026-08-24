@@ -167,7 +167,18 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
+        $this->authorize('update', $user);
+
         $data = $request->validated();
+
+        if (!auth()->user()->isAdmin()) {
+            $administrativeRoles = ['super-admin', 'it-support'];
+            foreach ($data['roles'] as $role) {
+                if (in_array($role, $administrativeRoles, true)) {
+                    abort(403);
+                }
+            }
+        }
 
         $userData = [
             'name'               => $data['name'],

@@ -74,8 +74,8 @@ class StudentControllerTest extends HiveTestCase
         $response = $this->post(route('hive.students.store'), [
             'name' => 'Test Student',
             'email' => 'student@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
             'role' => 'student',
             'first_name' => 'Test',
             'last_name' => 'Student',
@@ -165,6 +165,7 @@ class StudentControllerTest extends HiveTestCase
 
         $response = $this->patch(route('hive.students.update', $student), [
             'name' => 'Updated Student',
+            'email' => $student->email,
             'role' => 'student',
             'first_name' => 'Updated',
             'last_name' => 'Name',

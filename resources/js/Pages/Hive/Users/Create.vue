@@ -229,7 +229,6 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
                 <select v-model="form.status"
                   class="w-full border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none transition bg-white">
-                  <option :value="null">— None —</option>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                   <option value="graduated">Graduated</option>
@@ -278,7 +277,7 @@
             class="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
             <svg v-if="form.processing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 0 018-8v8H4z"/>
             </svg>
             Create User
           </button>
@@ -294,13 +293,11 @@ import { computed } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import HiveLayout from '@/Layouts/HiveLayout.vue'
 import MultiSelect from '@/Components/MultiSelect.vue'
+import { useUser } from '@/composables/useUser'
 
-const props = defineProps({
-  roles:       { type: Array, default: () => [] },
-  departments: { type: Array, default: () => [] },
-  cohorts:     { type: Array, default: () => [] },
-  programmes:  { type: Array, default: () => [] },
-})
+const { isAdmin } = useUser()
+
+const ADMIN_ROLES = ['super-admin', 'it-support']
 
 const staffRoles = [
   'super-admin', 'it-support', 'academic-director', 'program-coordinator',
@@ -312,7 +309,18 @@ const staffRoles = [
 
 const formatRole = (r) => r.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
-const roleOptions = computed(() => props.roles.map(r => ({ value: r.name, label: formatRole(r.name) })))
+const roleOptions = computed(() => {
+  const base = props.roles.map(r => ({ value: r.name, label: formatRole(r.name) }))
+  if (isAdmin.value) return base
+  return base.filter(r => !ADMIN_ROLES.includes(r.value))
+})
+
+const props = defineProps({
+  roles:       { type: Array, default: () => [] },
+  departments: { type: Array, default: () => [] },
+  cohorts:     { type: Array, default: () => [] },
+  programmes:  { type: Array, default: () => [] },
+})
 
 const form = useForm({
   name: '', email: '', password: '', password_confirmation: '', roles: [],

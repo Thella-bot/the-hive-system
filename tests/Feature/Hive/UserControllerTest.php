@@ -166,6 +166,46 @@ class UserControllerTest extends HiveTestCase
         $this->assertTrue($targetUser->fresh()->hasRole('registrar'));
     }
 
+    public function test_hr_manager_cannot_escalate_privileges_to_super_admin(): void
+    {
+        $hrManager = User::factory()->create();
+        $hrManager->assignRole('hr-manager');
+
+        $targetUser = User::factory()->create();
+        $targetUser->assignRole('student');
+
+        $this->actingAs($hrManager);
+
+        $response = $this->put(route('hive.users.update', $targetUser), [
+            'name'  => $targetUser->name,
+            'email' => $targetUser->email,
+            'roles' => ['super-admin'],
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertFalse($targetUser->fresh()->hasRole('super-admin'));
+    }
+
+    public function test_hr_manager_can_assign_non_privileged_role(): void
+    {
+        $hrManager = User::factory()->create();
+        $hrManager->assignRole('hr-manager');
+
+        $targetUser = User::factory()->create();
+        $targetUser->assignRole('chef-instructor');
+
+        $this->actingAs($hrManager);
+
+        $response = $this->put(route('hive.users.update', $targetUser), [
+            'name'  => $targetUser->name,
+            'email' => $targetUser->email,
+            'roles' => ['student'],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertTrue($targetUser->fresh()->hasRole('student'));
+    }
+
     public function test_user_destroy_deletes_user(): void
     {
         $admin = User::factory()->create();
