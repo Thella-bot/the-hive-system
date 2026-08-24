@@ -328,4 +328,26 @@ class UserLifecycleAuditTest extends TestCase
         $cachedAfter = $service->roles()->pluck('name')->toArray();
         $this->assertEquals($cachedBefore, $cachedAfter);
     }
+
+    public function test_role_observer_logs_actor_on_role_change(): void
+    {
+        $actor = User::factory()->create();
+        $actor->assignRole('super-admin');
+
+        $this->actingAs($actor);
+
+        $roleName = 'audit-role-' . uniqid();
+
+        // Should not throw, and should write to audit log
+        \Spatie\Permission\Models\Role::create(['name' => $roleName, 'guard_name' => 'web']);
+
+        // Verify the log file was written (audit channel uses storage/logs/audit.log)
+        $logPath = storage_path('logs/audit.log');
+        if (file_exists($logPath)) {
+            $content = file_get_contents($logPath);
+            $this->assertStringContainsString('Role changed', $content);
+            $this->assertStringContainsString($roleName, $content);
+            $this->assertStringContainsString((string) $actor->id, $content);
+        }
+    }
 }

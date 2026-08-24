@@ -19,6 +19,11 @@ use Inertia\Inertia;
 
 class AnnouncementController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Announcement::class, 'announcement');
+    }
+
     public function index(Request $request)
     {
         $announcements = Announcement::visibleTo($request->user())
@@ -126,8 +131,10 @@ class AnnouncementController extends Controller
         return redirect()->route('hive.announcements.index')->with('success', 'Announcement deleted.');
     }
 
-    public function downloadAttachment(AnnouncementAttachment $attachment)
+    public function downloadAttachment(Request $request, Announcement $announcement, AnnouncementAttachment $attachment)
     {
+        $this->authorize('view', $announcement);
+
         if (!auth()->user()->isStaff()) {
             abort(403);
         }
@@ -142,6 +149,8 @@ class AnnouncementController extends Controller
      */
     public function generateMemo(Announcement $announcement)
     {
+        $this->authorize('view', $announcement);
+
         $creator = $announcement->creator ?? User::find($announcement->created_by);
 
         $targetRoles = $announcement->target_roles ?? [];

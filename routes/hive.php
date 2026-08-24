@@ -97,11 +97,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
 
         // Announcements
         Route::resource('announcements', AnnouncementController::class)->except(['destroy'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager|student');
+        Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy')
             ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager');
-        Route::delete('announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
         Route::get('announcements/{announcement}/attachments/{attachment}/download', [AnnouncementController::class, 'downloadAttachment'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager|student')
             ->name('announcements.attachments.download');
         Route::get('announcements/{announcement}/generate-memo', [AnnouncementController::class, 'generateMemo'])
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|admissions-officer|examination-cell|registrar|finance|procurement-manager|storekeeper|hr-manager|librarian|career-services|events-pr-manager|cafeteria-manager|student')
             ->name('announcements.generate-memo');
 
         // Applications

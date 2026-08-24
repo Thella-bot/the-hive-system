@@ -178,6 +178,87 @@ class AcademicYearControllerTest extends HiveTestCase
         \Illuminate\Support\Facades\Date::setTestNow();
     }
 
+    public function test_academic_year_update_blocks_when_cohorts_have_students(): void
+    {
+        $this->seedDepartments();
+        $this->actingAsAdmin();
+
+        $year = AcademicYear::create([
+            'name'       => '2027',
+            'start_date' => '2027-01-01',
+            'end_date'   => '2027-12-31',
+        ]);
+        $year->generateDefaultCohorts();
+
+        $cohort = Cohort::where('academic_year_id', $year->id)->first();
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $student->profile()->create(['cohort_id' => $cohort->id]);
+
+        $response = $this->put(route('hive.academic-years.update', $year), [
+            'year' => 2028,
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('academic_years', ['id' => $year->id, 'name' => '2027']);
+    }
+
+    public function test_academic_year_update_blocks_when_enrollments_exist(): void
+    {
+        $this->seedDepartments();
+        $this->actingAsAdmin();
+
+        $year = AcademicYear::create([
+            'name'       => '2027',
+            'start_date' => '2027-01-01',
+            'end_date'   => '2027-12-31',
+        ]);
+
+        $department = Department::whereNotIn('name', ['Administration', 'Admin'])->first();
+        $module = \App\Models\Module::factory()->create(['department_id' => $department->id]);
+
+        \App\Models\Enrollment::create([
+            'user_id'     => User::factory()->create()->id,
+            'module_id'   => $module->id,
+            'academic_year' => '2027',
+            'semester'    => '1',
+        ]);
+
+        $response = $this->put(route('hive.academic-years.update', $year), [
+            'year' => 2028,
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('academic_years', ['id' => $year->id, 'name' => '2027']);
+    }
+
+    public function test_academic_year_destroy_blocks_when_enrollments_exist(): void
+    {
+        $this->seedDepartments();
+        $this->actingAsAdmin();
+
+        $year = AcademicYear::create([
+            'name'       => '2027',
+            'start_date' => '2027-01-01',
+            'end_date'   => '2027-12-31',
+        ]);
+
+        $department = Department::whereNotIn('name', ['Administration', 'Admin'])->first();
+        $module = \App\Models\Module::factory()->create(['department_id' => $department->id]);
+
+        \App\Models\Enrollment::create([
+            'user_id'     => User::factory()->create()->id,
+            'module_id'   => $module->id,
+            'academic_year' => '2027',
+            'semester'    => '1',
+        ]);
+
+        $response = $this->delete(route('hive.academic-years.destroy', $year));
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('academic_years', ['id' => $year->id]);
+    }
+
     public function test_update_cohort_status_command_deactivates_expired_cohorts(): void
     {
         $department = Department::create(['name' => 'Hospitality Management', 'slug' => 'hospitality-mgmt', 'is_active' => true]);

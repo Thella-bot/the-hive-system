@@ -34,7 +34,7 @@ const applyFilters = () => {
 
 const getRoleName = (roles) => {
   if (!roles || roles.length === 0) return 'N/A';
-  return roles[0].name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  return roles.map(r => r.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())).join(', ');
 };
 </script>
 

@@ -60,6 +60,10 @@ class AcademicYearController extends Controller
             return back()->with('error', 'Cannot edit an academic year that has cohorts with enrolled students.');
         }
 
+        if (\App\Models\Enrollment::where('academic_year', $academicYear->name)->exists()) {
+            return back()->with('error', 'Cannot edit an academic year that has existing enrollment records.');
+        }
+
         $year = (int) $request->validated()['year'];
 
         $academicYear->update([
@@ -77,6 +81,10 @@ class AcademicYearController extends Controller
     {
         if ($academicYear->cohorts()->exists()) {
             return back()->with('error', 'Cannot delete an academic year that has cohorts assigned to it.');
+        }
+
+        if (\App\Models\Enrollment::where('academic_year', $academicYear->name)->exists()) {
+            return back()->with('error', 'Cannot delete an academic year that has enrollment records.');
         }
 
         $academicYear->delete();

@@ -225,11 +225,12 @@ const props = defineProps({
 
 const { can } = usePermissions()
 
-const primaryRole = computed(() =>
-  props.managedUser.roles?.[0]?.name
-    ? props.managedUser.roles[0].name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-    : 'No role assigned'
-)
+const primaryRole = computed(() => {
+  if (!props.managedUser.roles || props.managedUser.roles.length === 0) return 'No role assigned'
+  return props.managedUser.roles
+    .map(r => r.name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
+    .join(', ')
+})
 
 const applicationCount = computed(() => props.applications?.length ?? 0)
 const enrollmentCount = computed(() => props.enrollments?.length ?? 0)

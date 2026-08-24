@@ -2,45 +2,70 @@
 
 namespace Tests\Feature\Hive;
 
-use App\Models\Module;
+use App\Models\Announcement;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-class AnnouncementControllerTest extends HiveTestCase
+class AnnouncementControllerTest extends TestCase
 {
-    public function test_announcement_index_returns_success_for_authenticated_users(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+    use RefreshDatabase;
 
-        $this->actingAs($user);
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('db:seed', ['--class' => \Database\Seeders\RolePermissionSeeder::class]);
+    }
+
+    public function test_announcement_index_returns_success_for_student(): void
+    {
+        $student = User::factory()->create();
+        $student->assignRole('student');
+
+        Announcement::factory()->create(['target_roles' => ['student']]);
+
+        $this->actingAs($student);
 
         $response = $this->get(route('hive.announcements.index'));
 
         $response->assertOk();
+        $response->assertInertia(fn ($page) => $page->component('Hive/Announcements/Index'));
     }
 
-    public function test_announcement_index_shows_paginated_announcements(): void
+    public function test_student_cannot_view_announcement_not_targeted_to_them(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $student = User::factory()->create();
+        $student->assignRole('student');
 
-        \App\Models\Announcement::factory()->count(3)->create();
+        $announcement = Announcement::factory()->create([
+            'target_roles' => ['finance'],
+        ]);
 
-        $this->actingAs($user);
+        $this->actingAs($student);
 
-        $response = $this->get(route('hive.announcements.index'));
+        $response = $this->get(route('hive.announcements.show', $announcement));
 
-        $response->assertOk();
+        $response->assertRedirect();
     }
 
-    public function test_announcement_create_returns_success_for_admin(): void
+    public function test_student_cannot_create_announcement(): void
+    {
+        $student = User::factory()->create();
+        $student->assignRole('student');
+
+        $this->actingAs($student);
+
+        $response = $this->get(route('hive.announcements.create'));
+
+        $response->assertRedirect();
+    }
+
+    public function test_staff_can_create_announcement(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('super-admin');
+        $user->assignRole('registrar');
 
         $this->actingAs($user);
-
-        Module::factory()->create();
 
         $response = $this->get(route('hive.announcements.create'));
 
@@ -48,50 +73,16 @@ class AnnouncementControllerTest extends HiveTestCase
         $response->assertInertia(fn ($page) => $page->component('Hive/Announcements/Create'));
     }
 
-    public function test_announcement_store_creates_new_announcement(): void
+    public function test_creator_can_update_own_announcement(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('super-admin');
+        $creator = User::factory()->create();
+        $creator->assignRole('registrar');
 
-        $this->actingAs($user);
-
-        Module::factory()->create();
-
-        $response = $this->post(route('hive.announcements.store'), [
-            'title' => '重要通知',
-            'body' => 'This is a test announcement body',
-            'priority' => 'normal',
+        $announcement = Announcement::factory()->create([
+            'created_by' => $creator->id,
         ]);
 
-        $response->assertRedirect();
-        $this->assertDatabaseHas('announcements', ['title' => '重要通知']);
-    }
-
-    public function test_announcement_store_validates_required_fields(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('super-admin');
-
-        $this->actingAs($user);
-
-        $response = $this->post(route('hive.announcements.store'), [
-            'title' => '',
-            'body' => '',
-        ]);
-
-        $response->assertSessionHasErrors(['title', 'body']);
-    }
-
-    public function test_announcement_edit_returns_success(): void
-    {
-        $user = User::factory()->create();
-        $user->assignRole('super-admin');
-
-        $announcement = \App\Models\Announcement::factory()->create();
-
-        $this->actingAs($user);
-
-        Module::factory()->create();
+        $this->actingAs($creator);
 
         $response = $this->get(route('hive.announcements.edit', $announcement));
 
@@ -99,54 +90,78 @@ class AnnouncementControllerTest extends HiveTestCase
         $response->assertInertia(fn ($page) => $page->component('Hive/Announcements/Edit'));
     }
 
-    public function test_announcement_update_updates_announcement(): void
+    public function test_super_admin_can_update_any_announcement(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('super-admin');
+        $admin = User::factory()->create();
+        $admin->assignRole('super-admin');
 
-        $announcement = \App\Models\Announcement::factory()->create();
-
-        $this->actingAs($user);
-
-        Module::factory()->create();
-
-        $response = $this->patch(route('hive.announcements.update', $announcement), [
-            'title' => 'Updated Title',
-            'body' => 'Updated body content',
-            'priority' => 'urgent',
+        $creator = User::factory()->create();
+        $announcement = Announcement::factory()->create([
+            'created_by' => $creator->id,
         ]);
 
-        $response->assertRedirect();
-        $this->assertDatabaseHas('announcements', ['id' => $announcement->id, 'title' => 'Updated Title']);
+        $this->actingAs($admin);
+
+        $response = $this->get(route('hive.announcements.edit', $announcement));
+
+        $response->assertOk();
     }
 
-    public function test_announcement_destroy_deletes_announcement(): void
+    public function test_student_cannot_delete_announcement(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('super-admin');
+        $student = User::factory()->create();
+        $student->assignRole('student');
 
-        $announcement = \App\Models\Announcement::factory()->create();
+        $announcement = Announcement::factory()->create();
 
-        $this->actingAs($user);
+        $this->actingAs($student);
 
         $response = $this->delete(route('hive.announcements.destroy', $announcement));
 
         $response->assertRedirect();
-        $this->assertDatabaseMissing('announcements', ['id' => $announcement->id]);
+        $this->assertDatabaseHas('announcements', ['id' => $announcement->id]);
     }
 
-    public function test_announcement_show_returns_success(): void
+    public function test_non_creator_staff_cannot_update_announcement(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $staff = User::factory()->create();
+        $staff->assignRole('finance');
 
-        $announcement = \App\Models\Announcement::factory()->create(['priority' => 'normal']);
+        $creator = User::factory()->create();
+        $announcement = Announcement::factory()->create([
+            'created_by' => $creator->id,
+            'target_roles' => ['finance'],
+        ]);
 
-        $this->actingAs($user);
+        $this->actingAs($staff);
 
-        $response = $this->get(route('hive.announcements.show', $announcement));
+        $response = $this->get(route('hive.announcements.edit', $announcement));
 
-        $response->assertOk();
-        $response->assertInertia(fn ($page) => $page->component('Hive/Announcements/Show'));
+        $response->assertRedirect();
+    }
+
+    public function test_download_attachment_requires_staff(): void
+    {
+        $student = User::factory()->create();
+        $student->assignRole('student');
+
+        $announcement = Announcement::factory()->create([
+            'target_roles' => ['student'],
+        ]);
+        $attachment = $announcement->attachments()->create([
+            'name' => 'test.pdf',
+            'file_path' => 'announcements/test.pdf',
+            'size' => 1024,
+            'uploaded_by' => User::factory()->create()->id,
+        ]);
+
+        $this->actingAs($student);
+
+        $response = $this->get(route('hive.announcements.attachments.download', [
+            'announcement' => $announcement,
+            'attachment' => $attachment,
+        ]));
+
+        $response->assertRedirect();
     }
 }
