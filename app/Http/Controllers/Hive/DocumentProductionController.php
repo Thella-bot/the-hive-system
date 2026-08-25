@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Enums\DocumentType;
+use App\Http\Controllers\Controller;
 use App\Models\GeneratedDocument;
 use App\Services\DocumentAuditor;
 use App\Services\DocumentFactory;
