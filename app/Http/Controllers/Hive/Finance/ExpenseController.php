@@ -208,7 +208,7 @@ class ExpenseController extends Controller
             'status' => 'paid',
             'payment_method' => $data['payment_method'] ?? null,
             'reference_number' => $data['reference_number'] ?? null,
-            'notes' => $data['notes'],
+            'notes' => $data['notes'] ?? null,
         ]);
 
         return back()->with('success', 'Expense marked as paid.');
