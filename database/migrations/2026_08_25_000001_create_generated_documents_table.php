@@ -13,14 +13,12 @@ return new class extends Migration
             $table->string('document_type');
             $table->string('entity_type');
             $table->unsignedBigInteger('entity_id');
-            $table->unsignedBigInteger('generated_by')->nullable();
+            $table->foreignId('generated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('file_path')->nullable();
             $table->timestamp('generated_at');
             $table->timestamps();
 
             $table->index(['entity_type', 'entity_id', 'document_type']);
-            $table->index(['generated_by']);
-            $table->foreign('generated_by')->nullable()->constrained('users')->nullOnDelete();
         });
     }
 
