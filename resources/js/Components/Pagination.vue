@@ -13,11 +13,13 @@
             :class="link.active
               ? 'bg-amber-500 text-white font-medium shadow-sm'
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'"
-          >{{ link.label }}</Link>
+            v-html="link.label"
+          ></Link>
           <span
             v-else
             class="px-3 py-1.5 text-sm text-gray-300 dark:text-gray-600"
-          >{{ link.label }}</span>
+            v-html="link.label"
+          ></span>
         </template>
       </div>
   </div>

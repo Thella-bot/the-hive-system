@@ -18,7 +18,10 @@ class PaymentController extends Controller
 {
     use HasFilters;
 
-    public function __construct(protected SignatoryService $signatory) {}
+    public function __construct(protected SignatoryService $signatory)
+    {
+        $this->authorizeResource(Payment::class, 'payment');
+    }
 
     public function index(Request $request): Response
     {

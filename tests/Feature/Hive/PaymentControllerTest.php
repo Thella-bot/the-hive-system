@@ -149,7 +149,7 @@ class PaymentControllerTest extends HiveTestCase
     public function test_payment_destroy_deletes_payment(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user->assignRole('super-admin');
 
         $payment = Payment::factory()->create();
 

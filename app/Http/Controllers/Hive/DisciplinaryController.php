@@ -31,7 +31,7 @@ class DisciplinaryController extends Controller
      */
     public function create()
     {
-        $users = User::role(['student', 'staff'])->get();
+        $users = User::all();
         return inertia('Hive/Disciplinary/Create', ['users' => $users]);
     }
 
@@ -63,7 +63,7 @@ class DisciplinaryController extends Controller
         ]);
 
         $action = DisciplinaryAction::create($validated);
-        return redirect()->route('disciplinary.index')->with('success', 'Disciplinary action created.');
+        return redirect()->route('hive.disciplinary.index')->with('success', 'Disciplinary action created.');
     }
 
     /**
@@ -79,7 +79,7 @@ class DisciplinaryController extends Controller
      */
     public function edit(DisciplinaryAction $disciplinary)
     {
-        $users = User::role(['student', 'staff'])->get();
+        $users = User::all();
         return inertia('Hive/Disciplinary/Edit', ['action' => $disciplinary, 'users' => $users]);
     }
 
@@ -111,7 +111,7 @@ class DisciplinaryController extends Controller
         ]);
 
         $disciplinary->update($validated);
-        return redirect()->route('disciplinary.index')->with('success', 'Disciplinary action updated.');
+        return redirect()->route('hive.disciplinary.index')->with('success', 'Disciplinary action updated.');
     }
 
     /**
@@ -120,7 +120,7 @@ class DisciplinaryController extends Controller
     public function destroy(DisciplinaryAction $disciplinary)
     {
         $disciplinary->delete();
-        return redirect()->route('disciplinary.index')->with('success', 'Disciplinary action deleted.');
+        return redirect()->route('hive.disciplinary.index')->with('success', 'Disciplinary action deleted.');
     }
 
     // ---------- PDF GENERATION ----------

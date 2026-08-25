@@ -29,7 +29,9 @@ class StudentDashboardData implements DashboardData
 
     private function buildData(User $user): array
     {
-        $moduleIds = DB::table('module_user')->where('user_id', $user->id)->pluck('module_id')->toArray();
+        $moduleIds = Enrollment::where('user_id', $user->id)
+            ->pluck('module_id')
+            ->toArray();
 
         $currentYear = now()->format('Y');
         $currentSemester = now()->month <= 6 ? '1' : '2';
@@ -179,10 +181,9 @@ class StudentDashboardData implements DashboardData
             $currentModuleIds = array_slice($currentModuleIds, 0, 10);
         }
 
-        return DB::table('module_user')
-            ->where('user_id', $user->id)
-            ->join('modules', 'module_user.module_id', '=', 'modules.id')
-            ->whereIn('module_user.module_id', $currentModuleIds)
+        return Enrollment::where('user_id', $user->id)
+            ->join('modules', 'enrollments.module_id', '=', 'modules.id')
+            ->whereIn('enrollments.module_id', $currentModuleIds)
             ->select('modules.id', 'modules.name', 'modules.code')
             ->get()
             ->map(fn($m) => [
@@ -236,7 +237,7 @@ class StudentDashboardData implements DashboardData
         }
 
         // Sort all activities by created_at desc
-        usort($activities, fn($a, $b) => strtotime($b['created_at']) - strtotime($a['created_at']));
+        usort($activities, fn($a, $b) => $b['created_at']->timestamp - $a['created_at']->timestamp);
 
         return array_slice($activities, 0, 10);
     }
@@ -247,7 +248,7 @@ class StudentDashboardData implements DashboardData
             ->whereNotNull('grade')
             ->avg('grade');
 
-        return $avg ? round($avg, 1) : null;
+        return $avg ? round((float) $avg, 1) : null;
     }
 
     private function getCompletedModulesCount(User $user, array $moduleIds)
@@ -278,7 +279,6 @@ class StudentDashboardData implements DashboardData
                 'total_paid' => $invoice->total_paid,
                 'balance' => $invoice->balance,
                 'status' => $invoice->status,
-                'status_label' => $invoice->status_label,
                 'due_date' => $invoice->due_date,
                 'is_paid' => $invoice->is_paid,
                 'is_overdue' => $invoice->is_overdue,

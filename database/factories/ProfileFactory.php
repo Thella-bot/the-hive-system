@@ -13,7 +13,6 @@ class ProfileFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
             'first_name' => 'John',
             'last_name' => 'Doe',
             'date_of_birth' => '2000-01-15',

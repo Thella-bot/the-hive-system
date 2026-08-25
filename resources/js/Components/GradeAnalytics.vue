@@ -80,11 +80,12 @@ const props = defineProps({
 });
 
 const chartData = computed(() => {
-  const distinctions = props.grades.filter(g => g >= 75).length;
-  const merits = props.grades.filter(g => g >= 60 && g < 75).length;
-  const passes = props.grades.filter(g => g >= 50 && g < 60).length;
-  const fails = props.grades.filter(g => g < 50).length;
-  const total = props.grades.length || 1;
+  const gradeValues = props.grades.map(g => typeof g === 'object' ? parseFloat(g.grade) : parseFloat(g));
+  const distinctions = gradeValues.filter(g => g >= 75).length;
+  const merits = gradeValues.filter(g => g >= 60 && g < 75).length;
+  const passes = gradeValues.filter(g => g >= 50 && g < 60).length;
+  const fails = gradeValues.filter(g => g < 50).length;
+  const total = gradeValues.length || 1;
 
   let offset = 0;
   const data = [
@@ -115,10 +116,11 @@ const barData = computed(() => {
     { range: '0-39', min: 0, max: 39, color: '#ef4444' },
   ];
 
-  const total = props.grades.length || 1;
+  const gradeValues = props.grades.map(g => typeof g === 'object' ? parseFloat(g.grade) : parseFloat(g));
+  const total = gradeValues.length || 1;
 
   return ranges.map(range => {
-    const count = props.grades.filter(g => g >= range.min && g <= range.max).length;
+    const count = gradeValues.filter(g => g >= range.min && g <= range.max).length;
     return {
       ...range,
       count,

@@ -138,4 +138,38 @@ class InvoiceControllerTest extends HiveTestCase
         $response->assertRedirect();
         $this->assertDatabaseMissing('invoices', ['id' => $invoice->id]);
     }
+
+    public function test_student_can_view_own_invoice(): void
+    {
+        $student = User::factory()->create();
+        $student->assignRole('student');
+
+        $invoice = Invoice::factory()->create([
+            'user_id' => $student->id,
+        ]);
+
+        $this->actingAs($student);
+
+        $response = $this->get(route('hive.finance.invoices.show', $invoice));
+
+        $response->assertOk();
+        $response->assertInertia(fn($page) => $page->component('Hive/Finance/Invoice/Show'));
+    }
+
+    public function test_student_cannot_view_other_invoice(): void
+    {
+        $student = User::factory()->create();
+        $student->assignRole('student');
+
+        $otherStudent = User::factory()->create();
+        $invoice = Invoice::factory()->create([
+            'user_id' => $otherStudent->id,
+        ]);
+
+        $this->actingAs($student);
+
+        $response = $this->get(route('hive.finance.invoices.show', $invoice));
+
+        $response->assertRedirect();
+    }
 }

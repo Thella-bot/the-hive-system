@@ -5,11 +5,31 @@ namespace Tests\Feature\Hive;
 use App\Models\Budget;
 use App\Models\Department;
 use App\Models\ExpenseCategory;
+use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class BudgetControllerTest extends HiveTestCase
 {
+    private Department $department;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->department = Department::factory()->create();
+    }
+
+    private function financeUser(): User
+    {
+        $user = User::factory()->create();
+        $user->assignRole('finance');
+        Profile::factory()->for($user)->create([
+            'department_id' => $this->department->id,
+        ]);
+
+        return $user;
+    }
+
     public function test_budget_index_requires_finance_role(): void
     {
         $user = User::factory()->create();
@@ -24,8 +44,7 @@ class BudgetControllerTest extends HiveTestCase
 
     public function test_budget_index_returns_success(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user = $this->financeUser();
 
         $this->actingAs($user);
 
@@ -37,20 +56,18 @@ class BudgetControllerTest extends HiveTestCase
 
     public function test_budget_store_creates_budget(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user = $this->financeUser();
+        ExpenseCategory::factory()->create();
 
         $this->actingAs($user);
-
-        Department::factory()->create();
-        ExpenseCategory::factory()->create();
 
         $response = $this->post(route('hive.finance.budgets.store'), [
             'name' => 'Test Budget',
             'academic_year' => '2025/2026',
             'semester' => 1,
-            'department_id' => Department::first()->id,
+            'department_id' => $this->department->id,
             'expense_category_id' => ExpenseCategory::first()->id,
+            'approved_budget' => 10000.00,
             'allocated_amount' => 10000.00,
         ]);
 
@@ -63,10 +80,11 @@ class BudgetControllerTest extends HiveTestCase
 
     public function test_budget_show_returns_success(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user = $this->financeUser();
 
-        $budget = Budget::factory()->create();
+        $budget = Budget::factory()->create([
+            'department_id' => $this->department->id,
+        ]);
 
         $this->actingAs($user);
 
@@ -78,10 +96,11 @@ class BudgetControllerTest extends HiveTestCase
 
     public function test_budget_update_modifies_budget(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user = $this->financeUser();
 
-        $budget = Budget::factory()->create();
+        $budget = Budget::factory()->create([
+            'department_id' => $this->department->id,
+        ]);
 
         $this->actingAs($user);
 
@@ -98,10 +117,10 @@ class BudgetControllerTest extends HiveTestCase
 
     public function test_budget_activate_changes_status(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user = $this->financeUser();
 
         $budget = Budget::factory()->create([
+            'department_id' => $this->department->id,
             'status' => 'draft',
         ]);
 
@@ -118,10 +137,10 @@ class BudgetControllerTest extends HiveTestCase
 
     public function test_budget_close_changes_status(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user = $this->financeUser();
 
         $budget = Budget::factory()->create([
+            'department_id' => $this->department->id,
             'status' => 'active',
         ]);
 
@@ -138,10 +157,11 @@ class BudgetControllerTest extends HiveTestCase
 
     public function test_budget_destroy_deletes_budget(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('finance');
+        $user = $this->financeUser();
 
-        $budget = Budget::factory()->create();
+        $budget = Budget::factory()->create([
+            'department_id' => $this->department->id,
+        ]);
 
         $this->actingAs($user);
 

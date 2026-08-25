@@ -25,7 +25,6 @@ Route::middleware(['role:super-admin|finance'])->name('finance.')->prefix('finan
     Route::get('invoices/search-students', [InvoiceController::class, 'searchStudents'])->name('invoices.searchStudents');
     Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate');
     Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
-    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
     Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
     Route::patch('invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
     Route::delete('invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
@@ -82,3 +81,5 @@ Route::middleware(['role:super-admin|finance'])->name('finance.')->prefix('finan
     Route::patch('convectionary/{convectionary}', [ConvectionaryIncomeController::class, 'update'])->name('convectionary.update');
     Route::delete('convectionary/{convectionary}', [ConvectionaryIncomeController::class, 'destroy'])->name('convectionary.destroy');
 });
+
+Route::get('finance/invoices/{invoice}', [InvoiceController::class, 'show'])->name('finance.invoices.show')->middleware('role:super-admin|it-support|finance|registrar|student');

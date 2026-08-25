@@ -21,17 +21,34 @@
           </a>
         </div>
 
-        <div v-if="modules && modules.length" class="space-y-4">
-          <div v-for="module in modules" :key="module.id" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <div class="flex justify-between items-center mb-3">
-              <div>
-                <p class="font-semibold text-gray-800 dark:text-gray-100">{{ module.code }} — {{ module.name }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ module.totalGradables }} assessments · {{ module.gradedCount }} graded</p>
-              </div>
-              <span v-if="module.averageGrade !== null" class="text-lg font-bold text-amber-600 dark:text-amber-400">
-                {{ module.averageGrade }}%
-              </span>
-              <span v-else class="text-sm text-gray-400">No grades yet</span>
+        <div v-if="modulesByYear && Object.keys(modulesByYear).length" class="space-y-6">
+          <div v-for="(yearModules, year) in modulesByYear" :key="year">
+            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 pb-2 border-b border-gray-200 dark:border-gray-600">
+              Academic Year {{ year }}
+            </h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-600">
+                    <th class="pb-2 pr-4">Code</th>
+                    <th class="pb-2 pr-4">Module</th>
+                    <th class="pb-2 pr-4 text-center">Credits</th>
+                    <th class="pb-2 pr-4 text-center">Assessments</th>
+                    <th class="pb-2 text-right">Grade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="module in yearModules" :key="module.id" class="border-b border-gray-100 dark:border-gray-700">
+                    <td class="py-2 pr-4 font-mono text-xs">{{ module.code }}</td>
+                    <td class="py-2 pr-4">{{ module.name }}</td>
+                    <td class="py-2 pr-4 text-center">{{ module.credits }}</td>
+                    <td class="py-2 pr-4 text-center">{{ module.gradedCount }}/{{ module.totalGradables }}</td>
+                    <td class="py-2 text-right font-semibold text-amber-600 dark:text-amber-400">
+                      {{ module.averageGrade !== null ? module.averageGrade + '%' : 'N/A' }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -49,6 +66,6 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 
 defineProps({
   student: Object,
-  modules: Array,
+  modulesByYear: Object,
 });
 </script>

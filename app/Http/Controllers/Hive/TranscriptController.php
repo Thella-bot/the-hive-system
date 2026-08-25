@@ -15,16 +15,20 @@ class TranscriptController extends Controller
     {
         $student = auth()->user();
 
-        $modules = $student->enrollments()
+        $enrollments = $student->enrollments()
             ->withTrashed()
             ->with(['module.gradables.submissions' => fn($q) => $q->where('student_id', $student->id)])
-            ->get()
-            ->pluck('module')
-            ->map(fn($module) => $this->enrichModule($module, $student));
+            ->get();
+
+        $modulesByYear = $enrollments
+            ->groupBy('academic_year')
+            ->map(fn($yearEnrollments) => $yearEnrollments
+                ->pluck('module')
+                ->map(fn($module) => $this->enrichModule($module, $student)));
 
         return Inertia::render('Hive/Transcript/Index', [
             'student' => $student,
-            'modules' => $modules,
+            'modulesByYear' => $modulesByYear,
         ]);
     }
 
@@ -58,34 +62,38 @@ class TranscriptController extends Controller
 
         $student->load('programme');
 
-        $modules = $student->enrollments()
+        $enrollments = $student->enrollments()
             ->withTrashed()
             ->with(['module.gradables.submissions' => function($q) use ($student) {
                 $q->where('student_id', $student->id);
             }])
-            ->get()
-            ->pluck('module');
+            ->get();
+
+        $modulesByYear = $enrollments->groupBy('academic_year');
 
         $totalGradeCreditPoints = 0;
         $totalCredits = 0;
 
-        foreach ($modules as $module) {
-            $moduleWeightedMarks = 0;
-            $moduleTotalWeight = 0;
+        foreach ($modulesByYear as $year => $yearEnrollments) {
+            foreach ($yearEnrollments as $enrollment) {
+                $module = $enrollment->module;
+                $moduleWeightedMarks = 0;
+                $moduleTotalWeight = 0;
 
-            foreach ($module->gradables as $gradable) {
-                $submission = $gradable->submissions->first();
-                if ($submission && $submission->grade !== null && $gradable->max_marks > 0) {
-                    $percentage = ($submission->grade / $gradable->max_marks) * 100;
-                    $moduleWeightedMarks += $percentage * $gradable->weight;
-                    $moduleTotalWeight += $gradable->weight;
+                foreach ($module->gradables as $gradable) {
+                    $submission = $gradable->submissions->first();
+                    if ($submission && $submission->grade !== null && $gradable->max_marks > 0) {
+                        $percentage = ($submission->grade / $gradable->max_marks) * 100;
+                        $moduleWeightedMarks += $percentage * $gradable->weight;
+                        $moduleTotalWeight += $gradable->weight;
+                    }
                 }
-            }
 
-            if ($moduleTotalWeight > 0) {
-                $moduleFinalGrade = $moduleWeightedMarks / $moduleTotalWeight;
-                $totalGradeCreditPoints += $moduleFinalGrade * $module->credits;
-                $totalCredits += $module->credits;
+                if ($moduleTotalWeight > 0) {
+                    $moduleFinalGrade = $moduleWeightedMarks / $moduleTotalWeight;
+                    $totalGradeCreditPoints += $moduleFinalGrade * $module->credits;
+                    $totalCredits += $module->credits;
+                }
             }
         }
 
@@ -93,7 +101,7 @@ class TranscriptController extends Controller
 
         return $this->generatePdf('pdf.transcript', [
             'student' => $student,
-            'modules' => $modules,
+            'modulesByYear' => $modulesByYear,
             'gpa' => $weightedGpa,
         ], 'Transcript_'.$student->id.'.pdf', $student->id);
     }
