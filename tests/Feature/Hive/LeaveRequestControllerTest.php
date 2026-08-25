@@ -2,10 +2,21 @@
 
 namespace Tests\Feature\Hive;
 
+use App\Models\LeaveRequest;
+use App\Models\Profile;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class LeaveRequestControllerTest extends HiveTestCase
 {
+    private function staffUser(): User
+    {
+        $user = User::factory()->create();
+        $user->assignRole('chef-instructor');
+
+        return $user;
+    }
+
     public function test_leave_request_index_returns_success_for_authenticated_user(): void
     {
         $user = User::factory()->create();
@@ -23,11 +34,11 @@ class LeaveRequestControllerTest extends HiveTestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        \App\Models\LeaveRequest::factory()->count(3)->create([
+        LeaveRequest::factory()->count(3)->create([
             'user_id' => $user->id,
         ]);
 
-        \App\Models\LeaveRequest::factory()->count(2)->create();
+        LeaveRequest::factory()->count(2)->create();
 
         $this->actingAs($user);
 
@@ -39,9 +50,9 @@ class LeaveRequestControllerTest extends HiveTestCase
     public function test_leave_request_index_shows_all_requests_for_admin(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('super-admin');
+        $user->assignRole('hr-manager');
 
-        \App\Models\LeaveRequest::factory()->count(5)->create();
+        LeaveRequest::factory()->count(5)->create();
 
         $this->actingAs($user);
 
@@ -52,8 +63,7 @@ class LeaveRequestControllerTest extends HiveTestCase
 
     public function test_leave_request_create_returns_success(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $user = $this->staffUser();
 
         $this->actingAs($user);
 
@@ -64,10 +74,9 @@ class LeaveRequestControllerTest extends HiveTestCase
 
     public function test_leave_request_store_creates_new_request(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $user = $this->staffUser();
 
-        $profile = $user->profile()->create([
+        Profile::factory()->for($user)->create([
             'leave_balance' => 10,
         ]);
 
@@ -90,8 +99,7 @@ class LeaveRequestControllerTest extends HiveTestCase
 
     public function test_leave_request_store_validates_required_fields(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $user = $this->staffUser();
 
         $this->actingAs($user);
 
@@ -106,10 +114,9 @@ class LeaveRequestControllerTest extends HiveTestCase
 
     public function test_leave_request_store_rejects_insufficient_balance(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $user = $this->staffUser();
 
-        $user->profile()->create([
+        Profile::factory()->for($user)->create([
             'leave_balance' => 1,
         ]);
 
@@ -133,7 +140,7 @@ class LeaveRequestControllerTest extends HiveTestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $leaveRequest = \App\Models\LeaveRequest::factory()->create([
+        $leaveRequest = LeaveRequest::factory()->create([
             'user_id' => $user->id,
             'status' => 'pending',
         ]);
@@ -144,7 +151,7 @@ class LeaveRequestControllerTest extends HiveTestCase
             'status' => 'approved',
         ]);
 
-        $response->assertBack();
+        $response->assertRedirect();
         $this->assertDatabaseHas('leave_requests', [
             'id' => $leaveRequest->id,
             'status' => 'approved',
@@ -160,7 +167,7 @@ class LeaveRequestControllerTest extends HiveTestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $leaveRequest = \App\Models\LeaveRequest::factory()->create([
+        $leaveRequest = LeaveRequest::factory()->create([
             'user_id' => $user->id,
             'status' => 'pending',
         ]);
@@ -172,7 +179,7 @@ class LeaveRequestControllerTest extends HiveTestCase
             'rejection_reason' => 'Not enough notice',
         ]);
 
-        $response->assertBack();
+        $response->assertRedirect();
         $this->assertDatabaseHas('leave_requests', [
             'id' => $leaveRequest->id,
             'status' => 'rejected',
@@ -182,10 +189,9 @@ class LeaveRequestControllerTest extends HiveTestCase
 
     public function test_leave_request_destroy_cancels_own_pending_request(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $user = $this->staffUser();
 
-        $leaveRequest = \App\Models\LeaveRequest::factory()->create([
+        $leaveRequest = LeaveRequest::factory()->create([
             'user_id' => $user->id,
             'status' => 'pending',
         ]);
@@ -194,7 +200,7 @@ class LeaveRequestControllerTest extends HiveTestCase
 
         $response = $this->delete(route('hive.leaves.destroy', $leaveRequest));
 
-        $response->assertBack();
+        $response->assertRedirect();
         $this->assertDatabaseHas('leave_requests', [
             'id' => $leaveRequest->id,
             'is_cancelled' => true,
@@ -203,10 +209,9 @@ class LeaveRequestControllerTest extends HiveTestCase
 
     public function test_leave_request_destroy_denies_cancellation_of_non_pending_request(): void
     {
-        $user = User::factory()->create();
-        $user->assignRole('student');
+        $user = $this->staffUser();
 
-        $leaveRequest = \App\Models\LeaveRequest::factory()->create([
+        $leaveRequest = LeaveRequest::factory()->create([
             'user_id' => $user->id,
             'status' => 'approved',
         ]);
@@ -215,18 +220,21 @@ class LeaveRequestControllerTest extends HiveTestCase
 
         $response = $this->delete(route('hive.leaves.destroy', $leaveRequest));
 
-        $response->assertStatus(403);
+        $response->assertRedirect();
+        $this->assertDatabaseHas('leave_requests', [
+            'id' => $leaveRequest->id,
+            'is_cancelled' => false,
+        ]);
     }
 
     public function test_leave_request_destroy_denies_cancellation_of_another_users_request(): void
     {
-        $user1 = User::factory()->create();
-        $user1->assignRole('student');
+        $user1 = $this->staffUser();
 
         $user2 = User::factory()->create();
-        $user2->assignRole('student');
+        $user2->assignRole('chef-instructor');
 
-        $leaveRequest = \App\Models\LeaveRequest::factory()->create([
+        $leaveRequest = LeaveRequest::factory()->create([
             'user_id' => $user1->id,
             'status' => 'pending',
         ]);
@@ -235,6 +243,10 @@ class LeaveRequestControllerTest extends HiveTestCase
 
         $response = $this->delete(route('hive.leaves.destroy', $leaveRequest));
 
-        $response->assertStatus(403);
+        $response->assertRedirect();
+        $this->assertDatabaseHas('leave_requests', [
+            'id' => $leaveRequest->id,
+            'is_cancelled' => false,
+        ]);
     }
 }

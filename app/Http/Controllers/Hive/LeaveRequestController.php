@@ -9,6 +9,7 @@ use App\Models\LeaveRequest;
 use App\Models\User;
 use App\Notifications\LeaveRequestSubmitted;
 use App\Notifications\LeaveRequestUpdated;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 

@@ -89,6 +89,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         require __DIR__ . '/hive/finance.php';
         require __DIR__ . '/hive/library.php';
         require __DIR__ . '/hive/registrar.php';
+        require __DIR__ . '/hive/documents.php';
 
         // Profile
         Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');

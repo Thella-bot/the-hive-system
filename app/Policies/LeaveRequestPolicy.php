@@ -59,6 +59,6 @@ class LeaveRequestPolicy extends BasePolicy
      */
     public function delete(User $user, LeaveRequest $leaveRequest): bool
     {
-        return $user->can('delete-leave-requests');
+        return $user->can('approve-leave-requests') || ($user->id === $leaveRequest->user_id && $leaveRequest->status === 'pending' && !$leaveRequest->is_cancelled);
     }
 }
