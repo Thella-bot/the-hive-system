@@ -9,6 +9,7 @@ use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
 use App\Models\Cohort;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\AuditService;
 use App\Services\ReferenceDataService;
 use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -19,7 +20,10 @@ use Inertia\Inertia;
 class StudentController extends Controller
 {
     use GeneratesDocumentPdfs;
-    public function __construct(protected SignatoryService $signatory) {}
+    public function __construct(
+        protected SignatoryService $signatory,
+        protected AuditService $audit,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -68,7 +72,10 @@ class StudentController extends Controller
         $validated['name'] = strip_tags($validated['name']);
         $validated['email'] = filter_var($validated['email'], FILTER_SANITIZE_EMAIL);
 
-        $creator->create($validated);
+        $student = $creator->create($validated);
+
+        // Log audit trail
+        $this->audit->logCreated($student);
 
         return redirect()->route('hive.students.index')
             ->with('success', 'Student created successfully.');
@@ -128,7 +135,17 @@ class StudentController extends Controller
         $validated['name'] = strip_tags($validated['name']);
         $validated['email'] = filter_var($validated['email'], FILTER_SANITIZE_EMAIL);
 
+        // Capture old values for audit
+        $oldValues = $student->getAttributes();
+        if ($student->profile) {
+            $oldValues['profile'] = $student->profile->getAttributes();
+        }
+
         $updater->update($student, $validated, $request->user()->isAdmin());
+
+        // Log audit trail
+        $student->refresh();
+        $this->audit->logUpdated($student, $oldValues);
 
         return redirect()->route('hive.students.index')
             ->with('success', 'Student updated successfully.');
@@ -140,6 +157,10 @@ class StudentController extends Controller
     public function destroy(User $student)
     {
         $this->authorize('delete', $student);
+
+        // Log audit trail before deletion
+        $this->audit->logDeleted($student);
+
         $student->delete();
         return redirect()->route('hive.students.index')
             ->with('success', 'Student deleted successfully.');

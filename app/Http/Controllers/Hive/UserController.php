@@ -10,6 +10,7 @@ use App\Models\Department;
 use App\Models\Profile;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\AuditService;
 use App\Services\ReferenceDataService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,9 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected AuditService $audit,
+    ) {}
     public function index(Request $request): Response
     {
         $this->authorize('viewAny', User::class);
@@ -125,6 +129,9 @@ class UserController extends Controller
         }
 
         $user->profile()->create($profileData);
+
+        // Log audit trail
+        $this->audit->logCreated($user);
 
         return redirect()->route('hive.users.show', $user)
             ->with('success', 'User created successfully.');
@@ -234,6 +241,12 @@ class UserController extends Controller
         // Only include fields that are in the allowed list
         $profileData = collect($data)->only($allowedProfileFields)->all();
 
+        // Capture old values for audit
+        $oldValues = $user->getAttributes();
+        if ($user->profile) {
+            $oldValues['profile'] = $user->profile->getAttributes();
+        }
+
         try {
             DB::transaction(function () use ($user, $userData, $profileData, $data) {
                 $user->update($userData);
@@ -250,6 +263,10 @@ class UserController extends Controller
                 ->withInput();
         }
 
+        // Log audit trail
+        $user->refresh();
+        $this->audit->logUpdated($user, $oldValues);
+
         return redirect()->route('hive.users.show', $user)
             ->with('success', 'User updated successfully.');
     }
@@ -261,6 +278,9 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot delete your own account.');
         }
+
+        // Log audit trail before deletion
+        $this->audit->logDeleted($user);
 
         $user->delete();
 
