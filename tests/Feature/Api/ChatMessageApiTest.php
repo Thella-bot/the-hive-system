@@ -6,6 +6,7 @@ use App\Models\ChatChannel;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -458,6 +459,59 @@ class ChatMessageApiTest extends TestCase
 
         $response = $this->postJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
             'emoji' => '👍',
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_can_send_typing_indicator(): void
+    {
+        $response = $this->postJson("/api/channels/{$this->channel->id}/typing", [
+            'is_typing' => true,
+        ]);
+
+        $response->assertOk();
+    }
+
+    public function test_typing_indicator_requires_boolean(): void
+    {
+        $response = $this->postJson("/api/channels/{$this->channel->id}/typing", [
+            'is_typing' => 'yes',
+        ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_unauthorized_user_cannot_send_typing(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        Sanctum::actingAs($otherUser, ['*']);
+
+        $response = $this->postJson("/api/channels/{$this->channel->id}/typing", [
+            'is_typing' => true,
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_typing_indicator_requires_boolean(): void
+    {
+        $response = $this->postJson("/api/channels/{$this->channel->id}/typing", [
+            'is_typing' => 'yes',
+        ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_unauthorized_user_cannot_send_typing(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        Sanctum::actingAs($otherUser, ['*']);
+
+        $response = $this->postJson("/api/channels/{$this->channel->id}/typing", [
+            'is_typing' => true,
         ]);
 
         $response->assertForbidden();

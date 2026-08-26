@@ -5,6 +5,11 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -50,8 +55,11 @@ class StudentIdController extends Controller
             'studentNumber' => $card['student_number'],
             'year'          => $card['year'],
             'programme'     => $card['programme'],
+            'cohort'        => $card['cohort'],
+            'validUntil'    => $card['valid_until'],
             'initials'      => $card['initials'],
             'photoPath'     => $card['photo_path'],
+            'qrCode'        => $card['qr_code'],
         ])->setPaper([0, 0, 242, 153]);
 
         // The COURSE value uses a condensed display font (matching the
@@ -89,21 +97,56 @@ class StudentIdController extends Controller
     private function cardData(User $target): array
     {
         $profile = $target->profile;
+        $cohort = $profile?->cohort;
+        $qrData = $profile?->student_number ?? config('institution.abbreviation') . '-' . $target->id;
 
         return [
             'name' => $target->name,
             'email' => $target->email,
             'student_number' => $profile?->student_number,
             'programme' => $target->programme?->name,
-            'cohort' => $profile?->cohort?->name,
+            'cohort' => $cohort?->name,
             'year' => $profile?->enrollment_date?->format('Y') ?? now()->format('Y'),
+            // Card validity mirrors the student's cohort end date (when known),
+            // falling back to their expected graduation date. Both are the
+            // most meaningful "this student is currently enrolled" signals
+            // we have - there's no dedicated card-expiry field.
+            'valid_until' => ($cohort?->end_date ?? $profile?->expected_graduation_date)?->format('M Y'),
             // A browser-loadable URL for the on-screen preview. Null when the
             // student hasn't uploaded a custom photo - the UI falls back to
             // an initials avatar rather than the generic ui-avatars.com image.
             'photo_url' => $target->profile_photo_path ? $target->profile_photo_url : null,
             'initials' => $this->initials($target->name),
-            'qr_data' => $profile?->student_number ?? config('institution.abbreviation') . '-' . $target->id,
+            'qr_data' => $qrData,
+            // Rendered once here (not client-side) so the on-screen preview
+            // and the printed PDF are pixel-identical, and so dompdf - which
+            // can't reach the browser's JS QR library - has an image it can
+            // embed directly.
+            'qr_code' => $this->renderQrCode($qrData),
         ];
+    }
+
+    /**
+     * Render a verification QR code as a base64 PNG data URI.
+     *
+     * PNG (not SVG) because dompdf's inline-SVG support is unreliable for
+     * anything beyond trivial shapes (see the note on the background image
+     * in the PDF template) - a data URI keeps this working identically in
+     * both the Vue preview and dompdf without any remote fetch.
+     */
+    private function renderQrCode(string $data): string
+    {
+        $qrCode = new QrCode(
+            data: $data,
+            errorCorrectionLevel: ErrorCorrectionLevel::Quartile,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            foregroundColor: new Color(17, 24, 39), // matches card text (#111827)
+            backgroundColor: new Color(255, 255, 255),
+        );
+
+        $result = (new PngWriter())->write($qrCode);
+
+        return $result->getDataUri();
     }
 
     /**

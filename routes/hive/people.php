@@ -34,6 +34,9 @@ Route::middleware(['role:super-admin|it-support'])->name('admin.')->prefix('admi
 // Student management (super-admin, admissions-officer, registrar, program-coordinator)
 Route::resource('students', StudentController::class)
     ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
+Route::get('students/export', [StudentController::class, 'export'])
+    ->name('students.export')
+    ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
 Route::get('students/{student}/generate-proof', [StudentController::class, 'generateProof'])
     ->name('students.generate-proof')
     ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');

@@ -51,7 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->name('channels.messages.unread');
 
     // Typing indicators
-    Route::post('/channels/{channel}/typing', [ChatTypingController::class, 'invoke'])
+    Route::post('/channels/{channel}/typing', [ChatTypingController::class, 'store'])
         ->middleware(['throttle:10,1'])
         ->name('channels.typing');
 

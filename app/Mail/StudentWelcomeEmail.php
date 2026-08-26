@@ -1,0 +1,45 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Mail;
+
+use App\Models\User;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+
+class StudentWelcomeEmail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public User $user;
+    public ?string $plainPassword;
+
+    public function __construct(User $user, ?string $plainPassword = null)
+    {
+        $this->user = $user;
+        $this->plainPassword = $plainPassword;
+    }
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'Welcome to ' . config('app.name'),
+        );
+    }
+
+    public function content(): Content
+    {
+        return new Content(
+            markdown: 'emails.students.welcome',
+            with: [
+                'userName' => $this->user->name,
+                'userEmail' => $this->user->email,
+                'loginUrl' => url('/login'),
+                'password' => $this->plainPassword,
+            ],
+        );
+    }
+}

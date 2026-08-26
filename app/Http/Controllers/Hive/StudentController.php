@@ -15,6 +15,7 @@ use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Response;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -38,6 +39,57 @@ class StudentController extends Controller
         return Inertia::render('Hive/Students/Index', [
             'students' => $students,
         ]);
+    }
+
+    /**
+     * Export students to CSV.
+     */
+    public function export()
+    {
+        $this->authorize('viewAny', User::class);
+
+        $students = User::role(['student', 'parent-guardian', 'alumni'])
+            ->with(['profile', 'programme'])
+            ->get();
+
+        $filename = 'students_' . date('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($students) {
+            $file = fopen('php://output', 'w');
+
+            // BOM for UTF-8
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Header row
+            fputcsv($file, [
+                'ID', 'Name', 'Email', 'Student Number', 'Programme',
+                'Status', 'Phone', 'Enrollment Date', 'Created At',
+            ]);
+
+            // Data rows
+            foreach ($students as $student) {
+                fputcsv($file, [
+                    $student->id,
+                    $student->name,
+                    $student->email,
+                    $student->profile?->student_number ?? 'N/A',
+                    $student->programme?->name ?? 'N/A',
+                    $student->profile?->status ?? 'N/A',
+                    $student->profile?->phone ?? 'N/A',
+                    $student->profile?->enrollment_date ?? 'N/A',
+                    $student->created_at?->format('Y-m-d H:i:s') ?? 'N/A',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
 
     /**
@@ -72,7 +124,20 @@ class StudentController extends Controller
         $validated['name'] = strip_tags($validated['name']);
         $validated['email'] = filter_var($validated['email'], FILTER_SANITIZE_EMAIL);
 
+        // Capture plain password for welcome email (if provided)
+        $plainPassword = $validated['password'] ?? null;
+
         $student = $creator->create($validated);
+
+        // Send welcome email
+        try {
+            \Illuminate\Support\Facades\Mail::to($student->email)->send(
+                new \App\Mail\StudentWelcomeEmail($student, $plainPassword)
+            );
+        } catch (\Exception $e) {
+            // Log error but don't prevent student creation
+            \Illuminate\Support\Facades\Log::warning('Failed to send welcome email: ' . $e->getMessage());
+        }
 
         // Log audit trail
         $this->audit->logCreated($student);
