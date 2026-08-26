@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ChatMessageController;
 use App\Http\Controllers\Api\ChatAttachmentController;
+use App\Http\Controllers\Api\ChatReactionController;
 use App\Http\Controllers\Api\ChatReadReceiptController;
 use App\Http\Controllers\Api\ChatTypingController;
 use App\Http\Controllers\Api\TaskController;
@@ -53,6 +54,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/channels/{channel}/typing', [ChatTypingController::class, 'invoke'])
         ->middleware(['throttle:10,1'])
         ->name('channels.typing');
+
+    // Message reactions
+    Route::get('/channels/{channel}/messages/{message}/reactions', [ChatReactionController::class, 'index'])
+        ->name('channels.messages.reactions.index');
+    Route::post('/channels/{channel}/messages/{message}/reactions', [ChatReactionController::class, 'store'])
+        ->middleware(['throttle:30,1'])
+        ->name('channels.messages.reactions.store');
+    Route::delete('/channels/{channel}/messages/{message}/reactions', [ChatReactionController::class, 'destroy'])
+        ->middleware(['throttle:30,1'])
+        ->name('channels.messages.reactions.destroy');
 
     // File attachments
     Route::post('/chat/attachments', [ChatAttachmentController::class, 'store'])

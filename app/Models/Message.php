@@ -57,6 +57,14 @@ class Message extends Model
     }
 
     /**
+     * Get reactions for this message.
+     */
+    public function reactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\MessageReaction::class);
+    }
+
+    /**
      * Check if the message has been read by a specific user.
      */
     public function isReadBy(User $user): bool

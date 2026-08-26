@@ -6,7 +6,6 @@ use App\Models\ChatChannel;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -31,9 +30,6 @@ class ChatMessageApiTest extends TestCase
         $this->channel = ChatChannel::factory()->direct([$this->user->id])->create();
 
         Sanctum::actingAs($this->user, ['*']);
-
-        // Use log driver for broadcasting in tests
-        config(['broadcasting.default' => 'log']);
     }
 
     public function test_can_list_messages_for_own_channel(): void
@@ -360,6 +356,108 @@ class ChatMessageApiTest extends TestCase
 
         $response = $this->postJson("/api/channels/{$this->channel->id}/read", [
             'last_read_id' => 1,
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_can_add_reaction_to_message(): void
+    {
+        $message = $this->channel->messages()->create([
+            'user_id' => auth()->id(),
+            'message' => 'Test message',
+        ]);
+
+        $response = $this->postJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
+            'emoji' => '👍',
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('message_reactions', [
+            'message_id' => $message->id,
+            'user_id' => $this->user->id,
+            'emoji' => '👍',
+        ]);
+    }
+
+    public function test_can_remove_reaction_from_message(): void
+    {
+        $message = $this->channel->messages()->create([
+            'user_id' => auth()->id(),
+            'message' => 'Test message',
+        ]);
+
+        // Add reaction first
+        $this->postJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
+            'emoji' => '👍',
+        ]);
+
+        $response = $this->deleteJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
+            'emoji' => '👍',
+        ]);
+
+        $response->assertOk();
+        $this->assertDatabaseMissing('message_reactions', [
+            'message_id' => $message->id,
+            'user_id' => $this->user->id,
+            'emoji' => '👍',
+        ]);
+    }
+
+    public function test_can_get_reactions_for_message(): void
+    {
+        $message = $this->channel->messages()->create([
+            'user_id' => auth()->id(),
+            'message' => 'Test message',
+        ]);
+
+        // Add reaction
+        $this->postJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
+            'emoji' => '👍',
+        ]);
+
+        $response = $this->getJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions");
+
+        $response->assertOk();
+        $data = $response->json('reactions');
+        $this->assertCount(1, $data);
+        $this->assertEquals('👍', $data[0]['emoji']);
+        $this->assertEquals(1, $data[0]['count']);
+    }
+
+    public function test_same_user_can_add_multiple_different_reactions(): void
+    {
+        $message = $this->channel->messages()->create([
+            'user_id' => auth()->id(),
+            'message' => 'Test message',
+        ]);
+
+        $this->postJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
+            'emoji' => '👍',
+        ]);
+        $this->postJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
+            'emoji' => '❤️',
+        ]);
+
+        $response = $this->getJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions");
+
+        $response->assertOk();
+        $this->assertCount(2, $response->json('reactions'));
+    }
+
+    public function test_unauthorized_user_cannot_add_reaction(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        Sanctum::actingAs($otherUser, ['*']);
+
+        $message = $this->channel->messages()->create([
+            'user_id' => auth()->id(),
+            'message' => 'Test message',
+        ]);
+
+        $response = $this->postJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reactions", [
+            'emoji' => '👍',
         ]);
 
         $response->assertForbidden();
