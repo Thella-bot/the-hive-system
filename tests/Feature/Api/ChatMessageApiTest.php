@@ -244,4 +244,120 @@ class ChatMessageApiTest extends TestCase
             'message' => 'Check out this image',
         ]);
     }
+
+    public function test_can_search_messages(): void
+    {
+        // Create some messages
+        $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Hello world',
+        ]);
+        $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Goodbye world',
+        ]);
+        $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Something else',
+        ]);
+
+        $response = $this->getJson("/api/channels/{$this->channel->id}/search?q=world");
+
+        $response->assertOk();
+        $data = $response->json();
+        $this->assertCount(2, $data);
+    }
+
+    public function test_search_requires_minimum_2_characters(): void
+    {
+        $response = $this->getJson("/api/channels/{$this->channel->id}/search?q=a");
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_unauthorized_user_cannot_search_messages(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        Sanctum::actingAs($otherUser, ['*']);
+
+        $response = $this->getJson("/api/channels/{$this->channel->id}/search?q=test");
+
+        $response->assertForbidden();
+    }
+
+    public function test_can_mark_messages_as_read(): void
+    {
+        // Create some messages from other users
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        $this->channel->participants = array_merge($this->channel->participants ?? [], [(string) $otherUser->id]);
+        $this->channel->save();
+
+        $message1 = $this->channel->messages()->create([
+            'user_id' => $otherUser->id,
+            'message' => 'Message 1',
+        ]);
+        $message2 = $this->channel->messages()->create([
+            'user_id' => $otherUser->id,
+            'message' => 'Message 2',
+        ]);
+
+        $response = $this->postJson("/api/channels/{$this->channel->id}/read", [
+            'last_read_id' => $message2->id,
+        ]);
+
+        $response->assertOk();
+        $this->assertEquals(2, $response->json('marked_as_read'));
+    }
+
+    public function test_can_get_read_receipts_for_message(): void
+    {
+        $message = $this->channel->messages()->create([
+            'user_id' => auth()->id(),
+            'message' => 'Test message',
+        ]);
+
+        // Mark as read
+        $this->postJson("/api/channels/{$this->channel->id}/read", [
+            'last_read_id' => $message->id,
+        ]);
+
+        $response = $this->getJson("/api/channels/{$this->channel->id}/messages/{$message->id}/reads");
+
+        $response->assertOk();
+        $this->assertEquals(0, $response->json('read_count')); // Author doesn't count
+    }
+
+    public function test_can_get_unread_count(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        $this->channel->participants = array_merge($this->channel->participants ?? [], [(string) $otherUser->id]);
+        $this->channel->save();
+
+        $this->channel->messages()->create([
+            'user_id' => $otherUser->id,
+            'message' => 'Unread message 1',
+        ]);
+        $this->channel->messages()->create([
+            'user_id' => $otherUser->id,
+            'message' => 'Unread message 2',
+        ]);
+
+        $response = $this->getJson("/api/channels/{$this->channel->id}/unread");
+
+        $response->assertOk();
+        $this->assertEquals(2, $response->json('unread'));
+    }
+
+    public function test_unauthorized_user_cannot_mark_as_read(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        Sanctum::actingAs($otherUser, ['*']);
+
+        $response = $this->postJson("/api/channels/{$this->channel->id}/read", [
+            'last_read_id' => 1,
+        ]);
+
+        $response->assertForbidden();
+    }
 }

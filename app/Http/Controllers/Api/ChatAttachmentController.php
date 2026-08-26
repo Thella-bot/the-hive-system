@@ -15,7 +15,7 @@ class ChatAttachmentController extends Controller
         ]);
 
         $file = $request->file('file');
-        $path = $file->store('chat-attachments', 'private');
+        $path = $file->store('chat-attachments', 'local');
 
         return response()->json([
             'path' => $path,
@@ -30,10 +30,10 @@ class ChatAttachmentController extends Controller
     {
         $fullPath = 'chat-attachments/' . basename($path);
 
-        if (!Storage::disk('private')->exists($fullPath)) {
+        if (!Storage::disk('local')->exists($fullPath)) {
             abort(404);
         }
 
-        return Storage::disk('private')->download($fullPath);
+        return Storage::disk('local')->download($fullPath);
     }
 }

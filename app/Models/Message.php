@@ -21,7 +21,15 @@ class Message extends Model
         'chat_channel_id',
         'message',
         'attachments',
+        'read_count',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'attachments' => 'array',
+        ];
+    }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -36,6 +44,24 @@ class Message extends Model
     public function chatChannel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ChatChannel::class);
+    }
+
+    /**
+     * Get users who have read this message.
+     */
+    public function readByUsers(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'message_reads')
+            ->withPivot('read_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if the message has been read by a specific user.
+     */
+    public function isReadBy(User $user): bool
+    {
+        return $this->readByUsers()->where('user_id', $user->id)->exists();
     }
 
     /**

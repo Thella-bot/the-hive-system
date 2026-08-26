@@ -191,6 +191,24 @@ class ChatMessageController extends Controller
         return response()->json($channel, 201);
     }
 
+    public function search(ChatChannel $channel, Request $request)
+    {
+        $this->authorize('view', $channel);
+
+        $request->validate([
+            'q' => 'required|string|min:2|max:100',
+        ]);
+
+        $query = $request->input('q');
+
+        return $channel->messages()
+            ->with('user')
+            ->where('message', 'like', '%' . $query . '%')
+            ->orderBy('created_at', 'desc')
+            ->limit(50)
+            ->get();
+    }
+
     /**
      * Sanitize message input by trimming whitespace and stripping HTML tags.
      */
