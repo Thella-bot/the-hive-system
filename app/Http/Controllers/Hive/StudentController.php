@@ -60,13 +60,18 @@ class StudentController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'nullable|string|min:8|confirmed',
             'password_confirmation' => 'nullable|string',
-            'student_number' => 'nullable|string',
+            'student_number' => 'nullable|string|unique:profiles,student_number',
             'programme_id' => 'nullable|exists:programmes,id',
         ]);
 
+        // Sanitize inputs
+        $validated['name'] = strip_tags($validated['name']);
+        $validated['email'] = filter_var($validated['email'], FILTER_SANITIZE_EMAIL);
+
         $creator->create($validated);
 
-        return redirect()->route('hive.students.index');
+        return redirect()->route('hive.students.index')
+            ->with('success', 'Student created successfully.');
     }
 
     /**
@@ -108,7 +113,7 @@ class StudentController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $student->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'student_number' => 'nullable|string',
+            'student_number' => 'nullable|string|unique:profiles,student_number,' . ($student->profile?->id ?? 'NULL') . ',id',
             'programme_id' => 'nullable|exists:programmes,id',
             'cohort_id' => 'nullable|exists:cohorts,id',
             'enrollment_date' => 'nullable|date',
@@ -118,6 +123,10 @@ class StudentController extends Controller
             'emergency_contact_phone' => 'nullable|string|max:20',
             'emergency_contact_relationship' => 'nullable|string|max:255',
         ]);
+
+        // Sanitize inputs
+        $validated['name'] = strip_tags($validated['name']);
+        $validated['email'] = filter_var($validated['email'], FILTER_SANITIZE_EMAIL);
 
         $updater->update($student, $validated, $request->user()->isAdmin());
 
@@ -132,7 +141,8 @@ class StudentController extends Controller
     {
         $this->authorize('delete', $student);
         $student->delete();
-        return redirect()->route('hive.students.index');
+        return redirect()->route('hive.students.index')
+            ->with('success', 'Student deleted successfully.');
     }
 
     // ---------- PDF GENERATION ----------
@@ -142,7 +152,7 @@ class StudentController extends Controller
      */
     public function generateProof(User $student)
     {
-        $student->load(['profile', 'enrollments.module.programme']);
+        $student->load(['profile', 'enrollments.module.programme', 'modules']);
         $enrollment = $student->enrollments->first();
         if (!$enrollment) {
             return back()->with('error', 'No enrollment found.');
@@ -177,7 +187,7 @@ class StudentController extends Controller
             'enrolment_date' => $profile->enrollment_date ?? $student->created_at,
             'expected_completion' => now()->addYears($programme->duration ?? 3),
             'registrar_name' => $this->signatory->get('registrar'),
-            'modules' => $student->modules()->get(),
+            'modules' => $student->modules,
         ];
 
         $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);

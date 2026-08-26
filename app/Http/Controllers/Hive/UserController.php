@@ -23,6 +23,8 @@ class UserController extends Controller
 {
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', User::class);
+
         $paginatedUsers = User::with(['roles', 'profile.department', 'profile.cohort'])
             ->when($request->search, fn($q) => $q->where('name', 'like', "%{$request->search}%")
                 ->orWhere('email', 'like', "%{$request->search}%"))
@@ -54,6 +56,8 @@ class UserController extends Controller
 
     public function create(): Response
     {
+        $this->authorize('create', User::class);
+
         $ref = app(ReferenceDataService::class);
 
         return Inertia::render('Hive/Users/Create', [
@@ -66,7 +70,13 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request): RedirectResponse
     {
+        $this->authorize('create', User::class);
+
         $data = $request->validated();
+
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+        $data['email'] = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
 
         $user = User::create([
             'name'               => $data['name'],
@@ -81,7 +91,17 @@ class UserController extends Controller
 
         $user->syncRoles($data['roles']);
 
-        $profileData = collect($data)->only((new Profile)->getFillable())->all();
+        // Explicitly define allowed profile fields to prevent mass assignment
+        $allowedProfileFields = [
+            'first_name', 'last_name', 'date_of_birth', 'phone', 'address',
+            'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship',
+            'profile_picture_path', 'twitter_handle', 'linkedin_profile',
+            'cohort_id', 'enrollment_date', 'expected_graduation_date', 'status',
+            'dietary_restrictions', 'specialization', 'bio',
+        ];
+
+        // Only include fields that are in the allowed list
+        $profileData = collect($data)->only($allowedProfileFields)->all();
 
         // Generate student/employee number if not provided
         $isStudent = $user->hasRole('student');
@@ -112,6 +132,8 @@ class UserController extends Controller
 
     public function show(User $user): Response
     {
+        $this->authorize('view', $user);
+
         $user->load([
             'roles',
             'profile.department',
@@ -151,6 +173,8 @@ class UserController extends Controller
 
     public function edit(User $user): Response
     {
+        $this->authorize('update', $user);
+
         $user->load(['roles', 'profile']);
         $isAdmin = auth()->user()?->isAdmin();
         $ref = app(ReferenceDataService::class);
@@ -170,6 +194,10 @@ class UserController extends Controller
         $this->authorize('update', $user);
 
         $data = $request->validated();
+
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+        $data['email'] = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
 
         if (!auth()->user()->isAdmin()) {
             $administrativeRoles = ['super-admin', 'it-support'];
@@ -194,18 +222,33 @@ class UserController extends Controller
             $userData['password'] = Hash::make($data['password']);
         }
 
-        $profileData = collect($data)->only((new Profile)->getFillable())->all();
+        // Explicitly define allowed profile fields to prevent mass assignment
+        $allowedProfileFields = [
+            'first_name', 'last_name', 'date_of_birth', 'phone', 'address',
+            'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship',
+            'profile_picture_path', 'twitter_handle', 'linkedin_profile',
+            'cohort_id', 'enrollment_date', 'expected_graduation_date', 'status',
+            'dietary_restrictions', 'specialization', 'bio',
+        ];
 
-        DB::transaction(function () use ($user, $userData, $profileData, $data) {
-            $user->update($userData);
-            $user->syncRoles($data['roles']);
+        // Only include fields that are in the allowed list
+        $profileData = collect($data)->only($allowedProfileFields)->all();
 
-            if ($user->profile()->exists()) {
-                $user->profile()->update($profileData);
-            } else {
-                $user->profile()->create($profileData);
-            }
-        });
+        try {
+            DB::transaction(function () use ($user, $userData, $profileData, $data) {
+                $user->update($userData);
+                $user->syncRoles($data['roles']);
+
+                if ($user->profile()->exists()) {
+                    $user->profile()->update($profileData);
+                } else {
+                    $user->profile()->create($profileData);
+                }
+            });
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update user. Please try again.')
+                ->withInput();
+        }
 
         return redirect()->route('hive.users.show', $user)
             ->with('success', 'User updated successfully.');
@@ -213,6 +256,8 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
+        $this->authorize('delete', $user);
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot delete your own account.');
         }

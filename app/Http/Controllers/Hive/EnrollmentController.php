@@ -32,7 +32,7 @@ class EnrollmentController extends Controller
         $isAdmin = $user->hasAnyRole(['super-admin', 'it-support', 'registrar', 'program-coordinator', 'academic-director']);
 
         if ($isAdmin) {
-            $modules = Module::with('department')->orderBy('name')->get();
+            $modules = Module::with('department')->orderBy('name')->paginate(50);
         } else {
             $yearLevels = [$yearLevel];
             if ($yearLevel > 1) {
@@ -48,7 +48,7 @@ class EnrollmentController extends Controller
                     }
                 })
                 ->orderBy('name')
-                ->get();
+                ->paginate(50);
         }
 
         return Inertia::render('Enrollment/Index', [
