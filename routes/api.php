@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ChatMessageController;
 use App\Http\Controllers\Api\ChatAttachmentController;
 use App\Http\Controllers\Api\ChatReadReceiptController;
+use App\Http\Controllers\Api\ChatTypingController;
 use App\Http\Controllers\Api\TaskController;
 
 // Chat routes - auth:sanctum required
@@ -47,6 +48,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->name('channels.messages.reads');
     Route::get('/channels/{channel}/unread', [ChatReadReceiptController::class, 'unreadCount'])
         ->name('channels.messages.unread');
+
+    // Typing indicators
+    Route::post('/channels/{channel}/typing', [ChatTypingController::class, 'invoke'])
+        ->middleware(['throttle:10,1'])
+        ->name('channels.typing');
 
     // File attachments
     Route::post('/chat/attachments', [ChatAttachmentController::class, 'store'])

@@ -6,6 +6,7 @@ use App\Models\ChatChannel;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -30,6 +31,9 @@ class ChatMessageApiTest extends TestCase
         $this->channel = ChatChannel::factory()->direct([$this->user->id])->create();
 
         Sanctum::actingAs($this->user, ['*']);
+
+        // Use log driver for broadcasting in tests
+        config(['broadcasting.default' => 'log']);
     }
 
     public function test_can_list_messages_for_own_channel(): void

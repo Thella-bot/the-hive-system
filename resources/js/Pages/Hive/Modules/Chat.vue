@@ -21,6 +21,8 @@ const messageContainer = ref(null);
 const attachments = ref([]);
 const uploadError = ref(null);
 const isUploading = ref(false);
+const typingUsers = ref([]);
+let typingTimeout = null;
 
 const channelTitle = computed(() => {
     if (props.module) return `Module: ${props.module.name}`;
@@ -28,6 +30,13 @@ const channelTitle = computed(() => {
     if (props.channel.channel_type === 'department') return `${props.channel.name} Department`;
     if (props.channel.channel_type === 'direct') return 'Direct Message';
     return props.channel.name;
+});
+
+const typingText = computed(() => {
+    if (typingUsers.value.length === 0) return '';
+    if (typingUsers.value.length === 1) return `${typingUsers.value[0]} is typing...`;
+    if (typingUsers.value.length === 2) return `${typingUsers.value[0]} and ${typingUsers.value[1]} are typing...`;
+    return `${typingUsers.value.length} people are typing...`;
 });
 
 const scrollToBottom = () => {
@@ -180,6 +189,17 @@ const subscribeToEcho = () => {
                 scrollToBottom();
             }
         })
+        .listen('ChatTyping', (e) => {
+            if (e.is_typing) {
+                // Add user to typing list if not already there
+                if (!typingUsers.value.includes(e.user.name)) {
+                    typingUsers.value.push(e.user.name);
+                }
+            } else {
+                // Remove user from typing list
+                typingUsers.value = typingUsers.value.filter(name => name !== e.user.name);
+            }
+        })
         .error((error) => {
             console.error('Echo channel error:', error);
         });
@@ -197,6 +217,35 @@ const subscribeToEcho = () => {
             stopPolling();
         }
     });
+};
+
+const sendTypingIndicator = async (isTyping) => {
+    try {
+        let url;
+        if (props.module) {
+            url = `/api/modules/${props.module.id}/typing`;
+        } else {
+            url = `/api/channels/${props.channel.id}/typing`;
+        }
+        await axios.post(url, { is_typing: isTyping });
+    } catch (error) {
+        console.error('Typing indicator error:', error);
+    }
+};
+
+const onTyping = () => {
+    // Clear existing timeout
+    if (typingTimeout) {
+        clearTimeout(typingTimeout);
+    }
+
+    // Send typing indicator
+    sendTypingIndicator(true);
+
+    // Set timeout to stop typing indicator after 3 seconds of inactivity
+    typingTimeout = setTimeout(() => {
+        sendTypingIndicator(false);
+    }, 3000);
 };
 
 let pollInterval = null;
@@ -223,8 +272,14 @@ onMounted(() => {
 onUnmounted(() => {
     if (echoChannel) {
         echoChannel.stopListening('ChatMessageSent');
+        echoChannel.stopListening('ChatTyping');
     }
     stopPolling();
+    // Send stop typing indicator
+    sendTypingIndicator(false);
+    if (typingTimeout) {
+        clearTimeout(typingTimeout);
+    }
 });
 </script>
 
@@ -285,10 +340,15 @@ onUnmounted(() => {
                                 </div>
                             </div>
                         </div>
-                        <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
+                         <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
                             <ChatBubbleLeftRightIcon class="w-12 h-12 mx-auto text-gray-400 mb-3" />
                             <p>No messages yet. Be the first to say something!</p>
                         </div>
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div v-if="typingText" class="mb-2 text-sm text-gray-500 italic">
+                        {{ typingText }}
                     </div>
 
                     <!-- Message Input Form -->
@@ -335,6 +395,7 @@ onUnmounted(() => {
                                 class="flex-grow border-gray-300 focus:border-amber-500 focus:ring-amber-500 rounded-md shadow-sm"
                                 placeholder="Type your message..."
                                 autocomplete="off"
+                                @input="onTyping"
                             />
                             <PrimaryButton class="px-6" :disabled="isUploading || (!newMessage.trim() && attachments.length === 0)">
                                 {{ isUploading ? 'Uploading...' : 'Send' }}
