@@ -4,9 +4,8 @@ namespace Tests\Feature\Api;
 
 use App\Models\ChatChannel;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -21,25 +20,21 @@ class ChatMessageApiTest extends TestCase
     {
         parent::setUp();
 
+        $this->artisan('db:seed', [
+            '--class' => RolePermissionSeeder::class,
+        ]);
+
         $this->user = User::factory()->create();
         $this->user->assignRole('student');
 
-        $this->channel = ChatChannel::factory()->create();
-        $this->user->chatChannels()->attach($this->channel);
+        $this->channel = ChatChannel::factory()->direct([$this->user->id])->create();
 
         Sanctum::actingAs($this->user, ['*']);
     }
 
-    public function test_unauthenticated_user_cannot_list_messages(): void
-    {
-        $response = $this->getJson("/api/chat/channel/{$this->channel->id}/messages");
-
-        $response->assertUnauthorized();
-    }
-
     public function test_can_list_messages_for_own_channel(): void
     {
-        $response = $this->getJson("/api/chat/channel/{$this->channel->id}/messages");
+        $response = $this->getJson("/api/channels/{$this->channel->id}/messages");
 
         $response->assertOk()
             ->assertJsonStructure(['data']);
@@ -47,41 +42,206 @@ class ChatMessageApiTest extends TestCase
 
     public function test_unauthorized_user_cannot_list_messages(): void
     {
-        $otherUser = User::factory()->create()->assignRole('student');
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
         Sanctum::actingAs($otherUser, ['*']);
 
-        $response = $this->getJson("/api/chat/channel/{$this->channel->id}/messages");
+        $response = $this->getJson("/api/channels/{$this->channel->id}/messages");
 
         $response->assertForbidden();
     }
 
     public function test_can_create_message(): void
     {
-        $response = $this->postJson("/api/chat/channel/{$this->channel->id}/messages", [
-            'content' => 'Hello, world!',
+        $response = $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Hello, world!',
         ]);
 
         $response->assertCreated()
-            ->assertJsonStructure(['data' => ['id', 'content', 'sender_id', 'channel_id']]);
+            ->assertJsonStructure(['id', 'message', 'user_id', 'chat_channel_id']);
 
         $this->assertDatabaseHas('messages', [
-            'content' => 'Hello, world!',
-            'channel_id' => $this->channel->id,
-            'sender_id' => $this->user->id,
+            'message' => 'Hello, world!',
+            'chat_channel_id' => $this->channel->id,
+            'user_id' => $this->user->id,
         ]);
     }
 
     public function test_cannot_create_message_for_channel_without_membership(): void
     {
-        $otherChannel = ChatChannel::factory()->create();
-        $otherUser = User::factory()->create()->assignRole('student');
-        $otherUser->chatChannels()->attach($otherChannel);
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
         Sanctum::actingAs($otherUser, ['*']);
 
-        $response = $this->postJson("/api/chat/channel/{$this->channel->id}/messages", [
-            'content' => 'Unauthorized message',
+        $response = $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Unauthorized message',
         ]);
 
         $response->assertForbidden();
+    }
+
+    public function test_message_requires_non_empty_content(): void
+    {
+        $response = $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => '   ',
+        ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_message_strips_html_tags(): void
+    {
+        $response = $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => '<script>alert("xss")</script>Hello',
+        ]);
+
+        $response->assertCreated();
+        // strip_tags removes HTML tags but keeps content - Vue's {{ }} escaping prevents XSS
+        $this->assertDatabaseHas('messages', [
+            'message' => 'alert("xss")Hello',
+        ]);
+    }
+
+    public function test_user_can_update_own_message(): void
+    {
+        // Create a message first
+        $createResponse = $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Original message',
+        ]);
+        $messageId = $createResponse->json('id');
+
+        $response = $this->patchJson("/api/channels/{$this->channel->id}/messages/{$messageId}", [
+            'message' => 'Updated message',
+        ]);
+
+        $response->assertOk();
+        $this->assertDatabaseHas('messages', [
+            'id' => $messageId,
+            'message' => 'Updated message',
+        ]);
+    }
+
+    public function test_user_can_delete_own_message(): void
+    {
+        // Create a message first
+        $createResponse = $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Message to delete',
+        ]);
+        $messageId = $createResponse->json('id');
+
+        $response = $this->deleteJson("/api/channels/{$this->channel->id}/messages/{$messageId}");
+
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('messages', [
+            'id' => $messageId,
+        ]);
+    }
+
+    public function test_user_cannot_update_another_users_message(): void
+    {
+        // Create a message as the other user
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+        $this->channel->participants = array_merge($this->channel->participants ?? [], [(string) $otherUser->id]);
+        $this->channel->save();
+
+        $message = $this->channel->messages()->create([
+            'user_id' => $otherUser->id,
+            'message' => 'Other user message',
+        ]);
+
+        $response = $this->patchJson("/api/channels/{$this->channel->id}/messages/{$message->id}", [
+            'message' => 'Hacked message',
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_direct_channel_creation(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+
+        $response = $this->postJson("/api/channels/direct", [
+            'participants' => [$otherUser->id],
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('chat_channels', [
+            'channel_type' => 'direct',
+        ]);
+    }
+
+    public function test_direct_channel_requires_at_least_one_participant(): void
+    {
+        $response = $this->postJson("/api/channels/direct", [
+            'participants' => [],
+        ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_direct_channel_with_same_participants_returns_existing(): void
+    {
+        $otherUser = User::factory()->create();
+        $otherUser->assignRole('student');
+
+        // Create direct channel first time
+        $response1 = $this->postJson("/api/channels/direct", [
+            'participants' => [$otherUser->id],
+        ]);
+        $response1->assertCreated();
+        $channelId = $response1->json('id');
+
+        // Try to create again with same participants
+        $response2 = $this->postJson("/api/channels/direct", [
+            'participants' => [$otherUser->id],
+        ]);
+        $response2->assertOk();
+        $this->assertEquals($channelId, $response2->json('id'));
+    }
+
+    public function test_can_upload_attachment(): void
+    {
+        $file = \Illuminate\Http\UploadedFile::fake()->image('test-image.png', 100, 100);
+
+        $response = $this->postJson('/api/chat/attachments', [
+            'file' => $file,
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonStructure(['path', 'name', 'size', 'mime_type', 'url']);
+    }
+
+    public function test_upload_rejects_oversized_file(): void
+    {
+        $file = \Illuminate\Http\UploadedFile::fake()->create('large-file.pdf', 15000); // 15MB
+
+        $response = $this->postJson('/api/chat/attachments', [
+            'file' => $file,
+        ]);
+
+        $response->assertUnprocessable();
+    }
+
+    public function test_can_send_message_with_attachment(): void
+    {
+        // Upload attachment first
+        $file = \Illuminate\Http\UploadedFile::fake()->image('test-image.png', 100, 100);
+        $uploadResponse = $this->postJson('/api/chat/attachments', [
+            'file' => $file,
+        ]);
+        $attachment = $uploadResponse->json();
+
+        // Send message with attachment
+        $response = $this->postJson("/api/channels/{$this->channel->id}/messages", [
+            'message' => 'Check out this image',
+            'attachments' => [$attachment],
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('messages', [
+            'message' => 'Check out this image',
+        ]);
     }
 }

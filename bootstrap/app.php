@@ -113,6 +113,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Handle AuthenticationException - redirect to login with error flash
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+            // Return JSON for API requests
+            if ($request->expectsJson() || $request->isJson() || $request->ajax()) {
+                return response()->json([
+                    'message' => 'You must be signed in to do that. Please sign in and try again.',
+                    'error_id' => (string) Str::uuid(),
+                ], 401);
+            }
+
             $loginUrl = route('login', [], false);
 
             if ($request->header('X-Inertia')) {
@@ -155,6 +163,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Handle 401 (unauthenticated) - redirect to login
             if ($status === 401) {
+                // Return JSON for API requests
+                if ($request->expectsJson() || $request->isJson() || $request->ajax()) {
+                    return response()->json([
+                        'message' => $message,
+                        'error_id' => $errorId,
+                    ], 401);
+                }
+
                 $loginUrl = route('login', [], false);
 
                 if ($request->header('X-Inertia')) {
@@ -170,6 +186,14 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Handle 403 (forbidden/unauthorized) - redirect back with error
             if ($status === 403) {
+                // Return JSON for API requests
+                if ($request->expectsJson() || $request->isJson() || $request->ajax()) {
+                    return response()->json([
+                        'message' => $message,
+                        'error_id' => $errorId,
+                    ], 403);
+                }
+
                 $backUrl = url()->previous();
                 $redirect = $backUrl ? redirect($backUrl) : redirect('/');
 

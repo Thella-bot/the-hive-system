@@ -38,7 +38,8 @@ Broadcast::channel('chat.general', function ($user) {
 Broadcast::channel('chat.direct.{channelId}', function ($user, $channelId) {
     $channel = \App\Models\ChatChannel::find($channelId);
     if (!$channel) return false;
-    return in_array((string) $user->id, $channel->participants ?? []);
+    return in_array((string) $user->id, $channel->participants ?? [])
+        || $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']);
 });
 
 // Emergency broadcast — all authenticated users

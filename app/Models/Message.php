@@ -20,6 +20,7 @@ class Message extends Model
         'module_id',
         'chat_channel_id',
         'message',
+        'attachments',
     ];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -35,6 +36,17 @@ class Message extends Model
     public function chatChannel(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(ChatChannel::class);
+    }
+
+    /**
+     * Get attachments attribute as array.
+     */
+    public function getAttachmentsAttribute($value): ?array
+    {
+        if (is_string($value)) {
+            return json_decode($value, true);
+        }
+        return $value;
     }
 
     // --- Scopes ---

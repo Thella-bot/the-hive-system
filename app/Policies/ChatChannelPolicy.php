@@ -31,14 +31,20 @@ class ChatChannelPolicy
 
     protected function canAccessChannel(User $user, ChatChannel $channel): bool
     {
+        // Super-admins and IT support can access all channels
+        if ($user->hasAnyRole(['super-admin', 'it-support'])) {
+            return true;
+        }
+
         return match ($channel->channel_type) {
             'general' => $user->isStaff(),
             'department' => $user->profile?->department_id === $channel->channel_id
-                || $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']),
+                || $user->hasRole('academic-director'),
             'module' => $channel->module?->students()->where('user_id', $user->id)->exists()
                 || $channel->module?->instructors()->where('user_id', $user->id)->exists()
-                || $user->hasAnyRole(['super-admin', 'it-support', 'academic-director']),
-            'direct' => in_array((string) $user->id, $channel->participants ?? []),
+                || $user->hasRole('academic-director'),
+            'direct' => in_array((string) $user->id, $channel->participants ?? [])
+                || $user->hasRole('academic-director'),
             default => false,
         };
     }

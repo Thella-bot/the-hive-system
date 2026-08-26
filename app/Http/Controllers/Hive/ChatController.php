@@ -20,10 +20,7 @@ class ChatController extends Controller
 
         // Only show general channel to staff, not students
         $generalChannel = $user->isStaff()
-            ? ChatChannel::firstOrCreate(
-                ['channel_type' => 'general', 'channel_id' => null],
-                ['name' => 'All Staff']
-            )
+            ? ChatChannel::getGeneralChannel()
             : null;
 
         // Only show department channel to staff with a department
@@ -31,10 +28,7 @@ class ChatController extends Controller
         if ($user->isStaff() && $user->profile?->department_id) {
             $dept = Department::find($user->profile->department_id);
             if ($dept) {
-                $deptChannels = ChatChannel::firstOrCreate(
-                    ['channel_type' => 'department', 'channel_id' => $dept->id],
-                    ['name' => $dept->name]
-                );
+                $deptChannels = ChatChannel::getDepartmentChannel($dept->id, $dept->name);
             }
         }
 
@@ -47,22 +41,7 @@ class ChatController extends Controller
 
     public function showChannel(ChatChannel $channel)
     {
-        $user = auth()->user();
-
-        $canAccess = match ($channel->channel_type) {
-            'module' => $user->modules()->where('module_id', $channel->channel_id)->exists()
-                        || $user->instructedModules()->where('module_id', $channel->channel_id)->exists()
-                        || $user->isAdmin(),
-            'department' => $user->profile?->department_id == $channel->channel_id
-                           || $user->isAdmin(),
-            'general' => $user->isStaff(),
-            'direct' => in_array((string) $user->id, $channel->participants ?? []),
-            default => false,
-        };
-
-        if (!$canAccess) {
-            abort(403);
-        }
+        $this->authorize('view', $channel);
 
         return inertia('Hive/Modules/Chat', ['channel' => $channel]);
     }
@@ -79,10 +58,7 @@ class ChatController extends Controller
             abort(403, 'You are not enrolled in this module.');
         }
 
-        $channel = ChatChannel::firstOrCreate(
-            ['channel_type' => 'module', 'channel_id' => $module->id],
-            ['name' => $module->name]
-        );
+        $channel = ChatChannel::getModuleChannel($module->id, $module->name);
 
         return inertia('Hive/Modules/Chat', [
             'module' => $module,

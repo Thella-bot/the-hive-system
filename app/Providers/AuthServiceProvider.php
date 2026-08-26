@@ -17,6 +17,7 @@ use App\Models\Expense;
 use App\Models\Gradable;
 use App\Models\Invoice;
 use App\Models\LeaveRequest;
+use App\Models\Message;
 use App\Models\Module;
 use App\Models\Payment;
 use App\Models\Payslip;
@@ -40,6 +41,7 @@ use App\Policies\ExpensePolicy;
 use App\Policies\GradablePolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\LeaveRequestPolicy;
+use App\Policies\MessagePolicy;
 use App\Policies\ModulePolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PayslipPolicy;
@@ -72,6 +74,7 @@ class AuthServiceProvider extends ServiceProvider
         ShortCourse::class => ShortCoursePolicy::class,
         ShortCourseApplication::class => ShortCourseApplicationPolicy::class,
         ChatChannel::class => ChatChannelPolicy::class,
+        Message::class => MessagePolicy::class,
         Payment::class => PaymentPolicy::class,
         Placement::class => PlacementPolicy::class,
         DisciplinaryAction::class => DisciplinaryActionPolicy::class,

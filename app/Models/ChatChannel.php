@@ -66,4 +66,63 @@ class ChatChannel extends Model
               ->orWhereJsonContains('participants', (string) $user->id);
         });
     }
+
+    /**
+     * Get or create the general staff channel safely.
+     * Prevents duplicate general channels due to NULL unique constraint behavior.
+     */
+    public static function getGeneralChannel(): self
+    {
+        $channel = self::where('channel_type', 'general')->first();
+
+        if (!$channel) {
+            $channel = self::create([
+                'channel_type' => 'general',
+                'channel_id' => null,
+                'name' => 'All Staff',
+            ]);
+        }
+
+        return $channel;
+    }
+
+    /**
+     * Get or create a department channel safely.
+     */
+    public static function getDepartmentChannel(int $departmentId, string $name): self
+    {
+        $channel = self::where('channel_type', 'department')
+            ->where('channel_id', $departmentId)
+            ->first();
+
+        if (!$channel) {
+            $channel = self::create([
+                'channel_type' => 'department',
+                'channel_id' => $departmentId,
+                'name' => $name,
+            ]);
+        }
+
+        return $channel;
+    }
+
+    /**
+     * Get or create a module channel safely.
+     */
+    public static function getModuleChannel(int $moduleId, string $name): self
+    {
+        $channel = self::where('channel_type', 'module')
+            ->where('channel_id', $moduleId)
+            ->first();
+
+        if (!$channel) {
+            $channel = self::create([
+                'channel_type' => 'module',
+                'channel_id' => $moduleId,
+                'name' => $name,
+            ]);
+        }
+
+        return $channel;
+    }
 }

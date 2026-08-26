@@ -3,19 +3,42 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ChatMessageController;
+use App\Http\Controllers\Api\ChatAttachmentController;
 use App\Http\Controllers\Api\TaskController;
 
 // Chat routes - auth:sanctum required
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/modules/{module}/messages', [ChatMessageController::class, 'index'])->name('messages.index');
-    Route::post('/modules/{module}/messages', [ChatMessageController::class, 'store'])
+    Route::get('/modules/{module}/messages', [ChatMessageController::class, 'index'])
         ->middleware(['throttle:60,1'])
+        ->name('messages.index');
+    Route::post('/modules/{module}/messages', [ChatMessageController::class, 'store'])
+        ->middleware(['throttle:30,1'])
         ->name('messages.store');
 
-    Route::get('/channels/{channel}/messages', [ChatMessageController::class, 'indexChannel'])->name('channels.messages.index');
-    Route::post('/channels/{channel}/messages', [ChatMessageController::class, 'storeChannel'])
+    Route::get('/channels/{channel}/messages', [ChatMessageController::class, 'indexChannel'])
         ->middleware(['throttle:60,1'])
+        ->name('channels.messages.index');
+    Route::post('/channels/{channel}/messages', [ChatMessageController::class, 'storeChannel'])
+        ->middleware(['throttle:30,1'])
         ->name('channels.messages.store');
+    Route::patch('/channels/{channel}/messages/{message}', [ChatMessageController::class, 'update'])
+        ->middleware(['throttle:30,1'])
+        ->name('channels.messages.update');
+    Route::delete('/channels/{channel}/messages/{message}', [ChatMessageController::class, 'destroy'])
+        ->middleware(['throttle:30,1'])
+        ->name('channels.messages.destroy');
+
+    // Direct message channel creation
+    Route::post('/channels/direct', [ChatMessageController::class, 'storeDirectChannel'])
+        ->middleware(['throttle:10,1'])
+        ->name('channels.direct.store');
+
+    // File attachments
+    Route::post('/chat/attachments', [ChatAttachmentController::class, 'store'])
+        ->middleware(['throttle:20,1'])
+        ->name('attachments.store');
+    Route::get('/chat/attachments/{path}', [ChatAttachmentController::class, 'show'])
+        ->name('attachments.download');
 });
 
 Route::middleware('auth:sanctum')->group(function () {
