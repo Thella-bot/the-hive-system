@@ -58,11 +58,12 @@
 <p>This document is issued at the request of the student named above and is valid for a period of thirty (30) days from the date of issue.</p>
 <p>This letter should not be altered or reproduced without the written authorisation of the Registrar. For verification, please contact the Registrar's Office at registrar@hbci.ac.ls.</p>
 
-<div class="signature-block">
+<div class="signature-block" style="position: relative;">
     <div class="signature-line"></div>
     <p class="signature-name">{{ $registrar_name }}</p>
     <p class="signature-title">Registrar</p>
     <p class="institute-footer">Honey Bee Culinary Institute</p>
-    <p><em>[OFFICIAL STAMP]</em></p>
+    <img src="{{ public_path('images/honeybee-stamp.png') }}" alt="Official Seal"
+         style="position: absolute; top: 15px; left: 280px; width: 130px; opacity: 0.92;">
 </div>
 @endsection
