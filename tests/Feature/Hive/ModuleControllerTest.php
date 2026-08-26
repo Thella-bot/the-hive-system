@@ -173,7 +173,8 @@ class ModuleControllerTest extends HiveTestCase
             'code' => $module->code,
             'description' => 'Updated description',
             'credits' => 4,
-            'delivery_mode' => 'online',
+            'delivery_mode' => 'in_person',
+            'location' => 'Room 101',
             'department_id' => Department::first()->id,
             'programme_id' => Programme::first()->id,
         ]);
@@ -253,5 +254,96 @@ class ModuleControllerTest extends HiveTestCase
         $response = $this->get(route('hive.modules.show', $fixture['module']));
 
         $response->assertRedirect();
+    }
+
+    public function test_module_duplicate_creates_copy(): void
+    {
+        $user = User::factory()->create(['approved_at' => now()]);
+        $user->assignRole('academic-director');
+
+        $module = \App\Models\Module::factory()->create(['code' => 'ORIG-101']);
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.modules.duplicate', $module));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('modules', [
+            'name' => $module->name . ' (Copy)',
+        ]);
+        // Should have 2 modules now
+        $this->assertDatabaseCount('modules', 2);
+    }
+
+    public function test_module_duplicate_requires_authorization(): void
+    {
+        $user = User::factory()->create(['approved_at' => now()]);
+        $user->assignRole('student');
+
+        $module = \App\Models\Module::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.modules.duplicate', $module));
+
+        // Students are redirected due to role middleware
+        $response->assertRedirect();
+    }
+
+    public function test_module_search_filters_results(): void
+    {
+        $user = User::factory()->create(['approved_at' => now()]);
+        $user->assignRole('academic-director');
+
+        $department = Department::factory()->create();
+        $programme = Programme::factory()->create();
+
+        $module = \App\Models\Module::factory()->create([
+            'name' => 'Pastry Basics',
+            'code' => 'PB-101',
+            'department_id' => $department->id,
+            'programme_id' => $programme->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.modules.index', ['search' => 'Pastry']));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->has('modules.data', 1)
+            ->where('modules.data.0.id', $module->id)
+        );
+    }
+
+    public function test_module_filter_by_department(): void
+    {
+        $user = User::factory()->create(['approved_at' => now()]);
+        $user->assignRole('academic-director');
+
+        $department = Department::factory()->create();
+        $otherDepartment = Department::factory()->create();
+        $programme = Programme::factory()->create();
+
+        $moduleA = \App\Models\Module::factory()->create([
+            'department_id' => $department->id,
+            'programme_id' => $programme->id,
+            'name' => 'Module A',
+        ]);
+        \App\Models\Module::factory()->create([
+            'department_id' => $otherDepartment->id,
+            'programme_id' => $programme->id,
+            'name' => 'Module B',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.modules.index', ['department_id' => $department->id]));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->has('modules.data', 1)
+            ->where('modules.data.0.id', $moduleA->id)
+        );
     }
 }

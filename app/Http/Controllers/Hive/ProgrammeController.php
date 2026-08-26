@@ -7,12 +7,15 @@ use App\Models\Department;
 use App\Models\Module;
 use App\Models\Programme;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ProgrammeController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Programme::class);
+
         $programmes = Programme::with('department')->paginate(10);
 
         return Inertia::render('Hive/Programmes/Index', [
@@ -22,8 +25,10 @@ class ProgrammeController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Programme::class);
+
         return Inertia::render('Hive/Programmes/Create', [
-            'departments' => Department::orderBy('name')->get(),
+            'departments' => Department::active()->orderBy('name')->get(),
         ]);
     }
 
@@ -42,6 +47,11 @@ class ProgrammeController extends Controller
             'department_id' => 'required|exists:departments,id',
         ]);
 
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+        $data['description'] = strip_tags($data['description']);
+        $data['location'] = strip_tags($data['location']);
+
         Programme::create($data);
 
         return redirect()->route('hive.programmes.index')->with('success', 'Programme created successfully.');
@@ -49,6 +59,8 @@ class ProgrammeController extends Controller
 
     public function show(Programme $programme)
     {
+        $this->authorize('view', $programme);
+
         $programme->load(['department', 'modules']);
 
         return Inertia::render('Hive/Programmes/Show', [
@@ -58,6 +70,8 @@ class ProgrammeController extends Controller
 
     public function edit(Programme $programme)
     {
+        $this->authorize('update', $programme);
+
         $allModules = Module::orderBy('name')->get();
 
         return Inertia::render('Hive/Programmes/Edit', [
@@ -82,10 +96,22 @@ class ProgrammeController extends Controller
             'modules.*' => 'exists:modules,id',
         ]);
 
-        $programme->update(array_diff_key($data, array_flip(['modules'])));
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+        $data['description'] = strip_tags($data['description']);
+        $data['location'] = strip_tags($data['location']);
 
-        if (array_key_exists('modules', $data)) {
-            $programme->modules()->sync($data['modules']);
+        try {
+            DB::transaction(function () use ($programme, $data) {
+                $programme->update(array_diff_key($data, array_flip(['modules'])));
+
+                if (array_key_exists('modules', $data)) {
+                    $programme->modules()->sync($data['modules']);
+                }
+            });
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update programme. Please try again.')
+                ->withInput();
         }
 
         return redirect()->route('hive.programmes.show', $programme)->with('success', 'Programme updated successfully.');

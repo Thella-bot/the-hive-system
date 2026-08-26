@@ -22,6 +22,8 @@ Route::middleware(['role:super-admin|registrar|program-coordinator'])->name('reg
     // Module Enrollments
     Route::get('enrollments', [EnrollmentController::class, 'index'])->name('enrollments.index');
     Route::post('enrollments', [EnrollmentController::class, 'store'])->name('enrollments.store');
+    Route::post('enrollments/bulk', [EnrollmentController::class, 'bulkStore'])->name('enrollments.bulk-store');
+    Route::delete('enrollments/bulk', [EnrollmentController::class, 'bulkDestroy'])->name('enrollments.bulk-destroy');
     Route::patch('enrollments/{module}', [EnrollmentController::class, 'update'])->name('enrollments.update');
     Route::delete('enrollments/{module}', [EnrollmentController::class, 'destroy'])->name('enrollments.destroy');
 });

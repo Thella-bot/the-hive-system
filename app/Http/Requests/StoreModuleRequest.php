@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Models\Module;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreModuleRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', Module::class) ?? false;
     }
 
     public function rules(): array
@@ -20,9 +21,9 @@ class StoreModuleRequest extends FormRequest
             'description' => 'nullable|string',
             'credits'     => 'required|integer|min:1',
             'delivery_mode' => 'required|string|in:in_person,online,hybrid',
-            'meeting_platform' => 'nullable|string|max:100',
-            'meeting_link' => 'nullable|url|max:500',
-            'location' => 'nullable|string|max:255',
+            'meeting_platform' => 'required_if:delivery_mode,online,hybrid|string|max:100',
+            'meeting_link' => 'required_if:delivery_mode,online,hybrid|url|max:500',
+            'location' => 'required_if:delivery_mode,in_person,hybrid|string|max:255',
             'department_id' => 'required|exists:departments,id',
             'programme_id' => 'required|exists:programmes,id',
         ];

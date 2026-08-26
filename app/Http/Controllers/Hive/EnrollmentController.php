@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
 use App\Models\Module;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -129,5 +131,102 @@ class EnrollmentController extends Controller
         $user->modules()->detach($module->id);
 
         return back()->with('success', 'You have left the module.');
+    }
+
+    /**
+     * Bulk enroll students into a module (admin only).
+     */
+    public function bulkStore(Request $request): RedirectResponse
+    {
+        $this->authorize('create', Enrollment::class);
+
+        $data = $request->validate([
+            'module_id' => 'required|exists:modules,id',
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'exists:users,id',
+            'academic_year' => 'required|string',
+            'semester' => 'required|integer|in:1,2',
+        ]);
+
+        $module = Module::findOrFail($data['module_id']);
+        $academicYear = $data['academic_year'];
+        $semester = $data['semester'];
+
+        $enrolled = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use ($data, $academicYear, $semester, &$enrolled, &$skipped) {
+            foreach ($data['user_ids'] as $userId) {
+                // Check if already enrolled
+                $exists = Enrollment::where('user_id', $userId)
+                    ->where('module_id', $data['module_id'])
+                    ->where('academic_year', $academicYear)
+                    ->where('semester', $semester)
+                    ->exists();
+
+                if ($exists) {
+                    $skipped++;
+                    continue;
+                }
+
+                Enrollment::create([
+                    'user_id' => $userId,
+                    'module_id' => $data['module_id'],
+                    'academic_year' => $academicYear,
+                    'semester' => $semester,
+                ]);
+
+                // Also sync to module_user pivot
+                $user = User::find($userId);
+                if ($user) {
+                    $user->modules()->syncWithoutDetaching([$data['module_id']]);
+                }
+
+                $enrolled++;
+            }
+        });
+
+        $message = "Bulk enrollment complete. {$enrolled} students enrolled.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} already enrolled (skipped).";
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Bulk remove students from a module (admin only).
+     */
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $this->authorize('create', Enrollment::class);
+
+        $data = $request->validate([
+            'module_id' => 'required|exists:modules,id',
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $module = Module::findOrFail($data['module_id']);
+
+        $removed = 0;
+
+        DB::transaction(function () use ($data, &$removed) {
+            foreach ($data['user_ids'] as $userId) {
+                $deleted = Enrollment::where('user_id', $userId)
+                    ->where('module_id', $data['module_id'])
+                    ->delete();
+
+                if ($deleted) {
+                    $user = User::find($userId);
+                    if ($user) {
+                        $user->modules()->detach($data['module_id']);
+                    }
+                    $removed++;
+                }
+            }
+        });
+
+        return back()->with('success', "{$removed} students removed from module.");
     }
 }

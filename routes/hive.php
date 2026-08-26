@@ -151,6 +151,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         // Modules
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
         Route::post('programmes', [ModuleController::class, 'storeProgramme'])->name('programmes.store');
+        Route::post('modules/{module}/duplicate', [ModuleController::class, 'duplicate'])->name('modules.duplicate')
+            ->middleware('role:super-admin|academic-director|program-coordinator');
         Route::resource('modules', ModuleController::class)->only(['create', 'store', 'show', 'edit', 'update', 'destroy'])
             ->middleware('role:super-admin|academic-director|program-coordinator');
 

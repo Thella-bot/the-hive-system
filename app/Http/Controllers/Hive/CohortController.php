@@ -16,6 +16,8 @@ class CohortController extends Controller
 {
     public function index(): Response
     {
+        $this->authorize('viewAny', Cohort::class);
+
         $cohorts = Cohort::with(['department', 'academicYear'])
             ->withCount('students')
             ->latest()
@@ -30,6 +32,8 @@ class CohortController extends Controller
 
     public function create(): Response
     {
+        $this->authorize('create', Cohort::class);
+
         return Inertia::render('Hive/Cohorts/Create', [
             'departments'   => Department::academic()->active()->select('id', 'name', 'color')->get(),
             'academicYears' => AcademicYear::orderByDesc('start_date')->select('id', 'name', 'is_current')->get(),
@@ -38,6 +42,8 @@ class CohortController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Cohort::class);
+
         $data = $request->validate([
             'name'             => 'required|string|max:255',
             'department_id'    => ['required', 'exists:departments,id', function ($attribute, $value, $fail) {
@@ -53,6 +59,9 @@ class CohortController extends Controller
             'end_date'         => 'nullable|date|after:start_date',
         ]);
 
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+
         Cohort::create($data);
 
         return redirect()->route('hive.cohorts.index')
@@ -61,6 +70,8 @@ class CohortController extends Controller
 
     public function show(Cohort $cohort): Response
     {
+        $this->authorize('view', $cohort);
+
         $cohort->load([
             'department',
             'academicYear',
@@ -74,6 +85,8 @@ class CohortController extends Controller
 
     public function edit(Cohort $cohort): Response
     {
+        $this->authorize('update', $cohort);
+
         return Inertia::render('Hive/Cohorts/Edit', [
             'cohort'        => $cohort,
             'departments'   => Department::academic()->active()->select('id', 'name', 'color')->get(),
@@ -83,6 +96,8 @@ class CohortController extends Controller
 
     public function update(Request $request, Cohort $cohort): RedirectResponse
     {
+        $this->authorize('update', $cohort);
+
         $data = $request->validate([
             'name'             => 'required|string|max:255',
             'department_id'    => ['required', 'exists:departments,id', function ($attribute, $value, $fail) {
@@ -98,6 +113,9 @@ class CohortController extends Controller
             'end_date'         => 'nullable|date|after:start_date',
         ]);
 
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+
         $cohort->update($data);
 
         return redirect()->route('hive.cohorts.show', $cohort)
@@ -106,6 +124,8 @@ class CohortController extends Controller
 
     public function destroy(Cohort $cohort): RedirectResponse
     {
+        $this->authorize('delete', $cohort);
+
         if ($cohort->students()->exists()) {
             return back()->with('error', 'Cannot delete a cohort that has students enrolled.');
         }

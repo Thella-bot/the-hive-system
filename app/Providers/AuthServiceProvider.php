@@ -12,6 +12,7 @@ use App\Models\ChatChannel;
 use App\Models\Cohort;
 use App\Models\Department;
 use App\Models\DisciplinaryAction;
+use App\Models\Enrollment;
 use App\Models\Event;
 use App\Models\Expense;
 use App\Models\Gradable;
@@ -36,6 +37,7 @@ use App\Policies\ChatChannelPolicy;
 use App\Policies\CohortPolicy;
 use App\Policies\DepartmentPolicy;
 use App\Policies\DisciplinaryActionPolicy;
+use App\Policies\EnrollmentPolicy;
 use App\Policies\EventPolicy;
 use App\Policies\ExpensePolicy;
 use App\Policies\GradablePolicy;
@@ -78,6 +80,7 @@ class AuthServiceProvider extends ServiceProvider
         Payment::class => PaymentPolicy::class,
         Placement::class => PlacementPolicy::class,
         DisciplinaryAction::class => DisciplinaryActionPolicy::class,
+        Enrollment::class => EnrollmentPolicy::class,
         Invoice::class => InvoicePolicy::class,
         Expense::class => ExpensePolicy::class,
         Budget::class => BudgetPolicy::class,

@@ -23,12 +23,7 @@ class DepartmentController extends Controller
         $departments = Department::with('head')
             ->withCount(['cohorts'])
             ->withCount(['cohorts as active_cohort_count' => fn ($q) => $q->where('is_active', true)])
-            ->addSelect(['staff_count' => User::role(['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'])
-                ->join('profiles', 'users.id', '=', 'profiles.profileable_id')
-                ->where('profiles.profileable_type', User::class)
-                ->whereColumn('profiles.department_id', 'departments.id')
-                ->select(DB::raw('count(*)'))
-            ])
+            ->withCount(['staff'])
             ->latest()
             ->paginate(12);
 
@@ -53,6 +48,10 @@ class DepartmentController extends Controller
             'color'        => 'nullable|string|max:7',
             'is_active'    => 'boolean',
         ]);
+
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+        $data['description'] = strip_tags($data['description']);
 
         Department::create($data);
 
@@ -93,6 +92,10 @@ class DepartmentController extends Controller
             'color'        => 'nullable|string|max:7',
             'is_active'    => 'boolean',
         ]);
+
+        // Sanitize inputs
+        $data['name'] = strip_tags($data['name']);
+        $data['description'] = strip_tags($data['description']);
 
         $department->update($data);
 
