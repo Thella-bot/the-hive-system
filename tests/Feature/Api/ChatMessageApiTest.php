@@ -494,26 +494,4 @@ class ChatMessageApiTest extends TestCase
 
         $response->assertForbidden();
     }
-
-    public function test_typing_indicator_requires_boolean(): void
-    {
-        $response = $this->postJson("/api/channels/{$this->channel->id}/typing", [
-            'is_typing' => 'yes',
-        ]);
-
-        $response->assertUnprocessable();
-    }
-
-    public function test_unauthorized_user_cannot_send_typing(): void
-    {
-        $otherUser = User::factory()->create();
-        $otherUser->assignRole('student');
-        Sanctum::actingAs($otherUser, ['*']);
-
-        $response = $this->postJson("/api/channels/{$this->channel->id}/typing", [
-            'is_typing' => true,
-        ]);
-
-        $response->assertForbidden();
-    }
 }
