@@ -247,7 +247,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::get('attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan')
             ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar');
         Route::post('attendance/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin')
-            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar');
+            ->middleware(['role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar', 'throttle:30,1']);
 
         // Visitor log
         Route::resource('visitor-logs', VisitorLogController::class)->only(['index', 'store'])

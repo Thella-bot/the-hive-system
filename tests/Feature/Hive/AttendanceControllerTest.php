@@ -95,10 +95,10 @@ class AttendanceControllerTest extends HiveTestCase
     {
         $reflection = new \ReflectionClass(\App\Http\Controllers\Hive\AttendanceController::class);
         $constructor = $reflection->getConstructor();
-        
+
         $this->assertNotNull($constructor, 'Controller should have a constructor');
-        
-        $controller = $reflection->newInstance();
+
+        $controller = app(\App\Http\Controllers\Hive\AttendanceController::class);
         $this->assertTrue(true, 'AttendanceController has authorizeResource setup');
     }
 }
