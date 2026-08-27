@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Invoice;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +17,9 @@ class InvoiceController extends Controller
 {
     use HasFilters;
 
-    public function __construct() {
+    public function __construct(
+        protected AuditService $audit,
+    ) {
         $this->authorizeResource(Invoice::class, 'invoice');
     }
 
@@ -121,7 +124,12 @@ class InvoiceController extends Controller
             'academic_year' => 'required|string',
         ]);
 
-        Invoice::create($data);
+        // Sanitize description
+        $data['description'] = isset($data['description']) ? strip_tags($data['description']) : null;
+
+        $invoice = Invoice::create($data);
+
+        $this->audit->logCreated($invoice);
 
         return redirect()->route('hive.finance.invoices.index')->with('success', 'Invoice created successfully.');
     }
@@ -134,10 +142,17 @@ class InvoiceController extends Controller
             'description' => 'nullable|string|max:500',
             'due_date' => 'nullable|date',
             'status' => 'sometimes|in:pending,partial,paid,overdue,cancelled',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
+        // Sanitize text fields
+        $data['description'] = isset($data['description']) ? strip_tags($data['description']) : null;
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+
+        $oldValues = $invoice->getOriginal();
         $invoice->update($data);
+
+        $this->audit->logUpdated($invoice, $oldValues);
 
         return redirect()->route('hive.finance.invoices.show', $invoice)->with('success', 'Invoice updated successfully.');
     }
@@ -153,6 +168,8 @@ class InvoiceController extends Controller
 
     public function destroy(Invoice $invoice): RedirectResponse
     {
+        $this->audit->logDeleted($invoice);
+
         $invoice->delete();
 
         return redirect()->route('hive.finance.invoices.index')->with('success', 'Invoice deleted.');
@@ -216,6 +233,8 @@ class InvoiceController extends Controller
             Invoice::insert($invoices->toArray());
             $created = $invoices->count();
         }
+
+        $this->audit->log('invoice_bulk_generated', "Generated {$created} invoices for programme {$programme->name}");
 
         return back()->with('success', "Generated {$created} invoices.");
     }

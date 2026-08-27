@@ -8,6 +8,7 @@ use App\Models\Budget;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Supplier;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,6 +17,10 @@ use Inertia\Response;
 class ExpenseController extends Controller
 {
     use HasFilters;
+
+    public function __construct(
+        protected AuditService $audit,
+    ) {}
 
     /**
      * Check if user can access the given expense.
@@ -90,7 +95,14 @@ class ExpenseController extends Controller
 
         $data['user_id'] = auth()->id();
 
+        // Sanitize text fields
+        $data['description'] = strip_tags($data['description']);
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+        $data['reference_number'] = isset($data['reference_number']) ? strip_tags($data['reference_number']) : null;
+
         $expense = Expense::create($data);
+
+        $this->audit->logCreated($expense);
 
         return back()->with('success', 'Expense created successfully.');
     }
@@ -113,7 +125,15 @@ class ExpenseController extends Controller
             'notes' => 'nullable|string|max:2000',
         ]);
 
+        // Sanitize text fields
+        $data['description'] = isset($data['description']) ? strip_tags($data['description']) : null;
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+        $data['reference_number'] = isset($data['reference_number']) ? strip_tags($data['reference_number']) : null;
+
+        $oldValues = $expense->getOriginal();
         $expense->update($data);
+
+        $this->audit->logUpdated($expense, $oldValues);
 
         return back()->with('success', 'Expense updated successfully.');
     }
@@ -137,6 +157,8 @@ class ExpenseController extends Controller
             return back()->with('error', 'Cannot delete a paid expense.');
         }
 
+        $this->audit->logDeleted($expense);
+
         $expense->delete();
 
         return redirect()->route('hive.finance.expenses.index')->with('success', 'Expense deleted.');
@@ -153,11 +175,15 @@ class ExpenseController extends Controller
             return back()->with('error', 'Only pending expenses can be approved.');
         }
 
+        $oldValues = $expense->getOriginal();
+
         $expense->update([
             'status' => 'approved',
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ]);
+
+        $this->audit->logUpdated($expense, $oldValues);
 
         return back()->with('success', 'Expense approved.');
     }
@@ -177,12 +203,16 @@ class ExpenseController extends Controller
             return back()->with('error', 'Only pending expenses can be rejected.');
         }
 
+        $oldValues = $expense->getOriginal();
+
         $expense->update([
             'status' => 'rejected',
             'approved_by' => auth()->id(),
             'approved_at' => now(),
-            'notes' => $data['notes'],
+            'notes' => strip_tags($data['notes']),
         ]);
+
+        $this->audit->logUpdated($expense, $oldValues);
 
         return back()->with('success', 'Expense rejected.');
     }
@@ -204,12 +234,20 @@ class ExpenseController extends Controller
             return back()->with('error', 'Only approved expenses can be marked as paid.');
         }
 
+        // Sanitize text fields
+        $data['reference_number'] = isset($data['reference_number']) ? strip_tags($data['reference_number']) : null;
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+
+        $oldValues = $expense->getOriginal();
+
         $expense->update([
             'status' => 'paid',
             'payment_method' => $data['payment_method'] ?? null,
             'reference_number' => $data['reference_number'] ?? null,
             'notes' => $data['notes'] ?? null,
         ]);
+
+        $this->audit->logUpdated($expense, $oldValues);
 
         return back()->with('success', 'Expense marked as paid.');
     }

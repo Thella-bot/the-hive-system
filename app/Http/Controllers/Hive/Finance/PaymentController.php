@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\AuditService;
 use App\Services\NumberToWords;
 use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -18,8 +19,10 @@ class PaymentController extends Controller
 {
     use HasFilters;
 
-    public function __construct(protected SignatoryService $signatory)
-    {
+    public function __construct(
+        protected SignatoryService $signatory,
+        protected AuditService $audit,
+    ) {
         $this->authorizeResource(Payment::class, 'payment');
     }
 
@@ -99,7 +102,7 @@ class PaymentController extends Controller
             'items.*.total' => 'required|numeric|min:0',
             'payment_method' => 'required|in:cash,bank_transfer,mobile_money,card,other',
             'payment_date' => 'nullable|date',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
             'proof_path' => 'nullable|string',
         ]);
 
@@ -112,7 +115,17 @@ class PaymentController extends Controller
 
         $data['amount'] = (float) array_sum(array_column($data['items'], 'total'));
 
+        // Validate payment amount doesn't exceed invoice balance
+        if ($data['amount'] > $invoice->balance) {
+            return back()->withErrors(['amount' => 'Payment amount exceeds invoice balance of ' . number_format($invoice->balance, 2) . '.']);
+        }
+
+        // Sanitize notes
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+
         $payment = $invoice->recordPayment($data);
+
+        $this->audit->logCreated($payment);
 
         return redirect()->route('hive.finance.payments.index')->with('success', 'Payment recorded successfully.');
     }
@@ -128,19 +141,25 @@ class PaymentController extends Controller
             'payment_method' => 'sometimes|in:cash,bank_transfer,mobile_money,card,other',
             'payment_date' => 'nullable|date',
             'status' => 'sometimes|in:pending,completed,failed,refunded',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         if (isset($data['items'])) {
             $data['amount'] = (float) array_sum(array_column($data['items'], 'total'));
         }
 
+        // Sanitize notes
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+
+        $oldValues = $payment->getOriginal();
         $payment->update($data);
 
         if (isset($data['status'])) {
             $invoice = $payment->invoice;
             $invoice->refreshStatus();
         }
+
+        $this->audit->logUpdated($payment, $oldValues);
 
         return back()->with('success', 'Payment updated successfully.');
     }
@@ -210,6 +229,8 @@ class PaymentController extends Controller
 
     public function destroy(Payment $payment): RedirectResponse
     {
+        $this->audit->logDeleted($payment);
+
         // Restore invoice status if payment was completed
         if ($payment->is_completed && $payment->invoice) {
             $invoice = $payment->invoice;
@@ -233,6 +254,8 @@ class PaymentController extends Controller
      */
     public function verify(Request $request, Payment $payment): RedirectResponse
     {
+        $oldValues = $payment->getOriginal();
+
         $payment->update([
             'status' => 'completed',
             'recorded_at' => now(),
@@ -247,6 +270,8 @@ class PaymentController extends Controller
         } else {
             $invoice->update(['status' => 'partial']);
         }
+
+        $this->audit->logUpdated($payment, $oldValues);
 
         return back()->with('success', 'Payment verified.');
     }

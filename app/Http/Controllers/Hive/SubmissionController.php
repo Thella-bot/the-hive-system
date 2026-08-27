@@ -7,13 +7,16 @@ use App\Models\Gradable;
 use App\Models\Submission;
 use App\Notifications\SubmissionGraded;
 use App\Notifications\SubmissionReceived;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
 {
-    public function __construct() {
+    public function __construct(
+        protected AuditService $audit,
+    ) {
         $this->authorizeResource(Submission::class, 'submission');
     }
 
@@ -52,6 +55,7 @@ class SubmissionController extends Controller
             ]
         );
 
+        $this->audit->logCreated($submission);
         $gradable->instructor->notify(new SubmissionReceived($submission));
 
         return back()->with('success', 'Submission uploaded successfully.');
@@ -72,16 +76,23 @@ class SubmissionController extends Controller
     {
         $this->authorize('grade', $submission);
 
+        $maxMarks = $submission->gradable->max_marks ?? 100;
+
         $request->validate([
-            'grade' => ['required', 'numeric', 'min:0', 'max:100'],
-            'feedback' => ['nullable', 'string'],
+            'grade' => ['required', 'numeric', 'min:0', 'max:' . $maxMarks],
+            'feedback' => ['nullable', 'string', 'max:5000'],
         ]);
+
+        $feedback = $request->feedback ? strip_tags($request->feedback) : null;
 
         $submission->update([
             'grade' => $request->grade,
-            'feedback' => $request->feedback,
+            'feedback' => $feedback,
             'graded_at' => now(),
         ]);
+
+        $this->audit->logUpdated($submission);
+        $submission->student->notify(new SubmissionGraded($submission));
 
         return redirect()->route('hive.dashboard')->with('success', 'Grade submitted successfully.');
     }
@@ -90,15 +101,22 @@ class SubmissionController extends Controller
     public function update(Request $request, Submission $submission)
     {
         $this->authorize('update', $submission);
+
+        $maxMarks = $submission->gradable->max_marks ?? 100;
+
         $data = $request->validate([
-            'grade' => 'nullable|numeric|min:0',
-            'feedback' => 'nullable|string',
+            'grade' => 'nullable|numeric|min:0|max:' . $maxMarks,
+            'feedback' => 'nullable|string|max:5000',
         ]);
+
+        $data['feedback'] = isset($data['feedback']) ? strip_tags($data['feedback']) : null;
+
         $submission->update(array_merge($data, [
             'graded_at' => now(),
             'graded_by' => auth()->id(),
         ]));
 
+        $this->audit->logUpdated($submission);
         $submission->student->notify(new SubmissionGraded($submission));
 
         return back();

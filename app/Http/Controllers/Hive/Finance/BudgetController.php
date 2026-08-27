@@ -7,6 +7,7 @@ use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Budget;
 use App\Models\Department;
 use App\Models\ExpenseCategory;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,6 +16,10 @@ use Inertia\Response;
 class BudgetController extends Controller
 {
     use HasFilters;
+
+    public function __construct(
+        protected AuditService $audit,
+    ) {}
 
     /**
      * Check if user can access the given budget.
@@ -93,7 +98,12 @@ class BudgetController extends Controller
             $data['allocated_amount'] = $data['approved_budget'];
         }
 
-        Budget::create($data);
+        // Sanitize notes
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+
+        $budget = Budget::create($data);
+
+        $this->audit->logCreated($budget);
 
         return back()->with('success', 'Budget created successfully.');
     }
@@ -116,7 +126,13 @@ class BudgetController extends Controller
             'notes' => 'nullable|string|max:2000',
         ]);
 
+        // Sanitize notes
+        $data['notes'] = isset($data['notes']) ? strip_tags($data['notes']) : null;
+
+        $oldValues = $budget->getOriginal();
         $budget->update($data);
+
+        $this->audit->logUpdated($budget, $oldValues);
 
         return back()->with('success', 'Budget updated successfully.');
     }
@@ -146,6 +162,8 @@ class BudgetController extends Controller
             return back()->with('error', 'Cannot delete budget with associated expenses.');
         }
 
+        $this->audit->logDeleted($budget);
+
         $budget->delete();
 
         return redirect()->route('hive.finance.budgets.index')->with('success', 'Budget deleted.');
@@ -168,7 +186,10 @@ class BudgetController extends Controller
             ->where('status', 'active')
             ->update(['status' => 'closed']);
 
+        $oldValues = $budget->getOriginal();
         $budget->update(['status' => 'active']);
+
+        $this->audit->logUpdated($budget, $oldValues);
 
         return back()->with('success', 'Budget activated.');
     }
@@ -184,7 +205,10 @@ class BudgetController extends Controller
             return back()->with('error', 'Only active budgets can be closed.');
         }
 
+        $oldValues = $budget->getOriginal();
         $budget->update(['status' => 'closed']);
+
+        $this->audit->logUpdated($budget, $oldValues);
 
         return back()->with('success', 'Budget closed.');
     }

@@ -26,12 +26,12 @@ class SubmissionGraded extends Notification implements ShouldQueue
 
     public function toMail($notifiable)
     {
-        $assignment = $this->submission->assignment;
-        $url = route('hive.assignments.show', $assignment);
+        $gradable = $this->submission->gradable;
+        $url = route('hive.gradables.show', $gradable);
 
         return (new MailMessage)
-                    ->subject("Your submission for {$assignment->title} has been graded")
-                    ->line("Your submission for the assignment '{$assignment->title}' has been graded.")
+                    ->subject("Your submission for {$gradable->title} has been graded")
+                    ->line("Your submission for the assessment '{$gradable->title}' has been graded.")
                     ->line("Grade: {$this->submission->grade}")
                     ->line("Feedback: {$this->submission->feedback}")
                     ->action('View Submission', $url);
@@ -41,8 +41,8 @@ class SubmissionGraded extends Notification implements ShouldQueue
     {
         return [
             'title' => 'Submission Graded',
-            'message' => "Your submission for '{$this->submission->assignment->title}' has been graded.",
-            'link' => route('hive.assignments.show', $this->submission->assignment),
+            'message' => "Your submission for '{$this->submission->gradable->title}' has been graded.",
+            'link' => route('hive.gradables.show', $this->submission->gradable),
         ];
     }
 }

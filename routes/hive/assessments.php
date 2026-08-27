@@ -55,9 +55,10 @@ Route::get('submissions/{submission}/download', [SubmissionController::class, 'd
     ->middleware('registered');
 Route::post('submissions/{gradable}', [SubmissionController::class, 'store'])
     ->name('submissions.store')
-    ->middleware('registered');
+    ->middleware(['registered', 'throttle:30,1']);
 Route::post('submissions/{submission}/grade', [SubmissionController::class, 'update'])
-    ->name('submissions.grade');
+    ->name('submissions.grade')
+    ->middleware('throttle:30,1');
 
 // Grades
 Route::get('grades', [GradeController::class, 'index'])->name('grades.index')
