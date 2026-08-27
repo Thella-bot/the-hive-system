@@ -105,7 +105,43 @@
       </div>
 
       <!-- Quick Access -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Students Eligible for Enrollment -->
+        <div v-if="studentsEligibleForEnrollment && studentsEligibleForEnrollment.count > 0" class="bg-white p-6 rounded-xl shadow-sm dark:bg-gray-800">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Students Eligible for Enrollment</h3>
+            <Link :href="route('hive.enrollment.index')" class="text-sm text-indigo-600 hover:text-indigo-800">
+              View All
+            </Link>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">{{ studentsEligibleForEnrollment.count }} students need module enrollment</p>
+          <div class="space-y-3">
+            <div
+              v-for="item in studentsEligibleForEnrollment.students"
+              :key="item.student.id"
+              class="flex items-center justify-between p-3 bg-amber-50 rounded-lg dark:bg-amber-900/20"
+            >
+              <div class="flex items-center">
+                <div class="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center text-amber-800 font-semibold text-sm dark:bg-amber-700 dark:text-amber-200">
+                  {{ item.student.name.charAt(0) }}
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm font-medium text-gray-800 dark:text-white">{{ item.student.name }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    Year {{ item.year_level }} - {{ item.missing_count }} module(s) missing
+                  </p>
+                </div>
+              </div>
+              <Link
+                :href="route('hive.enrollment.enroll', item.student.id)"
+                class="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                Enroll
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-white p-6 rounded-xl shadow-sm dark:bg-gray-800">
           <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Quick Actions</h3>
           <div class="grid grid-cols-2 gap-4">
@@ -135,7 +171,9 @@
             </Link>
           </div>
         </div>
+      </div>
 
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white p-6 rounded-xl shadow-sm dark:bg-gray-800">
           <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Recent Activity</h3>
           <div v-if="recentUsers && recentUsers.length" class="space-y-3">

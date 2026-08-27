@@ -9,6 +9,7 @@ use App\Models\Announcement;
 use App\Models\Application;
 use App\Models\Cohort;
 use App\Models\Document;
+use App\Models\Enrollment;
 use App\Models\Gradable;
 use App\Models\LeaveRequest;
 use App\Models\Programme;
@@ -72,6 +73,73 @@ class AdminDashboardData implements DashboardData
                 ->whereNotNull('submitted_at')
                 ->count(),
             'newStudentsByMonth' => $this->getNewStudentsByMonth(),
+
+            // Enrollment Stats
+            'studentsEligibleForEnrollment' => $this->getStudentsEligibleForEnrollment(),
+            'pendingRegistrations' => Application::where('registration_status', 'submitted')->count(),
+        ];
+    }
+
+    /**
+     * Get students who are eligible for enrollment (active but missing module enrollments).
+     */
+    private function getStudentsEligibleForEnrollment(): array
+    {
+        $currentAcademicYear = AcademicYear::current()->first();
+        $academicYearName = $currentAcademicYear?->name ?? date('Y');
+        $semester = now()->month <= 6 ? '1' : '2';
+
+        $activeStudents = User::role('student')
+            ->whereHas('profile', function ($q) {
+                $q->where('status', 'active');
+            })
+            ->with(['profile', 'programme'])
+            ->get();
+
+        $eligible = [];
+
+        foreach ($activeStudents as $student) {
+            $programme = $student->programme;
+            if (!$programme) {
+                continue;
+            }
+
+            $yearLevel = $student->getCurrentSemesterContext()['year_level'] ?? 1;
+
+            // Get required modules for current year/semester
+            $requiredModules = $programme->modules()
+                ->wherePivot('year_level', $yearLevel)
+                ->wherePivot('semester', (int) $semester)
+                ->pluck('modules.id')
+                ->toArray();
+
+            if (empty($requiredModules)) {
+                continue;
+            }
+
+            // Get enrolled modules
+            $enrolledModules = Enrollment::where('user_id', $student->id)
+                ->where('academic_year', $academicYearName)
+                ->where('semester', $semester)
+                ->pluck('module_id')
+                ->toArray();
+
+            $missingModules = array_diff($requiredModules, $enrolledModules);
+
+            if (!empty($missingModules)) {
+                $eligible[] = [
+                    'student' => $student,
+                    'year_level' => $yearLevel,
+                    'semester' => $semester,
+                    'missing_count' => count($missingModules),
+                    'total_required' => count($requiredModules),
+                ];
+            }
+        }
+
+        return [
+            'count' => count($eligible),
+            'students' => array_slice($eligible, 0, 10),
         ];
     }
 

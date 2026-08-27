@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\Module;
+use App\Models\Programme;
 use App\Models\User;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,123 +17,140 @@ use Inertia\Response;
 
 class EnrollmentController extends Controller
 {
+    public function __construct(
+        protected AuditService $audit,
+    ) {}
+
+    /**
+     * Admin enrollment dashboard.
+     */
     public function index(Request $request): Response
     {
+        $this->authorize('create', Enrollment::class);
+
         $user = $request->user();
+        $query = Enrollment::with(['student', 'module']);
 
-        abort_unless($user->hasRole('student'), 403);
+        if ($request->filled('module_id')) {
+            $query->forModule($request->input('module_id'));
+        }
 
-        $context = $user->getCurrentSemesterContext();
-        $yearLevel = $context['year_level'];
-        $semester = $context['semester'];
-        $currentAcademicYear = now()->format('Y');
+        if ($request->filled('academic_year')) {
+            $query->forAcademicYear($request->input('academic_year'));
+        } else {
+            $currentYear = AcademicYear::current()->first();
+            if ($currentYear) {
+                $query->forAcademicYear($currentYear->name);
+            }
+        }
+
+        if ($request->filled('semester')) {
+            $query->forSemester((int) $request->input('semester'));
+        }
+
+        $enrollments = $query->orderByDesc('created_at')->paginate(50);
+
+        return Inertia::render('Enrollment/AdminIndex', [
+            'enrollments' => $enrollments,
+            'modules' => Module::orderBy('name')->get(['id', 'name', 'code']),
+            'academicYears' => AcademicYear::orderByDesc('name')->get(),
+            'filters' => $request->only('module_id', 'academic_year', 'semester'),
+        ]);
+    }
+
+    /**
+     * Show enrollment form for a specific student.
+     */
+    public function enrollStudent(Request $request, User $student): Response
+    {
+        $this->authorize('create', Enrollment::class);
+
+        $currentYear = AcademicYear::current()->first();
+        $semester = now()->month <= 6 ? '1' : '2';
 
         $enrolledModuleIds = Enrollment::query()
-            ->where('user_id', $user->id)
-            ->where('academic_year', $currentAcademicYear)
+            ->where('user_id', $student->id)
+            ->where('academic_year', $currentYear?->name ?? date('Y'))
             ->where('semester', $semester)
-            ->pluck('module_id');
+            ->pluck('module_id')
+            ->toArray();
 
-        $isAdmin = $user->hasAnyRole(['super-admin', 'it-support', 'registrar', 'program-coordinator', 'academic-director']);
+        $programme = $student->programme;
+        $yearLevel = $student->getCurrentSemesterContext()['year_level'] ?? 1;
 
-        if ($isAdmin) {
-            $modules = Module::with('department')->orderBy('name')->paginate(50);
-        } else {
-            $yearLevels = [$yearLevel];
-            if ($yearLevel > 1) {
-                $yearLevels[] = $yearLevel - 1;
-            }
-
-            $modules = Module::with('department')
-                ->whereHas('programmes', function ($q) use ($user, $yearLevels, $semester) {
-                    if ($user->programme_id) {
-                        $q->where('programme_module.programme_id', $user->programme_id)
-                          ->whereIn('programme_module.year_level', $yearLevels)
-                          ->where('programme_module.semester', $semester);
-                    }
-                })
-                ->orderBy('name')
-                ->paginate(50);
+        $availableModules = collect();
+        if ($programme) {
+            $availableModules = Module::whereHas('programmes', function ($q) use ($programme, $yearLevel, $semester) {
+                $q->where('programme_module.programme_id', $programme->id)
+                    ->where('programme_module.year_level', $yearLevel)
+                    ->where('programme_module.semester', $semester);
+            })->whereNotIn('id', $enrolledModuleIds)->orderBy('name')->get();
         }
 
-        return Inertia::render('Enrollment/Index', [
-            'modules' => $modules,
+        return Inertia::render('Enrollment/EnrollStudent', [
+            'student' => $student->load('profile'),
+            'programme' => $programme,
+            'yearLevel' => $yearLevel,
+            'semester' => $semester,
+            'academicYear' => $currentYear,
             'enrolledModuleIds' => $enrolledModuleIds,
-            'semesterContext' => $context,
-            'isRepeatingYear' => !$isAdmin && $yearLevel > 1 && $modules->isNotEmpty(),
+            'availableModules' => $availableModules,
         ]);
     }
 
+    /**
+     * Enroll a student in a module (admin only).
+     */
     public function store(Request $request): RedirectResponse
     {
-        $user = $request->user();
-
-        abort_unless($user->hasRole('student'), 403);
+        $this->authorize('create', Enrollment::class);
 
         $data = $request->validate([
+            'user_id' => 'required|exists:users,id',
             'module_id' => 'required|exists:modules,id',
+            'academic_year' => 'required|string',
+            'semester' => 'required|integer|in:1,2',
         ]);
 
-        $context = $user->getCurrentSemesterContext();
-        $semester = $context['semester'] ?? (now()->month <= 6 ? '1' : '2');
-        $isAdmin = $user->hasAnyRole(['super-admin', 'it-support', 'registrar', 'program-coordinator', 'academic-director']);
+        $exists = Enrollment::where('user_id', $data['user_id'])
+            ->where('module_id', $data['module_id'])
+            ->where('academic_year', $data['academic_year'])
+            ->where('semester', $data['semester'])
+            ->exists();
 
-        if (!$isAdmin) {
-            $module = Module::findOrFail($data['module_id']);
-
-            if ($user->programme_id && $context['year_level']) {
-                $yearLevels = [$context['year_level']];
-                if ($context['year_level'] > 1) {
-                    $yearLevels[] = $context['year_level'] - 1;
-                }
-
-                $isValidModule = $module->programmes()
-                    ->wherePivot('programme_id', $user->programme_id)
-                    ->whereIn('programme_module.year_level', $yearLevels)
-                    ->wherePivot('semester', $context['semester'])
-                    ->exists();
-
-                abort_unless($isValidModule, 403, 'This module is not available for your current semester.');
-            }
-
-            $profile = $user->profile;
-            if ($profile && $profile->cohort_id) {
-                $cohort = $profile->cohort;
-                if ($cohort && $cohort->max_students > 0) {
-                    $cohortStudentCount = \App\Models\Profile::where('cohort_id', $cohort->id)->count();
-                    if ($cohortStudentCount >= $cohort->max_students) {
-                        abort(403, 'This cohort has reached its maximum enrollment capacity.');
-                    }
-                }
-            }
+        if ($exists) {
+            return back()->with('error', 'Student is already enrolled in this module.');
         }
 
-        Enrollment::firstOrCreate([
-            'user_id' => $user->id,
-            'module_id' => $data['module_id'],
-            'academic_year' => now()->format('Y'),
-            'semester' => $semester,
-        ]);
+        $enrollment = Enrollment::create($data);
 
-        $user->modules()->syncWithoutDetaching([$data['module_id']]);
+        $user = User::find($data['user_id']);
+        if ($user) {
+            $user->modules()->syncWithoutDetaching([$data['module_id']]);
+        }
 
-        return back()->with('success', 'Module enrollment updated.');
+        $this->audit->logCreated($enrollment);
+
+        return back()->with('success', 'Student enrolled successfully.');
     }
 
-    public function destroy(Request $request, Module $module): RedirectResponse
+    /**
+     * Remove a student from a module (admin only).
+     */
+    public function destroy(Request $request, Enrollment $enrollment): RedirectResponse
     {
-        $user = $request->user();
+        $this->authorize('create', Enrollment::class);
 
-        abort_unless($user->hasRole('student'), 403);
+        $this->audit->logDeleted($enrollment);
 
-        Enrollment::query()
-            ->where('user_id', $user->id)
-            ->where('module_id', $module->id)
-            ->delete();
+        $enrollment->delete();
 
-        $user->modules()->detach($module->id);
+        $user = User::find($enrollment->user_id);
+        if ($user) {
+            $user->modules()->detach($enrollment->module_id);
+        }
 
-        return back()->with('success', 'You have left the module.');
+        return back()->with('success', 'Student removed from module.');
     }
 
     /**
@@ -157,7 +177,6 @@ class EnrollmentController extends Controller
 
         DB::transaction(function () use ($data, $academicYear, $semester, &$enrolled, &$skipped) {
             foreach ($data['user_ids'] as $userId) {
-                // Check if already enrolled
                 $exists = Enrollment::where('user_id', $userId)
                     ->where('module_id', $data['module_id'])
                     ->where('academic_year', $academicYear)
@@ -176,7 +195,6 @@ class EnrollmentController extends Controller
                     'semester' => $semester,
                 ]);
 
-                // Also sync to module_user pivot
                 $user = User::find($userId);
                 if ($user) {
                     $user->modules()->syncWithoutDetaching([$data['module_id']]);
@@ -228,5 +246,29 @@ class EnrollmentController extends Controller
         });
 
         return back()->with('success', "{$removed} students removed from module.");
+    }
+
+    /**
+     * Show bulk enrollment form.
+     */
+    public function bulkEnrollForm(Request $request): Response
+    {
+        $this->authorize('create', Enrollment::class);
+
+        $currentYear = AcademicYear::current()->first();
+        $semester = now()->month <= 6 ? '1' : '2';
+
+        $students = User::whereHas('roles', function ($q) {
+            $q->where('name', 'student');
+        })->whereHas('profile', function ($q) {
+            $q->where('status', 'active');
+        })->orderBy('name')->get(['id', 'name', 'email']);
+
+        return Inertia::render('Enrollment/BulkEnroll', [
+            'modules' => Module::orderBy('name')->get(['id', 'name', 'code']),
+            'students' => $students,
+            'academicYear' => $currentYear,
+            'semester' => $semester,
+        ]);
     }
 }

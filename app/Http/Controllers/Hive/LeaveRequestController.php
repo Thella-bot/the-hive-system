@@ -9,13 +9,16 @@ use App\Models\LeaveRequest;
 use App\Models\User;
 use App\Notifications\LeaveRequestSubmitted;
 use App\Notifications\LeaveRequestUpdated;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class LeaveRequestController extends Controller
 {
-    public function __construct() {
+    public function __construct(
+        protected AuditService $audit,
+    ) {
         $this->authorizeResource(LeaveRequest::class, 'leave');
     }
 
@@ -48,6 +51,9 @@ class LeaveRequestController extends Controller
 
         $data = $request->validated();
 
+        // Sanitize reason
+        $data['reason'] = isset($data['reason']) ? strip_tags($data['reason']) : null;
+
         $profile = $user->profile;
 
         // Check balance (if annual leave)
@@ -57,6 +63,8 @@ class LeaveRequestController extends Controller
         }
 
         $leave = $user->leaveRequests()->create($data);
+
+        $this->audit->logCreated($leave);
 
         $hrUsers = User::role(['super-admin', 'it-support', 'hr-manager'])->get();
         Notification::send($hrUsers, new LeaveRequestSubmitted($leave));
@@ -70,17 +78,23 @@ class LeaveRequestController extends Controller
 
         $validated = $request->validated();
 
+        // Sanitize rejection_reason
+        $validated['rejection_reason'] = isset($validated['rejection_reason']) ? strip_tags($validated['rejection_reason']) : null;
+
+        $oldValues = $leave->getOriginal();
+
         $leave->update([
             'status' => $validated['status'],
             'approved_by' => $request->user()->id,
             'approved_at' => now(),
+            'rejection_reason' => $validated['rejection_reason'] ?? null,
         ]);
 
         if ($validated['status'] === 'approved') {
             $leave->deductFromBalance();
-        } elseif ($validated['status'] === 'rejected' && !empty($validated['rejection_reason'])) {
-            $leave->update(['rejection_reason' => $validated['rejection_reason']]);
         }
+
+        $this->audit->logUpdated($leave, $oldValues);
 
         $leave->user->notify(new LeaveRequestUpdated($leave));
 
@@ -96,7 +110,11 @@ class LeaveRequestController extends Controller
             abort(403, 'Only pending requests can be cancelled.');
         }
 
+        $oldValues = $leave->getOriginal();
+
         $leave->update(['is_cancelled' => true, 'cancelled_at' => now()]);
+
+        $this->audit->logUpdated($leave, $oldValues);
 
         return back()->with('success', 'Leave request cancelled.');
     }

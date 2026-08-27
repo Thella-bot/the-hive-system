@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\AcademicYear;
+use App\Models\AcademicHistory;
 use App\Models\Achievement;
 use App\Models\Application;
 use App\Models\Attendance;
 use App\Models\Budget;
 use App\Models\ChatChannel;
 use App\Models\Cohort;
+use App\Models\CourseMaterial;
 use App\Models\Department;
 use App\Models\DisciplinaryAction;
 use App\Models\Enrollment;
@@ -18,6 +20,7 @@ use App\Models\Expense;
 use App\Models\Gradable;
 use App\Models\Invoice;
 use App\Models\LeaveRequest;
+use App\Models\LessonPlan;
 use App\Models\Message;
 use App\Models\Module;
 use App\Models\Payment;
@@ -27,7 +30,9 @@ use App\Models\Programme;
 use App\Models\Profile;
 use App\Models\ShortCourse;
 use App\Models\ShortCourseApplication;
+use App\Models\StudentProgress;
 use App\Models\Submission;
+use App\Models\TimetableSlot;
 use App\Policies\AcademicYearPolicy;
 use App\Policies\AchievementPolicy;
 use App\Policies\ApplicationPolicy;
@@ -60,9 +65,13 @@ class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
         LeaveRequest::class => LeaveRequestPolicy::class,
+        LessonPlan::class => LessonPlanPolicy::class,
         Submission::class => SubmissionPolicy::class,
+        StudentProgress::class => StudentProgressPolicy::class,
+        TimetableSlot::class => TimetablePolicy::class,
         Profile::class => ProfilePolicy::class,
         Department::class => DepartmentPolicy::class,
+        CourseMaterial::class => CourseMaterialPolicy::class,
         Cohort::class => CohortPolicy::class,
         Gradable::class => GradablePolicy::class,
         Event::class => EventPolicy::class,
@@ -71,6 +80,7 @@ class AuthServiceProvider extends ServiceProvider
         Module::class => ModulePolicy::class,
         Payslip::class => PayslipPolicy::class,
         Application::class => ApplicationPolicy::class,
+        AcademicHistory::class => AcademicHistoryPolicy::class,
         Achievement::class => AchievementPolicy::class,
         Attendance::class => AttendancePolicy::class,
         ShortCourse::class => ShortCoursePolicy::class,

@@ -16,7 +16,14 @@ class UpdateLeaveRequestRequest extends FormRequest
     {
         return [
             'status'            => 'required|in:approved,rejected',
-            'rejection_reason'  => 'nullable|string|max:500',
+            'rejection_reason'  => 'required_if:status,rejected|string|max:500',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'rejection_reason.required_if' => 'A rejection reason is required when rejecting a leave request.',
         ];
     }
 }

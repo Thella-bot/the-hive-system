@@ -7,28 +7,33 @@ use App\Http\Controllers\Hive\AttendanceController;
 use App\Http\Controllers\Hive\AchievementController;
 use App\Http\Controllers\Hive\ChatController;
 use App\Http\Controllers\Hive\CohortController;
+use App\Http\Controllers\Hive\CourseMaterialController;
 use App\Http\Controllers\Hive\DashboardController;
 use App\Http\Controllers\Hive\DepartmentController;
 use App\Http\Controllers\Hive\DocumentController;
-use App\Http\Controllers\Hive\ProgrammeController;
 use App\Http\Controllers\Hive\EnrollmentController;
 use App\Http\Controllers\Hive\EventController;
 use App\Http\Controllers\Hive\KeyController;
 use App\Http\Controllers\Hive\LeaveRequestController;
+use App\Http\Controllers\Hive\LessonPlanController;
 use App\Http\Controllers\Hive\ModuleController;
 use App\Http\Controllers\Hive\NotificationController;
 use App\Http\Controllers\Hive\PayslipController;
 use App\Http\Controllers\Hive\PlacementController;
 use App\Http\Controllers\Hive\DisciplinaryController;
 use App\Http\Controllers\Hive\PollController;
+use App\Http\Controllers\Hive\ProgrammeController;
 use App\Http\Controllers\Hive\ProfileController;
 use App\Http\Controllers\Hive\RegistrationController;
 use App\Http\Controllers\Hive\SearchController;
 use App\Http\Controllers\Hive\ShortCourseController;
 use App\Http\Controllers\Hive\ShortCourseApplicationController;
+use App\Http\Controllers\Hive\StudentAdvancementController;
 use App\Http\Controllers\Hive\StudentIdController;
+use App\Http\Controllers\Hive\StudentProgressController;
 use App\Http\Controllers\Hive\SubmissionController;
 use App\Http\Controllers\Hive\SupplierController;
+use App\Http\Controllers\Hive\TimetableController;
 use App\Http\Controllers\Hive\TranscriptController;
 use App\Http\Controllers\Hive\UniformRequestController;
 use App\Http\Controllers\Hive\VisitorLogController;
@@ -145,8 +150,13 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::resource('leave-requests', LeaveRequestController::class)
             ->parameters(['leave-requests' => 'leave'])
             ->names('leaves')
-            ->only(['index', 'store', 'update', 'destroy']);
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->middleware('throttle:30,1');
         Route::get('leave-requests/create', [LeaveRequestController::class, 'create'])->name('leaves.create');
+
+        // Timetable
+        Route::resource('timetable', TimetableController::class)
+            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|registrar');
 
         // Modules
         Route::get('modules', [ModuleController::class, 'index'])->name('modules.index');
@@ -155,6 +165,44 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->middleware('role:super-admin|academic-director|program-coordinator');
         Route::resource('modules', ModuleController::class)->only(['create', 'store', 'show', 'edit', 'update', 'destroy'])
             ->middleware('role:super-admin|academic-director|program-coordinator');
+
+        // Course Materials
+        Route::prefix('modules/{module}/materials')->name('modules.courses.')->group(function () {
+            Route::get('/', [CourseMaterialController::class, 'index'])->name('index');
+            Route::get('/create', [CourseMaterialController::class, 'create'])->name('create')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::post('/', [CourseMaterialController::class, 'store'])->name('store')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::get('/{material}/edit', [CourseMaterialController::class, 'edit'])->name('edit')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::patch('/{material}', [CourseMaterialController::class, 'update'])->name('update')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::delete('/{material}', [CourseMaterialController::class, 'destroy'])->name('destroy')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::get('/{material}/download', [CourseMaterialController::class, 'download'])->name('download');
+        });
+
+        // Lesson Plans
+        Route::prefix('modules/{module}/lesson-plans')->name('modules.lesson-plans.')->group(function () {
+            Route::get('/', [LessonPlanController::class, 'index'])->name('index');
+            Route::get('/create', [LessonPlanController::class, 'create'])->name('create')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::post('/', [LessonPlanController::class, 'store'])->name('store')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::get('/{lessonPlan}', [LessonPlanController::class, 'show'])->name('show');
+            Route::get('/{lessonPlan}/edit', [LessonPlanController::class, 'edit'])->name('edit')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::patch('/{lessonPlan}', [LessonPlanController::class, 'update'])->name('update')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+            Route::delete('/{lessonPlan}', [LessonPlanController::class, 'destroy'])->name('destroy')
+                ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef');
+        });
+
+        // Student Progress
+        Route::prefix('modules/{module}/progress')->name('modules.progress.')->group(function () {
+            Route::get('/', [StudentProgressController::class, 'index'])->name('index');
+            Route::patch('/', [StudentProgressController::class, 'update'])->name('update');
+        });
 
         // Placements (career-services, academic-director, program-coordinator)
         Route::resource('placements', PlacementController::class)
@@ -181,6 +229,18 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read')->middleware('auth');
         Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll')->middleware('auth');
 
+        // Student Advancement
+        Route::prefix('advancement')->name('advancement.')->group(function () {
+            Route::get('/', [StudentAdvancementController::class, 'index'])->name('index')
+                ->middleware('role:super-admin|it-support|academic-director|registrar');
+            Route::get('/{student}', [StudentAdvancementController::class, 'show'])->name('show')
+                ->middleware('role:super-admin|it-support|academic-director|registrar');
+            Route::post('/{student}/promote', [StudentAdvancementController::class, 'promote'])->name('promote')
+                ->middleware('role:super-admin|it-support|academic-director');
+            Route::post('/promote-all', [StudentAdvancementController::class, 'promoteAll'])->name('promote-all')
+                ->middleware('role:super-admin|academic-director');
+        });
+
         // Payslips
         Route::get('payslips', [PayslipController::class, 'index'])->name('payslips.index');
         Route::get('payslips/create', [PayslipController::class, 'create'])->name('payslips.create');
@@ -196,13 +256,23 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::get('transcript', [TranscriptController::class, 'index'])->name('transcript.index')->middleware('auth');
         Route::get('transcript/{student}/download', [TranscriptController::class, 'show'])->name('transcript.download')->middleware('auth');
 
-        // Enrollment (for students)
-        Route::get('enrollment', [EnrollmentController::class, 'index'])->name('enrollment.index')
-            ->middleware('registered');
-        Route::post('enrollment', [EnrollmentController::class, 'store'])->name('enrollment.store')
-            ->middleware('registered');
-        Route::delete('enrollment/{module}', [EnrollmentController::class, 'destroy'])->name('enrollment.destroy')
-            ->middleware('registered');
+        // Enrollment (admin only)
+        Route::prefix('enrollment')->name('enrollment.')->group(function () {
+            Route::get('/', [EnrollmentController::class, 'index'])->name('index')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+            Route::get('/bulk', [EnrollmentController::class, 'bulkEnrollForm'])->name('bulk')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+            Route::post('/bulk', [EnrollmentController::class, 'bulkStore'])->name('bulk-store')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+            Route::delete('/bulk', [EnrollmentController::class, 'bulkDestroy'])->name('bulk-destroy')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+            Route::get('/{student}/enroll', [EnrollmentController::class, 'enrollStudent'])->name('enroll')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+            Route::post('/', [EnrollmentController::class, 'store'])->name('store')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+            Route::delete('/{enrollment}', [EnrollmentController::class, 'destroy'])->name('destroy')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+        });
 
         // Search
         Route::get('search', SearchController::class)->name('search')->middleware('auth');

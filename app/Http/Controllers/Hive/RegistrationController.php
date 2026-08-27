@@ -194,6 +194,46 @@ class RegistrationController extends Controller
                 ['student_number' => \App\Services\IdGenerator::generateStudentId($programme?->department_id ?? 0)]
             );
         }
+
+        // Auto-enroll first-year students in semester 1 modules
+        $this->autoEnrollFirstYear($student, $programme);
+    }
+
+    /**
+     * Auto-enroll first-year student in semester 1 modules.
+     */
+    private function autoEnrollFirstYear($student, $programme): void
+    {
+        if (!$programme) {
+            return;
+        }
+
+        $currentAcademicYear = \App\Models\AcademicYear::current()->first();
+        $academicYearName = $currentAcademicYear?->name ?? date('Y');
+
+        // Get first-year, first-semester modules for the programme
+        $firstYearModules = $programme->modules()
+            ->wherePivot('year_level', 1)
+            ->wherePivot('semester', 1)
+            ->get();
+
+        foreach ($firstYearModules as $module) {
+            // Check if already enrolled
+            $exists = \App\Models\Enrollment::where('user_id', $student->id)
+                ->where('module_id', $module->id)
+                ->where('academic_year', $academicYearName)
+                ->where('semester', 1)
+                ->exists();
+
+            if (!$exists) {
+                \App\Models\Enrollment::create([
+                    'user_id' => $student->id,
+                    'module_id' => $module->id,
+                    'academic_year' => $academicYearName,
+                    'semester' => 1,
+                ]);
+            }
+        }
     }
 
     /**
