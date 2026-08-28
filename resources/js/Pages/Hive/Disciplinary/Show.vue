@@ -7,10 +7,10 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold">{{ action.offence }}</h1>
                     <div class="flex space-x-2">
-                        <Link :href="route('disciplinary.edit', action.id)" class="btn btn-primary">
+                        <Link :href="route('hive.disciplinary.edit', action.id)" class="btn btn-primary">
                             Edit
                         </Link>
-                        <Link :href="route('disciplinary.index')" class="btn btn-secondary">
+                        <Link :href="route('hive.disciplinary.index')" class="btn btn-secondary">
                             Back
                         </Link>
                     </div>
@@ -33,13 +33,13 @@
                 <div class="border-t pt-6">
                     <h2 class="text-xl font-semibold mb-3">Documents</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <a :href="route('disciplinary.warning-pdf', action.id)" target="_blank" class="btn btn-warning text-center">
+                        <a :href="route('hive.disciplinary.warning-pdf', action.id)" target="_blank" class="btn btn-warning text-center">
                             <i class="fas fa-file-pdf"></i> Warning Letter
                         </a>
-                        <a :href="route('disciplinary.suspension-pdf', action.id)" target="_blank" class="btn btn-danger text-center">
+                        <a :href="route('hive.disciplinary.suspension-pdf', action.id)" target="_blank" class="btn btn-danger text-center">
                             <i class="fas fa-file-pdf"></i> Suspension Letter
                         </a>
-                        <a :href="route('disciplinary.expulsion-pdf', action.id)" target="_blank" class="btn btn-danger text-center">
+                        <a :href="route('hive.disciplinary.expulsion-pdf', action.id)" target="_blank" class="btn btn-danger text-center">
                             <i class="fas fa-file-pdf"></i> Expulsion Letter
                         </a>
                     </div>

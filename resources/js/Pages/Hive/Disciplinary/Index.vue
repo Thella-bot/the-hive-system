@@ -6,7 +6,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 flex justify-between items-center">
                     <h1 class="text-2xl font-bold">Disciplinary Actions</h1>
-                    <Link :href="route('disciplinary.create')" class="btn btn-primary">
+                    <Link :href="route('hive.disciplinary.create')" class="btn btn-primary">
                         + New Action
                     </Link>
                 </div>
@@ -38,7 +38,7 @@
                                 <td class="border p-2">{{ action.hearing_date }}</td>
                                 <td class="border p-2">{{ action.status || 'Active' }}</td>
                                 <td class="border p-2">
-                                    <Link :href="route('disciplinary.show', action.id)" class="text-blue-600 hover:underline">View</Link>
+                                    <Link :href="route('hive.disciplinary.show', action.id)" class="text-blue-600 hover:underline">View</Link>
                                 </td>
                             </tr>
                         </tbody>
