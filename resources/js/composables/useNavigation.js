@@ -3,7 +3,6 @@ import { usePage } from '@inertiajs/vue3';
 import { useUser } from '@/composables/useUser';
 import {
   AcademicCapIcon,
-  Bars3Icon,
   BookOpenIcon,
   BriefcaseIcon,
   CalendarDaysIcon,
@@ -13,8 +12,13 @@ import {
   CurrencyDollarIcon,
   DocumentTextIcon,
   HomeIcon,
+  IdentificationIcon,
+  KeyIcon,
+  MagnifyingGlassIcon,
   RectangleStackIcon,
+  ShoppingCartIcon,
   UserGroupIcon,
+  UsersIcon,
 } from '@heroicons/vue/24/outline';
 
 export function useNavigation() {
@@ -28,6 +32,8 @@ export function useNavigation() {
     canAccessFinance,
     needsRegistration,
     isRegisteredStudent,
+    isSuperAdmin,
+    canAccess,
   } = useUser();
 
   const sidebarOpen = ref(false);
@@ -77,7 +83,7 @@ export function useNavigation() {
       .filter((item) => item.single || item.children?.length);
   };
 
-  // ─── Per-role builders (each returns an array of category objects) ────────────
+  // ─── Dashboard (always shown) ────────────────────────────────────────────────
 
   const dashNav = [
     {
@@ -109,133 +115,223 @@ export function useNavigation() {
         name: 'My Learning',
         icon: AcademicCapIcon,
         children: [
-          { name: 'My Modules', href: route('hive.modules.index'), active: 'hive.modules.*', roles: ['student'] },
-          { name: 'My Grades', href: route('hive.grades.index'), active: 'hive.grades.*', roles: ['student'] },
-          { name: 'My Transcript', href: route('hive.transcript.index'), active: 'hive.transcript.*', roles: ['student'] },
-          { name: 'Student ID Card', href: route('hive.student-id'), active: 'hive.student-id', roles: ['student'] },
+          { name: 'My Modules', href: route('hive.modules.index'), active: 'hive.modules.*' },
+          { name: 'My Grades', href: route('hive.grades.index'), active: 'hive.grades.*' },
+          { name: 'My Transcript', href: route('hive.transcript.index'), active: 'hive.transcript.*' },
+          { name: 'Student ID Card', href: route('hive.student-id'), active: 'hive.student-id' },
         ],
       },
       {
         name: 'Assessments',
         icon: ClipboardDocumentCheckIcon,
         children: [
-          { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz'), roles: ['student'] },
-          { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), isActive: () => isGradableTypeActive('test'), roles: ['student'] },
-          { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), isActive: () => isGradableTypeActive('assignment'), roles: ['student'] },
-          { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), isActive: () => isGradableTypeActive('mid-term_exam'), roles: ['student'] },
-          { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), isActive: () => isGradableTypeActive('final_exam'), roles: ['student'] },
+          { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz') },
+          { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), isActive: () => isGradableTypeActive('test') },
+          { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), isActive: () => isGradableTypeActive('assignment') },
+          { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), isActive: () => isGradableTypeActive('mid-term_exam') },
+          { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), isActive: () => isGradableTypeActive('final_exam') },
         ],
       },
       {
         name: 'Communication',
         icon: ChatBubbleLeftRightIcon,
         children: [
-          { name: 'Chat', href: route('hive.chat.index'), active: 'hive.chat.*', roles: ['student'] },
-          { name: 'Polls', href: route('hive.polls.index'), active: 'hive.polls.*', roles: ['student'] },
+          { name: 'Chat', href: route('hive.chat.index'), active: 'hive.chat.*' },
+          { name: 'Polls', href: route('hive.polls.index'), active: 'hive.polls.*' },
+          { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*' },
+        ],
+      },
+      {
+        name: 'Resources',
+        icon: BookOpenIcon,
+        children: [
+          { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*' },
+          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*' },
+          { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*' },
         ],
       },
     ];
   };
 
-  // ─── Academic Resources ──────────────────────────────────────────────────────
+  // ─── Faculty / Teaching Navigation ────────────────────────────────────────────
 
-  const academicResourcesNav = () => {
-    if (!userRoles.value.length) return [];
-
-    return [{
-      name: 'Academic Resources',
-      icon: BookOpenIcon,
-      children: [
-        { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
-        { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*', roles: ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager', 'student'] },
-        { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
-        { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*', roles: ['student', 'super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'] },
-      ],
-    }];
-  };
-
-  // ─── Admissions ──────────────────────────────────────────────────────────────
-
-  const admissionsNav = () => {
-    const authRoles = userRoles.value;
-    const isAdmissionsStaff = authRoles.some(r => ['super-admin', 'it-support', 'admissions-officer', 'registrar', 'program-coordinator'].includes(r));
-    if (!isAdmissionsStaff) return [];
-
-    const children = [
-      { name: 'Applications', href: route('hive.applications.index'), active: 'hive.applications.*', roles: ['super-admin', 'it-support', 'admissions-officer', 'registrar', 'program-coordinator'] },
-      { name: 'Registrations', href: route('hive.registration.index'), active: 'hive.registration.*', roles: ['super-admin', 'it-support', 'admissions-officer', 'registrar', 'program-coordinator'] },
-      { name: 'Short Courses', href: route('hive.short-courses.index'), active: 'hive.short-courses.*', roles: ['super-admin', 'it-support', 'admissions-officer', 'registrar'] },
-      { name: 'Waitlist', href: route('hive.waitlist.index'), active: 'hive.waitlist.*', roles: ['super-admin', 'it-support', 'admissions-officer'] },
-    ];
-
-    if (isAdmin.value) {
-      children.push(
-        { name: 'User Approvals', href: route('hive.admin.approve-users'), active: 'hive.admin.approve-users', roles: ['super-admin', 'it-support'] },
-        { name: 'Import Users', href: route('hive.admin.import-users'), active: 'hive.admin.import-users', roles: ['super-admin', 'it-support'] },
-      );
-    }
-
-    return [{ name: 'Admissions', icon: DocumentTextIcon, children }];
-  };
-
-  // ─── Teaching & Learning ────────────────────────────────────────────────────
-
-  const teachingNav = () => {
-    if (!isFaculty.value && !isAdmin.value) return [];
-
-    const facultyRoles = ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef'];
+  const facultyNav = () => {
+    if (!isFaculty.value) return [];
 
     return [
       {
         name: 'Teaching',
         icon: BookOpenIcon,
         children: [
-          { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*', roles: facultyRoles },
-          { name: 'Gradebook', href: route('hive.grades.index'), active: 'hive.grades.*', roles: facultyRoles },
-          { name: 'Module Chat', href: route('hive.chat.index'), active: 'hive.chat.*', roles: facultyRoles },
-          { name: 'QR Check-In', href: route('hive.attendance.scan'), active: 'hive.attendance.*', roles: facultyRoles },
-          { name: 'Timetable', href: route('hive.timetable.index'), active: 'hive.timetable.*', roles: facultyRoles },
+          { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*' },
+          { name: 'Gradebook', href: route('hive.grades.index'), active: 'hive.grades.*' },
+          { name: 'Module Chat', href: route('hive.chat.index'), active: 'hive.chat.*' },
+          { name: 'QR Check-In', href: route('hive.attendance.scan'), active: 'hive.attendance.*' },
+          { name: 'Timetable', href: route('hive.timetable.index'), active: 'hive.timetable.*' },
         ],
       },
       {
         name: 'Assessments',
         icon: ClipboardDocumentCheckIcon,
         children: [
-          { name: 'All Assessments', href: route('hive.gradables.index'), active: 'hive.gradables.index', roles: facultyRoles },
-          { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz'), roles: facultyRoles },
-          { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), isActive: () => isGradableTypeActive('test'), roles: facultyRoles },
-          { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), isActive: () => isGradableTypeActive('assignment'), roles: facultyRoles },
-          { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), isActive: () => isGradableTypeActive('mid-term_exam'), roles: facultyRoles },
-          { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), isActive: () => isGradableTypeActive('final_exam'), roles: facultyRoles },
+          { name: 'All Assessments', href: route('hive.gradables.index'), active: 'hive.gradables.index' },
+          { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz') },
+          { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), isActive: () => isGradableTypeActive('test') },
+          { name: 'Assignments', href: route('hive.gradables.module-select', { type: 'assignment' }), isActive: () => isGradableTypeActive('assignment') },
+          { name: 'Mid-Term Exams', href: route('hive.gradables.module-select', { type: 'mid-term_exam' }), isActive: () => isGradableTypeActive('mid-term_exam') },
+          { name: 'Final Exams', href: route('hive.gradables.module-select', { type: 'final_exam' }), isActive: () => isGradableTypeActive('final_exam') },
+        ],
+      },
+      {
+        name: 'Resources',
+        icon: BookOpenIcon,
+        children: [
+          { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*' },
+          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*' },
+          { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*' },
         ],
       },
     ];
   };
 
-  // ─── Academic Administration ─────────────────────────────────────────────────
+  // ─── Admissions Staff Navigation ──────────────────────────────────────────────
+
+  const admissionsNav = () => {
+    const isAdmissionsStaff = userRoles.value.some(r => ['admissions-officer', 'registrar', 'program-coordinator'].includes(r));
+    if (!isAdmissionsStaff) return [];
+
+    return [{
+      name: 'Admissions',
+      icon: DocumentTextIcon,
+      children: [
+        { name: 'Applications', href: route('hive.applications.index'), active: 'hive.applications.*' },
+        { name: 'Registrations', href: route('hive.registration.index'), active: 'hive.registration.*' },
+        { name: 'Short Courses', href: route('hive.short-courses.index'), active: 'hive.short-courses.*' },
+        { name: 'Waitlist', href: route('hive.waitlist.index'), active: 'hive.waitlist.*' },
+      ],
+    }];
+  };
+
+  // ─── Academic Administration Navigation ───────────────────────────────────────
 
   const academicAdminNav = () => {
-    const authRoles = userRoles.value;
-    const isAcademicStaff = authRoles.some(r => ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'registrar'].includes(r));
+    const isAcademicStaff = userRoles.value.some(r => ['academic-director', 'program-coordinator', 'registrar', 'examination-cell'].includes(r));
     if (!isAcademicStaff) return [];
-
-    const academicRoles = ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'registrar'];
 
     return [{
       name: 'Academic',
       icon: AcademicCapIcon,
       children: [
-        { name: 'Programmes', href: route('hive.programmes.index'), active: 'hive.programmes.*', roles: ['super-admin', 'it-support', 'academic-director'] },
-        { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*', roles: academicRoles },
-        { name: 'Cohorts', href: route('hive.cohorts.index'), active: 'hive.cohorts.*', roles: academicRoles },
-        { name: 'Enrollment', href: route('hive.enrollment.index'), active: 'hive.enrollment.*', roles: academicRoles },
-        { name: 'Student Advancement', href: route('hive.advancement.index'), active: 'hive.advancement.*', roles: academicRoles },
-        { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*', roles: ['super-admin', 'it-support'] },
+        { name: 'Programmes', href: route('hive.programmes.index'), active: 'hive.programmes.*' },
+        { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*' },
+        { name: 'Cohorts', href: route('hive.cohorts.index'), active: 'hive.cohorts.*' },
+        { name: 'Enrollment', href: route('hive.enrollment.index'), active: 'hive.enrollment.*' },
+        { name: 'Student Advancement', href: route('hive.advancement.index'), active: 'hive.advancement.*' },
       ],
     }];
   };
 
-  // ─── Administration ──────────────────────────────────────────────────────────
+  // ─── Finance Navigation ───────────────────────────────────────────────────────
+
+  const financeNav = () => {
+    if (!canAccessFinance.value) return [];
+
+    return [{
+      name: 'Finance',
+      icon: CurrencyDollarIcon,
+      children: [
+        { name: 'Dashboard', href: route('hive.finance.reports.dashboard'), active: 'hive.finance.reports.dashboard' },
+        { name: 'Invoices', href: route('hive.finance.invoices.index'), active: 'hive.finance.invoices.*' },
+        { name: 'Payments', href: route('hive.finance.payments.index'), active: 'hive.finance.payments.*' },
+        { name: 'Expenses', href: route('hive.finance.expenses.index'), active: 'hive.finance.expenses.*' },
+        { name: 'Budgets', href: route('hive.finance.budgets.index'), active: 'hive.finance.budgets.*' },
+        { name: 'Convectionary', href: route('hive.finance.convectionary.index'), active: 'hive.finance.convectionary.*' },
+      ],
+    }];
+  };
+
+  // ─── HR Navigation ────────────────────────────────────────────────────────────
+
+  const hrNav = () => {
+    const isHrStaff = userRoles.value.some(r => ['hr-manager'].includes(r));
+    if (!isHrStaff) return [];
+
+    return [{
+      name: 'HR',
+      icon: BriefcaseIcon,
+      children: [
+        { name: 'Leave Requests', href: route('hive.leaves.index'), active: 'hive.leaves.*' },
+        { name: 'Payslips', href: route('hive.payslips.index'), active: 'hive.payslips.index' },
+        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*' },
+        { name: 'Staff Directory', href: route('hive.staff.index'), active: 'hive.staff.*' },
+      ],
+    }];
+  };
+
+  // ─── Operations Navigation ────────────────────────────────────────────────────
+
+  const operationsNav = () => {
+    const isOpsStaff = userRoles.value.some(r =>
+      ['procurement-manager', 'storekeeper', 'events-pr-manager', 'cafeteria-manager', 'librarian'].includes(r)
+    );
+    if (!isOpsStaff) return [];
+
+    const children = [];
+
+    if (userRoles.value.some(r => ['events-pr-manager', 'cafeteria-manager', 'librarian'].includes(r))) {
+      children.push({ name: 'Events', href: route('hive.events.index'), active: 'hive.events.*' });
+      children.push({ name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*' });
+    }
+
+    if (userRoles.value.some(r => ['procurement-manager', 'storekeeper'].includes(r))) {
+      children.push({ name: 'Suppliers', href: route('hive.suppliers.index'), active: 'hive.suppliers.*' });
+      children.push({ name: 'Keys', href: route('hive.keys.index'), active: 'hive.keys.*' });
+    }
+
+    if (userRoles.value.includes('librarian')) {
+      children.push({ name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*' });
+    }
+
+    if (userRoles.value.some(r => ['events-pr-manager', 'procurement-manager', 'storekeeper', 'cafeteria-manager', 'librarian'].includes(r))) {
+      children.push({ name: 'Visitor Logs', href: route('hive.visitor-logs.index'), active: 'hive.visitor-logs.*' });
+      children.push({ name: 'Upload Document', href: route('hive.documents.create'), active: 'hive.documents.create' });
+    }
+
+    if (!children.length) return [];
+
+    return [{ name: 'Operations', icon: CalendarDaysIcon, children }];
+  };
+
+  // ─── People Management (Admin & HR) ───────────────────────────────────────────
+
+  const peopleNav = () => {
+    const canManagePeople = userRoles.value.some(r => ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'admissions-officer', 'registrar', 'hr-manager', 'career-services'].includes(r));
+    if (!canManagePeople) return [];
+
+    const children = [];
+
+    if (userRoles.value.some(r => ['super-admin', 'it-support'].includes(r))) {
+      children.push({ name: 'All Users', href: route('hive.users.index'), active: 'hive.users.*' });
+    }
+
+    if (userRoles.value.some(r => ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'admissions-officer', 'registrar'].includes(r))) {
+      children.push({ name: 'Students', href: route('hive.students.index'), active: 'hive.students.*' });
+    }
+
+    if (userRoles.value.some(r => ['super-admin', 'it-support', 'hr-manager'].includes(r))) {
+      children.push({ name: 'Staff', href: route('hive.staff.index'), active: 'hive.staff.*' });
+    }
+
+    if (userRoles.value.some(r => ['super-admin', 'it-support', 'program-coordinator', 'career-services'].includes(r))) {
+      children.push({ name: 'Achievements', href: route('hive.achievements.index'), active: 'hive.achievements.*' });
+    }
+
+    if (!children.length) return [];
+
+    return [{ name: 'People', icon: UserGroupIcon, children }];
+  };
+
+  // ─── Administration (Admin only) ──────────────────────────────────────────────
 
   const administrationNav = () => {
     if (!isAdmin.value) return [];
@@ -244,100 +340,19 @@ export function useNavigation() {
       name: 'Administration',
       icon: Cog6ToothIcon,
       children: [
-        { name: 'Departments', href: route('hive.departments.index'), active: 'hive.departments.*', roles: ['super-admin', 'it-support', 'academic-director'] },
-        { name: 'Placements', href: route('hive.placements.index'), active: 'hive.placements.*', roles: ['super-admin', 'it-support', 'academic-director', 'career-services'] },
-        { name: 'Disciplinary', href: route('hive.disciplinary.index'), active: 'hive.disciplinary.*', roles: ['super-admin', 'it-support', 'academic-director'] },
-        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*', roles: ['super-admin', 'it-support', 'hr-manager'] },
+        { name: 'Departments', href: route('hive.departments.index'), active: 'hive.departments.*' },
+        { name: 'Placements', href: route('hive.placements.index'), active: 'hive.placements.*' },
+        { name: 'Disciplinary', href: route('hive.disciplinary.index'), active: 'hive.disciplinary.*' },
+        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*' },
+        { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*' },
       ],
     }];
   };
 
-  // ─── People ──────────────────────────────────────────────────────────────────
-
-  const peopleNav = () => {
-    if (!isAdmin.value) return [];
-
-    return [{
-      name: 'People',
-      icon: UserGroupIcon,
-      children: [
-        { name: 'All Users', href: route('hive.users.index'), active: 'hive.users.*', roles: ['super-admin', 'it-support'] },
-        { name: 'Students', href: route('hive.students.index'), active: 'hive.students.*', roles: ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'admissions-officer', 'registrar'] },
-        { name: 'Staff', href: route('hive.staff.index'), active: 'hive.staff.*', roles: ['super-admin', 'it-support', 'hr-manager'] },
-        { name: 'Achievements', href: route('hive.achievements.index'), active: 'hive.achievements.*', roles: ['super-admin', 'it-support', 'program-coordinator', 'career-services'] },
-      ],
-    }];
-  };
-
-  // ─── Finance ─────────────────────────────────────────────────────────────────
-
-  const financeNav = () => {
-    if (!canAccessFinance.value && !isAdmin.value) return [];
-
-    const financeRoles = ['super-admin', 'finance', 'hr-manager'];
-
-    return [{
-      name: 'Finance',
-      icon: CurrencyDollarIcon,
-      children: [
-        { name: 'Dashboard', href: route('hive.finance.reports.dashboard'), active: 'hive.finance.reports.dashboard', roles: financeRoles },
-        { name: 'Invoices', href: route('hive.finance.invoices.index'), active: 'hive.finance.invoices.*', roles: financeRoles },
-        { name: 'Payments', href: route('hive.finance.payments.index'), active: 'hive.finance.payments.*', roles: financeRoles },
-        { name: 'Expenses', href: route('hive.finance.expenses.index'), active: 'hive.finance.expenses.*', roles: financeRoles },
-        { name: 'Budgets', href: route('hive.finance.budgets.index'), active: 'hive.finance.budgets.*', roles: financeRoles },
-        { name: 'Convectionary', href: route('hive.finance.convectionary.index'), active: 'hive.finance.convectionary.*', roles: financeRoles },
-      ],
-    }];
-  };
-
-  // ─── HR ──────────────────────────────────────────────────────────────────────
-
-  const hrNav = () => {
-    if (!isStaff.value && !isAdmin.value) return [];
-
-    const staffRoles = ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'chef-instructor', 'pastry-instructor', 'sous-chef', 'admissions-officer', 'examination-cell', 'registrar', 'finance', 'procurement-manager', 'storekeeper', 'hr-manager', 'librarian', 'career-services', 'events-pr-manager', 'cafeteria-manager'];
-
-    return [{
-      name: 'HR',
-      icon: BriefcaseIcon,
-      children: [
-        { name: 'Leave Requests', href: route('hive.leaves.index'), active: 'hive.leaves.*', roles: staffRoles },
-        { name: 'Payslips', href: route('hive.payslips.index'), active: 'hive.payslips.index', roles: staffRoles },
-        { name: 'Polls & Surveys', href: route('hive.polls.index'), active: 'hive.polls.*', roles: staffRoles },
-        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*', roles: staffRoles },
-      ],
-    }];
-  };
-
-  // ─── Operations ──────────────────────────────────────────────────────────────
-
-  const operationsNav = () => {
-    const authRoles = userRoles.value;
-    const isOpsStaff = authRoles.some(r =>
-      ['super-admin', 'it-support', 'procurement-manager', 'storekeeper', 'events-pr-manager', 'cafeteria-manager', 'librarian'].includes(r)
-    );
-    if (!isOpsStaff && !isAdmin.value) return [];
-
-    const opsRoles = ['super-admin', 'it-support', 'procurement-manager', 'storekeeper', 'events-pr-manager', 'cafeteria-manager', 'librarian'];
-
-    return [{
-      name: 'Operations',
-      icon: CalendarDaysIcon,
-      children: [
-        { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*', roles: opsRoles },
-        { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*', roles: opsRoles },
-        { name: 'Visitor Logs', href: route('hive.visitor-logs.index'), active: 'hive.visitor-logs.*', roles: opsRoles },
-        { name: 'Suppliers', href: route('hive.suppliers.index'), active: 'hive.suppliers.*', roles: ['super-admin', 'it-support', 'procurement-manager', 'storekeeper'] },
-        { name: 'Keys', href: route('hive.keys.index'), active: 'hive.keys.*', roles: opsRoles },
-        { name: 'Upload Document', href: route('hive.documents.create'), active: 'hive.documents.create', roles: opsRoles },
-      ],
-    }];
-  };
-
-  // ─── System ──────────────────────────────────────────────────────────────────
+  // ─── System (Super Admin only) ────────────────────────────────────────────────
 
   const systemNav = () => {
-    if (!isAdmin.value) return [];
+    if (!isSuperAdmin.value) return [];
 
     return [{
       name: 'System',
@@ -345,10 +360,6 @@ export function useNavigation() {
       children: [
         { name: 'Pending Approvals', href: route('hive.admin.approve-users'), active: 'hive.admin.approve-users' },
         { name: 'Import Users', href: route('hive.admin.import-users'), active: 'hive.admin.import-users' },
-        { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*' },
-        { name: 'All Users', href: route('hive.users.index'), active: 'hive.users.*' },
-        { name: 'Students', href: route('hive.students.index'), active: 'hive.students.*' },
-        { name: 'Staff', href: route('hive.staff.index'), active: 'hive.staff.*' },
         { name: 'System Logs', href: route('log-viewer'), target: '_blank' },
       ],
     }];
@@ -360,15 +371,14 @@ export function useNavigation() {
     buildNav([
       ...dashNav,
       ...studentNav(),
-      ...academicResourcesNav(),
+      ...facultyNav(),
       ...admissionsNav(),
-      ...teachingNav(),
       ...academicAdminNav(),
-      ...administrationNav(),
-      ...peopleNav(),
-      ...operationsNav(),
-      ...hrNav(),
       ...financeNav(),
+      ...hrNav(),
+      ...operationsNav(),
+      ...peopleNav(),
+      ...administrationNav(),
       ...systemNav(),
     ])
   );

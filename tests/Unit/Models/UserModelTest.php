@@ -4,12 +4,19 @@ namespace Tests\Unit\Models;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UserModelTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('db:seed', ['--class' => RolePermissionSeeder::class]);
+    }
 
     public function test_user_can_be_created_with_factory(): void
     {
