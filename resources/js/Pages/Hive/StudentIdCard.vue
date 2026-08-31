@@ -27,7 +27,7 @@ const studentId = computed(() => props.student_id || {});
 
         <a
           :href="download_url"
-          class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          class="inline-flex items-center gap-2 bg-hbci-gold hover:bg-hbci-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
         >
           <ArrowDownTrayIcon class="w-4 h-4" />
           Download PDF
@@ -41,7 +41,7 @@ const studentId = computed(() => props.student_id || {});
       >
         <!-- Header -->
         <div
-          class="absolute inset-x-0 top-0 flex items-center bg-amber-500"
+          class="absolute inset-x-0 top-0 flex items-center bg-hbci-gold"
           style="height: 25.49%; padding: 0 5.37%;"
         >
           <img
@@ -97,7 +97,7 @@ const studentId = computed(() => props.student_id || {});
           />
           <div
             v-else
-            class="w-full h-full flex items-center justify-center bg-gray-200 text-orange-700 font-black"
+            class="w-full h-full flex items-center justify-center bg-hbci-gold-light text-hbci-gold-dark font-black"
             style="font-size: clamp(20px, 4vw, 48px);"
           >
             {{ studentId.initials }}
@@ -106,7 +106,7 @@ const studentId = computed(() => props.student_id || {});
 
         <!-- Student name -->
         <div
-          class="absolute text-center text-amber-500 font-black uppercase truncate"
+          class="absolute text-center text-hbci-gold-dark font-black uppercase truncate"
           style="right: 6.2%; top: 69.28%; width: 24%; font-size: clamp(12px, 2.05vw, 24px);"
         >
           {{ studentId.name || 'Name Here' }}

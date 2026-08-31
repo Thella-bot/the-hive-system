@@ -23,7 +23,7 @@
             left: 0;
             right: 0;
             height: 39pt;
-            background: #f7931e;
+            background: #f5c842;
             border-radius: 14pt 14pt 0 0;
         }
 
@@ -103,8 +103,8 @@
         }
 
         .initials-fallback {
-            background: #e5e7eb;
-            color: #9a3412;
+            background: #fef3c7;
+            color: #d4a503;
             font-size: 15pt;
             font-weight: 900;
             text-align: center;
@@ -117,7 +117,7 @@
             top: 106pt;
             left: 151pt;
             width: 72pt;
-            color: #f7931e;
+            color: #d4a503;
             font-size: 9.5pt;
             line-height: 11pt;
             font-weight: 900;
