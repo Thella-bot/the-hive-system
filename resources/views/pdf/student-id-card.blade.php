@@ -1,183 +1,188 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>Student ID Card</title>
     <style>
-        @page {
-            margin: 0;
-            size: 242pt 153pt;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'DejaVu Sans', sans-serif;
-        }
+        @page { margin: 0; size: 242pt 153pt; }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; font-family: 'DejaVu Sans', sans-serif; background: #eef0f3; }
 
         .card {
             width: 242pt;
             height: 153pt;
             position: relative;
             overflow: hidden;
+            background: #ffffff;
+            border-radius: 14pt;
         }
 
-        /*
-         * Background traced from the reference design: a solid yellow
-         * field with one large rotated white ellipse and three black
-         * shard accents. This MUST stay a pre-rendered raster image
-         * (public/images/id-card-bg.png) rather than inline SVG or a
-         * CSS transform+border-radius ellipse - both were tested against
-         * a real dompdf 3.1 render and produced a blank/broken result.
-         * If the design ever changes, regenerate the PNG from the SVG
-         * source rather than hand-editing CSS here.
-         */
-        .bg {
+        .header {
             position: absolute;
             top: 0;
             left: 0;
-            width: 242pt;
-            height: 153pt;
+            right: 0;
+            height: 39pt;
+            background: #f7931e;
+            border-radius: 14pt 14pt 0 0;
         }
 
+        /* Keep the existing institute logo asset, but place it in the new header. */
         .logo {
             position: absolute;
             top: 9pt;
             left: 13pt;
-            height: 18pt;
+            height: 21pt;
+            width: auto;
         }
 
-        .title {
+        .institute-name {
             position: absolute;
-            top: 6pt;
-            right: 13pt;
-            background: #FFBD59;
+            top: 10pt;
+            left: 48pt;
+            right: 10pt;
             color: #ffffff;
+            font-size: 12pt;
+            line-height: 17pt;
             font-weight: 900;
-            font-size: 11.5pt;
-            letter-spacing: 0.4pt;
-            padding: 4pt 13pt;
-            border-radius: 9999pt;
-        }
-
-        .photo {
-            position: absolute;
-            top: 40pt;
-            left: 13pt;
-            width: 60pt;
-            height: 88pt;
-            object-fit: cover;
-            border-radius: 3pt;
-            border: 1.5pt solid #ffffff;
-        }
-
-        .initials-fallback {
-            position: absolute;
-            top: 40pt;
-            left: 13pt;
-            width: 60pt;
-            height: 88pt;
-            border-radius: 3pt;
-            border: 1.5pt solid #ffffff;
-            background: #fef3c7;
-            color: #b45309;
-            font-weight: 900;
-            font-size: 18pt;
-            text-align: center;
-        }
-
-        /*
-         * Label/value pairs use absolute positioning rather than a
-         * table. table-layout:fixed with per-cell CSS widths did not
-         * hold the value column to its intended width in testing -
-         * long values (a full name, a programme title) silently
-         * overflowed past the card edge instead of staying within the
-         * 101pt budget. Absolute positioning with a fixed left/width
-         * rendered correctly and predictably in every test.
-         */
-        .label {
-            position: absolute;
-            left: 79pt;
-            width: 47pt;
-            font-weight: 700;
-            font-size: 6pt;
+            letter-spacing: 0.25pt;
             white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .details {
+            position: absolute;
+            left: 14pt;
+            top: 51pt;
+            width: 108pt;
+        }
+
+        .row {
+            height: 15pt;
+            line-height: 15pt;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .label {
+            display: inline-block;
+            width: 43pt;
             color: #111827;
+            font-size: 6.5pt;
+            font-weight: 700;
+            vertical-align: top;
         }
 
         .value {
-            position: absolute;
-            left: 128pt;
-            width: 101pt;
-            font-weight: 900;
+            display: inline-block;
+            width: 62pt;
+            color: #111827;
             font-size: 7pt;
+            font-weight: 900;
             text-transform: uppercase;
+            vertical-align: top;
             overflow: hidden;
             white-space: nowrap;
-            color: #111827;
         }
 
-        /*
-         * Distinct condensed treatment for the course value, matching
-         * the reference design's contrasting display font. Requires
-         * public/fonts/Oswald-Bold.ttf to be registered with dompdf's
-         * FontMetrics before render - see StudentIdController::download().
-         * @font-face declared here alone is NOT enough; it was tested
-         * and silently fell back to a default serif font.
-         */
-        .value-course {
+        .programme { font-size: 6.6pt; letter-spacing: -0.1pt; }
+
+        .photo,
+        .initials-fallback {
             position: absolute;
-            left: 128pt;
-            width: 101pt;
-            font-family: 'Oswald', 'DejaVu Sans', sans-serif;
+            top: 49pt;
+            right: 20pt;
+            width: 48pt;
+            height: 55pt;
+            border-radius: 2pt;
+        }
+
+        .photo {
+            object-fit: cover;
+            border: 0.7pt solid #d1d5db;
+        }
+
+        .initials-fallback {
+            background: #e5e7eb;
+            color: #9a3412;
+            font-size: 15pt;
             font-weight: 900;
-            font-size: 7pt;
+            text-align: center;
+            line-height: 55pt;
+            border: 0.7pt solid #d1d5db;
+        }
+
+        .name {
+            position: absolute;
+            top: 106pt;
+            left: 151pt;
+            width: 72pt;
+            color: #f7931e;
+            font-size: 9.5pt;
+            line-height: 11pt;
+            font-weight: 900;
+            text-align: center;
             text-transform: uppercase;
-            letter-spacing: -0.1pt;
-            overflow: hidden;
             white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .qr-code {
+            position: absolute;
+            right: 20pt;
+            bottom: 7pt;
+            width: 39pt;
+            height: 39pt;
+            padding: 1.5pt;
+            background: #ffffff;
+            border: 0.5pt solid #e5e7eb;
+            border-radius: 2pt;
+        }
+
+        .signature {
+            position: absolute;
+            left: 15pt;
+            bottom: 9pt;
             color: #111827;
-        }
-
-        .r1 {
-            top: 44pt;
-        }
-
-        .r2 {
-            top: 60pt;
-        }
-
-        .r3 {
-            top: 76pt;
-        }
-
-        .r4 {
-            top: 92pt;
+            font-size: 6.5pt;
+            white-space: nowrap;
         }
 
         .footer {
             position: absolute;
-            bottom: 3pt;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 5pt;
-            color: #6b7280;
+            left: 15pt;
+            bottom: 2.5pt;
+            width: 125pt;
+            color: #9ca3af;
+            font-size: 3.6pt;
+            line-height: 4.5pt;
         }
     </style>
 </head>
-
 <body>
     <div class="card">
-        <img class="bg" src="{{ public_path('images/id-card-bg.png') }}" alt="">
-
+        <div class="header"></div>
         <img class="logo" src="{{ public_path('images/hbci-logo.png') }}" alt="Honey Bee Culinary Institute">
-        <span class="title">STUDENT CARD</span>
+        <div class="institute-name">HONEY BEE CULINARY INSTITUTE</div>
+
+        <div class="details">
+            <div class="row">
+                <span class="label">STUDENT ID:</span>
+                <span class="value">{{ $studentNumber ?? 'N/A' }}</span>
+            </div>
+            <div class="row">
+                <span class="label">PROGRAMME:</span>
+                <span class="value programme">{{ $programme ?? 'N/A' }}</span>
+            </div>
+            <div class="row">
+                <span class="label">YEAR:</span>
+                <span class="value">{{ $year ?? 'N/A' }}</span>
+            </div>
+            <div class="row">
+                <span class="label">COHORT:</span>
+                <span class="value">{{ $cohort ?? 'N/A' }}</span>
+            </div>
+        </div>
 
         @if($photoPath)
             <img class="photo" src="{{ $photoPath }}" alt="Student photo">
@@ -185,22 +190,14 @@
             <div class="initials-fallback">{{ $initials }}</div>
         @endif
 
-        <div class="label r1">STUDENT NO:</div>
-        <div class="value r1">{{ $studentNumber ?? 'N/A' }}</div>
+        <div class="name">{{ $name }}</div>
 
-        <div class="label r2">NAME:</div>
-        <div class="value r2">{{ $name }}</div>
+        @if($qrCode)
+            <img class="qr-code" src="{{ $qrCode }}" alt="QR Code">
+        @endif
 
-        <div class="label r3">YEAR:</div>
-        <div class="value r3">{{ $year }}</div>
-
-        <div class="label r4">COURSE:</div>
-        <div class="value-course r4">{{ $programme ?? 'N/A' }}</div>
-
-        <div class="footer">
-            This card is the property of Honey Bee Culinary Institute. Return to reception if found.
-        </div>
+        <div class="signature">Authorize Signature</div>
+        <div class="footer">This card is the property of Honey Bee Culinary Institute. Return to reception if found.</div>
     </div>
 </body>
-
 </html>
