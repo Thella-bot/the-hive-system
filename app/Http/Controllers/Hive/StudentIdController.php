@@ -52,6 +52,7 @@ class StudentIdController extends Controller
 
         $pdf = Pdf::loadView('pdf.student-id-card', [
             'name'          => $card['name'],
+            'email'         => $card['email'],
             'studentNumber' => $card['student_number'],
             'year'          => $card['year'],
             'programme'     => $card['programme'],
@@ -60,7 +61,7 @@ class StudentIdController extends Controller
             'initials'      => $card['initials'],
             'photoPath'     => $card['photo_path'],
             'qrCode'        => $card['qr_code'],
-        ])->setPaper([0, 0, 242, 153]);
+        ])->setPaper([0, 0, 242, 316]);
 
         // The COURSE value uses a condensed display font (matching the
         // card's reference design) so longer programme names still fit

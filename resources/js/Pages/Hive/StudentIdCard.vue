@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
-import { ArrowDownTrayIcon, ArrowLeftIcon } from '@heroicons/vue/24/outline';
+import { ArrowDownTrayIcon, ArrowLeftIcon, ArrowsRightLeftIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   student_id: { type: Object, required: true },
@@ -11,6 +11,7 @@ const props = defineProps({
 });
 
 const studentId = computed(() => props.student_id || {});
+const showBack = ref(false);
 </script>
 
 <template>
@@ -25,126 +26,249 @@ const studentId = computed(() => props.student_id || {});
           Back to Dashboard
         </Link>
 
-        <a
-          :href="download_url"
-          class="inline-flex items-center gap-2 bg-hbci-gold hover:bg-hbci-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
-          <ArrowDownTrayIcon class="w-4 h-4" />
-          Download PDF
-        </a>
-      </div>
-
-      <!-- Digital card. Keep the aspect ratio identical to the 242pt x 153pt PDF. -->
-      <div
-        class="relative mx-auto overflow-hidden rounded-[28px] bg-white shadow-2xl ring-1 ring-black/5"
-        style="width: min(100%, 726px); aspect-ratio: 242 / 153;"
-      >
-        <!-- Header -->
-        <div
-          class="absolute inset-x-0 top-0 flex items-center bg-hbci-gold"
-          style="height: 25.49%; padding: 0 5.37%;"
-        >
-          <img
-            src="/images/hbci-logo.png"
-            alt="Honey Bee Culinary Institute"
-            class="h-auto object-contain"
-            style="width: 13.5%; max-height: 62%;"
-          />
-          <div
-            class="ml-4 truncate text-white font-black tracking-wide"
-            style="font-size: clamp(14px, 2.45vw, 29px);"
+        <div class="flex items-center gap-3">
+          <button
+            @click="showBack = !showBack"
+            class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
-            HONEY BEE CULINARY INSTITUTE
-          </div>
-        </div>
+            <ArrowsRightLeftIcon class="w-4 h-4" />
+            {{ showBack ? 'Show Front' : 'Show Back' }}
+          </button>
 
-        <!-- Details -->
-        <div
-          class="absolute"
-          style="left: 5.79%; top: 33.33%; width: 44.63%;"
-        >
-          <div class="grid grid-cols-[42%_58%] items-baseline leading-none mb-[5.5%]">
-            <span class="font-bold text-gray-900" style="font-size: clamp(8px, 1.18vw, 14px);">STUDENT ID:</span>
-            <span class="font-black text-gray-900 truncate uppercase" style="font-size: clamp(9px, 1.38vw, 16px);">{{ studentId.student_number || 'N/A' }}</span>
-          </div>
-
-          <div class="grid grid-cols-[42%_58%] items-baseline leading-none mb-[5.5%]">
-            <span class="font-bold text-gray-900" style="font-size: clamp(8px, 1.18vw, 14px);">PROGRAMME:</span>
-            <span class="font-black text-gray-900 truncate uppercase" style="font-size: clamp(8px, 1.28vw, 15px);">{{ studentId.programme || 'N/A' }}</span>
-          </div>
-
-          <div class="grid grid-cols-[42%_58%] items-baseline leading-none mb-[5.5%]">
-            <span class="font-bold text-gray-900" style="font-size: clamp(8px, 1.18vw, 14px);">YEAR:</span>
-            <span class="font-black text-gray-900 truncate uppercase" style="font-size: clamp(9px, 1.38vw, 16px);">{{ studentId.year || 'N/A' }}</span>
-          </div>
-
-          <div class="grid grid-cols-[42%_58%] items-baseline leading-none">
-            <span class="font-bold text-gray-900" style="font-size: clamp(8px, 1.18vw, 14px);">COHORT:</span>
-            <span class="font-black text-gray-900 truncate uppercase" style="font-size: clamp(9px, 1.38vw, 16px);">{{ studentId.cohort || 'N/A' }}</span>
-          </div>
-        </div>
-
-        <!-- Photo -->
-        <div
-          class="absolute overflow-hidden rounded bg-gray-200 ring-1 ring-gray-300"
-          style="right: 8.26%; top: 32.03%; width: 19.83%; height: 35.95%;"
-        >
-          <img
-            v-if="studentId.photo_url"
-            :src="studentId.photo_url"
-            alt="Student photo"
-            class="w-full h-full object-cover"
-          />
-          <div
-            v-else
-            class="w-full h-full flex items-center justify-center bg-hbci-gold-light text-hbci-gold-dark font-black"
-            style="font-size: clamp(20px, 4vw, 48px);"
+          <a
+            :href="download_url"
+            class="inline-flex items-center gap-2 bg-hbci-gold hover:bg-hbci-gold-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
-            {{ studentId.initials }}
-          </div>
-        </div>
-
-        <!-- Student name -->
-        <div
-          class="absolute text-center text-hbci-gold-dark font-black uppercase truncate"
-          style="right: 6.2%; top: 69.28%; width: 24%; font-size: clamp(12px, 2.05vw, 24px);"
-        >
-          {{ studentId.name || 'Name Here' }}
-        </div>
-
-        <!-- QR -->
-        <div
-          class="absolute bg-white rounded border border-gray-200 p-1"
-          style="right: 8.26%; bottom: 5.88%; width: 16.12%; aspect-ratio: 1;"
-        >
-          <img
-            v-if="studentId.qr_code"
-            :src="studentId.qr_code"
-            alt="Student verification QR code"
-            class="w-full h-full"
-          />
-          <div v-else class="w-full h-full flex items-center justify-center text-xs text-gray-400">QR</div>
-        </div>
-
-        <!-- Signature -->
-        <div
-          class="absolute text-gray-900"
-          style="left: 6.2%; bottom: 7.2%; font-size: clamp(8px, 1.05vw, 12px);"
-        >
-          Authorize Signature
-        </div>
-
-        <div
-          class="absolute left-[6.2%] text-gray-400"
-          style="bottom: 2.4%; font-size: clamp(5px, .65vw, 8px);"
-        >
-          This card is the property of Honey Bee Culinary Institute. Return to reception if found.
+            <ArrowDownTrayIcon class="w-4 h-4" />
+            Download PDF
+          </a>
         </div>
       </div>
 
-      <p class="text-center text-xs text-gray-400 mt-4">
-        This card is the property of Honey Bee Culinary Institute. Return to reception if found.
-      </p>
+      <!-- Card flip container -->
+      <div class="perspective-1000" style="perspective: 1000px;">
+        <div
+          class="relative mx-auto transition-transform duration-700 ease-in-out"
+          style="width: min(100%, 726px); aspect-ratio: 242 / 153; transform-style: preserve-3d;"
+          :style="{ transform: showBack ? 'rotateY(180deg)' : 'rotateY(0deg)' }"
+        >
+          <!-- FRONT OF CARD -->
+          <div
+            class="absolute inset-0 overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5"
+            style="backface-visibility: hidden;"
+          >
+            <!-- Subtle guilloche pattern overlay -->
+            <div class="absolute inset-0 opacity-[0.015]" style="background: repeating-linear-gradient(45deg, transparent, transparent 2px, #f5c842 2px, #f5c842 4px);"></div>
+
+            <!-- Gold accent stripe -->
+            <div class="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-hbci-gold via-hbci-warm-400 to-hbci-gold-dark"></div>
+
+            <!-- Header -->
+            <div
+              class="absolute inset-x-0 top-0 flex items-center"
+              style="height: 22%; padding-left: 6%; padding-right: 4%; background: linear-gradient(135deg, #1f2937 0%, #374151 100%);"
+            >
+              <img
+                src="/images/hbci-logo.png"
+                alt="Honey Bee Culinary Institute"
+                class="h-auto object-contain brightness-0 invert"
+                style="width: 11%; max-height: 65%;"
+              />
+              <div class="ml-3 flex flex-col">
+                <span
+                  class="text-hbci-gold font-black tracking-wider uppercase leading-none truncate"
+                  style="font-size: clamp(11px, 1.8vw, 22px);"
+                >
+                  Honey Bee
+                </span>
+                <span
+                  class="text-white font-semibold tracking-wide uppercase leading-none truncate"
+                  style="font-size: clamp(7px, 1vw, 12px);"
+                >
+                  Culinary Institute
+                </span>
+              </div>
+              <div class="ml-auto text-right">
+                <span
+                  class="text-hbci-gold font-bold uppercase tracking-wider"
+                  style="font-size: clamp(6px, 0.75vw, 9px);"
+                >
+                  Student Identification
+                </span>
+              </div>
+            </div>
+
+            <!-- Main content area -->
+            <div class="absolute inset-x-0 bottom-0" style="top: 22%; padding: 0 5%;">
+              <div class="flex h-full gap-4">
+                <!-- Left: Details -->
+                <div class="flex-1 flex flex-col justify-center">
+                  <!-- Student name -->
+                  <div class="mb-2">
+                    <span
+                      class="font-black text-gray-900 uppercase tracking-wide truncate block"
+                      style="font-size: clamp(11px, 1.6vw, 20px); line-height: 1.1;"
+                    >
+                      {{ studentId.name || 'Name Here' }}
+                    </span>
+                  </div>
+
+                  <!-- Details grid -->
+                  <div class="space-y-1">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(6px, 0.72vw, 8.5px); width: 28%;">ID No.</span>
+                      <span class="text-gray-900 font-bold uppercase" style="font-size: clamp(7px, 0.85vw, 10px);">{{ studentId.student_number || 'N/A' }}</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(6px, 0.72vw, 8.5px); width: 28%;">Programme</span>
+                      <span class="text-gray-900 font-bold uppercase truncate" style="font-size: clamp(6px, 0.78vw, 9px);">{{ studentId.programme || 'N/A' }}</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(6px, 0.72vw, 8.5px); width: 28%;">Cohort</span>
+                      <span class="text-gray-900 font-bold uppercase" style="font-size: clamp(7px, 0.85vw, 10px);">{{ studentId.cohort || 'N/A' }}</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(6px, 0.72vw, 8.5px); width: 28%;">Year</span>
+                      <span class="text-gray-900 font-bold uppercase" style="font-size: clamp(7px, 0.85vw, 10px);">{{ studentId.year || 'N/A' }}</span>
+                    </div>
+                    <div v-if="studentId.valid_until" class="flex items-baseline gap-2">
+                      <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(6px, 0.72vw, 8.5px); width: 28%;">Valid Until</span>
+                      <span class="text-hbci-gold-dark font-bold uppercase" style="font-size: clamp(7px, 0.85vw, 10px);">{{ studentId.valid_until }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right: Photo & QR -->
+                <div class="flex flex-col items-center justify-center gap-2" style="width: 32%;">
+                  <!-- Photo -->
+                  <div
+                    class="overflow-hidden rounded-lg shadow-inner"
+                    style="width: 100%; aspect-ratio: 4/3.2; box-shadow: inset 0 0 0 2px rgba(245, 200, 66, 0.3);"
+                  >
+                    <img
+                      v-if="studentId.photo_url"
+                      :src="studentId.photo_url"
+                      alt="Student photo"
+                      class="w-full h-full object-cover"
+                    />
+                    <div
+                      v-else
+                      class="w-full h-full flex items-center justify-center bg-gradient-to-br from-hbci-gold-light to-hbci-warm-200 text-hbci-gold-dark font-black"
+                      style="font-size: clamp(16px, 3vw, 36px);"
+                    >
+                      {{ studentId.initials }}
+                    </div>
+                  </div>
+
+                  <!-- QR Code -->
+                  <div class="flex items-center gap-1.5 w-full">
+                    <div
+                      class="bg-white rounded border border-gray-200 p-0.5 flex-shrink-0 shadow-sm"
+                      style="width: 30%; aspect-ratio: 1;"
+                    >
+                      <img
+                        v-if="studentId.qr_code"
+                        :src="studentId.qr_code"
+                        alt="Verification QR code"
+                        class="w-full h-full"
+                      />
+                      <div v-else class="w-full h-full flex items-center justify-center text-[6px] text-gray-400">QR</div>
+                    </div>
+                    <span class="text-gray-400 uppercase leading-none" style="font-size: clamp(4px, 0.5vw, 6px);">Scan to verify</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer accent -->
+            <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-hbci-gold via-hbci-warm-400 to-hbci-gold-dark"></div>
+          </div>
+
+          <!-- BACK OF CARD -->
+          <div
+            class="absolute inset-0 overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5"
+            style="backface-visibility: hidden; transform: rotateY(180deg);"
+          >
+            <!-- Background pattern -->
+            <div class="absolute inset-0 opacity-[0.02]" style="background: repeating-linear-gradient(-45deg, transparent, transparent 3px, #1f2937 3px, #1f2937 6px);"></div>
+
+            <!-- Magnetic stripe -->
+            <div
+              class="absolute top-0 inset-x-0 bg-gray-800"
+              style="height: 22%;"
+            ></div>
+
+            <!-- Content -->
+            <div class="absolute inset-0" style="padding-top: 28%; padding-left: 5%; padding-right: 5%;">
+              <div class="flex flex-col h-full">
+                <!-- Signature line -->
+                <div class="mb-4">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(6px, 0.7vw, 8px);">Holder's Signature</span>
+                  </div>
+                  <div class="border-b-2 border-dashed border-gray-300" style="width: 55%;"></div>
+                </div>
+
+                <!-- Contact info -->
+                <div class="space-y-1.5 mb-auto">
+                  <div class="flex items-center gap-2">
+                    <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(5px, 0.6vw, 7px); width: 20%;">Email</span>
+                    <span class="text-gray-800 font-medium" style="font-size: clamp(5px, 0.65vw, 7.5px);">{{ studentId.email || 'N/A' }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(5px, 0.6vw, 7px); width: 20%;">Issued</span>
+                    <span class="text-gray-800 font-medium" style="font-size: clamp(5px, 0.65vw, 7.5px);">{{ studentId.year || 'N/A' }}</span>
+                  </div>
+                  <div v-if="studentId.valid_until" class="flex items-center gap-2">
+                    <span class="text-gray-500 font-semibold uppercase" style="font-size: clamp(5px, 0.6vw, 7px); width: 20%;">Expires</span>
+                    <span class="text-hbci-gold-dark font-bold" style="font-size: clamp(5px, 0.65vw, 7.5px);">{{ studentId.valid_until }}</span>
+                  </div>
+                </div>
+
+                <!-- Barcode / ID number -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <!-- Simulated barcode -->
+                    <div class="flex gap-px h-6">
+                      <div v-for="i in 40" :key="i" class="bg-gray-900" :style="{ width: (i % 3 === 0 ? 2 : 1) + 'px' }"></div>
+                    </div>
+                    <span class="text-gray-600 font-mono font-bold tracking-widest" style="font-size: clamp(7px, 0.8vw, 9px);">
+                      {{ studentId.student_number || 'N/A' }}
+                    </span>
+                  </div>
+
+                  <!-- Institute footer -->
+                  <div class="text-right">
+                    <span class="text-hbci-gold font-bold uppercase tracking-wider" style="font-size: clamp(5px, 0.6vw, 7px);">HBCI</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom accent -->
+            <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-gray-800 via-gray-600 to-gray-800"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card info -->
+      <div class="mt-4 flex items-center justify-between text-xs text-gray-400">
+        <span>This card is the property of Honey Bee Culinary Institute. Return to reception if found.</span>
+        <span v-if="studentId.valid_until" class="text-hbci-gold-dark font-medium">
+          Valid until {{ studentId.valid_until }}
+        </span>
+      </div>
+
+      <!-- Usage notes -->
+      <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Card Usage</h3>
+        <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+          <li>• This card must be worn visibly while on campus premises</li>
+          <li>• Present this card when accessing library, laboratories, and examination halls</li>
+          <li>• Report lost or stolen cards to the Student Affairs office immediately</li>
+          <li>• This card remains the property of Honey Bee Culinary Institute</li>
+        </ul>
+      </div>
     </div>
   </HiveLayout>
 </template>
