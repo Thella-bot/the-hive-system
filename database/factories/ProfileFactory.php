@@ -39,7 +39,17 @@ class ProfileFactory extends Factory
             'status' => 'active',
             'dietary_restrictions' => [],
             'emergency_contact_relationship' => 'Parent',
+            'profileable_type' => User::class,
+            'profileable_id' => User::factory(),
         ];
+    }
+
+    public function forUser(User $user): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'profileable_type' => User::class,
+            'profileable_id' => $user->id,
+        ]);
     }
 
     public function forStudent(): static

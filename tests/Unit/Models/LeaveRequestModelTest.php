@@ -3,13 +3,21 @@
 namespace Tests\Unit\Models;
 
 use App\Models\LeaveRequest;
+use App\Models\Profile;
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class LeaveRequestModelTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->artisan('db:seed', ['--class' => RolePermissionSeeder::class]);
+    }
 
     public function test_leave_request_can_be_created_with_factory(): void
     {
@@ -95,10 +103,9 @@ class LeaveRequestModelTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $profile = $user->profile;
-        if ($profile) {
-            $profile->update(['leave_balance' => 10.0]);
-        }
+        $profile = Profile::factory()->for($user)->create([
+            'leave_balance' => 10.0,
+        ]);
 
         $leaveRequest = \App\Models\LeaveRequest::factory()->create([
             'user_id' => $user->id,
@@ -115,10 +122,9 @@ class LeaveRequestModelTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $profile = $user->profile;
-        if ($profile) {
-            $profile->update(['leave_balance' => 1.0]);
-        }
+        $profile = Profile::factory()->for($user)->create([
+            'leave_balance' => 1.0,
+        ]);
 
         $leaveRequest = \App\Models\LeaveRequest::factory()->create([
             'user_id' => $user->id,
@@ -135,10 +141,9 @@ class LeaveRequestModelTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $profile = $user->profile;
-        if ($profile) {
-            $profile->update(['leave_balance' => 10.0]);
-        }
+        $profile = Profile::factory()->for($user)->create([
+            'leave_balance' => 10.0,
+        ]);
 
         $leaveRequest = \App\Models\LeaveRequest::factory()->create([
             'user_id' => $user->id,
@@ -158,10 +163,9 @@ class LeaveRequestModelTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $profile = $user->profile;
-        if ($profile) {
-            $profile->update(['leave_balance' => 1.0]);
-        }
+        $profile = Profile::factory()->for($user)->create([
+            'leave_balance' => 1.0,
+        ]);
 
         $leaveRequest = \App\Models\LeaveRequest::factory()->create([
             'user_id' => $user->id,
@@ -181,10 +185,9 @@ class LeaveRequestModelTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('student');
 
-        $profile = $user->profile;
-        if ($profile) {
-            $profile->update(['leave_balance' => 5.0]);
-        }
+        $profile = Profile::factory()->for($user)->create([
+            'leave_balance' => 5.0,
+        ]);
 
         $leaveRequest = \App\Models\LeaveRequest::factory()->create([
             'user_id' => $user->id,
