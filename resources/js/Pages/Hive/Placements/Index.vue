@@ -6,7 +6,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 flex justify-between items-center">
                     <h1 class="text-2xl font-bold">Work Placements</h1>
-                    <Link :href="route('placements.create')" class="btn btn-primary">
+                    <Link :href="route('hive.placements.create')" class="btn btn-primary">
                         + New Placement
                     </Link>
                 </div>
@@ -30,7 +30,7 @@
                                 <td class="border p-2">{{ placement.type }}</td>
                                 <td class="border p-2">{{ placement.status || 'Pending' }}</td>
                                 <td class="border p-2">
-                                    <Link :href="route('placements.show', placement.id)" class="text-blue-600 hover:underline">View</Link>
+                                    <Link :href="route('hive.placements.show', placement.id)" class="text-blue-600 hover:underline">View</Link>
                                 </td>
                             </tr>
                         </tbody>

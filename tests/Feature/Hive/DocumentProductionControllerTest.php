@@ -5,6 +5,7 @@ namespace Tests\Feature\Hive;
 use App\Models\Application;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Programme;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -14,7 +15,7 @@ class DocumentProductionControllerTest extends HiveTestCase
 
     public function test_document_production_index_requires_auth(): void
     {
-        $response = $this->get(route('documents.production.index'));
+        $response = $this->get(route('hive.documents.production.index'));
 
         $response->assertRedirect();
     }
@@ -26,7 +27,7 @@ class DocumentProductionControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('documents.production.index'));
+        $response = $this->get(route('hive.documents.production.index'));
 
         $response->assertOk();
         $response->assertInertia(fn($page) => $page->component('Hive/Documents/Production/Index'));
@@ -45,14 +46,14 @@ class DocumentProductionControllerTest extends HiveTestCase
             'name' => 'Test Student',
             'email' => 'test@example.com',
             'phone' => '+266 12345678',
-            'programme_id' => null,
+            'programme_id' => Programme::factory()->create()->id,
             'status' => 'approved',
             'admitted_at' => now(),
         ]);
 
         $this->actingAs($user);
 
-        $response = $this->post(route('documents.production.generate'), [
+        $response = $this->post(route('hive.documents.production.generate'), [
             'document_type' => 'acceptance_letter',
             'entity_type' => Application::class,
             'entity_id' => $application->id,
@@ -78,7 +79,7 @@ class DocumentProductionControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('documents.production.audit', [
+        $response = $this->get(route('hive.documents.production.audit', [
             'entity_type' => User::class,
             'entity_id' => $student->id,
         ]));
@@ -94,7 +95,7 @@ class DocumentProductionControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->get(route('documents.production.audit', [
+        $response = $this->get(route('hive.documents.production.audit', [
             'entity_type' => User::class,
         ]));
 
@@ -109,7 +110,7 @@ class DocumentProductionControllerTest extends HiveTestCase
 
         $this->actingAs($user);
 
-        $response = $this->post(route('documents.production.generate'), [
+        $response = $this->post(route('hive.documents.production.generate'), [
             'document_type' => 'acceptance_letter',
             'entity_type' => Application::class,
             'entity_id' => 99999,
@@ -128,13 +129,13 @@ class DocumentProductionControllerTest extends HiveTestCase
             'name' => 'Test Student',
             'email' => 'test@example.com',
             'phone' => '+266 12345678',
-            'programme_id' => null,
+            'programme_id' => Programme::factory()->create()->id,
             'status' => 'pending',
         ]);
 
         $this->actingAs($user);
 
-        $response = $this->post(route('documents.production.generate'), [
+        $response = $this->post(route('hive.documents.production.generate'), [
             'document_type' => 'acceptance_letter',
             'entity_type' => Application::class,
             'entity_id' => $application->id,

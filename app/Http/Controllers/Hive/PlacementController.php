@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
@@ -19,12 +21,14 @@ class PlacementController extends Controller
     public function index()
     {
         $placements = Placement::with('student.profile')->paginate(15);
+
         return inertia('Hive/Placements/Index', ['placements' => $placements]);
     }
 
     public function create()
     {
         $students = User::role('student')->get();
+
         return inertia('Hive/Placements/Create', ['students' => $students]);
     }
 
@@ -46,7 +50,8 @@ class PlacementController extends Controller
         ]);
 
         Placement::create($validated);
-        return redirect()->route('placements.index')->with('success', 'Placement created.');
+
+        return redirect()->route('hive.placements.index')->with('success', 'Placement created.');
     }
 
     public function show(Placement $placement)
@@ -57,6 +62,7 @@ class PlacementController extends Controller
     public function edit(Placement $placement)
     {
         $students = User::role('student')->get();
+
         return inertia('Hive/Placements/Edit', ['placement' => $placement, 'students' => $students]);
     }
 
@@ -78,13 +84,15 @@ class PlacementController extends Controller
         ]);
 
         $placement->update($validated);
-        return redirect()->route('placements.index')->with('success', 'Placement updated.');
+
+        return redirect()->route('hive.placements.index')->with('success', 'Placement updated.');
     }
 
     public function destroy(Placement $placement)
     {
         $placement->delete();
-        return redirect()->route('placements.index')->with('success', 'Placement deleted.');
+
+        return redirect()->route('hive.placements.index')->with('success', 'Placement deleted.');
     }
 
     // PDF Generation
@@ -92,8 +100,8 @@ class PlacementController extends Controller
     {
         $student = $placement->student;
         $data = [
-            'office' => config('institution.academic_office') . ' --- Work Placement',
-            'ref' => config('institution.abbreviation') . '/WP/' . date('Y') . '/' . $placement->id,
+            'office' => config('institution.academic_office').' --- Work Placement',
+            'ref' => config('institution.abbreviation').'/WP/'.date('Y').'/'.$placement->id,
             'date' => now(),
             'recipient_title' => 'Mr/Ms',
             'recipient_name' => $placement->organisation_name,
@@ -115,6 +123,7 @@ class PlacementController extends Controller
         ];
 
         $pdf = Pdf::loadView('pdf.documents.work_placement', $data);
-        return $pdf->stream('Placement_' . $student->name . '.pdf');
+
+        return $pdf->stream('Placement_'.$student->name.'.pdf');
     }
 }

@@ -8,6 +8,7 @@ use App\Models\GeneratedDocument;
 use App\Services\DocumentAuditor;
 use App\Services\DocumentFactory;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class DocumentProductionController extends Controller
@@ -28,7 +29,7 @@ class DocumentProductionController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
-            'document_type' => 'required|string|exists:' . DocumentType::class . ',value',
+            'document_type' => ['required', 'string', Rule::in(DocumentType::values())],
             'entity_type' => 'required|string',
             'entity_id' => 'required|integer',
         ]);
@@ -63,11 +64,12 @@ class DocumentProductionController extends Controller
             'entity_id' => 'nullable|integer',
         ]);
 
-        $entityType = $validated['entity_type'];
+         $entityType = $validated['entity_type'];
+         $entityId = $validated['entity_id'] ?? null;
 
-        if ($validated['entity_id']) {
-            $audit = $this->auditor->auditForEntity($entityType, $validated['entity_id']);
-            $entity = $entityType::find($validated['entity_id']);
+         if ($entityId) {
+             $audit = $this->auditor->auditForEntity($entityType, $entityId);
+             $entity = $entityType::find($entityId);
 
             return Inertia::render('Hive/Documents/Production/Audit', [
                 'audit' => $audit,

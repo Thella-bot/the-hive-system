@@ -7,10 +7,10 @@
                 <div class="flex justify-between items-center mb-6">
                     <h1 class="text-2xl font-bold">{{ placement.organisation_name }}</h1>
                     <div class="flex space-x-2">
-                        <Link :href="route('placements.edit', placement.id)" class="btn btn-primary">
+                        <Link :href="route('hive.placements.edit', placement.id)" class="btn btn-primary">
                             Edit
                         </Link>
-                        <Link :href="route('placements.index')" class="btn btn-secondary">
+                        <Link :href="route('hive.placements.index')" class="btn btn-secondary">
                             Back
                         </Link>
                     </div>
@@ -35,7 +35,7 @@
                 <div class="border-t pt-6">
                     <h2 class="text-xl font-semibold mb-3">Documents</h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <a :href="route('placements.letter-pdf', placement.id)" target="_blank" class="btn btn-success text-center">
+                        <a :href="route('hive.placements.letter-pdf', placement.id)" target="_blank" class="btn btn-success text-center">
                             <i class="fas fa-file-pdf"></i> Placement Request Letter
                         </a>
                     </div>

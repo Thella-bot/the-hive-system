@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentFactory
 {
-    public function __construct(protected SignatoryService $signatory) {}
+    public function __construct(protected SignatoryService $signatory, protected StudentIdCardService $idCard) {}
 
     public function generate(DocumentType $type, object $entity, ?int $userId = null): Response
     {
@@ -34,10 +34,9 @@ class DocumentFactory
 
         $pdf = Pdf::loadView($view, $data);
 
-        if (in_array($type, [
-            DocumentType::CertificateOfCompletion,
-            DocumentType::StudentIdCard,
-        ])) {
+        if ($type === DocumentType::StudentIdCard) {
+            $this->idCard->configurePdf($pdf);
+        } elseif ($type === DocumentType::CertificateOfCompletion) {
             $pdf->setPaper('A4', 'landscape');
         }
 
@@ -315,16 +314,11 @@ class DocumentFactory
 
     private function studentIdCardData(object $entity): array
     {
-        $student = $entity;
-        $student->load(['profile', 'programme']);
+        if (! $entity instanceof User) {
+            throw new \InvalidArgumentException('Student ID card requires a User instance.');
+        }
 
-        return [
-            'student' => $student,
-            'programme' => $student->programme,
-            'profile' => $student->profile,
-            'issue_date' => now(),
-            'expiry_date' => now()->addYears(1),
-        ];
+        return $this->idCard->templateData($entity);
     }
 
     private function disciplinaryWarningData(object $entity): array

@@ -1,34 +1,33 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Models\AcademicYear;
-use App\Models\Cohort;
+use App\Enums\UserRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Scout\Searchable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Represents a system user (student, staff, or admin).
- *
- * @package App\Models
  */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, HasRoles, Searchable, TwoFactorAuthenticatable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasProfilePhoto, HasRoles, Notifiable, Searchable, SoftDeletes, TwoFactorAuthenticatable;
 
     protected $fillable = [
         'name',
@@ -56,7 +55,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
+            'password' => 'hashed',
         ];
     }
 
@@ -92,6 +91,11 @@ class User extends Authenticatable
         return $this->hasMany(LeaveRequest::class);
     }
 
+    public function disciplinaryActions(): HasMany
+    {
+        return $this->hasMany(DisciplinaryAction::class);
+    }
+
     public function payslips(): HasMany
     {
         return $this->hasMany(Payslip::class);
@@ -110,6 +114,11 @@ class User extends Authenticatable
     public function submissions(): HasMany
     {
         return $this->hasMany(Submission::class, 'student_id');
+    }
+
+    public function placements(): HasMany
+    {
+        return $this->hasMany(Placement::class, 'student_id');
     }
 
     public function modules(): BelongsToMany
@@ -131,18 +140,14 @@ class User extends Authenticatable
 
     /**
      * Check if user is staff (not student, parent, or alumni)
-     *
-     * @return bool
      */
     public function isStaff(): bool
     {
-        return !$this->isStudent() && !$this->isParentGuardian() && !$this->isAlumni();
+        return ! $this->isStudent() && ! $this->isParentGuardian() && ! $this->isAlumni();
     }
 
     /**
      * Check if user has student role
-     *
-     * @return bool
      */
     public function isStudent(): bool
     {
@@ -151,8 +156,6 @@ class User extends Authenticatable
 
     /**
      * Check if user is parent/guardian
-     *
-     * @return bool
      */
     public function isParentGuardian(): bool
     {
@@ -161,8 +164,6 @@ class User extends Authenticatable
 
     /**
      * Check if user is alumni
-     *
-     * @return bool
      */
     public function isAlumni(): bool
     {
@@ -171,8 +172,6 @@ class User extends Authenticatable
 
     /**
      * Check if user is faculty (instructor role)
-     *
-     * @return bool
      */
     public function isFaculty(): bool
     {
@@ -186,8 +185,6 @@ class User extends Authenticatable
 
     /**
      * Check if user is a admin or IT support
-     *
-     * @return bool
      */
     public function isAdmin(): bool
     {
@@ -196,8 +193,6 @@ class User extends Authenticatable
 
     /**
      * Check if user can manage finances
-     *
-     * @return bool
      */
     public function canAccessFinance(): bool
     {
@@ -206,8 +201,6 @@ class User extends Authenticatable
 
     /**
      * Check if user can manage students (admissions, registrar, etc.)
-     *
-     * @return bool
      */
     public function canManageStudents(): bool
     {
@@ -223,8 +216,6 @@ class User extends Authenticatable
 
     /**
      * Check if user can access kitchen operations
-     *
-     * @return bool
      */
     public function canAccessKitchen(): bool
     {
@@ -241,8 +232,6 @@ class User extends Authenticatable
 
     /**
      * Check if user needs registration completion
-     *
-     * @return bool
      */
     public function needsRegistration(): bool
     {
@@ -259,19 +248,19 @@ class User extends Authenticatable
     public function getCurrentSemesterContext(): array
     {
         $profile = $this->profile;
-        if (!$profile || !$profile->cohort_id) {
+        if (! $profile || ! $profile->cohort_id) {
             return ['year_level' => null, 'semester' => null];
         }
 
         $cohort = $profile->cohort;
-        if (!$cohort || !$cohort->academic_year_id) {
+        if (! $cohort || ! $cohort->academic_year_id) {
             return ['year_level' => null, 'semester' => null];
         }
 
         $cohortAcademicYear = $cohort->academicYear;
         $currentAcademicYear = AcademicYear::current()->first();
 
-        if (!$cohortAcademicYear || !$currentAcademicYear) {
+        if (! $cohortAcademicYear || ! $currentAcademicYear) {
             return ['year_level' => null, 'semester' => null];
         }
 
@@ -287,8 +276,6 @@ class User extends Authenticatable
 
     /**
      * Get user's primary role name
-     *
-     * @return ?string
      */
     public function getPrimaryRole(): ?string
     {
@@ -297,15 +284,15 @@ class User extends Authenticatable
 
     /**
      * Get user's role display name
-     *
-     * @return string
      */
     public function getRoleDisplayName(): string
     {
         $role = $this->getPrimaryRole();
-        if (!$role) return 'Unknown';
+        if (! $role) {
+            return 'Unknown';
+        }
 
-        return \App\Enums\UserRole::tryFrom($role)?->displayName() ?? ucwords(str_replace('-', ' ', $role));
+        return UserRole::tryFrom($role)?->displayName() ?? ucwords(str_replace('-', ' ', $role));
     }
 
     /**
@@ -320,27 +307,27 @@ class User extends Authenticatable
 
     public function invoices(): HasMany
     {
-        return $this->hasMany(\App\Models\Invoice::class);
+        return $this->hasMany(Invoice::class);
     }
 
     public function payments(): HasMany
     {
-        return $this->hasMany(\App\Models\Payment::class);
+        return $this->hasMany(Payment::class);
     }
 
     public function expenses(): HasMany
     {
-        return $this->hasMany(\App\Models\Expense::class);
+        return $this->hasMany(Expense::class);
     }
 
     public function bookLoans(): HasMany
     {
-        return $this->hasMany(\App\Models\BookLoan::class);
+        return $this->hasMany(BookLoan::class);
     }
 
     public function bookReservations(): HasMany
     {
-        return $this->hasMany(\App\Models\BookReservation::class);
+        return $this->hasMany(BookReservation::class);
     }
 
     /**
@@ -348,10 +335,19 @@ class User extends Authenticatable
      */
     public function getTypeAttribute(): string
     {
-        if ($this->isStudent()) return 'student';
-        if ($this->isParentGuardian()) return 'parent';
-        if ($this->isAlumni()) return 'alumni';
-        if ($this->isStaff()) return 'staff';
+        if ($this->isStudent()) {
+            return 'student';
+        }
+        if ($this->isParentGuardian()) {
+            return 'parent';
+        }
+        if ($this->isAlumni()) {
+            return 'alumni';
+        }
+        if ($this->isStaff()) {
+            return 'staff';
+        }
+
         return 'unknown';
     }
 
@@ -363,6 +359,7 @@ class User extends Authenticatable
     public function getFirstNameAttribute(): string
     {
         $parts = explode(' ', $this->name);
+
         return $parts[0] ?? $this->name;
     }
 
@@ -376,7 +373,7 @@ class User extends Authenticatable
 
     // --- Scopes ---
 
-    public function scopeStaff($query): \Illuminate\Database\Eloquent\Builder
+    public function scopeStaff($query): Builder
     {
         return $query->whereHas('roles', function ($q) {
             $q->whereIn('name', [
@@ -389,14 +386,14 @@ class User extends Authenticatable
         });
     }
 
-    public function scopeStudents($query): \Illuminate\Database\Eloquent\Builder
+    public function scopeStudents($query): Builder
     {
         return $query->whereHas('roles', function ($q) {
             $q->where('name', 'student');
         });
     }
 
-    public function scopeSearch($query, string $search): \Illuminate\Database\Eloquent\Builder
+    public function scopeSearch($query, string $search): Builder
     {
         return $query->where(function ($q) use ($search) {
             $q->where('name', 'like', "%{$search}%")

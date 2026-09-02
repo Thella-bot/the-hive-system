@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Enums\DocumentType;
 use App\Models\GeneratedDocument;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class DocumentAuditor

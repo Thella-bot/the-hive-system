@@ -1,495 +1,242 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Student ID Card</title>
     <style>
-        @page { margin: 0; }
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; font-family: 'DejaVu Sans', sans-serif; background: #ffffff; }
+        @page {
+            margin: 0;
+            size: 242pt 153pt;
+        }
 
-        /* ===== FRONT OF CARD ===== */
-        .card-front {
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'DejaVu Sans', sans-serif;
+        }
+
+        /*
+         * Redesigned per a reference layout the user supplied: a solid
+         * colour header banner (institute identity), a plain white body
+         * with a colon-aligned label/value list on the left, and a
+         * photo + name + QR code stacked on the right. This replaces the
+         * earlier yellow-field-with-white-ellipse background entirely -
+         * that background image (id-card-bg.png) is no longer used here.
+         */
+        .card {
             width: 242pt;
             height: 153pt;
             position: relative;
             overflow: hidden;
             background: #ffffff;
-            page-break-after: always;
+            border-radius: 10pt;
         }
 
-        /* Subtle guilloche pattern */
-        .guilloche {
+        .banner {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: repeating-linear-gradient(45deg, transparent, transparent 1.5pt, rgba(245, 200, 66, 0.02) 1.5pt, rgba(245, 200, 66, 0.02) 3pt);
+            width: 242pt;
+            height: 36pt;
+            background: #FFBD59;
         }
 
-        /* Gold accent stripe */
-        .accent-stripe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4pt;
-            height: 100%;
-            background: linear-gradient(180deg, #f5c842 0%, #facc15 50%, #d4a503 100%);
-        }
-
-        /* Header */
-        .header {
-            position: absolute;
-            top: 0;
-            left: 4pt;
-            right: 0;
-            height: 33.5pt;
-            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-        }
-
-        .logo {
+        .banner-icon {
             position: absolute;
             top: 8pt;
             left: 12pt;
-            height: 18pt;
-            width: auto;
-            filter: brightness(0) invert(1);
+            height: 20pt;
         }
 
-        .institute-name {
+        .banner-text {
             position: absolute;
-            top: 7pt;
-            left: 36pt;
-            white-space: nowrap;
-        }
-
-        .institute-name-primary {
-            color: #f5c842;
-            font-size: 13pt;
-            font-weight: 900;
-            letter-spacing: 0.5pt;
-            text-transform: uppercase;
-            line-height: 1;
-        }
-
-        .institute-name-secondary {
+            top: 12pt;
+            left: 38pt;
             color: #ffffff;
-            font-size: 6.5pt;
-            font-weight: 600;
-            letter-spacing: 0.3pt;
-            text-transform: uppercase;
-            line-height: 1.4;
-        }
-
-        .card-type {
-            position: absolute;
-            top: 13pt;
-            right: 10pt;
-            color: #f5c842;
-            font-size: 5pt;
-            font-weight: 700;
-            letter-spacing: 0.4pt;
-            text-transform: uppercase;
-        }
-
-        /* Main content */
-        .content {
-            position: absolute;
-            top: 33.5pt;
-            left: 12pt;
-            right: 10pt;
-            bottom: 6pt;
-        }
-
-        .content-row {
-            display: flex;
-            height: 100%;
-            gap: 8pt;
-        }
-
-        /* Left column - details */
-        .details-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .student-name {
-            color: #111827;
-            font-size: 11pt;
             font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.3pt;
-            margin-bottom: 5pt;
-            line-height: 1.1;
+            font-size: 8.5pt;
+            letter-spacing: 0.2pt;
             white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .detail-row {
-            display: flex;
-            align-items: baseline;
-            margin-bottom: 2pt;
-        }
-
-        .detail-label {
-            color: #6b7280;
-            font-size: 4.8pt;
-            font-weight: 600;
-            text-transform: uppercase;
-            width: 22pt;
-            flex-shrink: 0;
-        }
-
-        .detail-value {
-            color: #111827;
-            font-size: 5.5pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        .detail-value-valid {
-            color: #d4a503;
-        }
-
-        /* Right column - photo & qr */
-        .media-col {
-            width: 68pt;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5pt;
-        }
-
-        .photo-frame {
-            width: 58pt;
-            height: 48pt;
-            border: 1.5pt solid rgba(245, 200, 66, 0.4);
-            border-radius: 2pt;
-            overflow: hidden;
         }
 
         .photo {
-            width: 100%;
-            height: 100%;
+            position: absolute;
+            top: 42pt;
+            right: 13pt;
+            width: 46pt;
+            height: 56pt;
             object-fit: cover;
+            border-radius: 3pt;
+            border: 1pt solid #e5e7eb;
         }
 
         .initials-fallback {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #fef3c7 0%, #fef08a 100%);
-            color: #d4a503;
-            font-size: 18pt;
+            position: absolute;
+            top: 42pt;
+            right: 13pt;
+            width: 46pt;
+            height: 56pt;
+            border-radius: 3pt;
+            border: 1pt solid #e5e7eb;
+            background: #fef3c7;
+            color: #b45309;
             font-weight: 900;
+            font-size: 15pt;
             text-align: center;
-            line-height: 48pt;
+            line-height: 56pt;
         }
 
-        .qr-row {
-            display: flex;
-            align-items: center;
-            gap: 3pt;
-            width: 100%;
-        }
-
-        .qr-code {
-            width: 22pt;
-            height: 22pt;
-            padding: 1pt;
-            background: #ffffff;
-            border: 0.5pt solid #e5e7eb;
-            border-radius: 1pt;
-        }
-
-        .qr-label {
-            color: #9ca3af;
-            font-size: 3.5pt;
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        /* Footer accent */
-        .footer-accent {
+        .name-caption {
             position: absolute;
-            bottom: 0;
-            left: 4pt;
-            right: 0;
-            height: 2pt;
-            background: linear-gradient(90deg, #f5c842 0%, #facc15 50%, #d4a503 100%);
-        }
-
-        /* ===== BACK OF CARD ===== */
-        .card-back {
-            width: 242pt;
-            height: 153pt;
-            position: relative;
+            top: 99pt;
+            right: 13pt;
+            width: 66pt;
+            text-align: center;
+            color: #d9820c;
+            font-weight: 900;
+            font-size: 6pt;
+            line-height: 7pt;
+            max-height: 14pt;
+            text-transform: uppercase;
             overflow: hidden;
-            background: #ffffff;
+            word-break: break-word;
         }
 
-        /* Magnetic stripe */
-        .magnetic-stripe {
+        .qr {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 34pt;
-            background: #1f2937;
+            top: 116pt;
+            right: 20pt;
+            width: 32pt;
+            height: 32pt;
         }
 
-        /* Back content */
-        .back-content {
+        /*
+         * Label/value pairs use absolute positioning with a fixed-width
+         * label column and a separately-positioned colon, rather than a
+         * table - table-layout:fixed with per-cell CSS widths did not
+         * hold column widths reliably in testing (see the git history on
+         * this file). This keeps every row's colon aligned in a single
+         * vertical column regardless of label length, matching the
+         * reference design.
+         */
+        .label {
             position: absolute;
-            top: 44pt;
-            left: 14pt;
-            right: 14pt;
-            bottom: 12pt;
-        }
-
-        .signature-section {
-            margin-bottom: 10pt;
-        }
-
-        .signature-label {
-            color: #6b7280;
-            font-size: 4.8pt;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 3pt;
-        }
-
-        .signature-line {
-            width: 130pt;
-            border-bottom: 1pt dashed #d1d5db;
-        }
-
-        .info-row {
-            display: flex;
-            align-items: baseline;
-            margin-bottom: 3pt;
-        }
-
-        .info-label {
-            color: #6b7280;
-            font-size: 4.5pt;
-            font-weight: 600;
-            text-transform: uppercase;
-            width: 28pt;
-            flex-shrink: 0;
-        }
-
-        .info-value {
-            color: #111827;
-            font-size: 5pt;
-            font-weight: 500;
-        }
-
-        .info-value-accent {
-            color: #d4a503;
+            left: 13pt;
+            width: 58pt;
             font-weight: 700;
-        }
-
-        .barcode-section {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: auto;
-        }
-
-        .barcode {
-            display: flex;
-            align-items: center;
-            gap: 4pt;
-        }
-
-        .barcode-bars {
-            display: flex;
-            gap: 0.5pt;
-            height: 16pt;
-        }
-
-        .barcode-bar {
-            background: #111827;
-        }
-
-        .barcode-number {
+            font-size: 7pt;
             color: #374151;
-            font-size: 6pt;
-            font-family: monospace;
-            font-weight: 700;
-            letter-spacing: 1pt;
         }
 
-        .institute-footer {
-            color: #f5c842;
-            font-size: 6pt;
-            font-weight: 700;
-            letter-spacing: 0.3pt;
-            text-transform: uppercase;
-        }
-
-        .back-footer-accent {
+        .colon {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2pt;
-            background: linear-gradient(90deg, #1f2937 0%, #4b5563 50%, #1f2937 100%);
+            left: 72pt;
+            font-weight: 700;
+            font-size: 7pt;
+            color: #374151;
+        }
+
+        .value {
+            position: absolute;
+            left: 79pt;
+            width: 88pt;
+            font-weight: 700;
+            font-size: 7pt;
+            color: #111827;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        /*
+         * Distinct condensed treatment for the programme value, matching
+         * the reference design's contrasting display font. Requires
+         * public/fonts/Oswald-Bold.ttf to be registered with dompdf's
+         * FontMetrics before render - see StudentIdController::download().
+         * @font-face declared here alone is NOT enough; it was tested
+         * and silently fell back to a default serif font.
+         */
+        .value-programme {
+            position: absolute;
+            left: 79pt;
+            width: 88pt;
+            font-family: 'Oswald', 'DejaVu Sans', sans-serif;
+            font-weight: 900;
+            font-size: 7pt;
+            text-transform: uppercase;
+            overflow: hidden;
+            white-space: nowrap;
+            color: #111827;
+        }
+
+        .r1 {
+            top: 48pt;
+        }
+
+        .r2 {
+            top: 64pt;
+        }
+
+        .r3 {
+            top: 80pt;
+        }
+
+        .r4 {
+            top: 96pt;
+        }
+
+        .signature {
+            position: absolute;
+            bottom: 8pt;
+            left: 13pt;
+            font-size: 6pt;
+            color: #9ca3af;
+            font-style: italic;
         }
     </style>
 </head>
+
 <body>
-    <!-- FRONT -->
-    <div class="card-front">
-        <div class="guilloche"></div>
-        <div class="accent-stripe"></div>
-
-        <!-- Header -->
-        <div class="header">
-            <img class="logo" src="{{ public_path('images/hbci-logo.png') }}" alt="Honey Bee Culinary Institute">
-            <div class="institute-name">
-                <div class="institute-name-primary">Honey Bee</div>
-                <div class="institute-name-secondary">Culinary Institute</div>
-            </div>
-            <div class="card-type">Student Identification</div>
+    <div class="card">
+        <div class="banner">
+            <img class="banner-icon" src="{{ public_path('images/hbci-bee-white.png') }}" alt="">
+            <div class="banner-text">HONEY BEE CULINARY INSTITUTE</div>
         </div>
 
-        <!-- Content -->
-        <div class="content">
-            <div class="content-row">
-                <!-- Details -->
-                <div class="details-col">
-                    <div class="student-name">{{ $name }}</div>
+        @if($photoPath)
+            <img class="photo" src="{{ $photoPath }}" alt="Student photo">
+        @else
+            <div class="initials-fallback">{{ $initials }}</div>
+        @endif
 
-                    <div class="detail-row">
-                        <span class="detail-label">ID No.</span>
-                        <span class="detail-value">{{ $studentNumber ?? 'N/A' }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Programme</span>
-                        <span class="detail-value">{{ $programme ?? 'N/A' }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Cohort</span>
-                        <span class="detail-value">{{ $cohort ?? 'N/A' }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Year</span>
-                        <span class="detail-value">{{ $year ?? 'N/A' }}</span>
-                    </div>
-                    @if($validUntil)
-                    <div class="detail-row">
-                        <span class="detail-label">Valid Until</span>
-                        <span class="detail-value detail-value-valid">{{ $validUntil }}</span>
-                    </div>
-                    @endif
-                </div>
+        <div class="name-caption">{{ $name }}</div>
 
-                <!-- Photo & QR -->
-                <div class="media-col">
-                    <div class="photo-frame">
-                        @if($photoPath)
-                            <img class="photo" src="{{ $photoPath }}" alt="Student photo">
-                        @else
-                            <div class="initials-fallback">{{ $initials }}</div>
-                        @endif
-                    </div>
+        @if($qrCode)
+            <img class="qr" src="{{ $qrCode }}" alt="Scan to verify">
+        @endif
 
-                    <div class="qr-row">
-                        @if($qrCode)
-                            <img class="qr-code" src="{{ $qrCode }}" alt="QR Code">
-                        @endif
-                        <span class="qr-label">Scan to<br>verify</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="label r1">Student ID</div>
+        <div class="colon r1">:</div>
+        <div class="value r1">{{ $studentNumber ?? 'N/A' }}</div>
 
-        <div class="footer-accent"></div>
-    </div>
+        <div class="label r2">Programme</div>
+        <div class="colon r2">:</div>
+        <div class="value-programme r2">{{ $programme ?? 'N/A' }}</div>
 
-    <!-- BACK -->
-    <div class="card-back">
-        <div class="magnetic-stripe"></div>
+        <div class="label r3">Year</div>
+        <div class="colon r3">:</div>
+        <div class="value r3">{{ $year }}</div>
 
-        <div class="back-content">
-            <div class="signature-section">
-                <div class="signature-label">Holder's Signature</div>
-                <div class="signature-line"></div>
-            </div>
+        <div class="label r4">Cohort</div>
+        <div class="colon r4">:</div>
+        <div class="value r4">{{ $cohort ?? 'N/A' }}</div>
 
-            <div class="info-row">
-                <span class="info-label">Email</span>
-                <span class="info-value">{{ $email ?? 'N/A' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Issued</span>
-                <span class="info-value">{{ $year ?? 'N/A' }}</span>
-            </div>
-            @if($validUntil)
-            <div class="info-row">
-                <span class="info-label">Expires</span>
-                <span class="info-value info-value-accent">{{ $validUntil }}</span>
-            </div>
-            @endif
-
-            <div class="barcode-section">
-                <div class="barcode">
-                    <div class="barcode-bars">
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 1pt;"></div>
-                        <div class="barcode-bar" style="width: 2pt;"></div>
-                    </div>
-                    <span class="barcode-number">{{ $studentNumber ?? 'N/A' }}</span>
-                </div>
-                <span class="institute-footer">HBCI</span>
-            </div>
-        </div>
-
-        <div class="back-footer-accent"></div>
+        <div class="signature">Authorize Signature</div>
     </div>
 </body>
+
 </html>
