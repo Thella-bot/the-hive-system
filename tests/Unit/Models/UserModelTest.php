@@ -41,6 +41,7 @@ class UserModelTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->expenses);
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->bookLoans);
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->bookReservations);
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->placements);
     }
 
     public function test_is_staff_returns_true_for_admin(): void

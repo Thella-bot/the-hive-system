@@ -1,9 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Enrollment;
 use App\Models\User;
 
 class EnrollmentPolicy
@@ -17,5 +17,10 @@ class EnrollmentPolicy
             'program-coordinator',
             'academic-director',
         ]);
+    }
+
+    public function viewStudent(User $user): bool
+    {
+        return $user->hasRole('student');
     }
 }

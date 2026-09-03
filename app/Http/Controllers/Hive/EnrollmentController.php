@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Hive;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
 use App\Models\Module;
-use App\Models\Programme;
 use App\Models\User;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
@@ -99,6 +100,156 @@ class EnrollmentController extends Controller
     }
 
     /**
+     * Student-facing module list (enroll/drop own modules).
+     */
+    public function studentIndex(Request $request): Response
+    {
+        $user = $request->user();
+        $this->authorize('viewStudent', Enrollment::class);
+
+        $currentYear = AcademicYear::current()->first();
+        $semester = now()->month <= 6 ? '1' : '2';
+        $currentYearName = $currentYear?->name ?? date('Y');
+
+        $context = $user->getCurrentSemesterContext();
+        $yearLevel = $context['year_level'] ?? 1;
+        $cohortYear = $user->profile?->cohort?->academicYear?->name;
+        $isRepeatingYear = $cohortYear !== null
+            && $cohortYear !== ''
+            && (int) $currentYearName > (int) $cohortYear;
+
+        $enrolledModuleIds = Enrollment::query()
+            ->where('user_id', $user->id)
+            ->where('academic_year', $currentYearName)
+            ->where('semester', $semester)
+            ->pluck('module_id')
+            ->toArray();
+
+        $programme = $user->programme;
+        $availableModules = collect();
+
+        if ($programme) {
+            $currentYearIds = Module::whereHas('programmes', function ($q) use ($programme, $yearLevel, $semester) {
+                $q->where('programme_module.programme_id', $programme->id)
+                    ->where('programme_module.year_level', $yearLevel)
+                    ->where('programme_module.semester', $semester);
+            })->pluck('modules.id');
+
+            $moduleIds = $currentYearIds;
+
+            if ($isRepeatingYear) {
+                $allSemesterIds = Module::whereHas('programmes', function ($q) use ($programme, $semester) {
+                    $q->where('programme_module.programme_id', $programme->id)
+                        ->where('programme_module.semester', $semester);
+                })->pluck('modules.id');
+
+                $moduleIds = $currentYearIds->merge($allSemesterIds)->unique();
+            }
+
+            $availableModules = Module::whereIn('modules.id', $moduleIds)
+                ->whereNotIn('modules.id', $enrolledModuleIds)
+                ->orderBy('name')
+                ->with('department:id,name')
+                ->get();
+        }
+
+        return Inertia::render('Enrollment/Index', [
+            'modules' => $availableModules,
+            'enrolledModuleIds' => $enrolledModuleIds,
+            'semesterContext' => [
+                'year_level' => $yearLevel,
+                'semester' => $semester,
+            ],
+            'isRepeatingYear' => $isRepeatingYear,
+        ]);
+    }
+
+    /**
+     * Enroll self in a module.
+     */
+    public function studentStore(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $this->authorize('viewStudent', Enrollment::class);
+
+        $data = $request->validate([
+            'module_id' => 'required|exists:modules,id',
+        ]);
+
+        $currentYear = AcademicYear::current()->first();
+        $currentYearName = $currentYear?->name ?? date('Y');
+        $context = $user->getCurrentSemesterContext();
+        $semester = $context['semester'] ?? (now()->month <= 6 ? '1' : '2');
+        $yearLevel = $context['year_level'] ?? 1;
+
+        $module = Module::findOrFail($data['module_id']);
+        $programme = $user->programme;
+
+        if ($programme) {
+            $isAllowed = $module->programmes()
+                ->where('programme_module.programme_id', $programme->id)
+                ->where('programme_module.year_level', $yearLevel)
+                ->where('programme_module.semester', $semester)
+                ->exists();
+
+            if (! $isAllowed) {
+                $isRepeatingYear = (int) $currentYearName > (int) ($user->profile?->cohort?->academicYear?->name ?? $currentYearName);
+
+                if (! $isRepeatingYear) {
+                    return back()->with('error', 'You cannot enroll in a module outside your current semester.');
+                }
+            }
+        }
+
+        $exists = Enrollment::where('user_id', $user->id)
+            ->where('module_id', $data['module_id'])
+            ->where('academic_year', $currentYearName)
+            ->where('semester', $semester)
+            ->exists();
+
+        if ($exists) {
+            return back()->with('info', 'You are already enrolled in this module.');
+        }
+
+        $enrollment = Enrollment::create([
+            'user_id' => $user->id,
+            'module_id' => $data['module_id'],
+            'academic_year' => $currentYearName,
+            'semester' => $semester,
+        ]);
+
+        $user->modules()->syncWithoutDetaching([$data['module_id']]);
+
+        $this->audit->logCreated($enrollment);
+
+        return back()->with('success', 'Enrolled successfully.');
+    }
+
+    /**
+     * Drop a module by module_id.
+     */
+    public function studentDestroy(Request $request, Module $module): RedirectResponse
+    {
+        $user = $request->user();
+        $this->authorize('viewStudent', Enrollment::class);
+
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('module_id', $module->id)
+            ->first();
+
+        if (! $enrollment) {
+            return back()->with('info', 'You are not enrolled in this module.');
+        }
+
+        $this->audit->logDeleted($enrollment);
+        $enrollment->delete();
+
+        $user->modules()->detach($module->id);
+
+        return back()->with('success', 'You have left the module.');
+    }
+
+    /**
      * Enroll a student in a module (admin only).
      */
     public function store(Request $request): RedirectResponse
@@ -185,6 +336,7 @@ class EnrollmentController extends Controller
 
                 if ($exists) {
                     $skipped++;
+
                     continue;
                 }
 

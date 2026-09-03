@@ -1,15 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Http\Controllers\Hive\AcademicYearController;
+use App\Http\Controllers\Hive\AchievementController;
 use App\Http\Controllers\Hive\AnnouncementController;
 use App\Http\Controllers\Hive\ApplicationController;
-use App\Http\Controllers\Hive\AcademicYearController;
 use App\Http\Controllers\Hive\AttendanceController;
-use App\Http\Controllers\Hive\AchievementController;
 use App\Http\Controllers\Hive\ChatController;
 use App\Http\Controllers\Hive\CohortController;
 use App\Http\Controllers\Hive\CourseMaterialController;
 use App\Http\Controllers\Hive\DashboardController;
 use App\Http\Controllers\Hive\DepartmentController;
+use App\Http\Controllers\Hive\DisciplinaryController;
 use App\Http\Controllers\Hive\DocumentController;
 use App\Http\Controllers\Hive\EnrollmentController;
 use App\Http\Controllers\Hive\EventController;
@@ -20,18 +23,16 @@ use App\Http\Controllers\Hive\ModuleController;
 use App\Http\Controllers\Hive\NotificationController;
 use App\Http\Controllers\Hive\PayslipController;
 use App\Http\Controllers\Hive\PlacementController;
-use App\Http\Controllers\Hive\DisciplinaryController;
 use App\Http\Controllers\Hive\PollController;
-use App\Http\Controllers\Hive\ProgrammeController;
 use App\Http\Controllers\Hive\ProfileController;
+use App\Http\Controllers\Hive\ProgrammeController;
 use App\Http\Controllers\Hive\RegistrationController;
 use App\Http\Controllers\Hive\SearchController;
-use App\Http\Controllers\Hive\ShortCourseController;
 use App\Http\Controllers\Hive\ShortCourseApplicationController;
+use App\Http\Controllers\Hive\ShortCourseController;
 use App\Http\Controllers\Hive\StudentAdvancementController;
 use App\Http\Controllers\Hive\StudentIdController;
 use App\Http\Controllers\Hive\StudentProgressController;
-use App\Http\Controllers\Hive\SubmissionController;
 use App\Http\Controllers\Hive\SupplierController;
 use App\Http\Controllers\Hive\TimetableController;
 use App\Http\Controllers\Hive\TranscriptController;
@@ -88,13 +89,13 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
             ->middleware('role:super-admin|academic-director');
 
         // Include modular route files
-        require __DIR__ . '/hive/people.php';
-        require __DIR__ . '/hive/academic.php';
-        require __DIR__ . '/hive/assessments.php';
-        require __DIR__ . '/hive/finance.php';
-        require __DIR__ . '/hive/library.php';
-        require __DIR__ . '/hive/registrar.php';
-        require __DIR__ . '/hive/documents.php';
+        require __DIR__.'/hive/people.php';
+        require __DIR__.'/hive/academic.php';
+        require __DIR__.'/hive/assessments.php';
+        require __DIR__.'/hive/finance.php';
+        require __DIR__.'/hive/library.php';
+        require __DIR__.'/hive/registrar.php';
+        require __DIR__.'/hive/documents.php';
 
         // Profile
         Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -255,21 +256,27 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::get('transcript', [TranscriptController::class, 'index'])->name('transcript.index')->middleware('auth');
         Route::get('transcript/{student}/download', [TranscriptController::class, 'show'])->name('transcript.download')->middleware('auth');
 
-        // Enrollment (admin only)
+        // Enrollment (student self-enrollment, admin manage-all)
         Route::prefix('enrollment')->name('enrollment.')->group(function () {
-            Route::get('/', [EnrollmentController::class, 'index'])->name('index')
+            // Student-facing routes
+            Route::get('/', [EnrollmentController::class, 'studentIndex'])->name('index');
+            Route::post('/', [EnrollmentController::class, 'studentStore'])->name('store');
+            Route::delete('/{module}', [EnrollmentController::class, 'studentDestroy'])->name('destroy');
+
+            // Admin routes
+            Route::get('/admin', [EnrollmentController::class, 'index'])->name('admin.index')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
             Route::get('/bulk', [EnrollmentController::class, 'bulkEnrollForm'])->name('bulk')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
-            Route::post('/bulk', [EnrollmentController::class, 'bulkStore'])->name('bulk-store')
+            Route::post('/bulk-store', [EnrollmentController::class, 'bulkStore'])->name('bulk-store')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
-            Route::delete('/bulk', [EnrollmentController::class, 'bulkDestroy'])->name('bulk-destroy')
+            Route::delete('/bulk-destroy', [EnrollmentController::class, 'bulkDestroy'])->name('bulk-destroy')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
             Route::get('/{student}/enroll', [EnrollmentController::class, 'enrollStudent'])->name('enroll')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
-            Route::post('/', [EnrollmentController::class, 'store'])->name('store')
+            Route::post('/admin-store', [EnrollmentController::class, 'store'])->name('admin.store')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
-            Route::delete('/{enrollment}', [EnrollmentController::class, 'destroy'])->name('destroy')
+            Route::delete('/admin/{enrollment}', [EnrollmentController::class, 'destroy'])->name('admin.destroy')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
         });
 
