@@ -143,4 +143,62 @@ class DocumentProductionControllerTest extends HiveTestCase
 
         $response->assertSessionHas('error');
     }
+
+    public function test_generate_requires_authorized_role(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.documents.production.generate'), [
+            'document_type' => 'acceptance_letter',
+            'entity_type' => Application::class,
+            'entity_id' => 1,
+        ]);
+
+        $response->assertRedirect();
+    }
+
+    public function test_audit_requires_authorized_role(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.documents.production.audit'), [
+            'entity_type' => Application::class,
+        ]);
+
+        $response->assertRedirect();
+    }
+
+    public function test_batch_generate_requires_it_support(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('finance');
+
+        $this->actingAs($admin);
+
+        $response = $this->post(route('hive.documents.production.audit.batch'), [
+            'entity_type' => Application::class,
+        ]);
+
+        $response->assertRedirect();
+    }
+
+    public function test_batch_generate_succeeds_for_super_admin(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('super-admin');
+
+        $this->actingAs($admin);
+
+        $response = $this->post(route('hive.documents.production.audit.batch'), [
+            'entity_type' => Application::class,
+        ]);
+
+        $response->assertRedirect();
+    }
 }

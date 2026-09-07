@@ -73,10 +73,12 @@ class GradableController extends Controller
 
         // Determine user abilities for UI
         $canCreate = Gate::allows('create', Gradable::class);
+        $canViewAny = Gate::allows('viewAny', Gradable::class);
 
         return Inertia::render('Hive/Gradables/Index', [
             'gradables' => $gradables,
             'canCreate' => $canCreate,
+            'canViewAny' => $canViewAny,
         ]);
     }
 
@@ -101,6 +103,8 @@ class GradableController extends Controller
      */
     public function store(StoreGradableRequest $request): RedirectResponse
     {
+        $this->authorize('create', Gradable::class);
+
         $validated = $request->validated();
         $validated['instructor_id'] = auth()->id();
 
@@ -197,6 +201,8 @@ class GradableController extends Controller
      */
     public function update(UpdateGradableRequest $request, Gradable $gradable): RedirectResponse
     {
+        $this->authorize('update', $gradable);
+
         $gradable->update($request->validated());
 
         return back()->with('success', 'Assessment updated.');
@@ -390,6 +396,7 @@ class GradableController extends Controller
      */
     public function submitOnline(SubmitOnlineAssessmentRequest $request, Gradable $gradable): RedirectResponse
     {
+        $this->authorize('view', $gradable);
         $user = auth()->user();
 
         if (!$gradable->isOnlineAssessment()) {

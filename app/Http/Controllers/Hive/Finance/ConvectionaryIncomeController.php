@@ -35,6 +35,8 @@ class ConvectionaryIncomeController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', ConvectionaryIncome::class);
+
         $query = ConvectionaryIncome::with('recorder')->orderByDesc('income_date');
 
         if ($request->has('source') && $request->source) {
@@ -81,6 +83,8 @@ class ConvectionaryIncomeController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', ConvectionaryIncome::class);
+
         return Inertia::render('Hive/Finance/Convectionary/Create', [
             'sources' => ConvectionaryIncome::SOURCES,
             'methods' => ConvectionaryIncome::METHODS,
@@ -92,6 +96,8 @@ class ConvectionaryIncomeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', ConvectionaryIncome::class);
+
         $data = $request->validate([
             'source' => 'required|string|in:' . implode(',', array_keys(ConvectionaryIncome::SOURCES)),
             'amount' => 'required|numeric|min:0.01',

@@ -43,6 +43,8 @@ class BudgetController extends Controller
 
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Budget::class);
+
         $query = Budget::with(['category', 'department'])
             ->orderByDesc('created_at');
 
@@ -81,6 +83,8 @@ class BudgetController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Budget::class);
+
         $data = $request->validate([
             'name' => 'required|string|max:100',
             'academic_year' => 'required|string',

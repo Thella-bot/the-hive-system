@@ -51,4 +51,14 @@ class ModulePolicy
         // Only admin can delete modules
         return $user->hasAnyRole(['super-admin', 'it-support']);
     }
+
+    public function manage(User $user, Module $module): bool
+    {
+        if ($user->hasAnyRole(['super-admin', 'it-support', 'academic-director'])) {
+            return true;
+        }
+
+        return $user->hasAnyRole(['chef-instructor', 'pastry-instructor', 'sous-chef'])
+            && $module->instructors()->where('user_id', $user->id)->exists();
+    }
 }

@@ -238,4 +238,140 @@ class GradableControllerTest extends HiveTestCase
     {
         $this->markTestIncomplete('Policy/route mismatch: examination-cell is in the route middleware group (assessments.php:27) but NOT in GradablePolicy::update/delete (policy lines 50-59, 62-72). It IS in GradablePolicy::create (line 46).');
     }
+
+    public function test_gradable_update_requires_update_ability(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        $otherInstructor = User::factory()->create();
+        $otherInstructor->assignRole('chef-instructor');
+
+        $this->actingAs($otherInstructor);
+
+        $response = $this->put(route('hive.gradables.update', $fixture['gradable']), [
+            'title' => 'Hacked',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertSame('Test Assignment', $fixture['gradable']->fresh()->title);
+    }
+
+    public function test_gradable_update_succeeds_for_owner(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        $this->actingAs($fixture['instructor']);
+
+        $response = $this->put(route('hive.gradables.update', $fixture['gradable']), [
+            'title' => 'Updated Title',
+            'type' => 'assignment',
+            'submission_type' => 'file_upload',
+            'module_id' => $fixture['module']->id,
+            'due_date' => now()->addDays(7)->format('Y-m-d'),
+        ]);
+
+        $response->assertRedirect();
+        $this->assertSame('Updated Title', $fixture['gradable']->fresh()->title);
+    }
+
+    public function test_question_store_requires_update_ability(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        $otherInstructor = User::factory()->create();
+        $otherInstructor->assignRole('chef-instructor');
+
+        $this->actingAs($otherInstructor);
+
+        $response = $this->postJson(route('hive.gradables.questions.store', $fixture['gradable']), [
+            'type' => 'short_answer',
+            'question_text' => 'Why?',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_question_store_succeeds_for_owner(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        $fixture['gradable']->update([
+            'type' => 'quiz',
+            'submission_type' => 'online_fillable',
+        ]);
+
+        $this->actingAs($fixture['instructor']);
+
+        $response = $this->postJson(route('hive.gradables.questions.store', $fixture['gradable']), [
+            'type' => 'short_answer',
+            'question_text' => 'What is mise en place?',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('gradable_questions', [
+            'gradable_id' => $fixture['gradable']->id,
+            'question_text' => 'What is mise en place?',
+        ]);
+    }
+
+    public function test_attachment_download_requires_view_ability(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        \Illuminate\Support\Facades\Storage::fake('local');
+        $path = 'private/gradables/' . $fixture['gradable']->id . '/handout.pdf';
+        \Illuminate\Support\Facades\Storage::put($path, 'fake');
+        $attachment = \App\Models\GradableAttachment::create([
+            'gradable_id' => $fixture['gradable']->id,
+            'title' => 'handout',
+            'file_path' => $path,
+            'file_size' => 100,
+            'mime_type' => 'application/pdf',
+            'uploaded_by' => $fixture['instructor']->id,
+        ]);
+
+        $otherInstructor = User::factory()->create();
+        $otherInstructor->assignRole('chef-instructor');
+
+        $this->actingAs($otherInstructor);
+
+        $response = $this->getJson(route('hive.gradables.attachments.download', [
+            'gradable' => $fixture['gradable']->id,
+            'attachment' => $attachment->id,
+        ]));
+
+        $response->assertStatus(403);
+    }
+
+    public function test_submit_online_requires_view_ability(): void
+    {
+        $fixture = $this->createAssessmentFixture();
+        $fixture['gradable']->update([
+            'type' => 'quiz',
+            'submission_type' => 'online_fillable',
+        ]);
+        $question = \App\Models\GradableQuestion::create([
+            'gradable_id' => $fixture['gradable']->id,
+            'type' => 'short_answer',
+            'question_text' => 'Sample?',
+            'points' => 5,
+            'sort_order' => 1,
+        ]);
+
+        $unrelatedStudent = User::factory()->create();
+        $unrelatedStudent->assignRole('student');
+        $otherModule = \App\Models\Module::factory()->create();
+        Enrollment::create([
+            'user_id' => $unrelatedStudent->id,
+            'module_id' => $otherModule->id,
+            'academic_year' => now()->format('Y'),
+            'semester' => now()->month <= 6 ? '1' : '2',
+        ]);
+        $unrelatedStudent->modules()->attach($otherModule->id);
+
+        $this->actingAs($unrelatedStudent);
+
+        $response = $this->postJson(route('hive.gradables.submit-online', $fixture['gradable']), [
+            'answers' => [
+                ['question_id' => $question->id, 'option_id' => null, 'answer_text' => 'no idea'],
+            ],
+        ]);
+
+        $response->assertStatus(403);
+    }
 }

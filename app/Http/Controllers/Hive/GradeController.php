@@ -13,6 +13,7 @@ class GradeController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', \App\Models\Gradable::class);
         $user = $request->user();
 
         if ($user->hasRole('student')) {
@@ -60,13 +61,8 @@ class GradeController extends Controller
     // Show grade management for a module
     public function manage(Module $module)
     {
+        $this->authorize('manage', $module);
         $user = auth()->user();
-        $isAdmin = $user->isAdmin();
-
-        abort_unless(
-            $isAdmin || $module->instructors()->where('user_id', $user->id)->exists(),
-            403
-        );
 
         $module->load(['gradables.submissions.student']);
 

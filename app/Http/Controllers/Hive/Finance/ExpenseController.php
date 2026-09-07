@@ -46,6 +46,8 @@ class ExpenseController extends Controller
 
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Expense::class);
+
         $query = Expense::with(['user', 'category', 'vendor', 'budget', 'approver'])
             ->orderByDesc('created_at');
 
@@ -72,6 +74,8 @@ class ExpenseController extends Controller
 
     public function create(): Response
     {
+        $this->authorize('create', Expense::class);
+
         return Inertia::render('Hive/Finance/Expense/Create', [
             'categories' => ExpenseCategory::active()->orderBy('name')->get(),
             'budgets' => Budget::where('status', 'active')->orderBy('name')->get(),
@@ -80,6 +84,8 @@ class ExpenseController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Expense::class);
+
         $data = $request->validate([
             'expense_category_id' => 'nullable|exists:expense_categories,id',
             'vendor_id' => 'nullable|exists:suppliers,id',
@@ -257,6 +263,8 @@ class ExpenseController extends Controller
      */
     public function categories(Request $request): Response
     {
+        $this->authorize('viewAny', Expense::class);
+
         $categories = ExpenseCategory::orderBy('name')->get();
 
         return Inertia::render('Hive/Finance/Expense/Categories', [
@@ -269,6 +277,8 @@ class ExpenseController extends Controller
      */
     public function storeCategory(Request $request): RedirectResponse
     {
+        $this->authorize('create', Expense::class);
+
         $data = $request->validate([
             'name' => 'required|string|max:100',
             'description' => 'nullable|string|max:255',
@@ -285,6 +295,8 @@ class ExpenseController extends Controller
      */
     public function updateCategory(Request $request, ExpenseCategory $category): RedirectResponse
     {
+        $this->authorize('update', Expense::class);
+
         $data = $request->validate([
             'name' => 'sometimes|string|max:100',
             'description' => 'nullable|string|max:255',
@@ -302,6 +314,8 @@ class ExpenseController extends Controller
      */
     public function destroyCategory(ExpenseCategory $category): RedirectResponse
     {
+        $this->authorize('delete', Expense::class);
+
         if ($category->expenses()->exists()) {
             return back()->with('error', 'Cannot delete category with associated expenses.');
         }

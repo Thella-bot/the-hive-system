@@ -17,6 +17,7 @@ class DocumentProductionController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', GeneratedDocument::class);
         $types = DocumentType::labels();
         $recent = GeneratedDocument::with('generator')->latest()->limit(20)->get();
 
@@ -28,6 +29,8 @@ class DocumentProductionController extends Controller
 
     public function generate(Request $request)
     {
+        $this->authorize('generate', GeneratedDocument::class);
+
         $validated = $request->validate([
             'document_type' => ['required', 'string', Rule::in(DocumentType::values())],
             'entity_type' => 'required|string',
@@ -59,6 +62,8 @@ class DocumentProductionController extends Controller
 
     public function audit(Request $request)
     {
+        $this->authorize('audit', GeneratedDocument::class);
+
         $validated = $request->validate([
             'entity_type' => 'required|string',
             'entity_id' => 'nullable|integer',
@@ -98,6 +103,8 @@ class DocumentProductionController extends Controller
 
     public function batchGenerate(Request $request)
     {
+        $this->authorize('batchAudit', GeneratedDocument::class);
+
         $validated = $request->validate([
             'entity_type' => 'required|string',
         ]);
