@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
@@ -12,8 +14,15 @@ class ImportCompleted extends Notification implements ShouldQueue
     use Queueable;
 
     protected int $successCount;
+
     protected int $failureCount;
+
+    protected int $duplicateCount;
+
+    protected int $skippedCount;
+
     protected array $errors;
+
     protected ?string $jobError;
 
     /**
@@ -21,10 +30,12 @@ class ImportCompleted extends Notification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(int $successCount, int $failureCount, array $errors, ?string $jobError = null)
+    public function __construct(int $successCount, int $failureCount, int $duplicateCount, int $skippedCount, array $errors, ?string $jobError = null)
     {
         $this->successCount = $successCount;
         $this->failureCount = $failureCount;
+        $this->duplicateCount = $duplicateCount;
+        $this->skippedCount = $skippedCount;
         $this->errors = $errors;
         $this->jobError = $jobError;
     }
@@ -37,6 +48,16 @@ class ImportCompleted extends Notification implements ShouldQueue
     public function getFailureCount(): int
     {
         return $this->failureCount;
+    }
+
+    public function getDuplicateCount(): int
+    {
+        return $this->duplicateCount;
+    }
+
+    public function getSkippedCount(): int
+    {
+        return $this->skippedCount;
     }
 
     public function getJobError(): ?string
@@ -64,26 +85,29 @@ class ImportCompleted extends Notification implements ShouldQueue
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
         $mail = (new MailMessage)
             ->subject('User Import Completed')
-            ->line("The user import job has finished.");
+            ->line('The user import job has finished.');
 
         if ($this->jobError) {
             $mail->error()
                 ->line('The job failed with a critical error:')
                 ->line($this->jobError);
+
             return $mail;
         }
 
         $mail->line("Successfully imported: {$this->successCount} users.")
-             ->line("Failed to import: {$this->failureCount} users.");
+            ->line("Failed to import: {$this->failureCount} users.")
+            ->line("Duplicate rows skipped: {$this->duplicateCount} users.")
+            ->line("Users not found (skipped): {$this->skippedCount} users.");
 
-        if ($this->failureCount > 0) {
-            $mail->line('Here are the errors:');
+        if ($this->failureCount > 0 || $this->duplicateCount > 0 || $this->skippedCount > 0) {
+            $mail->line('Here are the details:');
             foreach ($this->errors as $error) {
                 $mail->line("- {$error}");
             }
@@ -112,8 +136,8 @@ class ImportCompleted extends Notification implements ShouldQueue
 
         return [
             'title' => 'User Import Completed',
-            'message' => "Imported {$this->successCount} users, {$this->failureCount} failed.",
-            'level' => $this->failureCount > 0 ? 'warning' : 'success',
+            'message' => "Imported {$this->successCount} users, {$this->failureCount} failed, {$this->duplicateCount} duplicates skipped, {$this->skippedCount} not found.",
+            'level' => ($this->failureCount > 0 || $this->duplicateCount > 0 || $this->skippedCount > 0) ? 'warning' : 'success',
         ];
     }
 }

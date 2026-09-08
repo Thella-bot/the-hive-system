@@ -41,18 +41,21 @@ if (!function_exists('friendlyTitleForStatus')) {
 }
 
 if (!function_exists('inertiaErrorRedirect')) {
-    function inertiaErrorRedirect(Request $request, int $status, string $message, string $errorId): \Illuminate\Http\RedirectResponse
-    {
-        // Never redirect back to the URL that just errored (avoids redirect loops).
-        $previous = $request->headers->get('referer');
-        $target = ($previous && $previous !== $request->fullUrl()) ? $previous : url('/');
+function inertiaErrorRedirect(Request $request, int $status, string $message, string $errorId): \Illuminate\Http\RedirectResponse
+{
+    $previous = $request->headers->get('referer');
+    $target = ($previous && $previous !== $request->fullUrl()) ? $previous : url('/');
 
-        return redirect($target)->with('error', [
-            'title'    => friendlyTitleForStatus($status),
-            'message'  => $message,
-            'error_id' => $errorId,
-        ]);
+    if ($request->path() === '/' && $target === url('/')) {
+        $target = url('/login');
     }
+
+    return redirect($target)->with('error', [
+        'title'    => friendlyMessageForStatus($status),
+        'message'  => $message,
+        'error_id' => $errorId,
+    ]);
+}
 }
 
 return Application::configure(basePath: dirname(__DIR__))

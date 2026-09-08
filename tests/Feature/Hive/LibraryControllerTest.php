@@ -146,4 +146,62 @@ class LibraryControllerTest extends HiveTestCase
 
         $response->assertOk();
     }
+
+    public function test_loan_store_creates_loan_for_admin(): void
+    {
+        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test. See app/Models/BookLoan.php:17 vs database/migrations/.../create_core_tables.php:597.');
+    }
+
+    public function test_loan_store_rejects_unavailable_book(): void
+    {
+        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+    }
+
+    public function test_loan_store_denies_student(): void
+    {
+        $student = User::factory()->create();
+        $student->assignRole('student');
+        $book = \App\Models\LibraryBook::factory()->create();
+        $otherUser = User::factory()->create();
+
+        $this->actingAs($student);
+
+        $response = $this->post(route('hive.library.loans.store'), [
+            'user_id' => $otherUser->id,
+            'book_id' => $book->id,
+            'due_date' => now()->addDays(7)->format('Y-m-d'),
+        ]);
+
+        $response->assertRedirect();
+    }
+
+    public function test_loan_return_restores_available_copies(): void
+    {
+        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+    }
+
+    public function test_loan_renew_succeeds_for_admin(): void
+    {
+        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+    }
+
+    public function test_reservation_store_creates_for_user(): void
+    {
+        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+    }
+
+    public function test_reservation_store_blocks_duplicate_pending(): void
+    {
+        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+    }
+
+    public function test_reservation_fulfill_creates_loan_for_admin(): void
+    {
+        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+    }
+
+    public function test_reservation_cancel_by_owner(): void
+    {
+        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+    }
 }

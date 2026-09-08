@@ -58,4 +58,28 @@ class UserApprovalControllerTest extends HiveTestCase
 
         $response->assertOk();
     }
+
+    public function test_approve_users_index_returns_403_for_non_admin_via_json(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $this->actingAs($user);
+
+        $response = $this->getJson(route('hive.admin.approve-users'));
+
+        $response->assertStatus(403);
+    }
+
+    public function test_import_users_returns_403_for_non_admin_via_json(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $this->actingAs($user);
+
+        $response = $this->getJson(route('hive.admin.import-users'));
+
+        $response->assertStatus(403);
+    }
 }

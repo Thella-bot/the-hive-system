@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Hive\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportUsersJob;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
@@ -12,17 +13,13 @@ class ImportUsersController extends Controller
 {
     public function show()
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorize('importUsers', User::class);
         return Inertia::render('Hive/Admin/ImportUsers');
     }
 
     public function import(Request $request)
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorize('importUsers', User::class);
         $request->validate([
             'csv_file' => 'required|file|mimes:csv,txt',
         ]);

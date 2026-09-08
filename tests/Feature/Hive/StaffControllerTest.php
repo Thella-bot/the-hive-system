@@ -102,5 +102,52 @@ class StaffControllerTest extends HiveTestCase
 
         $response->assertRedirect();
     }
+
+    public function test_generate_appointment_returns_403_for_non_hr_manager(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $staff = User::factory()->create();
+        $staff->assignRole('chef-instructor');
+
+        $this->actingAs($user);
+
+        $response = $this->getJson(route('hive.staff.generate-appointment', $staff));
+
+        $response->assertStatus(403);
+    }
+
+    public function test_generate_warning_returns_403_for_non_hr_manager(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $staff = User::factory()->create();
+        $staff->assignRole('chef-instructor');
+
+        $this->actingAs($user);
+
+        $response = $this->getJson(route('hive.staff.generate-warning', $staff));
+
+        $response->assertStatus(403);
+    }
+
+    public function test_generate_appointment_returns_pdf_for_hr_manager(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('hr-manager');
+
+        $staff = User::factory()->create();
+        $staff->assignRole('chef-instructor');
+        \App\Models\Department::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('hive.staff.generate-appointment', $staff));
+
+        $response->assertOk();
+        $this->assertStringContainsString('pdf', $response->headers->get('content-type'));
+    }
 }
 

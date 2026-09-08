@@ -19,8 +19,10 @@ class PublicController extends Controller
             ->get();
 
         $shortCourses = ShortCourse::active()->open()
-            ->whereNull('start_date')
-            ->orWhere('start_date', '>=', now())
+            ->where(function ($query) {
+                $query->whereNull('start_date')
+                    ->orWhere('start_date', '>=', now());
+            })
             ->take(6)
             ->get();
 

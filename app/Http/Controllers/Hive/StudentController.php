@@ -1,26 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Hive;
 
-use App\Http\Controllers\Controller;
 use App\Actions\Hive\CreateNewStudent;
 use App\Actions\Hive\UpdateStudent;
 use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
+use App\Http\Controllers\Controller;
+use App\Mail\StudentWelcomeEmail;
 use App\Models\Cohort;
-use App\Models\Programme;
 use App\Models\User;
 use App\Services\AuditService;
 use App\Services\ReferenceDataService;
 use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Inertia\Inertia;
 
 class StudentController extends Controller
 {
     use GeneratesDocumentPdfs;
+
     public function __construct(
         protected SignatoryService $signatory,
         protected AuditService $audit,
@@ -52,18 +57,18 @@ class StudentController extends Controller
             ->with(['profile', 'programme'])
             ->get();
 
-        $filename = 'students_' . date('Y-m-d_His') . '.csv';
+        $filename = 'students_'.date('Y-m-d_His').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
         $callback = function () use ($students) {
             $file = fopen('php://output', 'w');
 
             // BOM for UTF-8
-            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
             // Header row
             fputcsv($file, [
@@ -131,12 +136,12 @@ class StudentController extends Controller
 
         // Send welcome email
         try {
-            \Illuminate\Support\Facades\Mail::to($student->email)->send(
-                new \App\Mail\StudentWelcomeEmail($student, $plainPassword)
+            Mail::to($student->email)->send(
+                new StudentWelcomeEmail($student, $plainPassword)
             );
         } catch (\Exception $e) {
             // Log error but don't prevent student creation
-            \Illuminate\Support\Facades\Log::warning('Failed to send welcome email: ' . $e->getMessage());
+            Log::warning('Failed to send welcome email: '.$e->getMessage());
         }
 
         // Log audit trail
@@ -165,12 +170,13 @@ class StudentController extends Controller
     public function edit(User $student)
     {
         $this->authorize('update', $student);
-        $isAdmin = auth()->user()?->isAdmin();
+        $canEditAllFields = auth()->user()?->canManageStudents() ?? false;
+
         return Inertia::render('Hive/Students/Edit', [
             'managedStudent' => $student->load(['profile', 'programme']),
             'programmes' => app(ReferenceDataService::class)->programmes(),
             'cohorts' => Cohort::with('department:id,name')->select('id', 'name', 'department_id')->get(),
-            'isAdmin' => $isAdmin,
+            'isAdmin' => $canEditAllFields,
         ]);
     }
 
@@ -183,14 +189,22 @@ class StudentController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $student->id,
+            'email' => 'required|email|unique:users,email,'.$student->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'student_number' => 'nullable|string|unique:profiles,student_number,' . ($student->profile?->id ?? 'NULL') . ',id',
+            'password_confirmation' => 'nullable|string',
+            'student_number' => 'nullable|string|unique:profiles,student_number,'.($student->profile?->id ?? 'NULL').',id',
             'programme_id' => 'nullable|exists:programmes,id',
             'cohort_id' => 'nullable|exists:cohorts,id',
             'enrollment_date' => 'nullable|date',
             'expected_graduation_date' => 'nullable|date',
             'status' => 'nullable|string',
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|string|max:20',
+            'national_id_number' => 'nullable|string|max:100',
             'emergency_contact_name' => 'nullable|string|max:255',
             'emergency_contact_phone' => 'nullable|string|max:20',
             'emergency_contact_relationship' => 'nullable|string|max:255',
@@ -206,7 +220,7 @@ class StudentController extends Controller
             $oldValues['profile'] = $student->profile->getAttributes();
         }
 
-        $updater->update($student, $validated, $request->user()->isAdmin());
+        $updater->update($student, $validated, $request->user()->canManageStudents());
 
         // Log audit trail
         $student->refresh();
@@ -227,6 +241,7 @@ class StudentController extends Controller
         $this->audit->logDeleted($student);
 
         $student->delete();
+
         return redirect()->route('hive.students.index')
             ->with('success', 'Student deleted successfully.');
     }
@@ -238,9 +253,10 @@ class StudentController extends Controller
      */
     public function generateProof(User $student)
     {
+        $this->authorize('generateProof', $student);
         $student->load(['profile', 'enrollments.module.programme', 'modules']);
         $enrollment = $student->enrollments->first();
-        if (!$enrollment) {
+        if (! $enrollment) {
             return back()->with('error', 'No enrollment found.');
         }
 
@@ -249,14 +265,14 @@ class StudentController extends Controller
 
         $fullName = $student->name;
         if ($profile && $profile->first_name && $profile->last_name) {
-            $fullName = $profile->first_name . ' ' . $profile->last_name;
+            $fullName = $profile->first_name.' '.$profile->last_name;
         }
 
-        $dob = $profile?->date_of_birth ? \Carbon\Carbon::parse($profile->date_of_birth) : null;
+        $dob = $profile?->date_of_birth ? Carbon::parse($profile->date_of_birth) : null;
 
         $data = [
             'office' => config('institution.registrar_office'),
-            'ref' => config('institution.abbreviation') . '/REG/' . date('Y') . '/' . $student->id,
+            'ref' => config('institution.abbreviation').'/REG/'.date('Y').'/'.$student->id,
             'date' => now(),
             'student' => (object) [
                 'full_name' => $fullName,
@@ -267,7 +283,7 @@ class StudentController extends Controller
             'programme' => $programme ?? (object) ['name' => 'Culinary Arts', 'nqf_level' => 'X', 'duration' => '3 Years'],
             'year_of_study' => 1,
             'total_years' => $programme->duration ?? 3,
-            'academic_year' => date('Y') . '/' . (date('Y') + 1),
+            'academic_year' => date('Y').'/'.(date('Y') + 1),
             'mode_of_study' => 'Full-Time',
             'status' => 'ACTIVE',
             'enrolment_date' => $profile->enrollment_date ?? $student->created_at,
@@ -277,7 +293,8 @@ class StudentController extends Controller
         ];
 
         $pdf = Pdf::loadView('pdf.documents.proof_of_enrolment', $data);
-        return $pdf->stream('Proof_of_Enrolment_' . $student->name . '.pdf');
+
+        return $pdf->stream('Proof_of_Enrolment_'.$student->name.'.pdf');
     }
 
     /**
@@ -285,17 +302,18 @@ class StudentController extends Controller
      */
     public function generateCertificate(User $student)
     {
+        $this->authorize('generateCertificate', $student);
         $student->load(['profile', 'enrollments.module.programme']);
         $enrollment = $student->enrollments->first();
         $programme = $enrollment?->module?->programme ?? $student->programme;
 
-        if (!$enrollment) {
+        if (! $enrollment) {
             return back()->with('error', 'No enrollment found.');
         }
 
         $data = [
             'office' => config('institution.registrar_office'),
-            'ref' => config('institution.abbreviation') . '/REG/' . date('Y') . '/' . $student->id,
+            'ref' => config('institution.abbreviation').'/REG/'.date('Y').'/'.$student->id,
             'date' => now(),
             'student' => $student,
             'programme' => $programme ?? (object) ['name' => 'Culinary Arts', 'nqf_level' => 'X', 'duration' => '3 Years'],
@@ -303,12 +321,13 @@ class StudentController extends Controller
             'director_name' => $this->signatory->get('super-admin'),
             'registrar_name' => $this->signatory->get('registrar'),
             'issue_date' => now(),
-            'certificate_number' => config('institution.abbreviation') . '-CERT-' . date('Y') . '-' . $student->id,
+            'certificate_number' => config('institution.abbreviation').'-CERT-'.date('Y').'-'.$student->id,
         ];
 
         $pdf = Pdf::loadView('pdf.documents.certificate', $data);
         $pdf->setPaper('A4', 'landscape');
-        return $pdf->stream('Certificate_' . $student->name . '.pdf');
+
+        return $pdf->stream('Certificate_'.$student->name.'.pdf');
     }
 
     /**
@@ -316,12 +335,13 @@ class StudentController extends Controller
      */
     public function generateReference(User $student, Request $request)
     {
+        $this->authorize('generateReference', $student);
         $student->load(['profile', 'programme']);
         $programme = $student->programme;
 
         $data = [
             'office' => config('institution.academic_office'),
-            'ref' => config('institution.abbreviation') . '/REF/' . date('Y') . '/' . $student->id,
+            'ref' => config('institution.abbreviation').'/REF/'.date('Y').'/'.$student->id,
             'date' => now(),
             'recipient_title' => $request->recipient_title ?? 'Dr',
             'recipient_name' => $request->recipient_name ?? 'John Doe',
@@ -350,6 +370,7 @@ class StudentController extends Controller
         ];
 
         $pdf = Pdf::loadView('pdf.documents.reference', $data);
-        return $pdf->stream('Reference_' . $student->name . '.pdf');
+
+        return $pdf->stream('Reference_'.$student->name.'.pdf');
     }
 }

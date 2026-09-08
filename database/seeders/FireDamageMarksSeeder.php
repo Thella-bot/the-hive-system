@@ -14,10 +14,10 @@ class FireDamageMarksSeeder extends Seeder
      * Student numbers affected by the fire (graduating students).
      */
     private const AFFECTED_STUDENTS = [
-        '20230401',
-        '20240401',
-        '20230402',
-        '20240402',
+        'S20230401',
+        'S20240401',
+        'S20230402',
+        'S20240402',
     ];
 
     /**
@@ -130,8 +130,12 @@ class FireDamageMarksSeeder extends Seeder
         $count = 0;
 
         foreach ($students as $student) {
+            $studentNumber = $student->student_number ?? $student->profile?->student_number ?? '';
+            $cleanNumber = preg_replace('/^S/', '', $studentNumber);
+            $enrollmentYear = (int) substr($cleanNumber, 0, 4);
+
             foreach ($modules as $module) {
-                $academicYear = $this->getAcademicYearForModule($module->code);
+                $academicYear = $this->getAcademicYearForModule($module->code, $enrollmentYear);
                 $semester = $this->getSemesterForModule($module->code);
 
                 $enrollment = $student->enrollments()->firstOrCreate([
@@ -150,18 +154,52 @@ class FireDamageMarksSeeder extends Seeder
     }
 
     /**
-     * Get the academic year for a module based on its code.
+     * Year 1 module codes.
      */
-    private function getAcademicYearForModule(string $code): string
-    {
-        $year = substr($code, 2, 1);
+    private const YEAR1_CODES = [
+        'HM101', 'HM102', 'HM103', 'HM104', 'HM105', 'HM106', 'HM107', 'HM108', 'HM109', 'HM110', 'HM111', 'HM112', 'HM113',
+        'FS101', 'FS102', 'FS103', 'FS104',
+        'CG101', 'CG102', 'CG103', 'CG104',
+        'PT101', 'PT102', 'PT103', 'PT104', 'PT105', 'PT106',
+        'GC101', 'GC102', 'GC103', 'GC104', 'GC105', 'GC106', 'GC107', 'GC108', 'GC109', 'GC110', 'GC111',
+    ];
 
-        return match ($year) {
-            '1' => '2023',
-            '2' => '2024',
-            '3' => '2025',
-            default => '2025',
-        };
+    /**
+     * Year 2 module codes.
+     */
+    private const YEAR2_CODES = [
+        'HM202',
+        'FS201', 'FS202',
+        'GC201', 'GC202', 'GC203', 'GC204', 'GC205', 'GC206', 'GC207', 'GC208', 'GC209',
+        'PT201', 'PT202', 'PT203', 'PT204', 'PT205',
+        'CG201',
+    ];
+
+    /**
+     * Year 3 module codes.
+     */
+    private const YEAR3_CODES = [
+        'HM203', 'HM204', 'HM205', 'HM206', 'HM207', 'HM208', 'HM209', 'HM210',
+        'FS301', 'FS302',
+        'GC301', 'GC302', 'GC303', 'GC304', 'GC305',
+        'CG301', 'CG302',
+    ];
+
+    /**
+     * Get the academic year for a module based on its code and student enrollment year.
+     */
+    private function getAcademicYearForModule(string $code, int $enrollmentYear): string
+    {
+        if (in_array($code, self::YEAR1_CODES)) {
+            return (string) $enrollmentYear;
+        }
+        if (in_array($code, self::YEAR2_CODES)) {
+            return (string) ($enrollmentYear + 1);
+        }
+        if (in_array($code, self::YEAR3_CODES)) {
+            return (string) ($enrollmentYear + 2);
+        }
+        return (string) ($enrollmentYear + 2);
     }
 
     /**
@@ -212,16 +250,11 @@ class FireDamageMarksSeeder extends Seeder
     }
 
     /**
-     * Generate a realistic mark between 40% and 95% of max marks.
+     * Generate a realistic mark between 80% and 95% of max marks.
      */
     private function generateRealisticMark(int $maxMarks): float
     {
-        $percentage = match (random_int(1, 10)) {
-            1, 2 => random_int(40, 54),   // 20% chance: borderline pass
-            3, 4, 5 => random_int(55, 69), // 30% chance: average
-            6, 7, 8 => random_int(70, 84), // 30% chance: good
-            default => random_int(85, 95),  // 20% chance: excellent
-        };
+        $percentage = random_int(80, 95);
 
         return round(($percentage / 100) * $maxMarks, 2);
     }

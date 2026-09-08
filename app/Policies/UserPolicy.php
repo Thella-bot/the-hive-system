@@ -56,4 +56,39 @@ class UserPolicy extends BasePolicy
     {
         return $user->hasAnyRole(['super-admin', 'it-support', 'hr-manager', 'admissions-officer', 'registrar', 'program-coordinator']);
     }
+
+    public function generateProof(User $user, User $targetUser): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'admissions-officer', 'registrar', 'program-coordinator']);
+    }
+
+    public function generateCertificate(User $user, User $targetUser): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'registrar']);
+    }
+
+    public function generateReference(User $user, User $targetUser): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'registrar', 'program-coordinator', 'academic-director']);
+    }
+
+    public function generateAppointment(User $user, User $targetUser): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'hr-manager']);
+    }
+
+    public function generateWarning(User $user, User $targetUser): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'hr-manager']);
+    }
+
+    public function approveUsers(User $user): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'it-support']);
+    }
+
+    public function importUsers(User $user): bool
+    {
+        return $user->hasAnyRole(['super-admin', 'it-support']);
+    }
 }

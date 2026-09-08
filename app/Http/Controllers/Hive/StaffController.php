@@ -172,6 +172,7 @@ class StaffController extends Controller
      */
     public function generateAppointment(User $staff, Request $request)
     {
+        $this->authorize('generateAppointment', $staff);
         $staff->load(['profile.department', 'roles']);
 
         $data = [
@@ -202,6 +203,7 @@ class StaffController extends Controller
      */
     public function generateWarning(User $staff, Request $request)
     {
+        $this->authorize('generateWarning', $staff);
         $staff->load(['profile.department']);
 
         $data = [

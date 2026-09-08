@@ -13,10 +13,10 @@ class FireDamageSubmissionsSeeder extends Seeder
      * Student numbers affected by the fire (graduating students).
      */
     private const AFFECTED_STUDENTS = [
-        '20230401',
-        '20240401',
-        '20230402',
-        '20240402',
+        'S20230401',
+        'S20240401',
+        'S20230402',
+        'S20240402',
     ];
 
     public function run(): void
@@ -63,16 +63,11 @@ class FireDamageSubmissionsSeeder extends Seeder
     }
 
     /**
-     * Generate a realistic mark between 40% and 95% of max marks.
+     * Generate a realistic mark between 80% and 95% of max marks.
      */
     private function generateRealisticMark(int $maxMarks): float
     {
-        $percentage = match (random_int(1, 10)) {
-            1, 2 => random_int(40, 54),
-            3, 4, 5 => random_int(55, 69),
-            6, 7, 8 => random_int(70, 84),
-            default => random_int(85, 95),
-        };
+        $percentage = random_int(80, 95);
 
         return round(($percentage / 100) * $maxMarks, 2);
     }

@@ -188,6 +188,8 @@ class LibraryController extends Controller
     // Loan Management
     public function loansIndex(Request $request): Response
     {
+        $this->authorize('viewAny', BookLoan::class);
+
         $query = BookLoan::with(['user', 'book'])
             ->withCount('book');
 
@@ -207,6 +209,8 @@ class LibraryController extends Controller
 
     public function loansStore(Request $request): RedirectResponse
     {
+        $this->authorize('create', BookLoan::class);
+
         $data = $request->validate([
             'user_id' => 'required|exists:users,id',
             'book_id' => 'required|exists:library_books,id',
@@ -232,6 +236,8 @@ class LibraryController extends Controller
 
     public function loansReturn(Request $request, BookLoan $loan): RedirectResponse
     {
+        $this->authorize('returnBook', $loan);
+
         if ($loan->status !== BookLoan::STATUS_ACTIVE) {
             return back()->with('error', 'Loan is not active.');
         }
@@ -249,6 +255,8 @@ class LibraryController extends Controller
 
     public function loansRenew(Request $request, BookLoan $loan): RedirectResponse
     {
+        $this->authorize('renew', $loan);
+
         if (!$loan->canRenew()) {
             return back()->with('error', 'Cannot renew this loan (max 2 renewals).');
         }
@@ -263,6 +271,8 @@ class LibraryController extends Controller
 
     public function loansDestroy(BookLoan $loan): RedirectResponse
     {
+        $this->authorize('delete', $loan);
+
         if ($loan->status === BookLoan::STATUS_ACTIVE) {
             $loan->book->increment('available_copies');
         }
@@ -275,6 +285,8 @@ class LibraryController extends Controller
     // Reservation Management
     public function reservationsIndex(Request $request): Response
     {
+        $this->authorize('viewAny', BookReservation::class);
+
         $query = BookReservation::with(['user', 'book']);
 
         if ($request->has('status') && $request->status) {
@@ -289,6 +301,8 @@ class LibraryController extends Controller
 
     public function reservationsStore(Request $request): RedirectResponse
     {
+        $this->authorize('create', BookReservation::class);
+
         $data = $request->validate([
             'user_id' => 'required|exists:users,id',
             'book_id' => 'required|exists:library_books,id',
@@ -319,6 +333,8 @@ class LibraryController extends Controller
 
     public function reservationsFulfill(BookReservation $reservation): RedirectResponse
     {
+        $this->authorize('fulfill', $reservation);
+
         if (!$reservation->canFulfill()) {
             return back()->with('error', 'Cannot fulfill this reservation.');
         }
@@ -350,6 +366,8 @@ class LibraryController extends Controller
 
     public function reservationsCancel(BookReservation $reservation): RedirectResponse
     {
+        $this->authorize('cancel', $reservation);
+
         if ($reservation->status !== BookReservation::STATUS_PENDING) {
             return back()->with('error', 'Cannot cancel this reservation.');
         }
@@ -364,6 +382,8 @@ class LibraryController extends Controller
     // Dashboard/Statistics
     public function dashboard(): Response
     {
+        $this->authorize('viewAny', LibraryBook::class);
+
         $stats = [
             'total_books' => LibraryBook::active()->count(),
             'available_books' => LibraryBook::active()->available()->count(),

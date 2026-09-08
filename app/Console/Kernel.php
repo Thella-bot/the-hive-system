@@ -12,6 +12,9 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('cohorts:update-status')->daily();
         $schedule->command('academic-year:create')->yearlyOn(12, 1, '00:00');
+        $schedule->command('hive:backup --type=daily --compress')->dailyAt(2, 0);
+        $schedule->command('hive:backup --type=weekly --compress')->weeklyOn(0, 3, 0);
+        $schedule->command('hive:backup --type=monthly --compress')->monthlyOn(1, 4, 0);
     }
 
     protected function commands(): void

@@ -7,15 +7,12 @@ use App\Models\User;
 use App\Notifications\UserApproved;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Role;
 
 class UserApprovalController extends Controller
 {
     public function index()
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorize('approveUsers', User::class);
 
         $unapproved = User::role('unapproved')->get();
 
@@ -26,9 +23,7 @@ class UserApprovalController extends Controller
 
     public function approve(User $user, Request $request)
     {
-        if (!auth()->user()->isAdmin()) {
-            abort(403);
-        }
+        $this->authorize('approveUsers', User::class);
         $request->validate([
             'role' => 'required|in:student,super-admin,it-support,academic-director,program-coordinator,chef-instructor,pastry-instructor,sous-chef,admissions-officer,examination-cell,registrar,finance,procurement-manager,storekeeper,hr-manager,librarian,career-services,events-pr-manager,cafeteria-manager,parent-guardian,alumni',
         ]);

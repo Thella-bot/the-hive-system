@@ -99,10 +99,11 @@ class TranscriptController extends Controller
 
         $weightedGpa = $totalCredits > 0 ? round($totalGradeCreditPoints / $totalCredits, 1) : 'N/A';
 
+        $studentNumber = $student->student_number ?? $student->profile?->student_number ?? $student->id;
         return $this->generatePdf('pdf.transcript', [
             'student' => $student,
             'modulesByYear' => $modulesByYear,
             'gpa' => $weightedGpa,
-        ], 'Transcript_'.$student->id.'.pdf', $student->id);
+        ], 'Transcript_'.$studentNumber.'.pdf', $student->id);
     }
 }
