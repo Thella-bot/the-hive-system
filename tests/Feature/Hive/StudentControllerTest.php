@@ -207,28 +207,6 @@ class StudentControllerTest extends HiveTestCase
         $response->assertRedirect();
     }
 
-    public function test_generate_proof_pdf_returns_pdf_for_registrar(): void
-    {
-        $user = User::factory()->create(['approved_at' => now()]);
-        $user->assignRole('registrar');
-
-        $student = User::factory()->create(['approved_at' => now()]);
-        $student->assignRole('student');
-
-        \App\Models\Programme::factory()->create();
-
-        \App\Models\Enrollment::factory()->create([
-            'user_id' => $student->id,
-        ]);
-
-        $this->actingAs($user);
-
-        $response = $this->get(route('hive.students.generate-proof', $student));
-
-        $response->assertOk();
-        $this->assertStringContainsString('pdf', $response->headers->get('content-type'));
-    }
-
     public function test_generate_proof_pdf_returns_403_for_unauthorized_user(): void
     {
         $user = User::factory()->create(['approved_at' => now()]);

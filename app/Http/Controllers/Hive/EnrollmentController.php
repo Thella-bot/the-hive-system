@@ -305,6 +305,25 @@ class EnrollmentController extends Controller
     }
 
     /**
+     * Update an enrollment (admin only).
+     */
+    public function update(Request $request, Enrollment $enrollment): RedirectResponse
+    {
+        $this->authorize('create', Enrollment::class);
+
+        $data = $request->validate([
+            'academic_year' => 'sometimes|string',
+            'semester' => 'sometimes|integer|in:1,2',
+        ]);
+
+        $this->audit->logUpdated($enrollment, $enrollment->getAttributes());
+
+        $enrollment->update($data);
+
+        return back()->with('success', 'Enrollment updated successfully.');
+    }
+
+    /**
      * Bulk enroll students into a module (admin only).
      */
     public function bulkStore(Request $request): RedirectResponse

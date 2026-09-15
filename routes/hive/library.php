@@ -49,9 +49,9 @@ Route::middleware(['auth'])->name('library.')->prefix('library')->group(function
     Route::get('reservations', [LibraryController::class, 'reservationsIndex'])->name('reservations.index');
     Route::post('reservations', [LibraryController::class, 'reservationsStore'])->name('reservations.store');
 
-    // Admin can fulfill/cancel reservations
+    // Admin can fulfill reservations; owners can cancel their own pending reservations
     Route::middleware(['role:super-admin|finance'])->group(function () {
         Route::patch('reservations/{reservation}/fulfill', [LibraryController::class, 'reservationsFulfill'])->name('reservations.fulfill');
-        Route::patch('reservations/{reservation}/cancel', [LibraryController::class, 'reservationsCancel'])->name('reservations.cancel');
     });
+    Route::patch('reservations/{reservation}/cancel', [LibraryController::class, 'reservationsCancel'])->name('reservations.cancel');
 });

@@ -102,7 +102,7 @@ class TaskApiTest extends HiveTestCase
             'due_date' => '2026-12-31',
         ]);
 
-        $response->assertOk();
+        $response->assertCreated();
         $this->assertDatabaseHas('student_tasks', [
             'user_id' => $user->id,
             'title' => 'API Test Task',

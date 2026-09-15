@@ -72,4 +72,41 @@ class RegistrarControllerTest extends HiveTestCase
 
         $response->assertRedirect();
     }
+
+    public function test_registrar_enrollments_update_updates_enrollment(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('registrar');
+
+        $this->actingAs($user);
+
+        $enrollment = \App\Models\Enrollment::factory()->create();
+
+        $response = $this->patch(route('hive.registrar.enrollments.update', $enrollment), [
+            'academic_year' => '2027',
+            'semester' => 2,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'academic_year' => '2027',
+            'semester' => 2,
+        ]);
+    }
+
+    public function test_registrar_enrollments_destroy_removes_enrollment(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('registrar');
+
+        $this->actingAs($user);
+
+        $enrollment = \App\Models\Enrollment::factory()->create();
+
+        $response = $this->delete(route('hive.registrar.enrollments.destroy', $enrollment));
+
+        $response->assertRedirect();
+        $this->assertSoftDeleted('enrollments', ['id' => $enrollment->id]);
+    }
 }

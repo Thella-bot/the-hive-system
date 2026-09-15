@@ -149,12 +149,52 @@ class LibraryControllerTest extends HiveTestCase
 
     public function test_loan_store_creates_loan_for_admin(): void
     {
-        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test. See app/Models/BookLoan.php:17 vs database/migrations/.../create_core_tables.php:597.');
+        $user = User::factory()->create();
+        $user->assignRole('finance');
+
+        $book = LibraryBook::factory()->create(['available_copies' => 5]);
+        $borrower = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.library.loans.store'), [
+            'user_id' => $borrower->id,
+            'book_id' => $book->id,
+            'due_date' => now()->addDays(7)->format('Y-m-d'),
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('book_loans', [
+            'user_id' => $borrower->id,
+            'book_id' => $book->id,
+            'status' => 'active',
+        ]);
+        $this->assertDatabaseHas('library_books', [
+            'id' => $book->id,
+            'available_copies' => 4,
+        ]);
     }
 
     public function test_loan_store_rejects_unavailable_book(): void
     {
-        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+        $user = User::factory()->create();
+        $user->assignRole('finance');
+
+        $book = LibraryBook::factory()->create(['available_copies' => 0, 'is_available' => false]);
+        $borrower = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.library.loans.store'), [
+            'user_id' => $borrower->id,
+            'book_id' => $book->id,
+            'due_date' => now()->addDays(7)->format('Y-m-d'),
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('book_loans', [
+            'book_id' => $book->id,
+        ]);
     }
 
     public function test_loan_store_denies_student(): void
@@ -177,31 +217,167 @@ class LibraryControllerTest extends HiveTestCase
 
     public function test_loan_return_restores_available_copies(): void
     {
-        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+        $user = User::factory()->create();
+        $user->assignRole('finance');
+
+        $book = LibraryBook::factory()->create(['available_copies' => 5]);
+        $borrower = User::factory()->create();
+
+        $loan = \App\Models\BookLoan::create([
+            'user_id' => $borrower->id,
+            'book_id' => $book->id,
+            'loan_date' => now()->toDateString(),
+            'due_date' => now()->addDays(14)->toDateString(),
+            'status' => 'active',
+        ]);
+        $book->decrement('available_copies');
+
+        $this->actingAs($user);
+
+        $response = $this->patch(route('hive.library.loans.return', $loan));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('book_loans', [
+            'id' => $loan->id,
+            'status' => 'returned',
+        ]);
+        $this->assertDatabaseHas('library_books', [
+            'id' => $book->id,
+            'available_copies' => 5,
+        ]);
     }
 
     public function test_loan_renew_succeeds_for_admin(): void
     {
-        $this->markTestIncomplete('BookLoan model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+        $user = User::factory()->create();
+        $user->assignRole('finance');
+
+        $book = LibraryBook::factory()->create();
+        $borrower = User::factory()->create();
+
+        $loan = \App\Models\BookLoan::create([
+            'user_id' => $borrower->id,
+            'book_id' => $book->id,
+            'loan_date' => now()->toDateString(),
+            'due_date' => now()->addDays(14)->toDateString(),
+            'status' => 'active',
+            'renewal_count' => 0,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->patch(route('hive.library.loans.renew', $loan));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('book_loans', [
+            'id' => $loan->id,
+            'renewal_count' => 1,
+        ]);
     }
 
     public function test_reservation_store_creates_for_user(): void
     {
-        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $book = LibraryBook::factory()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.library.reservations.store'), [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('book_reservations', [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => 'pending',
+        ]);
     }
 
     public function test_reservation_store_blocks_duplicate_pending(): void
     {
-        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $book = LibraryBook::factory()->create();
+
+        \App\Models\BookReservation::create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'reserved_at' => now()->toDateString(),
+            'expires_at' => now()->addDays(3)->toDateString(),
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->post(route('hive.library.reservations.store'), [
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseCount('book_reservations', 1);
     }
 
     public function test_reservation_fulfill_creates_loan_for_admin(): void
     {
-        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+        $user = User::factory()->create();
+        $user->assignRole('finance');
+
+        $book = LibraryBook::factory()->create(['available_copies' => 5]);
+        $borrower = User::factory()->create();
+
+        $reservation = \App\Models\BookReservation::create([
+            'user_id' => $borrower->id,
+            'book_id' => $book->id,
+            'reserved_at' => now()->toDateString(),
+            'expires_at' => now()->addDays(3)->toDateString(),
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->patch(route('hive.library.reservations.fulfill', $reservation));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('book_reservations', [
+            'id' => $reservation->id,
+            'status' => 'fulfilled',
+        ]);
+        $this->assertDatabaseHas('book_loans', [
+            'user_id' => $borrower->id,
+            'book_id' => $book->id,
+            'status' => 'active',
+        ]);
     }
 
     public function test_reservation_cancel_by_owner(): void
     {
-        $this->markTestIncomplete('BookReservation model uses HasUuids trait but migration uses bigint id; pre-existing model/migration mismatch blocks test.');
+        $user = User::factory()->create();
+        $user->assignRole('student');
+
+        $book = LibraryBook::factory()->create();
+
+        $reservation = \App\Models\BookReservation::create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'reserved_at' => now()->toDateString(),
+            'expires_at' => now()->addDays(3)->toDateString(),
+            'status' => 'pending',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->patch(route('hive.library.reservations.cancel', $reservation));
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('book_reservations', [
+            'id' => $reservation->id,
+            'status' => 'cancelled',
+        ]);
     }
 }
