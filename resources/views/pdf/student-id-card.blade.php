@@ -18,6 +18,7 @@
             margin: 0;
             padding: 0;
             font-family: 'DejaVu Sans', sans-serif;
+            background: #13252b;
         }
 
         /*
@@ -33,71 +34,183 @@
             height: 153pt;
             position: relative;
             overflow: hidden;
-            background: #ffffff;
-            border-radius: 10pt;
+            background: #13252b;
+            border-radius: 8pt;
         }
 
-        .banner {
+        .accent {
             position: absolute;
             top: 0;
             left: 0;
-            width: 242pt;
-            height: 36pt;
-            background: #FFBD59;
+            width: 7pt;
+            height: 153pt;
+            background: #f4b41a;
         }
 
-        .banner-icon {
+        .brand-mark {
             position: absolute;
             top: 8pt;
-            left: 12pt;
-            height: 20pt;
+            left: 15pt;
+            width: 19pt;
+            height: 19pt;
+            padding: 2pt;
+            border-radius: 10pt;
+            background: #f4b41a;
         }
 
-        .banner-text {
+        .brand-name {
             position: absolute;
-            top: 12pt;
-            left: 38pt;
-            color: #ffffff;
+            top: 9pt;
+            left: 39pt;
+            color: #f8f5ed;
             font-weight: 900;
-            font-size: 8.5pt;
-            letter-spacing: 0.2pt;
+            font-size: 7pt;
+            letter-spacing: 0.45pt;
             white-space: nowrap;
+        }
+
+        .brand-subtitle {
+            position: absolute;
+            top: 19pt;
+            left: 39pt;
+            color: #d9e1dd;
+            font-size: 4.5pt;
+            letter-spacing: 0.8pt;
+            text-transform: uppercase;
+        }
+
+        .card-title {
+            position: absolute;
+            top: 10pt;
+            right: 14pt;
+            color: #f4b41a;
+            font-size: 5pt;
+            font-weight: 900;
+            letter-spacing: 1pt;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 25pt;
+            right: 14pt;
+            padding: 2pt 5pt;
+            border-radius: 5pt;
+            background: #d9f5e5;
+            color: #17633c;
+            font-size: 4pt;
+            font-weight: 900;
+            letter-spacing: 0.6pt;
+            text-transform: uppercase;
+        }
+
+        .status-badge.is-expired {
+            background: #fde4e4;
+            color: #9b2c2c;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 36pt;
+            left: 7pt;
+            width: 157pt;
+            height: 109pt;
+            padding: 12pt 10pt;
+            background: #f8f5ed;
+        }
+
+        .eyebrow {
+            color: #a86f00;
+            font-size: 4.5pt;
+            font-weight: 900;
+            letter-spacing: 1pt;
+            text-transform: uppercase;
+        }
+
+        .record-code {
+            position: absolute;
+            top: 43pt;
+            right: 92pt;
+            color: #8b9692;
+            font-size: 4pt;
+            letter-spacing: 0.5pt;
+            text-transform: uppercase;
+        }
+
+        .data-rule {
+            position: absolute;
+            left: 17pt;
+            width: 137pt;
+            height: 0.5pt;
+            background: #dfe5df;
+        }
+
+        .rule-1 {
+            top: 66pt;
+        }
+
+        .rule-2 {
+            top: 82pt;
+        }
+
+        .rule-3 {
+            top: 98pt;
+        }
+
+        .validity {
+            position: absolute;
+            top: 133pt;
+            left: 112pt;
+            color: #a86f00;
+            font-size: 4pt;
+            font-weight: 900;
+            letter-spacing: 0.5pt;
+            text-transform: uppercase;
+        }
+
+        .validity-value {
+            position: absolute;
+            top: 132pt;
+            left: 137pt;
+            color: #13252b;
+            font-size: 5pt;
+            font-weight: 900;
         }
 
         .photo {
             position: absolute;
-            top: 42pt;
-            right: 13pt;
-            width: 46pt;
-            height: 56pt;
+            top: 44pt;
+            right: 16pt;
+            width: 48pt;
+            height: 58pt;
             object-fit: cover;
-            border-radius: 3pt;
-            border: 1pt solid #e5e7eb;
+            border-radius: 4pt;
+            border: 2pt solid #f4b41a;
         }
 
         .initials-fallback {
             position: absolute;
-            top: 42pt;
-            right: 13pt;
-            width: 46pt;
-            height: 56pt;
-            border-radius: 3pt;
-            border: 1pt solid #e5e7eb;
-            background: #fef3c7;
-            color: #b45309;
+            top: 44pt;
+            right: 16pt;
+            width: 48pt;
+            height: 58pt;
+            border-radius: 4pt;
+            border: 2pt solid #f4b41a;
+            background: #26434a;
+            color: #f4b41a;
             font-weight: 900;
             font-size: 15pt;
             text-align: center;
-            line-height: 56pt;
+            line-height: 55pt;
         }
 
         .name-caption {
             position: absolute;
-            top: 99pt;
-            right: 13pt;
-            width: 66pt;
+            top: 105pt;
+            right: 12pt;
+            width: 56pt;
             text-align: center;
-            color: #d9820c;
+            color: #f8f5ed;
             font-weight: 900;
             font-size: 6pt;
             line-height: 7pt;
@@ -107,12 +220,37 @@
             word-break: break-word;
         }
 
+        .verify-label {
+            position: absolute;
+            top: 124pt;
+            left: 177pt;
+            color: #b6c7c3;
+            font-size: 4pt;
+            letter-spacing: 0.5pt;
+            text-transform: uppercase;
+        }
+
+        .secure-label {
+            position: absolute;
+            top: 132pt;
+            left: 177pt;
+            color: #f4b41a;
+            font-size: 4pt;
+            font-weight: 900;
+            letter-spacing: 0.7pt;
+            text-transform: uppercase;
+        }
+
         .qr {
             position: absolute;
-            top: 116pt;
-            right: 20pt;
-            width: 32pt;
-            height: 32pt;
+            top: 119pt;
+            right: 16pt;
+            width: 29pt;
+            height: 29pt;
+            padding: 2pt;
+            background: #f8f5ed;
+            border: 0.5pt solid #f4b41a;
+            border-radius: 3pt;
         }
 
         /*
@@ -126,28 +264,28 @@
          */
         .label {
             position: absolute;
-            left: 13pt;
-            width: 58pt;
+            left: 17pt;
+            width: 45pt;
             font-weight: 700;
-            font-size: 7pt;
-            color: #374151;
+            font-size: 5.5pt;
+            color: #65716e;
         }
 
         .colon {
             position: absolute;
-            left: 72pt;
+            left: 63pt;
             font-weight: 700;
-            font-size: 7pt;
-            color: #374151;
+            font-size: 5.5pt;
+            color: #a86f00;
         }
 
         .value {
             position: absolute;
-            left: 79pt;
-            width: 88pt;
+            left: 70pt;
+            width: 83pt;
             font-weight: 700;
-            font-size: 7pt;
-            color: #111827;
+            font-size: 5.5pt;
+            color: #13252b;
             overflow: hidden;
             white-space: nowrap;
         }
@@ -162,39 +300,39 @@
          */
         .value-programme {
             position: absolute;
-            left: 79pt;
-            width: 88pt;
+            left: 70pt;
+            width: 83pt;
             font-family: 'Oswald', 'DejaVu Sans', sans-serif;
             font-weight: 900;
-            font-size: 7pt;
+            font-size: 5.5pt;
             text-transform: uppercase;
             overflow: hidden;
             white-space: nowrap;
-            color: #111827;
+            color: #13252b;
         }
 
         .r1 {
-            top: 48pt;
+            top: 54pt;
         }
 
         .r2 {
-            top: 64pt;
+            top: 70pt;
         }
 
         .r3 {
-            top: 80pt;
+            top: 86pt;
         }
 
         .r4 {
-            top: 96pt;
+            top: 102pt;
         }
 
         .signature {
             position: absolute;
             bottom: 8pt;
-            left: 13pt;
-            font-size: 6pt;
-            color: #9ca3af;
+            left: 17pt;
+            font-size: 4.5pt;
+            color: #8b9692;
             font-style: italic;
         }
     </style>
@@ -202,21 +340,38 @@
 
 <body>
     <div class="card">
-        <div class="banner">
-            <img class="banner-icon" src="{{ public_path('images/hbci-bee-white.png') }}" alt="">
-            <div class="banner-text">HONEY BEE CULINARY INSTITUTE</div>
+        <div class="header">
+            <img class="brand-mark" src="{{ public_path('images/hbci-logo-no-text.png') }}" alt="">
+            <div class="brand-name">HONEY BEE CULINARY INSTITUTE</div>
+            <div class="brand-subtitle">Learn. Create. Lead.</div>
+            <div class="card-title">Student identity</div>
+            <div class="status-badge {{ ($status ?? 'Active') === 'Expired' ? 'is-expired' : '' }}">{{ $status ?? 'Active' }}</div>
         </div>
 
+        <div class="accent"></div>
+
+        <div class="info-panel">
+            <div class="eyebrow">Official student record</div>
+        </div>
+
+        <div class="record-code">HBCI / ID</div>
+        <div class="data-rule rule-1"></div>
+        <div class="data-rule rule-2"></div>
+        <div class="data-rule rule-3"></div>
+
         @if($photoPath)
-            <img class="photo" src="{{ $photoPath }}" alt="Student photo">
+        <img class="photo" src="{{ $photoPath }}" alt="Student photo">
         @else
-            <div class="initials-fallback">{{ $initials }}</div>
+        <div class="initials-fallback">{{ $initials }}</div>
         @endif
 
         <div class="name-caption">{{ $name }}</div>
 
+        <div class="verify-label">Scan to verify</div>
+        <div class="secure-label">Secure ID check</div>
+
         @if($qrCode)
-            <img class="qr" src="{{ $qrCode }}" alt="Scan to verify">
+        <img class="qr" src="{{ $qrCode }}" alt="Scan to verify">
         @endif
 
         <div class="label r1">Student ID</div>
@@ -236,6 +391,8 @@
         <div class="value r4">{{ $cohort ?? 'N/A' }}</div>
 
         <div class="signature">Authorize Signature</div>
+        <div class="validity">Valid thru</div>
+        <div class="validity-value">{{ $validUntil ?? 'Active' }}</div>
     </div>
 </body>
 

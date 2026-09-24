@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Services;
@@ -32,6 +33,7 @@ class StudentIdCardService
 
         $profile = $student->profile;
         $cohort = $profile?->cohort;
+        $validUntilDate = $cohort?->end_date ?? $profile?->expected_graduation_date;
         $qrData = $profile?->student_number ?? config('institution.abbreviation') . '-' . $student->id;
 
         return [
@@ -41,7 +43,8 @@ class StudentIdCardService
             'programme'      => $student->programme?->name,
             'cohort'         => $cohort?->name,
             'year'           => $profile?->enrollment_date?->format('Y') ?? now()->format('Y'),
-            'valid_until'    => ($cohort?->end_date ?? $profile?->expected_graduation_date)?->format('M Y'),
+            'valid_until'    => $validUntilDate?->format('M Y'),
+            'status'         => $validUntilDate?->isPast() ? 'Expired' : 'Active',
             'photo_url'      => $student->profile_photo_path ? $student->profile_photo_url : null,
             'initials'       => $this->initials($student->name),
             'qr_data'        => $qrData,
@@ -65,6 +68,7 @@ class StudentIdCardService
             'programme'     => $card['programme'],
             'cohort'        => $card['cohort'],
             'validUntil'    => $card['valid_until'],
+            'status'        => $card['status'],
             'initials'      => $card['initials'],
             'photoPath'     => $this->resolvePhotoPath($student),
             'qrCode'        => $card['qr_code'],
@@ -77,7 +81,7 @@ class StudentIdCardService
      */
     public function configurePdf(PDF $pdf): PDF
     {
-        $pdf->setPaper([0, 0, 242, 316]);
+        $pdf->setPaper([0, 0, 242, 153]);
 
         $pdf->getDomPDF()->getFontMetrics()->registerFont(
             ['family' => 'Oswald', 'style' => 'normal', 'weight' => '900'],
@@ -90,7 +94,7 @@ class StudentIdCardService
     public function initials(string $name): string
     {
         $parts = preg_split('/\s+/', trim($name)) ?: [];
-        $initials = collect($parts)->map(fn ($p) => mb_strtoupper(mb_substr($p, 0, 1)))->take(2)->implode('');
+        $initials = collect($parts)->map(fn($p) => mb_strtoupper(mb_substr($p, 0, 1)))->take(2)->implode('');
 
         return $initials ?: '?';
     }
