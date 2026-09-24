@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Requests\Hive;
@@ -21,14 +22,18 @@ class UpdateStaffRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $staff->id,
+            'password' => 'nullable|string|min:8|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'exists:roles,name',
-            'employee_number' => ['nullable', 'string', Rule::unique('profiles', 'employee_number')->when($staff->profile?->id, fn ($q, $id) => $q->ignore($id))],
+            'employee_number' => ['nullable', 'string', Rule::unique('profiles', 'employee_number')->when($staff->profile?->id, fn($q, $id) => $q->ignore($id))],
             'department_id' => 'nullable|exists:departments,id',
             'designation' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
             'hire_date' => 'nullable|date',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_phone' => 'nullable|string|max:20',
+            'emergency_contact_relationship' => 'nullable|string|max:100',
         ];
     }
 }

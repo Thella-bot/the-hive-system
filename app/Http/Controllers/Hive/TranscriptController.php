@@ -1,30 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Hive;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\GeneratesDocumentPdfs;
+use App\Http\Controllers\Controller;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\AcademicYearHelper;
 use Inertia\Inertia;
 
 class TranscriptController extends Controller
 {
     use GeneratesDocumentPdfs;
+
     public function index()
     {
         $student = auth()->user();
 
         $enrollments = $student->enrollments()
             ->withTrashed()
-            ->with(['module.gradables.submissions' => fn($q) => $q->where('student_id', $student->id)])
+            ->with(['module.gradables.submissions' => fn ($q) => $q->where('student_id', $student->id)])
             ->get();
 
-        $modulesByYear = $enrollments
-            ->groupBy('academic_year')
-            ->map(fn($yearEnrollments) => $yearEnrollments
+        $modulesByYear = AcademicYearHelper::groupEnrollments($enrollments)
+            ->map(fn ($yearEnrollments) => $yearEnrollments
                 ->pluck('module')
-                ->map(fn($module) => $this->enrichModule($module, $student)));
+                ->map(fn ($module) => $this->enrichModule($module, $student)));
 
         return Inertia::render('Hive/Transcript/Index', [
             'student' => $student,
@@ -44,8 +46,9 @@ class TranscriptController extends Controller
             }
         }
         $module->totalGradables = $module->gradables->count();
-        $module->gradedCount = $module->gradables->filter(fn($g) => $g->submissions->first()?->grade !== null)->count();
+        $module->gradedCount = $module->gradables->filter(fn ($g) => $g->submissions->first()?->grade !== null)->count();
         $module->averageGrade = $totalWeight > 0 ? round($totalMarks / $totalWeight, 1) : null;
+
         return $module;
     }
 
@@ -53,23 +56,27 @@ class TranscriptController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->can('view-student-grades') && $user->id !== $student->id) abort(403);
+        if (! $user->can('view-student-grades') && $user->id !== $student->id) {
+            abort(403);
+        }
         if ($user->can('manage-student-grades')) {
             $studentModuleIds = $student->enrollments()->withTrashed()->pluck('module_id');
             $instructorModuleIds = $user->instructedModules()->pluck('id');
-            if ($studentModuleIds->intersect($instructorModuleIds)->isEmpty()) abort(403);
+            if ($studentModuleIds->intersect($instructorModuleIds)->isEmpty()) {
+                abort(403);
+            }
         }
 
         $student->load('programme');
 
         $enrollments = $student->enrollments()
             ->withTrashed()
-            ->with(['module.gradables.submissions' => function($q) use ($student) {
+            ->with(['module.gradables.submissions' => function ($q) use ($student) {
                 $q->where('student_id', $student->id);
             }])
             ->get();
 
-        $modulesByYear = $enrollments->groupBy('academic_year');
+        $modulesByYear = AcademicYearHelper::groupEnrollments($enrollments);
 
         $totalGradeCreditPoints = 0;
         $totalCredits = 0;
@@ -100,6 +107,7 @@ class TranscriptController extends Controller
         $weightedGpa = $totalCredits > 0 ? round($totalGradeCreditPoints / $totalCredits, 1) : 'N/A';
 
         $studentNumber = $student->student_number ?? $student->profile?->student_number ?? $student->id;
+
         return $this->generatePdf('pdf.transcript', [
             'student' => $student,
             'modulesByYear' => $modulesByYear,

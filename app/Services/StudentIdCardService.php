@@ -34,12 +34,13 @@ class StudentIdCardService
         $profile = $student->profile;
         $cohort = $profile?->cohort;
         $validUntilDate = $cohort?->end_date ?? $profile?->expected_graduation_date;
-        $qrData = $profile?->student_number ?? config('institution.abbreviation') . '-' . $student->id;
+        $studentNumber = $student->student_number ?? $profile?->student_number;
+        $qrData = $studentNumber ?? config('institution.abbreviation') . '-' . $student->id;
 
         return [
             'name'           => $student->name,
             'email'          => $student->email,
-            'student_number' => $profile?->student_number,
+            'student_number' => $studentNumber,
             'programme'      => $student->programme?->name,
             'cohort'         => $cohort?->name,
             'year'           => $profile?->enrollment_date?->format('Y') ?? now()->format('Y'),
@@ -81,7 +82,12 @@ class StudentIdCardService
      */
     public function configurePdf(PDF $pdf): PDF
     {
-        $pdf->setPaper([0, 0, 242, 153]);
+        $pdf->setPaper([0, 0, 242.65, 153]);
+
+        $pdf->getDomPDF()->getFontMetrics()->registerFont(
+            ['family' => 'Oswald', 'style' => 'normal', 'weight' => '700'],
+            public_path('fonts/Oswald-Bold.ttf')
+        );
 
         $pdf->getDomPDF()->getFontMetrics()->registerFont(
             ['family' => 'Oswald', 'style' => 'normal', 'weight' => '900'],

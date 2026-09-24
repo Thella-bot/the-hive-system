@@ -13,6 +13,7 @@ use App\Actions\Hive\UpdateStaff;
 use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Carbon\Carbon;
@@ -125,30 +126,34 @@ class StaffController extends Controller
             $validated['password'] = Hash::make($request->password);
         }
 
-        $staff->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ]);
+        DB::transaction(function () use ($staff, $validated): void {
+            $accountData = [
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+            ];
 
-        if (isset($validated['password'])) {
-            $staff->update(['password' => $validated['password']]);
-        }
+            if (isset($validated['password'])) {
+                $accountData['password'] = $validated['password'];
+            }
 
-        if (!empty($validated['roles'])) {
-            $staff->syncRoles($validated['roles']);
-        }
+            $staff->update($accountData);
+            $staff->syncRoles($validated['roles'] ?? []);
 
-        $staff->profile()->updateOrCreate(
-            ['profileable_id' => $staff->id, 'profileable_type' => User::class],
-            array_filter([
-                'employee_number' => $validated['employee_number'] ?? null,
-                'department_id' => $validated['department_id'] ?? null,
-                'designation' => $validated['designation'] ?? null,
-                'specialization' => $validated['specialization'] ?? null,
-                'phone' => $validated['phone'] ?? null,
-                'hire_date' => $validated['hire_date'] ?? null,
-            ])
-        );
+            $staff->profile()->updateOrCreate(
+                ['profileable_id' => $staff->id, 'profileable_type' => User::class],
+                array_filter([
+                    'employee_number' => $validated['employee_number'] ?? null,
+                    'department_id' => $validated['department_id'] ?? null,
+                    'designation' => $validated['designation'] ?? null,
+                    'specialization' => $validated['specialization'] ?? null,
+                    'phone' => $validated['phone'] ?? null,
+                    'hire_date' => $validated['hire_date'] ?? null,
+                    'emergency_contact_name' => $validated['emergency_contact_name'] ?? null,
+                    'emergency_contact_phone' => $validated['emergency_contact_phone'] ?? null,
+                    'emergency_contact_relationship' => $validated['emergency_contact_relationship'] ?? null,
+                ], static fn($value) => $value !== null)
+            );
+        });
 
         return redirect()->route('hive.staff.index')
             ->with('success', 'Staff member updated successfully.');

@@ -97,11 +97,31 @@ class UserController extends Controller
 
         // Explicitly define allowed profile fields to prevent mass assignment
         $allowedProfileFields = [
-            'first_name', 'last_name', 'date_of_birth', 'phone', 'address',
-            'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship',
-            'profile_picture_path', 'twitter_handle', 'linkedin_profile',
-            'cohort_id', 'enrollment_date', 'expected_graduation_date', 'status',
-            'dietary_restrictions', 'specialization', 'bio',
+            'first_name',
+            'last_name',
+            'date_of_birth',
+            'phone',
+            'address',
+            'emergency_contact_name',
+            'emergency_contact_phone',
+            'emergency_contact_relationship',
+            'profile_picture_path',
+            'twitter_handle',
+            'linkedin_profile',
+            'employee_number',
+            'department_id',
+            'designation',
+            'specialization',
+            'bio',
+            'hire_date',
+            'cohort_id',
+            'enrollment_date',
+            'expected_graduation_date',
+            'graduation_date',
+            'status',
+            'dietary_restrictions',
+            'annual_leave_days',
+            'leave_balance',
         ];
 
         // Only include fields that are in the allowed list
@@ -231,11 +251,31 @@ class UserController extends Controller
 
         // Explicitly define allowed profile fields to prevent mass assignment
         $allowedProfileFields = [
-            'first_name', 'last_name', 'date_of_birth', 'phone', 'address',
-            'emergency_contact_name', 'emergency_contact_phone', 'emergency_contact_relationship',
-            'profile_picture_path', 'twitter_handle', 'linkedin_profile',
-            'cohort_id', 'enrollment_date', 'expected_graduation_date', 'status',
-            'dietary_restrictions', 'specialization', 'bio',
+            'first_name',
+            'last_name',
+            'date_of_birth',
+            'phone',
+            'address',
+            'emergency_contact_name',
+            'emergency_contact_phone',
+            'emergency_contact_relationship',
+            'profile_picture_path',
+            'twitter_handle',
+            'linkedin_profile',
+            'employee_number',
+            'department_id',
+            'designation',
+            'specialization',
+            'bio',
+            'hire_date',
+            'cohort_id',
+            'enrollment_date',
+            'expected_graduation_date',
+            'graduation_date',
+            'status',
+            'dietary_restrictions',
+            'annual_leave_days',
+            'leave_balance',
         ];
 
         // Only include fields that are in the allowed list

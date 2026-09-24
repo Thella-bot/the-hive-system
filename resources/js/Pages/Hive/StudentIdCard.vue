@@ -31,6 +31,66 @@ const studentId = computed(() => props.student_id || {});
   overflow-x: auto;
   padding: 0.25rem 0.5rem 1rem;
 }
+
+.reference-card {
+  position: relative;
+  width: 484px;
+  height: 306px;
+  overflow: hidden;
+  background: #ffffff url('/images/id-card-bg.png') center / cover no-repeat;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.reference-card::before,
+.reference-card::after {
+  display: none;
+  position: absolute;
+  z-index: 0;
+  content: '';
+  pointer-events: none;
+}
+
+.reference-card::before {
+  top: -156px;
+  right: -36px;
+  width: 486px;
+  height: 312px;
+  border: 18px solid #ffbf5b;
+  border-radius: 50%;
+}
+
+.reference-card::after {
+  bottom: -208px;
+  left: -115px;
+  width: 710px;
+  height: 330px;
+  border: 18px solid #ffbf5b;
+  border-radius: 50%;
+  box-shadow: 0 -15px 0 0 #000000;
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.reference-foreground {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: url('/images/id-card-bg.png') center / cover no-repeat;
+  clip-path: polygon(0 54%, 16% 68%, 36% 83%, 60% 96%, 100% 93%, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+.reference-photo-frame {
+  border: 4px solid #ffffff;
+  border-radius: 14px 14px 10px 10px;
+  box-shadow: 0 3px 10px rgba(17, 24, 39, 0.2);
+}
+
 </style>
 
 <template>
@@ -50,86 +110,28 @@ const studentId = computed(() => props.student_id || {});
       </div>
 
       <div class="card-stage">
-        <div class="relative mx-auto overflow-hidden shadow-2xl"
-             style="width: 484px; height: 306px; border-radius: 16px; background: #13252b;">
-
-        <div class="absolute top-0 left-0" style="width: 484px; height: 72px;">
-          <div class="absolute" style="top: 0; left: 0; width: 14px; height: 306px; background: #f4b41a;"></div>
-          <img src="/images/hbci-logo-no-text.png" alt=""
-               class="absolute" style="top: 16px; left: 30px; width: 38px; height: 38px; padding: 4px; border-radius: 50%; background: #f4b41a;" />
-          <div class="absolute text-gray-100 font-black"
-               style="top: 18px; left: 78px; font-size: 14px; letter-spacing: 0.9px; white-space: nowrap;">
-            HONEY BEE CULINARY INSTITUTE
+        <div class="reference-card mx-auto shadow-2xl">
+          <div class="card-content">
+            <img src="/images/hbci-logo-no-text.png" alt=""
+              class="absolute object-contain" style="top: 38px; left: 32px; width: 42px; height: 42px;" />
+            <div class="absolute uppercase font-black" style="top: 40px; left: 78px; width: 115px; color: #ffbf5b; font-size: 11px; line-height: 1.05;">Honey Bee<br />Culinary Institute</div>
+            <div class="absolute uppercase font-black text-center" style="top: 47px; left: 202px; width: 212px; padding: 7px 0; border-radius: 32px; background: #ffbf5b; color: #ffffff; font-size: 23px; line-height: 1; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);">Student Card</div>
+            <img v-if="studentId.photo_url" :src="studentId.photo_url" alt="Student photo"
+              class="absolute object-cover reference-photo-frame" style="top: 84px; left: 25px; width: 148px; height: 190px; object-position: center top;" />
+            <div v-else class="absolute flex items-center justify-center reference-photo-frame"
+              style="top: 84px; left: 25px; width: 148px; height: 190px; background: #e8edf0; color: #13252b; font-weight: 900; font-size: 38px;">
+              {{ studentId.initials }}
+            </div>
+            <div class="reference-foreground"></div>
+            <div class="absolute font-bold" style="top: 106px; left: 210px; font-size: 12px; color: #111111; letter-spacing: 0.15px;">STUDENT NO:</div>
+            <div class="absolute font-bold overflow-hidden whitespace-nowrap text-ellipsis" style="top: 106px; left: 304px; width: 146px; font-size: 12px; color: #111111;">{{ studentId.student_number || 'N/A' }}</div>
+            <div class="absolute font-bold" style="top: 141px; left: 210px; font-size: 12px; color: #111111; letter-spacing: 0.15px;">NAME:</div>
+            <div class="absolute font-bold uppercase overflow-hidden whitespace-nowrap text-ellipsis" style="top: 141px; left: 264px; width: 186px; font-size: 12px; color: #111111;">{{ studentId.name }}</div>
+            <div class="absolute font-bold" style="top: 176px; left: 210px; font-size: 12px; color: #111111; letter-spacing: 0.15px;">YEAR:</div>
+            <div class="absolute font-bold" style="top: 176px; left: 264px; font-size: 12px; color: #111111;">{{ studentId.year }}</div>
+            <div class="absolute font-bold" style="top: 211px; left: 210px; font-size: 12px; color: #111111; letter-spacing: 0.15px;">COURSE:</div>
+            <div class="absolute uppercase overflow-hidden whitespace-nowrap text-ellipsis" style="top: 211px; left: 272px; width: 178px; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 11px; color: #111111;">{{ studentId.programme || 'N/A' }}</div>
           </div>
-          <div class="absolute uppercase"
-               style="top: 39px; left: 78px; color: #d9e1dd; font-size: 9px; letter-spacing: 1.6px;">
-            Learn. Create. Lead.
-          </div>
-          <div class="absolute uppercase font-black"
-               style="top: 20px; right: 28px; color: #f4b41a; font-size: 9px; letter-spacing: 2px;">
-            Student identity
-          </div>
-          <div class="absolute uppercase font-black"
-            :style="studentId.status === 'Expired'
-              ? 'top: 50px; right: 28px; padding: 4px 10px; border-radius: 999px; background: #fde4e4; color: #9b2c2c; font-size: 8px; letter-spacing: 1px;'
-              : 'top: 50px; right: 28px; padding: 4px 10px; border-radius: 999px; background: #d9f5e5; color: #17633c; font-size: 8px; letter-spacing: 1px;'">
-            {{ studentId.status || 'Active' }}
-          </div>
-        </div>
-
-        <div class="absolute" style="top: 72px; left: 14px; width: 314px; height: 218px; padding: 24px 20px; background: #f8f5ed;">
-          <div class="uppercase font-black" style="color: #a86f00; font-size: 9px; letter-spacing: 2px;">Official student record</div>
-        </div>
-        <div class="absolute uppercase" style="top: 86px; right: 184px; color: #8b9692; font-size: 8px; letter-spacing: 1px;">HBCI / ID</div>
-        <div class="absolute" style="top: 132px; left: 34px; width: 274px; height: 1px; background: #dfe5df;"></div>
-        <div class="absolute" style="top: 164px; left: 34px; width: 274px; height: 1px; background: #dfe5df;"></div>
-        <div class="absolute" style="top: 196px; left: 34px; width: 274px; height: 1px; background: #dfe5df;"></div>
-
-           <img v-if="studentId.photo_url" :src="studentId.photo_url" alt="Student photo"
-             class="absolute object-cover border border-gray-200"
-             style="top: 88px; right: 32px; width: 96px; height: 116px; border-radius: 8px; border: 4px solid #f4b41a;" />
-        <div v-else class="absolute flex items-center justify-center border border-gray-200"
-             style="top: 88px; right: 32px; width: 96px; height: 116px; border-radius: 8px; border: 4px solid #f4b41a; background: #26434a; color: #f4b41a; font-weight: 900; font-size: 30px;">
-          {{ studentId.initials }}
-        </div>
-
-        <!-- Centred under the photo, wraps to 2 lines rather than
-             truncating a long name from both ends (a center-aligned
-             single-line box with overflow:hidden clips symmetrically,
-             losing the start AND end of an overflowing name - confirmed
-             by testing before this was changed to wrap). -->
-        <div class="absolute text-center font-black uppercase overflow-hidden"
-             style="top: 212px; right: 20px; width: 120px; max-height: 28px; line-height: 14px; font-size: 11px; color: #f8f5ed; word-break: break-word;">
-          {{ studentId.name }}
-        </div>
-
-        <img v-if="studentId.qr_code" :src="studentId.qr_code" alt="Scan to verify"
-             class="absolute" style="top: 238px; right: 32px; width: 58px; height: 58px; padding: 4px; border: 1px solid #f4b41a; border-radius: 6px; background: #f8f5ed;" />
-           <div class="absolute uppercase" style="top: 248px; left: 354px; color: #b6c7c3; font-size: 8px; letter-spacing: 1px;">Scan to verify</div>
-           <div class="absolute uppercase font-black" style="top: 264px; left: 354px; color: #f4b41a; font-size: 8px; letter-spacing: 1.4px;">Secure ID check</div>
-
-          <div class="absolute font-bold" style="top: 108px; left: 34px; width: 90px; font-size: 11px; color: #65716e;">Student ID</div>
-          <div class="absolute font-bold" style="top: 108px; left: 126px; font-size: 11px; color: #a86f00;">:</div>
-          <div class="absolute font-bold overflow-hidden whitespace-nowrap" style="top: 108px; left: 140px; width: 168px; font-size: 11px; color: #13252b;">{{ studentId.student_number || 'N/A' }}</div>
-
-          <div class="absolute font-bold" style="top: 140px; left: 34px; width: 90px; font-size: 11px; color: #65716e;">Programme</div>
-          <div class="absolute font-bold" style="top: 140px; left: 126px; font-size: 11px; color: #a86f00;">:</div>
-        <div class="absolute uppercase overflow-hidden whitespace-nowrap"
-             style="top: 140px; left: 140px; width: 168px; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 11px; color: #13252b;">
-          {{ studentId.programme || 'N/A' }}
-        </div>
-
-          <div class="absolute font-bold" style="top: 172px; left: 34px; width: 90px; font-size: 11px; color: #65716e;">Year</div>
-          <div class="absolute font-bold" style="top: 172px; left: 126px; font-size: 11px; color: #a86f00;">:</div>
-          <div class="absolute font-bold overflow-hidden whitespace-nowrap" style="top: 172px; left: 140px; width: 168px; font-size: 11px; color: #13252b;">{{ studentId.year }}</div>
-
-          <div class="absolute font-bold" style="top: 204px; left: 34px; width: 90px; font-size: 11px; color: #65716e;">Cohort</div>
-          <div class="absolute font-bold" style="top: 204px; left: 126px; font-size: 11px; color: #a86f00;">:</div>
-          <div class="absolute font-bold overflow-hidden whitespace-nowrap" style="top: 204px; left: 140px; width: 168px; font-size: 11px; color: #13252b;">{{ studentId.cohort || 'N/A' }}</div>
-
-          <div class="absolute italic" style="bottom: 16px; left: 34px; color: #8b9692; font-size: 9px;">Authorize Signature</div>
-          <div class="absolute uppercase" style="top: 266px; left: 238px; color: #a86f00; font-size: 8px; letter-spacing: 1px;">Valid thru</div>
-          <div class="absolute font-black" style="top: 264px; left: 290px; color: #13252b; font-size: 10px;">{{ studentId.valid_until || 'Active' }}</div>
         </div>
       </div>
     </div>

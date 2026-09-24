@@ -1,50 +1,54 @@
 <template>
   <HiveLayout title="Transcript" description="View your academic transcript">
-    <div class="max-w-4xl mx-auto">
-      <div class="mb-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="mb-5">
         <Link :href="route('hive.dashboard')" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm flex items-center gap-1">
           <ArrowLeftIcon class="w-4 h-4" />
           Back to Dashboard
         </Link>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-        <div class="flex justify-between items-center mb-6">
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+        <div class="flex flex-col gap-5 border-b border-slate-200 bg-slate-50/80 px-6 py-6 sm:flex-row sm:items-end sm:justify-between dark:border-slate-700 dark:bg-slate-800/60">
           <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">My Transcript</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ student.name }}</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">Academic record</p>
+            <h1 class="mt-1 text-2xl font-black tracking-tight text-slate-900 dark:text-white">My Transcript</h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ student.name }} <span class="mx-1 text-slate-300 dark:text-slate-600">/</span> {{ student.student_number || student.profile?.student_number || 'Student record' }}</p>
           </div>
           <a :href="route('hive.transcript.download', { student: student.id })"
-             class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+             class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-slate-700 dark:bg-amber-500 dark:text-slate-950 dark:hover:bg-amber-400">
             <ArrowDownTrayIcon class="w-4 h-4" />
             Download PDF
           </a>
         </div>
 
-        <div v-if="modulesByYear && Object.keys(modulesByYear).length" class="space-y-6">
-          <div v-for="(yearModules, year) in modulesByYear" :key="year">
-            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 pb-2 border-b border-gray-200 dark:border-gray-600">
-              Academic Year {{ year }}
-            </h2>
+        <div v-if="modulesByYear && Object.keys(modulesByYear).length" class="space-y-8 p-6">
+          <div v-for="(yearModules, year) in modulesByYear" :key="year" class="space-y-3">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-sm font-black uppercase tracking-[0.14em] text-slate-700 dark:text-slate-200">Academic Year {{ year }}</h2>
+              <span class="text-xs font-semibold text-slate-400 dark:text-slate-500">{{ yearModules.length }} modules</span>
+            </div>
             <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="text-left text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-600">
-                    <th class="pb-2 pr-4">Code</th>
-                    <th class="pb-2 pr-4">Module</th>
-                    <th class="pb-2 pr-4 text-center">Credits</th>
-                    <th class="pb-2 pr-4 text-center">Assessments</th>
-                    <th class="pb-2 text-right">Grade</th>
+              <table class="w-full min-w-[620px] text-sm">
+                <thead class="bg-slate-50 dark:bg-slate-800/70">
+                  <tr class="text-left text-[11px] font-black uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                    <th class="rounded-l-lg px-4 py-3">Code</th>
+                    <th class="px-4 py-3">Module</th>
+                    <th class="px-4 py-3 text-center">Credits</th>
+                    <th class="px-4 py-3 text-center">Assessments</th>
+                    <th class="rounded-r-lg px-4 py-3 text-right">Grade</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr v-for="module in yearModules" :key="module.id" class="border-b border-gray-100 dark:border-gray-700">
-                    <td class="py-2 pr-4 font-mono text-xs">{{ module.code }}</td>
-                    <td class="py-2 pr-4">{{ module.name }}</td>
-                    <td class="py-2 pr-4 text-center">{{ module.credits }}</td>
-                    <td class="py-2 pr-4 text-center">{{ module.gradedCount }}/{{ module.totalGradables }}</td>
-                    <td class="py-2 text-right font-semibold text-amber-600 dark:text-amber-400">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr v-for="module in yearModules" :key="module.id" class="text-slate-700 dark:text-slate-200">
+                    <td class="px-4 py-3 font-mono text-xs font-semibold text-slate-500 dark:text-slate-400">{{ module.code }}</td>
+                    <td class="px-4 py-3 font-semibold">{{ module.name }}</td>
+                    <td class="px-4 py-3 text-center">{{ module.credits }}</td>
+                    <td class="px-4 py-3 text-center text-slate-500 dark:text-slate-400">{{ module.gradedCount }}/{{ module.totalGradables }}</td>
+                    <td class="px-4 py-3 text-right font-black">
+                      <span :class="module.averageGrade !== null ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'">
                       {{ module.averageGrade !== null ? module.averageGrade + '%' : 'N/A' }}
+                      </span>
                     </td>
                   </tr>
                 </tbody>
@@ -53,7 +57,7 @@
           </div>
         </div>
 
-        <p v-else class="text-gray-500 dark:text-gray-400 text-sm py-4 text-center">No modules enrolled.</p>
+        <p v-else class="px-6 py-12 text-center text-sm text-slate-500 dark:text-slate-400">No modules enrolled.</p>
       </div>
     </div>
   </HiveLayout>

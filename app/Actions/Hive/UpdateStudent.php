@@ -86,7 +86,15 @@ class UpdateStudent
                 $userData['gender'] = $input['gender'] ?: null;
             }
             if (array_key_exists('national_id_number', $input)) {
-                $userData['national_id_number'] = $input['national_id_number'] ?: null;
+                $newValue = $input['national_id_number'] ?: null;
+                $existing = $newValue
+                    ? User::where('national_id_number', $newValue)
+                        ->where('id', '!=', $student->id)
+                        ->first()
+                    : null;
+                if (! $existing) {
+                    $userData['national_id_number'] = $newValue;
+                }
             }
         }
 
