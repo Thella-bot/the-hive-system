@@ -53,10 +53,38 @@ class EnrollmentController extends Controller
             $query->forSemester((int) $request->input('semester'));
         }
 
-        $enrollments = $query->orderByDesc('created_at')->paginate(50);
+        $enrollments = $query->orderByDesc('created_at')->get();
+
+        // Group by module so staff see a class list per module instead of one
+        // flat row per student-module pair.
+        $grouped = $enrollments
+            ->groupBy('module_id')
+            ->map(function ($rows, $moduleId) {
+                $first = $rows->first();
+                $module = $first?->module;
+
+                return [
+                    'module_id' => (int) $moduleId,
+                    'code' => $module?->code,
+                    'name' => $module?->name,
+                    'count' => $rows->count(),
+                    'students' => $rows->map(fn ($e) => [
+                        'enrollment_id' => $e->id,
+                        'student_id' => $e->user_id,
+                        'name' => $e->student?->name,
+                        'student_number' => $e->student?->student_number,
+                        'academic_year' => $e->academic_year,
+                        'semester' => (string) $e->semester,
+                    ])->values(),
+                ];
+            })
+            ->sortByDesc('count')
+            ->values();
 
         return Inertia::render('Enrollment/AdminIndex', [
-            'enrollments' => $enrollments,
+            'enrollmentGroups' => $grouped,
+            'totalEnrollments' => $enrollments->count(),
+            'moduleCount' => $grouped->count(),
             'modules' => Module::orderBy('name')->get(['id', 'name', 'code']),
             'academicYears' => AcademicYear::orderByDesc('name')->get(),
             'filters' => $request->only('module_id', 'academic_year', 'semester'),

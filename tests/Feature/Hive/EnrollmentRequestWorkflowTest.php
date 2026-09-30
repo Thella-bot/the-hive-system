@@ -256,13 +256,21 @@ class EnrollmentRequestWorkflowTest extends HiveTestCase
 
         $request = EnrollmentRequest::where('user_id', $student->id)->firstOrFail();
 
+        // The route carries a role: middleware, so Spatie raises
+        // UnauthorizedException, which this app renders as a redirect rather
+        // than a raw 403. What matters is that nothing changed.
         $this->actingAs($student)
             ->patch(route('hive.enrollment.requests.decide', $request), ['status' => 'approved'])
-            ->assertForbidden();
+            ->assertRedirect();
 
         $this->assertDatabaseHas('enrollment_requests', [
             'id' => $request->id,
             'status' => EnrollmentRequest::STATUS_PENDING,
+        ]);
+
+        $this->assertDatabaseMissing('enrollments', [
+            'user_id' => $student->id,
+            'module_id' => $module->id,
         ]);
     }
 
@@ -273,7 +281,7 @@ class EnrollmentRequestWorkflowTest extends HiveTestCase
 
         $this->actingAs($student)
             ->get(route('hive.enrollment.requests'))
-            ->assertForbidden();
+            ->assertRedirect();
     }
 
     public function test_an_already_reviewed_request_cannot_be_decided_again(): void

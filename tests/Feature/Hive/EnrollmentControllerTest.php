@@ -6,6 +6,7 @@ use App\Models\AcademicYear;
 use App\Models\Cohort;
 use App\Models\Department;
 use App\Models\Enrollment;
+use App\Models\EnrollmentRequest;
 use App\Models\Module;
 use App\Models\Programme;
 use App\Models\User;
@@ -38,7 +39,7 @@ class EnrollmentControllerTest extends HiveTestCase
         $response->assertInertia(fn ($page) => $page->component('Enrollment/Index'));
     }
 
-    public function test_enrollment_store_creates_enrollment_for_student(): void
+    public function test_enrollment_store_creates_a_request_for_student(): void
     {
         $user = User::factory()->create();
         $user->assignRole('student');
@@ -52,13 +53,21 @@ class EnrollmentControllerTest extends HiveTestCase
         ]);
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('enrollments', [
+
+        // Students now apply; nothing is enrolled until staff approve.
+        $this->assertDatabaseHas('enrollment_requests', [
+            'user_id' => $user->id,
+            'module_id' => $module->id,
+            'type' => EnrollmentRequest::TYPE_ENROLLMENT,
+            'status' => EnrollmentRequest::STATUS_PENDING,
+        ]);
+        $this->assertDatabaseMissing('enrollments', [
             'user_id' => $user->id,
             'module_id' => $module->id,
         ]);
     }
 
-    public function test_enrollment_destroy_removes_enrollment_for_student(): void
+    public function test_enrollment_destroy_creates_a_deregistration_request(): void
     {
         $user = User::factory()->create();
         $user->assignRole('student');
@@ -74,7 +83,16 @@ class EnrollmentControllerTest extends HiveTestCase
         $response = $this->delete(route('hive.enrollment.destroy', $module));
 
         $response->assertRedirect();
-        $this->assertSoftDeleted('enrollments', [
+
+        $this->assertDatabaseHas('enrollment_requests', [
+            'user_id' => $user->id,
+            'module_id' => $module->id,
+            'type' => EnrollmentRequest::TYPE_DEREGISTRATION,
+            'status' => EnrollmentRequest::STATUS_PENDING,
+        ]);
+
+        // The enrollment survives until the request is approved.
+        $this->assertDatabaseHas('enrollments', [
             'user_id' => $user->id,
             'module_id' => $module->id,
         ]);
@@ -177,7 +195,7 @@ class EnrollmentControllerTest extends HiveTestCase
         ]);
     }
 
-    public function test_student_can_enroll_in_current_semester_module(): void
+    public function test_student_can_request_enrollment_in_current_semester_module(): void
     {
         $this->withoutMiddleware();
 
@@ -217,9 +235,10 @@ class EnrollmentControllerTest extends HiveTestCase
         ]);
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('enrollments', [
+        $this->assertDatabaseHas('enrollment_requests', [
             'user_id' => $user->id,
             'module_id' => $semester2Module->id,
+            'status' => EnrollmentRequest::STATUS_PENDING,
         ]);
     }
 
@@ -323,13 +342,14 @@ class EnrollmentControllerTest extends HiveTestCase
         ]);
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('enrollments', [
+        $this->assertDatabaseHas('enrollment_requests', [
             'user_id' => $user->id,
             'module_id' => $year1Module->id,
+            'status' => EnrollmentRequest::STATUS_PENDING,
         ]);
     }
 
-    public function test_enrolling_twice_is_idempotent(): void
+    public function test_requesting_twice_does_not_duplicate_the_request(): void
     {
         $this->withoutMiddleware();
 
@@ -351,10 +371,11 @@ class EnrollmentControllerTest extends HiveTestCase
         $first->assertRedirect();
         $second->assertRedirect();
 
-        $this->assertDatabaseCount('enrollments', 1);
-        $this->assertDatabaseHas('enrollments', [
+        $this->assertDatabaseCount('enrollment_requests', 1);
+        $this->assertDatabaseHas('enrollment_requests', [
             'user_id' => $user->id,
             'module_id' => $module->id,
+            'status' => EnrollmentRequest::STATUS_PENDING,
         ]);
     }
 
@@ -394,7 +415,7 @@ class EnrollmentControllerTest extends HiveTestCase
         ]);
 
         $response->assertRedirect();
-        $this->assertDatabaseHas('enrollments', [
+        $this->assertDatabaseHas('enrollment_requests', [
             'user_id' => $user->id,
             'module_id' => $module->id,
         ]);

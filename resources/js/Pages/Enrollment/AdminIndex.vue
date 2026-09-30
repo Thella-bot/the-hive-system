@@ -1,14 +1,28 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
 
-defineProps({
-    enrollments: Object,
+const props = defineProps({
+    enrollmentGroups: Array,
+    totalEnrollments: Number,
+    moduleCount: Number,
     modules: Array,
     academicYears: Array,
     filters: Object,
     pendingRequestCount: Number,
 });
+
+/** Module ids whose student list is expanded. */
+const open = ref([]);
+
+const isOpen = (moduleId) => open.value.includes(moduleId);
+
+const toggle = (moduleId) => {
+    open.value = isOpen(moduleId)
+        ? open.value.filter((id) => id !== moduleId)
+        : [...open.value, moduleId];
+};
 </script>
 
 <template>
@@ -81,54 +95,80 @@ defineProps({
                     </div>
                 </div>
 
-                <!-- Enrollments Table -->
+                <!-- Enrollments grouped by module -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6">
-                        <div v-if="enrollments.data.length === 0" class="text-center text-gray-500 py-8">
-                            No enrollments found.
-                        </div>
-                        <div v-else class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Module</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Academic Year</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Semester</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr v-for="enrollment in enrollments.data" :key="enrollment.id">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ enrollment.student?.name }}
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                {{ enrollment.student?.profile?.student_number }}
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ enrollment.module?.code }}</div>
-                                            <div class="text-sm text-gray-500">{{ enrollment.module?.name }}</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ enrollment.academic_year }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            Semester {{ enrollment.semester }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <button
-                                                @click="$inertia.delete(route('hive.enrollment.destroy', enrollment.id))"
-                                                class="text-red-600 hover:text-red-900 text-sm"
+                    <p v-if="enrollmentGroups.length > 0" class="mb-4 text-sm text-gray-500">
+                        {{ totalEnrollments }} enrollment{{ totalEnrollments === 1 ? '' : 's' }}
+                        across {{ moduleCount }} module{{ moduleCount === 1 ? '' : 's' }}.
+                        Select a module to see its students.
+                    </p>
+                    <div v-if="enrollmentGroups.length === 0" class="text-center text-gray-500 py-8">
+                        No enrollments found.
+                    </div>
+                        <div v-else>
+                            <ul class="divide-y divide-gray-200">
+                                <li v-for="group in enrollmentGroups" :key="group.module_id">
+                                    <button
+                                        type="button"
+                                        @click="toggle(group.module_id)"
+                                        class="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <svg
+                                                class="w-4 h-4 text-gray-400 transition-transform"
+                                                :class="isOpen(group.module_id) ? 'rotate-90' : ''"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
                                             >
-                                                Remove
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                                <path
+                                                    fill-rule="evenodd"
+                                                    d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                                    clip-rule="evenodd"
+                                                />
+                                            </svg>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ group.code }} &mdash; {{ group.name }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ group.count }} student{{ group.count === 1 ? '' : 's' }}
+                                        </span>
+                                    </button>
+
+                                    <div v-if="isOpen(group.module_id)" class="bg-gray-50 px-6 py-2">
+                                        <table class="min-w-full divide-y divide-gray-200">
+                                            <thead>
+                                                <tr>
+                                                    <th class="py-2 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                                                    <th class="py-2 text-left text-xs font-medium text-gray-500 uppercase">Number</th>
+                                                    <th class="py-2 text-left text-xs font-medium text-gray-500 uppercase">Term</th>
+                                                    <th class="py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-200">
+                                                <tr v-for="student in group.students" :key="student.enrollment_id">
+                                                    <td class="py-2 text-sm text-gray-900">{{ student.name }}</td>
+                                                    <td class="py-2 text-sm text-gray-500">{{ student.student_number }}</td>
+                                                    <td class="py-2 text-sm text-gray-500">
+                                                        {{ student.academic_year }} &middot; Sem {{ student.semester }}
+                                                    </td>
+                                                    <td class="py-2 text-right">
+                                                        <button
+                                                            @click="$inertia.delete(route('hive.enrollment.destroy', student.enrollment_id))"
+                                                            class="text-red-600 hover:text-red-900 text-sm"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
