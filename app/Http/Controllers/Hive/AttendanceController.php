@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Event;
+use App\Models\User;
 use App\Services\AuditService;
 use App\Services\CsvExporter;
 use Illuminate\Http\Request;
@@ -13,10 +14,38 @@ use Illuminate\Support\Facades\Log;
 
 class AttendanceController extends Controller
 {
+    /**
+     * The roles allowed to open the scanner.
+     *
+     * The route middleware and the "Scan" button both read this list, so the
+     * button can never offer a page the middleware would then refuse.
+     *
+     * @var list<string>
+     */
+    public const SCAN_ROLES = [
+        'super-admin',
+        'it-support',
+        'academic-director',
+        'program-coordinator',
+        'chef-instructor',
+        'pastry-instructor',
+        'sous-chef',
+        'examination-cell',
+        'registrar',
+    ];
+
     public function __construct(
         protected AuditService $audit,
         protected CsvExporter $csv,
     ) {}
+
+    /**
+     * Whether the signed-in user may open the scanner.
+     */
+    public static function canScan(?User $user): bool
+    {
+        return $user !== null && $user->hasAnyRole(self::SCAN_ROLES);
+    }
 
     public function scan()
     {
@@ -124,7 +153,7 @@ class AttendanceController extends Controller
             ],
             'methods' => ['qr', 'manual'],
             'canViewAll' => $user->can('manage-student-attendance'),
-            'canScan' => $user->can('checkin'),
+            'canScan' => self::canScan($user),
         ]);
     }
 

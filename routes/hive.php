@@ -328,7 +328,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::get('attendance/export', [AttendanceController::class, 'export'])->name('attendance.export')
             ->middleware('registered');
         Route::get('attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan')
-            ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar');
+            ->middleware('role:'.implode('|', AttendanceController::SCAN_ROLES));
         Route::post('attendance/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin')
             ->middleware(['role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar', 'throttle:30,1']);
 
