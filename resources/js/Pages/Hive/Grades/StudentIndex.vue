@@ -1,6 +1,10 @@
 <template>
   <HiveLayout title="My Grades" description="View your grades by module">
     <template #header-actions>
+      <ExportCsvButton
+        :href="route('hive.grades.export')"
+        :total="allGradables.filter((g) => g.submission).length"
+      />
       <Link :href="route('hive.grades.index')"
         class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
         title="My Grades">
@@ -84,6 +88,7 @@
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import ExportCsvButton from '@/Components/ExportCsvButton.vue';
 import dayjs from 'dayjs';
 
 const props = defineProps({

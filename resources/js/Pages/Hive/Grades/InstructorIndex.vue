@@ -1,6 +1,11 @@
 <template>
   <HiveLayout title="Gradebook" description="Select a module to manage grades">
     <template #header-actions>
+      <ExportCsvButton
+        :href="route('hive.grades.export')"
+        :total="gradedRowCount()"
+        label="Export Gradebook"
+      />
       <Link :href="route('hive.grades.index')"
         class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
         title="Gradebook">
@@ -66,10 +71,18 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import ExportCsvButton from '@/Components/ExportCsvButton.vue';
 
 const props = defineProps({
   modules: { type: Array, default: () => [] },
 });
+
+// The export is scoped server-side to the modules this user may grade.
+const gradedRowCount = () =>
+  props.modules.reduce(
+    (total, mod) => total + (mod.gradables || []).reduce((n, g) => n + ((g.submissions || []).length), 0),
+    0
+  );
 
 const getStats = (mod) => {
   const gradables = mod.gradables || [];

@@ -5,6 +5,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import ExportCsvButton from '@/Components/ExportCsvButton.vue';
 import { DocumentTextIcon, PlusIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -51,6 +52,11 @@ const statusClass = (status) => {
   <HiveLayout title="Invoices" description="Manage student invoices and billing">
     <template #header-actions>
       <div class="flex flex-wrap gap-2">
+        <ExportCsvButton
+          :href="route('hive.finance.invoices.export')"
+          :params="{ search, status, academic_year: academicYear }"
+          :total="invoices.total ?? 0"
+        />
         <Link :href="route('hive.finance.invoices.create')"
           class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
           <PlusIcon class="w-4 h-4" />

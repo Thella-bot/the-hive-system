@@ -61,7 +61,7 @@ class BudgetController extends Controller
 
         return Inertia::render('Hive/Finance/Budget/Index', [
             'budgets' => $budgets,
-            'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'department_id']),
+            'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'department_id', 'search']),
             'statuses' => ['draft', 'active', 'closed'],
             'departments' => Department::orderBy('name')->get(),
             'categories' => ExpenseCategory::active()->orderBy('name')->get(),
@@ -113,6 +113,16 @@ class BudgetController extends Controller
     {
         $query = Budget::with(['category', 'department'])
             ->orderByDesc('created_at');
+
+        if ($request->filled('search')) {
+            $search = $request->query('search');
+
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('department', fn ($d) => $d->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('category', fn ($c) => $c->where('name', 'like', "%{$search}%"));
+            });
+        }
 
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);

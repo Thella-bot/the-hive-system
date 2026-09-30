@@ -5,6 +5,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import ExportCsvButton from '@/Components/ExportCsvButton.vue';
 import { PlusIcon } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -46,6 +47,11 @@ const methodLabel = (method) => {
 <template>
   <HiveLayout title="Payments" description="Track and manage student payments">
     <template #header-actions>
+      <ExportCsvButton
+        :href="route('hive.finance.payments.export')"
+        :params="{ search, status, payment_method: paymentMethod }"
+        :total="payments.total ?? 0"
+      />
       <Link :href="route('hive.finance.payments.create')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <PlusIcon class="w-4 h-4" />

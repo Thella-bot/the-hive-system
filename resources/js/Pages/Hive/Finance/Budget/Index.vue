@@ -10,8 +10,10 @@ import {
   PencilSquareIcon,
   EyeIcon,
   TrashIcon,
+  FolderIcon,
 } from '@heroicons/vue/24/outline';
 import EmptyState from '@/Components/EmptyState.vue';
+import ExportCsvButton from '@/Components/ExportCsvButton.vue';
 
 const props = defineProps({
   budgets: { type: Object, required: true },
@@ -45,12 +47,23 @@ const statusClass = (status) => {
 <template>
   <HiveLayout title="Budgets" description="Manage department budgets and allocations">
     <template #header-actions>
+      <ExportCsvButton
+        :href="route('hive.finance.budgets.export')"
+        :params="{ search }"
+        :total="budgets.total ?? 0"
+      />
       <Link :href="route('hive.finance.reports.dashboard')"
         class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
         <FolderIcon class="w-4 h-4" />
         Financial Reports
       </Link>
     </template>
+
+    <div class="mb-5 flex flex-wrap gap-3 items-center justify-between">
+      <div class="max-w-xs">
+        <SearchInput v-model="search" @search="applyFilters" placeholder="Search budgets..." />
+      </div>
+    </div>
 
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <table class="w-full text-sm">

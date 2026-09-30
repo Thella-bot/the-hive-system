@@ -59,6 +59,29 @@ export function useNavigation() {
 
   const isActive = (pattern) => (pattern ? route().current(pattern) : false);
 
+  /**
+   * Enrollment exists as two distinct pages:
+   *   - hive.enrollment.index      -> student self-enrollment (viewStudent gate)
+   *   - hive.enrollment.admin.index -> admin manage-all (create gate)
+   *
+   * Staff who can enroll students must be sent to the admin page; pointing them
+   * at hive.enrollment.index hits the student-only gate and 403s.
+   */
+  const ENROLLMENT_ADMIN_ROLES = [
+    'super-admin',
+    'it-support',
+    'registrar',
+    'program-coordinator',
+    'academic-director',
+  ];
+
+  const enrollmentHref = () => {
+    const isEnrollmentAdmin = userRoles.value.some((r) => ENROLLMENT_ADMIN_ROLES.includes(r));
+    return isEnrollmentAdmin
+      ? route('hive.enrollment.admin.index')
+      : route('hive.enrollment.index');
+  };
+
   const isGradableTypeActive = (type) => {
     if (!route().current('hive.gradables.module-select')) return false;
     return route().params()?.type === type;
@@ -253,7 +276,7 @@ export function useNavigation() {
         { name: 'Programmes', href: route('hive.programmes.index'), active: 'hive.programmes.*', permission: 'view-programmes' },
         { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*', permission: 'view-modules' },
         { name: 'Cohorts', href: route('hive.cohorts.index'), active: 'hive.cohorts.*', permission: 'view-cohorts' },
-        { name: 'Enrollment', href: route('hive.enrollment.index'), active: 'hive.enrollment.*', permission: 'view-enrollments' },
+        { name: 'Enrollment', href: enrollmentHref(), active: 'hive.enrollment.*', permission: 'view-enrollments' },
         { name: 'Student Advancement', href: route('hive.advancement.index'), active: 'hive.advancement.*', permission: 'view-students' },
       ],
     }];

@@ -116,6 +116,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Handle AuthenticationException - redirect to login with error flash
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+            // Inertia requests must never receive JSON: they are technically
+            // XHR (X-Requested-With: XMLHttpRequest), so ajax() is true. Check
+            // the Inertia header first or the JSON branch below hijacks them.
+            if ($request->header('X-Inertia')) {
+                return redirect(route('login', [], false))->with('error', [
+                    'title' => 'Sign in required',
+                    'message' => 'You must be signed in to do that. Please sign in and try again.',
+                ]);
+            }
+
             // Return JSON for API requests
             if ($request->expectsJson() || $request->isJson() || $request->ajax()) {
                 return response()->json([
@@ -124,16 +134,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 401);
             }
 
-            $loginUrl = route('login', [], false);
-
-            if ($request->header('X-Inertia')) {
-                return redirect($loginUrl)->with('error', [
-                    'title' => 'Sign in required',
-                    'message' => 'You must be signed in to do that. Please sign in and try again.',
-                ]);
-            }
-
-            return redirect($loginUrl)->with('error', 'You must be logged in to access that page.');
+            return redirect(route('login', [], false))->with('error', 'You must be logged in to access that page.');
         });
 
         // Configure custom rendering for all requests
@@ -166,6 +167,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // Handle 401 (unauthenticated) - redirect to login
             if ($status === 401) {
+                // Inertia first: Inertia requests are XHR, so ajax() is true and
+                // the JSON branch below would otherwise return plain JSON.
+                if ($request->header('X-Inertia')) {
+                    return redirect(route('login', [], false))->with('error', [
+                        'title' => $title,
+                        'message' => $message,
+                        'error_id' => $errorId,
+                    ]);
+                }
+
                 // Return JSON for API requests
                 if ($request->expectsJson() || $request->isJson() || $request->ajax()) {
                     return response()->json([
@@ -174,21 +185,25 @@ return Application::configure(basePath: dirname(__DIR__))
                     ], 401);
                 }
 
-                $loginUrl = route('login', [], false);
+                return redirect(route('login', [], false))->with('error', 'You must be logged in to access that page.');
+            }
 
+            // Handle 403 (forbidden/unauthorized) - redirect back with error
+            if ($status === 403) {
+                // Inertia first: Inertia requests are XHR, so ajax() is true and
+                // the JSON branch below would otherwise return plain JSON, which
+                // Inertia rejects with "All Inertia requests must receive a valid
+                // Inertia response".
                 if ($request->header('X-Inertia')) {
-                    return redirect($loginUrl)->with('error', [
+                    $backUrl = url()->previous();
+
+                    return ($backUrl ? redirect($backUrl) : redirect('/'))->with('error', [
                         'title' => $title,
                         'message' => $message,
                         'error_id' => $errorId,
                     ]);
                 }
 
-                return redirect($loginUrl)->with('error', 'You must be logged in to access that page.');
-            }
-
-            // Handle 403 (forbidden/unauthorized) - redirect back with error
-            if ($status === 403) {
                 // Return JSON for API requests
                 if ($request->expectsJson() || $request->isJson() || $request->ajax()) {
                     return response()->json([
@@ -198,17 +213,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
 
                 $backUrl = url()->previous();
-                $redirect = $backUrl ? redirect($backUrl) : redirect('/');
 
-                if ($request->header('X-Inertia')) {
-                    return $redirect->with('error', [
-                        'title' => $title,
-                        'message' => $message,
-                        'error_id' => $errorId,
-                    ]);
-                }
-
-                return $redirect->with('error', $message);
+                return ($backUrl ? redirect($backUrl) : redirect('/'))->with('error', $message);
             }
 
             // Inertia request (other errors) - redirect with flash so the

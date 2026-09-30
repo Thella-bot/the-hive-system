@@ -5,6 +5,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import EmptyState from '@/Components/EmptyState.vue';
+import ExportCsvButton from '@/Components/ExportCsvButton.vue';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -49,6 +50,11 @@ const formatCurrency = (amount) => {
 <template>
   <HiveLayout title="Expenses" description="Track and manage expenses">
     <template #header-actions>
+      <ExportCsvButton
+        :href="route('hive.finance.expenses.export')"
+        :params="{ search }"
+        :total="expenses.total ?? 0"
+      />
       <Link :href="route('hive.finance.expenses.categories')"
         class="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
         Manage Categories
