@@ -36,7 +36,7 @@ defineProps({
                             <label class="block text-sm font-medium text-gray-700">Module</label>
                             <select
                                 :value="filters.module_id"
-                                @change="$inertia.get(route('hive.enrollment.index'), { ...filters, module_id: $event.target.value })"
+                                @change="$inertia.get(route('hive.enrollment.admin.index'), { ...filters, module_id: $event.target.value })"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             >
                                 <option value="">All Modules</option>
@@ -49,7 +49,7 @@ defineProps({
                             <label class="block text-sm font-medium text-gray-700">Academic Year</label>
                             <select
                                 :value="filters.academic_year"
-                                @change="$inertia.get(route('hive.enrollment.index'), { ...filters, academic_year: $event.target.value })"
+                                @change="$inertia.get(route('hive.enrollment.admin.index'), { ...filters, academic_year: $event.target.value })"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             >
                                 <option value="">All Years</option>
@@ -62,7 +62,7 @@ defineProps({
                             <label class="block text-sm font-medium text-gray-700">Semester</label>
                             <select
                                 :value="filters.semester"
-                                @change="$inertia.get(route('hive.enrollment.index'), { ...filters, semester: $event.target.value })"
+                                @change="$inertia.get(route('hive.enrollment.admin.index'), { ...filters, semester: $event.target.value })"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             >
                                 <option value="">All Semesters</option>

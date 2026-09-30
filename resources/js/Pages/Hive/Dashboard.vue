@@ -110,7 +110,7 @@
         <div v-if="studentsEligibleForEnrollment && studentsEligibleForEnrollment.count > 0" class="bg-white p-6 rounded-xl shadow-sm dark:bg-gray-800">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Students Eligible for Enrollment</h3>
-            <Link :href="route('hive.enrollment.index')" class="text-sm text-indigo-600 hover:text-indigo-800">
+            <Link :href="route('hive.enrollment.admin.index')" class="text-sm text-indigo-600 hover:text-indigo-800">
               View All
             </Link>
           </div>

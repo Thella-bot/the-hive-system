@@ -37,7 +37,7 @@ const submit = () => {
                     <h2 class="font-semibold text-xl text-gray-800 leading-tight">Enroll Student</h2>
                     <p class="text-sm text-gray-600">{{ student.name }} - {{ student.profile?.student_number }}</p>
                 </div>
-                <a :href="route('hive.enrollment.index')" class="text-indigo-600 hover:text-indigo-900">
+                <a :href="route('hive.enrollment.admin.index')" class="text-indigo-600 hover:text-indigo-900">
                     Back to Enrollments
                 </a>
             </div>

@@ -394,6 +394,7 @@ export function useNavigation() {
       icon: Cog6ToothIcon,
       children: [
         { name: 'Departments', href: route('hive.departments.index'), active: 'hive.departments.*', permission: 'manage-settings' },
+        { name: 'Enrollment', href: route('hive.enrollment.admin.index'), active: 'hive.enrollment.*', permission: 'view-enrollments' },
         { name: 'Placements', href: route('hive.placements.index'), active: 'hive.placements.*', permission: 'view-placements' },
         { name: 'Disciplinary', href: route('hive.disciplinary.index'), active: 'hive.disciplinary.*', permission: 'view-disciplinary-records' },
         { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*', permission: 'view-uniforms' },

@@ -54,7 +54,7 @@ const submit = () => {
         <template #header>
             <div class="flex justify-between items-center">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">Bulk Enrollment</h2>
-                <a :href="route('hive.enrollment.index')" class="text-indigo-600 hover:text-indigo-900">
+                <a :href="route('hive.enrollment.admin.index')" class="text-indigo-600 hover:text-indigo-900">
                     Back to Enrollments
                 </a>
             </div>
