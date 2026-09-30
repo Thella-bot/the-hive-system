@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { useUser } from '@/composables/useUser';
+import { usePermissions } from '@/composables/usePermissions';
 import {
   AcademicCapIcon,
   BookOpenIcon,
@@ -33,11 +34,28 @@ export function useNavigation() {
     needsRegistration,
     isRegisteredStudent,
     isSuperAdmin,
+    isParentGuardian,
+    isAlumni,
     canAccess,
   } = useUser();
 
+  const { canAny, isUnseeded } = usePermissions();
+
   const sidebarOpen = ref(false);
   const expandedCategories = ref([]);
+
+  /**
+   * Keep a nav item when the user holds any of its permissions.
+   *
+   * Items with no `permission` are always kept. When no permission data has
+   * been seeded, role checks alone decide, so an unseeded environment does not
+   * lose its sidebar.
+   */
+  const allowed = (item) => {
+    if (isUnseeded.value) return true;
+    if (!item.permission) return true;
+    return canAny(item.permission);
+  };
 
   const isActive = (pattern) => (pattern ? route().current(pattern) : false);
 
@@ -60,6 +78,7 @@ export function useNavigation() {
 
     const dedupe = (children) =>
       children
+        .filter(allowed)
         .filter((child) => {
           if (!child.href || child.target === '_blank') return true;
           if (seenHrefs.has(child.href)) return false;
@@ -71,6 +90,7 @@ export function useNavigation() {
       .filter((item) => {
         if (item.single) return true;
         if (!item.children) return false;
+        if (!allowed(item)) return false;
         if (seenNames.has(item.name)) return false;
         seenNames.add(item.name);
         return true;
@@ -115,15 +135,16 @@ export function useNavigation() {
         name: 'My Learning',
         icon: AcademicCapIcon,
         children: [
-          { name: 'My Modules', href: route('hive.modules.index'), active: 'hive.modules.*' },
-          { name: 'My Grades', href: route('hive.grades.index'), active: 'hive.grades.*' },
-          { name: 'My Transcript', href: route('hive.transcript.index'), active: 'hive.transcript.*' },
+          { name: 'My Modules', href: route('hive.modules.index'), active: 'hive.modules.*', permission: 'view-modules' },
+          { name: 'My Grades', href: route('hive.grades.index'), active: 'hive.grades.*', permission: 'view-grades' },
+          { name: 'My Transcript', href: route('hive.transcript.index'), active: 'hive.transcript.*', permission: 'view-transcripts' },
           { name: 'Student ID Card', href: route('hive.student-id'), active: 'hive.student-id' },
         ],
       },
       {
         name: 'Assessments',
         icon: ClipboardDocumentCheckIcon,
+        permission: 'view-assessments',
         children: [
           { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz') },
           { name: 'Tests', href: route('hive.gradables.module-select', { type: 'test' }), isActive: () => isGradableTypeActive('test') },
@@ -136,18 +157,20 @@ export function useNavigation() {
         name: 'Communication',
         icon: ChatBubbleLeftRightIcon,
         children: [
-          { name: 'Chat', href: route('hive.chat.index'), active: 'hive.chat.*' },
+          { name: 'Chat', href: route('hive.chat.index'), active: 'hive.chat.*', permission: 'view-messages' },
           { name: 'Polls', href: route('hive.polls.index'), active: 'hive.polls.*' },
-          { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*' },
+          { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*', permission: 'view-announcements' },
         ],
       },
       {
         name: 'Resources',
         icon: BookOpenIcon,
         children: [
-          { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*' },
-          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*' },
-          { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*' },
+          { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*', permission: 'view-library' },
+          // The documents resource is restricted to staff by route middleware,
+          // so this link is hidden for students rather than leading to a 403.
+          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*', permission: 'view-documents' },
+          { name: 'Events', href: route('hive.events.index'), active: 'hive.events.*', permission: 'view-events' },
         ],
       },
     ];
@@ -163,16 +186,17 @@ export function useNavigation() {
         name: 'Teaching',
         icon: BookOpenIcon,
         children: [
-          { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*' },
-          { name: 'Gradebook', href: route('hive.grades.index'), active: 'hive.grades.*' },
-          { name: 'Module Chat', href: route('hive.chat.index'), active: 'hive.chat.*' },
-          { name: 'QR Check-In', href: route('hive.attendance.scan'), active: 'hive.attendance.*' },
-          { name: 'Timetable', href: route('hive.timetable.index'), active: 'hive.timetable.*' },
+          { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*', permission: 'view-modules' },
+          { name: 'Gradebook', href: route('hive.grades.index'), active: 'hive.grades.*', permission: ['view-grades', 'manage-grades'] },
+          { name: 'Module Chat', href: route('hive.chat.index'), active: 'hive.chat.*', permission: 'view-messages' },
+          { name: 'QR Check-In', href: route('hive.attendance.scan'), active: 'hive.attendance.*', permission: 'manage-student-attendance' },
+          { name: 'Timetable', href: route('hive.timetable.index'), active: 'hive.timetable.*', permission: 'view-timetables' },
         ],
       },
       {
         name: 'Assessments',
         icon: ClipboardDocumentCheckIcon,
+        permission: 'view-assessments',
         children: [
           { name: 'All Assessments', href: route('hive.gradables.index'), active: 'hive.gradables.index' },
           { name: 'Quizzes', href: route('hive.gradables.module-select', { type: 'quiz' }), isActive: () => isGradableTypeActive('quiz') },
@@ -186,9 +210,9 @@ export function useNavigation() {
         name: 'Resources',
         icon: BookOpenIcon,
         children: [
-          { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*' },
-          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*' },
-          { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*' },
+          { name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*', permission: 'view-library' },
+          { name: 'Documents', href: route('hive.documents.index'), active: 'hive.documents.*', permission: 'view-documents' },
+          { name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*', permission: 'view-announcements' },
         ],
       },
     ];
@@ -203,10 +227,11 @@ export function useNavigation() {
     return [{
       name: 'Admissions',
       icon: DocumentTextIcon,
+      permission: 'view-applications',
       children: [
-        { name: 'Applications', href: route('hive.applications.index'), active: 'hive.applications.*' },
-        { name: 'Registrations', href: route('hive.registration.index'), active: 'hive.registration.*' },
-        { name: 'Short Courses', href: route('hive.short-courses.index'), active: 'hive.short-courses.*' },
+        { name: 'Applications', href: route('hive.applications.index'), active: 'hive.applications.*', permission: 'view-applications' },
+        { name: 'Registrations', href: route('hive.registration.index'), active: 'hive.registration.*', permission: 'view-enrollments' },
+        { name: 'Short Courses', href: route('hive.short-courses.index'), active: 'hive.short-courses.*', permission: 'view-applications' },
         { name: 'Waitlist', href: route('hive.waitlist.index'), active: 'hive.waitlist.*' },
       ],
     }];
@@ -221,12 +246,13 @@ export function useNavigation() {
     return [{
       name: 'Academic',
       icon: AcademicCapIcon,
+      permission: 'view-programmes',
       children: [
-        { name: 'Programmes', href: route('hive.programmes.index'), active: 'hive.programmes.*' },
-        { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*' },
-        { name: 'Cohorts', href: route('hive.cohorts.index'), active: 'hive.cohorts.*' },
-        { name: 'Enrollment', href: route('hive.enrollment.index'), active: 'hive.enrollment.*' },
-        { name: 'Student Advancement', href: route('hive.advancement.index'), active: 'hive.advancement.*' },
+        { name: 'Programmes', href: route('hive.programmes.index'), active: 'hive.programmes.*', permission: 'view-programmes' },
+        { name: 'Modules', href: route('hive.modules.index'), active: 'hive.modules.*', permission: 'view-modules' },
+        { name: 'Cohorts', href: route('hive.cohorts.index'), active: 'hive.cohorts.*', permission: 'view-cohorts' },
+        { name: 'Enrollment', href: route('hive.enrollment.index'), active: 'hive.enrollment.*', permission: 'view-enrollments' },
+        { name: 'Student Advancement', href: route('hive.advancement.index'), active: 'hive.advancement.*', permission: 'view-students' },
       ],
     }];
   };
@@ -239,13 +265,14 @@ export function useNavigation() {
     return [{
       name: 'Finance',
       icon: CurrencyDollarIcon,
+      permission: 'view-invoices',
       children: [
-        { name: 'Dashboard', href: route('hive.finance.reports.dashboard'), active: 'hive.finance.reports.dashboard' },
-        { name: 'Invoices', href: route('hive.finance.invoices.index'), active: 'hive.finance.invoices.*' },
-        { name: 'Payments', href: route('hive.finance.payments.index'), active: 'hive.finance.payments.*' },
-        { name: 'Expenses', href: route('hive.finance.expenses.index'), active: 'hive.finance.expenses.*' },
-        { name: 'Budgets', href: route('hive.finance.budgets.index'), active: 'hive.finance.budgets.*' },
-        { name: 'Convectionary', href: route('hive.finance.convectionary.index'), active: 'hive.finance.convectionary.*' },
+        { name: 'Dashboard', href: route('hive.finance.reports.dashboard'), active: 'hive.finance.reports.dashboard', permission: 'view-reports' },
+        { name: 'Invoices', href: route('hive.finance.invoices.index'), active: 'hive.finance.invoices.*', permission: 'view-invoices' },
+        { name: 'Payments', href: route('hive.finance.payments.index'), active: 'hive.finance.payments.*', permission: 'view-payments' },
+        { name: 'Expenses', href: route('hive.finance.expenses.index'), active: 'hive.finance.expenses.*', permission: 'view-expenses' },
+        { name: 'Budgets', href: route('hive.finance.budgets.index'), active: 'hive.finance.budgets.*', permission: 'view-budgets' },
+        { name: 'Convectionary', href: route('hive.finance.convectionary.index'), active: 'hive.finance.convectionary.*', permission: 'manage-expenses' },
       ],
     }];
   };
@@ -259,11 +286,12 @@ export function useNavigation() {
     return [{
       name: 'HR',
       icon: BriefcaseIcon,
+      permission: 'view-leave-requests',
       children: [
-        { name: 'Leave Requests', href: route('hive.leaves.index'), active: 'hive.leaves.*' },
-        { name: 'Payslips', href: route('hive.payslips.index'), active: 'hive.payslips.index' },
-        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*' },
-        { name: 'Staff Directory', href: route('hive.staff.index'), active: 'hive.staff.*' },
+        { name: 'Leave Requests', href: route('hive.leaves.index'), active: 'hive.leaves.*', permission: 'view-leave-requests' },
+        { name: 'Payslips', href: route('hive.payslips.index'), active: 'hive.payslips.index', permission: 'view-payslips' },
+        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*', permission: 'view-uniforms' },
+        { name: 'Staff Directory', href: route('hive.staff.index'), active: 'hive.staff.*', permission: 'view-staff' },
       ],
     }];
   };
@@ -279,22 +307,22 @@ export function useNavigation() {
     const children = [];
 
     if (userRoles.value.some(r => ['events-pr-manager', 'cafeteria-manager', 'librarian'].includes(r))) {
-      children.push({ name: 'Events', href: route('hive.events.index'), active: 'hive.events.*' });
-      children.push({ name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*' });
+      children.push({ name: 'Events', href: route('hive.events.index'), active: 'hive.events.*', permission: 'view-events' });
+      children.push({ name: 'Announcements', href: route('hive.announcements.index'), active: 'hive.announcements.*', permission: 'view-announcements' });
     }
 
     if (userRoles.value.some(r => ['procurement-manager', 'storekeeper'].includes(r))) {
-      children.push({ name: 'Suppliers', href: route('hive.suppliers.index'), active: 'hive.suppliers.*' });
+      children.push({ name: 'Suppliers', href: route('hive.suppliers.index'), active: 'hive.suppliers.*', permission: 'view-suppliers' });
       children.push({ name: 'Keys', href: route('hive.keys.index'), active: 'hive.keys.*' });
     }
 
     if (userRoles.value.includes('librarian')) {
-      children.push({ name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*' });
+      children.push({ name: 'Library', href: route('hive.library.dashboard'), active: 'hive.library.*', permission: 'view-library' });
     }
 
     if (userRoles.value.some(r => ['events-pr-manager', 'procurement-manager', 'storekeeper', 'cafeteria-manager', 'librarian'].includes(r))) {
       children.push({ name: 'Visitor Logs', href: route('hive.visitor-logs.index'), active: 'hive.visitor-logs.*' });
-      children.push({ name: 'Upload Document', href: route('hive.documents.create'), active: 'hive.documents.create' });
+      children.push({ name: 'Upload Document', href: route('hive.documents.create'), active: 'hive.documents.create', permission: 'view-documents' });
     }
 
     if (!children.length) return [];
@@ -311,15 +339,15 @@ export function useNavigation() {
     const children = [];
 
     if (userRoles.value.some(r => ['super-admin', 'it-support'].includes(r))) {
-      children.push({ name: 'All Users', href: route('hive.users.index'), active: 'hive.users.*' });
+      children.push({ name: 'All Users', href: route('hive.users.index'), active: 'hive.users.*', permission: 'view-users' });
     }
 
     if (userRoles.value.some(r => ['super-admin', 'it-support', 'academic-director', 'program-coordinator', 'admissions-officer', 'registrar'].includes(r))) {
-      children.push({ name: 'Students', href: route('hive.students.index'), active: 'hive.students.*' });
+      children.push({ name: 'Students', href: route('hive.students.index'), active: 'hive.students.*', permission: 'view-students' });
     }
 
     if (userRoles.value.some(r => ['super-admin', 'it-support', 'hr-manager'].includes(r))) {
-      children.push({ name: 'Staff', href: route('hive.staff.index'), active: 'hive.staff.*' });
+      children.push({ name: 'Staff', href: route('hive.staff.index'), active: 'hive.staff.*', permission: 'view-staff' });
     }
 
     if (userRoles.value.some(r => ['super-admin', 'it-support', 'program-coordinator', 'career-services'].includes(r))) {
@@ -340,11 +368,11 @@ export function useNavigation() {
       name: 'Administration',
       icon: Cog6ToothIcon,
       children: [
-        { name: 'Departments', href: route('hive.departments.index'), active: 'hive.departments.*' },
-        { name: 'Placements', href: route('hive.placements.index'), active: 'hive.placements.*' },
-        { name: 'Disciplinary', href: route('hive.disciplinary.index'), active: 'hive.disciplinary.*' },
-        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*' },
-        { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*' },
+        { name: 'Departments', href: route('hive.departments.index'), active: 'hive.departments.*', permission: 'manage-settings' },
+        { name: 'Placements', href: route('hive.placements.index'), active: 'hive.placements.*', permission: 'view-placements' },
+        { name: 'Disciplinary', href: route('hive.disciplinary.index'), active: 'hive.disciplinary.*', permission: 'view-disciplinary-records' },
+        { name: 'Uniform Requests', href: route('hive.uniform-requests.index'), active: 'hive.uniform-requests.*', permission: 'view-uniforms' },
+        { name: 'Academic Years', href: route('hive.academic-years.index'), active: 'hive.academic-years.*', permission: 'manage-settings' },
       ],
     }];
   };
@@ -358,11 +386,65 @@ export function useNavigation() {
       name: 'System',
       icon: RectangleStackIcon,
       children: [
-        { name: 'Pending Approvals', href: route('hive.admin.approve-users'), active: 'hive.admin.approve-users' },
-        { name: 'Import Users', href: route('hive.admin.import-users'), active: 'hive.admin.import-users' },
-        { name: 'System Logs', href: route('log-viewer'), target: '_blank' },
+        { name: 'Settings', href: route('hive.settings.index'), active: 'hive.settings.*', permission: 'manage-settings' },
+        { name: 'Roles & Permissions', href: route('hive.roles.index'), active: 'hive.roles.*', permission: 'manage-roles' },
+        { name: 'Pending Approvals', href: route('hive.admin.approve-users'), active: 'hive.admin.approve-users', permission: 'manage-users' },
+        { name: 'Import Users', href: route('hive.admin.import-users'), active: 'hive.admin.import-users', permission: 'manage-users' },
+        { name: 'System Logs', href: route('log-viewer'), target: '_blank', permission: 'view-audit-logs' },
       ],
     }];
+  };
+
+  // ─── External accounts (parent/guardian, alumni) ──────────────────────────────
+
+  const externalNav = () => {
+    const children = [];
+
+    if (isParentGuardian.value) {
+      children.push({
+        name: 'My Students',
+        href: route('hive.dashboard'),
+        active: 'hive.dashboard',
+        permission: 'view-student-profile',
+      });
+      children.push({
+        name: 'Announcements',
+        href: route('hive.announcements.index'),
+        active: 'hive.announcements.*',
+        permission: 'view-announcements',
+      });
+      children.push({
+        name: 'Events',
+        href: route('hive.events.index'),
+        active: 'hive.events.*',
+        permission: 'view-events',
+      });
+    }
+
+    if (isAlumni.value) {
+      children.push({
+        name: 'Placements',
+        href: route('hive.placements.index'),
+        active: 'hive.placements.*',
+        permission: 'view-placements',
+      });
+      children.push({
+        name: 'Announcements',
+        href: route('hive.announcements.index'),
+        active: 'hive.announcements.*',
+        permission: 'view-announcements',
+      });
+      children.push({
+        name: 'Events',
+        href: route('hive.events.index'),
+        active: 'hive.events.*',
+        permission: 'view-events',
+      });
+    }
+
+    if (!children.length) return [];
+
+    return [{ name: 'Resources', icon: BookOpenIcon, children }];
   };
 
   // ─── Final assembled nav (order = sidebar display order) ─────────────────────
@@ -379,6 +461,7 @@ export function useNavigation() {
       ...operationsNav(),
       ...peopleNav(),
       ...administrationNav(),
+      ...externalNav(),
       ...systemNav(),
     ])
   );

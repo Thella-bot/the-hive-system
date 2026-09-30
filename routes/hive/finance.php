@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['role:super-admin|finance'])->name('finance.')->prefix('finance')->group(function () {
     // Invoices
     Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/export', [InvoiceController::class, 'export'])->name('invoices.export');
     Route::get('invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
     Route::get('invoices/search-students', [InvoiceController::class, 'searchStudents'])->name('invoices.searchStudents');
     Route::post('invoices/generate', [InvoiceController::class, 'generate'])->name('invoices.generate')->middleware('throttle:10,1');
@@ -31,6 +32,7 @@ Route::middleware(['role:super-admin|finance'])->name('finance.')->prefix('finan
 
     // Payments
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('payments/export', [PaymentController::class, 'export'])->name('payments.export');
     Route::get('payments/create', [PaymentController::class, 'create'])->name('payments.create');
     Route::post('payments', [PaymentController::class, 'store'])->name('payments.store')->middleware('throttle:30,1');
     Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
@@ -42,6 +44,7 @@ Route::middleware(['role:super-admin|finance'])->name('finance.')->prefix('finan
 
     // Expenses
     Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('expenses/export', [ExpenseController::class, 'export'])->name('expenses.export');
     Route::get('expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
     Route::get('expenses/categories', [ExpenseController::class, 'categories'])->name('expenses.categories');
     Route::post('expenses/categories', [ExpenseController::class, 'storeCategory'])->name('expenses.categories.store')->middleware('throttle:30,1');
@@ -59,6 +62,7 @@ Route::middleware(['role:super-admin|finance'])->name('finance.')->prefix('finan
 
     // Budgets
     Route::get('budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::get('budgets/export', [BudgetController::class, 'export'])->name('budgets.export');
     Route::post('budgets', [BudgetController::class, 'store'])->name('budgets.store')->middleware('throttle:30,1');
     Route::get('budgets/{budget}', [BudgetController::class, 'show'])->name('budgets.show');
     Route::patch('budgets/{budget}', [BudgetController::class, 'update'])->name('budgets.update')->middleware('throttle:30,1');

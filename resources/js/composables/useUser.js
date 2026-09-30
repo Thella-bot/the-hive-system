@@ -39,6 +39,7 @@ export function useUser() {
   // Academic management roles that are not admins and not teaching staff.
   // academic-director is deliberately excluded: it already renders the
   // instructor dashboard, and the dashboard blocks are mutually exclusive.
+  // Mirrors RoleService::isAcademicManagement().
   const isAcademicStaff = computed(() =>
     !isAdmin.value && userRoles.value.some((role) =>
       ['program-coordinator', 'registrar', 'examination-cell'].includes(role)
@@ -46,8 +47,15 @@ export function useUser() {
   );
 
   // Everyone else on staff, e.g. admissions, finance, HR, library.
+  // Mirrors RoleService::NON_ACADEMIC_STAFF_ROLES.
   const isNonAcademicStaff = computed(() =>
     isStaff.value && !isAdmin.value && !isFaculty.value && !isAcademicStaff.value
+  );
+
+  const hasNoDashboard = computed(() =>
+    !isAdmin.value && !isFaculty.value && !isAcademicStaff.value &&
+    !isNonAcademicStaff.value && !isStudent.value &&
+    !isParentGuardian.value && !isAlumni.value
   );
 
   const needsRegistration = computed(() => currentUser.value?.needs_registration ?? false);
@@ -79,6 +87,7 @@ export function useUser() {
     canExportStudents,
     isAcademicStaff,
     isNonAcademicStaff,
+    hasNoDashboard,
     isSuperAdmin,
     isInstructor,
     needsRegistration,

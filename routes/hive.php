@@ -226,8 +226,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
 
         // Notifications
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index')->middleware('auth');
+        Route::get('notifications/preview', [NotificationController::class, 'preview'])->name('notifications.preview')->middleware('auth');
         Route::post('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read')->middleware('auth');
         Route::post('notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll')->middleware('auth');
+        Route::post('notifications/mark-selected-read', [NotificationController::class, 'markSelectedRead'])->name('notifications.markSelectedRead')->middleware('auth');
+        Route::delete('notifications', [NotificationController::class, 'destroySelected'])->name('notifications.destroySelected')->middleware('auth');
 
         // Student Advancement
         Route::prefix('advancement')->name('advancement.')->group(function () {

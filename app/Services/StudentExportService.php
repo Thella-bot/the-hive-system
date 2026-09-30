@@ -8,6 +8,7 @@ use App\Models\Cohort;
 use App\Models\Department;
 use App\Models\Programme;
 use App\Models\User;
+use App\Support\Concerns\AppliesSorting;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -20,6 +21,8 @@ use Illuminate\Support\Collection;
  */
 class StudentExportService
 {
+    use AppliesSorting;
+
     /**
      * Roles that appear in the register. Matches the students listing.
      */
@@ -82,21 +85,44 @@ class StudentExportService
     }
 
     /**
+     * Columns the register listing can be sorted by.
+     *
+     * Keys are what the browser sends; values are real columns. Anything not
+     * listed here is ignored, so a crafted `sort` parameter cannot reach the
+     * database.
+     *
+     * @return array<string, string>
+     */
+    public function sortableColumns(): array
+    {
+        return [
+            'name' => 'name',
+            'student_number' => 'student_number',
+            'email' => 'email',
+            'programme' => 'programme_id',
+            'created_at' => 'created_at',
+            'last_login_at' => 'last_login_at',
+            'enrollment_date' => 'profiles.enrollment_date',
+            'cohort' => 'profiles.cohort_id',
+            'status' => 'profiles.status',
+        ];
+    }
+
+    /**
      * The student register, filtered. Shared with the listing screen.
      *
      * @param  array<string, mixed>  $filters
      */
     public function query(array $filters = []): Builder
     {
-        return User::query()
+        $query = User::query()
             ->whereHas('roles', fn ($q) => $q->whereIn('name', self::ROLES))
             ->with([
                 'profile.cohort.academicYear',
                 'programme.department',
             ])
             ->withCount('enrollments')
-            ->withAvg(['grades as average_mark' => fn ($q) => $q->whereNotNull('marks')], 'marks')
-            ->when($filters['search'] ?? null, function ($query, string $search) {
+            ->withAvg(['grades as average_mark' => fn ($q) => $q->whereNotNull('marks')], 'marks')            ->when($filters['search'] ?? null, function ($query, string $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
@@ -118,7 +144,23 @@ class StudentExportService
                 fn ($p) => $p->where('department_id', $id)
             ))
             ->when($filters['unassigned'] ?? null, fn ($query) => $query->whereNull('programme_id'))
-            ->orderBy('student_number');
+            ->when(! empty($filters['ids']), fn ($query) => $query->whereIn('users.id', $filters['ids']));
+
+        // Sorting can only be resolved once the joins for related columns exist,
+        // so add them here rather than in the base query.
+        $sortable = $this->sortableColumns();
+        $field = $this->requestedSortField();
+
+        if ($field !== null && str_starts_with($sortable[$field] ?? '', 'profiles.')) {
+            $query->leftJoin('profiles', function ($join) {
+                $join->on('profiles.profileable_id', '=', 'users.id')
+                    ->where('profiles.profileable_type', User::class);
+            })->select('users.*');
+        }
+
+        $this->applySorting($query, $sortable, 'student_number', 'asc');
+
+        return $query;
     }
 
     /**

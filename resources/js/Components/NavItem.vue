@@ -19,6 +19,7 @@
 import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import { useUser } from '@/composables/useUser'
+import { usePermissions } from '@/composables/usePermissions'
 
 const props = defineProps({
   href:   { type: String, required: true },
@@ -26,9 +27,12 @@ const props = defineProps({
   target: { type: String, default: null },
   // Audience types: module_students, student_only, staff_only, all_users, everyone
   audience: { type: String, default: 'all_users' },
+  // Optional permission gate, any-of when an array is given.
+  permission: { type: [String, Array], default: null },
 })
 
-const { currentUser } = useUser()
+const { currentUser, isStudent, isStaff } = useUser()
+const { canAny, isUnseeded } = usePermissions()
 
 const isActive = computed(() => {
   if (typeof props.active === 'boolean') {
@@ -39,20 +43,18 @@ const isActive = computed(() => {
 
 // Check if current user can see this nav item based on audience
 const isVisible = computed(() => {
+  // Nothing has been seeded yet, so defer to audience alone.
+  if (!isUnseeded.value && props.permission) {
+    if (!canAny(props.permission)) return false
+  }
+
   const audience = props.audience
 
   // Everyone can see public items
   if (audience === 'everyone') return true
 
   // Must be logged in for all other audiences
-  if (!currentUser.value) return audience === 'everyone'
-
-  const roles = currentUser.value.roles?.map(r => r.name) || []
-  const isStudent = roles.includes('student')
-  const isParentGuardian = roles.includes('parent-guardian')
-  const isAlumni = roles.includes('alumni')
-  // Staff = anyone who is NOT student, parent-guardian, or alumni
-  const isStaff = !isStudent && !isParentGuardian && !isAlumni
+  if (!currentUser.value) return false
 
   switch (audience) {
     case 'everyone':
@@ -60,11 +62,11 @@ const isVisible = computed(() => {
     case 'all_users':
       return true // All authenticated users
     case 'staff_only':
-      return isStaff
+      return isStaff.value
     case 'student_only':
-      return isStudent || isStaff // Students and staff can both see "student_only"
+      return isStudent.value || isStaff.value // Students and staff can both see "student_only"
     case 'module_students':
-      return isStudent || isStaff
+      return isStudent.value || isStaff.value
     default:
       return true
   }

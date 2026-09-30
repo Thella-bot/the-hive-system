@@ -2,8 +2,11 @@
 import { ref, watch, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import BulkActionBar from '@/Components/BulkActionBar.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import SearchInput from '@/Components/SearchInput.vue';
+import SortableHeader from '@/Components/SortableHeader.vue';
 import {
   EyeIcon,
   UserPlusIcon,
@@ -30,6 +33,8 @@ const status = ref(props.filters.status ?? '');
 const programmeId = ref(props.filters.programme_id ?? '');
 const cohortId = ref(props.filters.cohort_id ?? '');
 const departmentId = ref(props.filters.department_id ?? '');
+const sortBy = ref(props.filters.sort ?? '');
+const sortDirection = ref(props.filters.direction ?? 'asc');
 const showFilters = ref(
   Boolean(status.value || programmeId.value || cohortId.value || departmentId.value)
 );
@@ -46,6 +51,8 @@ const currentFilters = () => ({
   ...(programmeId.value ? { programme_id: programmeId.value } : {}),
   ...(cohortId.value ? { cohort_id: cohortId.value } : {}),
   ...(departmentId.value ? { department_id: departmentId.value } : {}),
+  ...(sortBy.value ? { sort: sortBy.value } : {}),
+  ...(sortDirection.value ? { direction: sortDirection.value } : {}),
 });
 
 const applyFilters = () =>
@@ -53,6 +60,49 @@ const applyFilters = () =>
     preserveState: true,
     replace: true,
   });
+
+// Sorting changes the result set, so a new page always starts at page one.
+const applySort = ({ field, direction }) => {
+  sortBy.value = field;
+  sortDirection.value = direction;
+  router.get(route('hive.students.index'), { ...currentFilters(), page: 1 }, {
+    preserveState: true,
+    replace: true,
+  });
+};
+
+// --- Row selection ---
+
+const rows = computed(() => props.students.data ?? []);
+
+const selected = ref([]);
+
+const allSelected = computed(
+  () => rows.value.length > 0 && rows.value.every((student) => selected.value.includes(student.id))
+);
+
+const someSelected = computed(() => selected.value.length > 0 && !allSelected.value);
+
+const isSelected = (id) => selected.value.includes(id);
+
+const toggleAll = () => {
+  selected.value = allSelected.value ? [] : rows.value.map((student) => student.id);
+};
+
+const toggleOne = (id) => {
+  selected.value = isSelected(id)
+    ? selected.value.filter((value) => value !== id)
+    : [...selected.value, id];
+};
+
+const clearSelection = () => {
+  selected.value = [];
+};
+
+const exportSelected = () => {
+  const params = new URLSearchParams(currentFilters());
+  window.location.href = `${props.exportUrl}?${params.toString()}&ids=${selected.value.join(',')}`;
+};
 
 // Inertia's search component already debounces typing, but changing a dropdown
 // should apply immediately rather than waiting for a second interaction.
@@ -64,8 +114,16 @@ const clearFilters = () => {
   programmeId.value = '';
   cohortId.value = '';
   departmentId.value = '';
+  sortBy.value = '';
+  sortDirection.value = '';
+  selected.value = [];
   applyFilters();
 };
+
+// A page change must not carry selections from the previous page.
+watch(() => props.students.data, () => {
+  selected.value = [];
+});
 
 // The export link carries the active filters, so the file matches the view.
 const exportHref = computed(() => {
@@ -163,37 +221,120 @@ const formatDate = (value) => (value ? new Date(value).toLocaleDateString() : 'â
       </div>
     </div>
 
+    <BulkActionBar :selected="selected" :total="students.total ?? 0" @clear="clearSelection">
+      <template #actions>
+        <a
+          v-if="canExport"
+          :href="exportHref"
+          class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
+        >
+          <ArrowDownTrayIcon class="w-3.5 h-3.5" />
+          Export filtered
+        </a>
+        <button
+          type="button"
+          @click="exportSelected"
+          class="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+        >
+          <ArrowDownTrayIcon class="w-3.5 h-3.5" />
+          Export selected
+        </button>
+      </template>
+    </BulkActionBar>
+
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
           <tr>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Student</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden xl:table-cell">Number</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Programme</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden md:table-cell">Cohort</th>
-            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide hidden lg:table-cell">Enrolled</th>
+            <th class="w-10 px-4 py-3">
+              <input
+                type="checkbox"
+                :checked="allSelected"
+                :indeterminate.prop="someSelected"
+                @change="toggleAll"
+                :disabled="rows.length === 0"
+                class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-700 dark:border-gray-600"
+                aria-label="Select all students on this page"
+              />
+            </th>
+            <SortableHeader
+              label="Student"
+              field="name"
+              sortable
+              :active-field="sortBy"
+              :direction="sortDirection"
+              @sort="applySort"
+            />
+            <SortableHeader
+              label="Number"
+              field="student_number"
+              sortable
+              header-class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 hidden xl:table-cell"
+              :active-field="sortBy"
+              :direction="sortDirection"
+              @sort="applySort"
+            />
+            <SortableHeader
+              label="Programme"
+              field="programme"
+              sortable
+              header-class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 hidden lg:table-cell"
+              :active-field="sortBy"
+              :direction="sortDirection"
+              @sort="applySort"
+            />
+            <SortableHeader
+              label="Cohort"
+              field="cohort"
+              sortable
+              header-class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 hidden md:table-cell"
+              :active-field="sortBy"
+              :direction="sortDirection"
+              @sort="applySort"
+            />
+            <SortableHeader
+              label="Enrolled"
+              field="enrollment_date"
+              sortable
+              header-class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 hidden lg:table-cell"
+              :active-field="sortBy"
+              :direction="sortDirection"
+              @sort="applySort"
+            />
             <th class="px-6 py-3"></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-          <tr v-if="students.data.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center">
-                <div class="w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <UserPlusIcon class="w-8 h-8 text-gray-400" />
-                </div>
-                <p class="text-gray-500 dark:text-gray-400">{{ hasFilters ? 'No students match these filters' : 'No students found' }}</p>
-                <p v-if="hasFilters" class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                  <button type="button" @click="clearFilters" class="text-amber-600 hover:text-amber-700">Clear the filters</button>
-                  to see everyone
-                </p>
-                <p v-else class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                  <Link :href="route('hive.students.create')" class="text-amber-600 hover:text-amber-700">Add a student</Link> to get started
-                </p>
-              </div>
+          <tr v-if="rows.length === 0">
+            <td colspan="7" class="px-6 py-12 text-center">
+              <EmptyState
+                type="users"
+                :title="hasFilters ? 'No students match these filters' : 'No students found'"
+                :description="hasFilters
+                  ? 'Try clearing the filters to see everyone.'
+                  : 'Add a student to get started.'"
+              />
+              <p v-if="hasFilters" class="text-sm text-gray-400 dark:text-gray-500 -mt-6">
+                <button type="button" @click="clearFilters" class="text-amber-600 hover:text-amber-700">Clear the filters</button>
+                to see everyone
+              </p>
             </td>
           </tr>
-          <tr v-for="student in students.data" :key="student.id" class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
+          <tr
+            v-for="student in rows"
+            :key="student.id"
+            class="hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+            :class="isSelected(student.id) ? 'bg-amber-50 dark:bg-amber-900/20' : ''"
+          >
+            <td class="px-4 py-4">
+              <input
+                type="checkbox"
+                :checked="isSelected(student.id)"
+                @change="toggleOne(student.id)"
+                class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-700 dark:border-gray-600"
+                :aria-label="`Select ${student.name}`"
+              />
+            </td>
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
                 <img :src="student.profile_photo_url" :alt="student.name"
@@ -242,7 +383,7 @@ const formatDate = (value) => (value ? new Date(value).toLocaleDateString() : 'â
       <p v-if="canExport" class="text-xs text-gray-500 dark:text-gray-400">
         Exporting downloads the {{ students.total ?? 0 }} student{{ (students.total ?? 0) === 1 ? '' : 's' }} matching these filters.
       </p>
-      <Pagination v-if="students.data.length > 0" :links="students.links" :meta="students" />
+      <Pagination v-if="rows.length > 0" :links="students.links" :meta="students" />
     </div>
   </HiveLayout>
 </template>

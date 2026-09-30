@@ -155,19 +155,7 @@
 
             <div class="flex items-center justify-end gap-2">
               <ThemeToggle />
-              <Link
-                :href="route('hive.notifications.index')"
-                class="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-                title="Notifications"
-              >
-                <BellIcon class="h-5 w-5" />
-                <span
-                  v-if="$page.props.unreadNotificationsCount > 0"
-                  class="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-900"
-                >
-                  {{ $page.props.unreadNotificationsCount > 9 ? '9+' : $page.props.unreadNotificationsCount }}
-                </span>
-              </Link>
+              <NotificationBell />
               <Link
                 :href="route('hive.profile.show')"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -209,6 +197,7 @@
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import NavItem from '@/Components/NavItem.vue';
+import NotificationBell from '@/Components/NotificationBell.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import { useNavigation } from '@/composables/useNavigation';
 import { useUser } from '@/composables/useUser';

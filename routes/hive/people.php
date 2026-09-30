@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Hive\Admin\ImportUsersController;
 use App\Http\Controllers\Hive\Admin\UserApprovalController;
+use App\Http\Controllers\Hive\RolesController;
+use App\Http\Controllers\Hive\SettingsController;
 use App\Http\Controllers\Hive\StaffController;
 use App\Http\Controllers\Hive\StudentController;
 use App\Http\Controllers\Hive\UserController;
@@ -31,6 +33,19 @@ Route::middleware(['role:super-admin|it-support'])->name('admin.')->prefix('admi
 
     // Log Viewer
     Route::get('logs', fn () => redirect('/log-viewer'))->name('logs');
+});
+
+// System settings. Gated on the seeded `manage-settings` permission rather than
+// a role list, so an administrator can narrow access without a code change.
+Route::middleware(['permission:manage-settings'])->name('settings.')->group(function () {
+    Route::get('settings', [SettingsController::class, 'index'])->name('index');
+    Route::patch('settings', [SettingsController::class, 'update'])->name('update');
+});
+
+// Role and permission matrix. Gated on the seeded `manage-roles` permission.
+Route::middleware(['permission:manage-roles'])->name('roles.')->group(function () {
+    Route::get('roles', [RolesController::class, 'index'])->name('index');
+    Route::patch('roles/{role}', [RolesController::class, 'update'])->name('update');
 });
 
 // Student management (super-admin, admissions-officer, registrar, program-coordinator)

@@ -288,6 +288,9 @@ class RolePermissionSeeder extends Seeder
             'view-library', 'issue-books', 'return-books',
             'view-digital-resources',
             'create-assessments', 'view-grades',
+            // The sidebar gates these on permissions, and the transcript and
+            // chat routes already accept students.
+            'view-transcripts', 'view-messages', 'send-messages',
             'view-fees', 'view-invoices', 'view-payments',
             'view-events', 'view-event-registrations',
             'view-internships', 'view-placements', 'view-job-board',
@@ -475,6 +478,33 @@ class RolePermissionSeeder extends Seeder
             'view-announcements',
             'view-posts', 'create-posts',
         ]);
+
+        // --- Route-aligned permission top-ups ---
+        //
+        // The sidebar gates nav items on permissions, but routes are guarded by
+        // `role:` middleware. Any role a route already lets through must also
+        // hold the permission that gates its nav item, otherwise the link
+        // disappears even though the page would load fine.
+        //
+        // Keep these lists in step with the `role:` middleware in routes/hive.php.
+        $documentRoles = [
+            'academic-director', 'program-coordinator', 'admissions-officer',
+            'examination-cell', 'registrar', 'finance', 'procurement-manager',
+            'storekeeper', 'hr-manager', 'librarian', 'career-services',
+            'events-pr-manager', 'cafeteria-manager',
+        ];
+
+        $viewDocuments = Permission::firstOrCreate(['name' => 'view-documents']);
+
+        foreach ($documentRoles as $roleName) {
+            Role::where('name', $roleName)->first()?->givePermissionTo($viewDocuments);
+        }
+
+        // `manage-settings` gates Departments and Academic Years in the sidebar;
+        // those routes are limited to super-admin and academic-director.
+        $manageSettings = Permission::firstOrCreate(['name' => 'manage-settings']);
+        $academicDirector = Role::where('name', 'academic-director')->first();
+        $academicDirector?->givePermissionTo($manageSettings);
 
         // --- Seed Test Users ---
         $super = User::firstOrCreate(

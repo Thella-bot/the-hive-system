@@ -1,6 +1,8 @@
 <script setup>
+import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import HiveLayout from '@/Layouts/HiveLayout.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -9,15 +11,85 @@ dayjs.extend(relativeTime);
 const props = defineProps({
     notifications: Object,
     unreadCount: { type: Number, default: 0 },
+    filters: {
+        type: Object,
+        default: () => ({ type: null, status: 'all' }),
+    },
+    availableTypes: {
+        type: Array,
+        default: () => [],
+    },
 });
 
+const selected = ref([]);
+
+const rows = computed(() => props.notifications?.data ?? []);
+
+const allSelected = computed(() =>
+    rows.value.length > 0 && rows.value.every((n) => selected.value.includes(n.id))
+);
+
+const someSelected = computed(() => selected.value.length > 0 && !allSelected.value);
+
+const statusCounts = computed(() => {
+    const page = props.notifications?.meta ?? {};
+    return {
+        total: page.total ?? rows.value.length,
+        from: page.from ?? 1,
+        to: page.to ?? rows.value.length,
+    };
+});
+
+const toggleAll = () => {
+    selected.value = allSelected.value ? [] : rows.value.map((n) => n.id);
+};
+
+const isSelected = (id) => selected.value.includes(id);
+
+const toggleOne = (id) => {
+    selected.value = isSelected(id)
+        ? selected.value.filter((value) => value !== id)
+        : [...selected.value, id];
+};
+
 const markRead = (id) => {
-    router.post(route('hive.notifications.read', { notification: id }));
+    router.post(route('hive.notifications.read', { notification: id }), {}, { preserveScroll: true });
 };
 
 const markAllRead = () => {
-    router.post(route('hive.notifications.readAll'));
+    router.post(route('hive.notifications.readAll'), {}, { preserveScroll: true });
 };
+
+const markSelectedRead = () => {
+    router.post(
+        route('hive.notifications.markSelectedRead'),
+        { ids: selected.value },
+        { preserveScroll: true, onSuccess: () => { selected.value = []; } }
+    );
+};
+
+const deleteSelected = () => {
+    router.delete(route('hive.notifications.destroySelected'), {
+        ids: selected.value,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => { selected.value = []; },
+    });
+};
+
+const applyFilters = (next) => {
+    router.get(route('hive.notifications.index'), {
+        type: next.type ?? undefined,
+        status: next.status ?? 'all',
+    }, { preserveScroll: true, replace: true });
+};
+
+const setStatus = (status) => applyFilters({ ...props.filters, status });
+const setType = (type) => applyFilters({ ...props.filters, type: type === props.filters.type ? null : type });
+
+const clearFilters = () => applyFilters({ type: null, status: 'all' });
+
+const hasFilters = computed(() => props.filters.type || props.filters.status !== 'all');
 
 const formatDate = (date) => {
     if (!date) return '';
@@ -32,6 +104,23 @@ const notificationIcon = (type) => {
     if (type?.includes('User')) return '👤';
     return '🔔';
 };
+
+const STATUS_OPTIONS = [
+    { value: 'all', label: 'All' },
+    { value: 'unread', label: 'Unread' },
+    { value: 'read', label: 'Read' },
+];
+
+const CHIP_ACTIVE = 'bg-amber-600 text-white';
+const CHIP_IDLE = 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600';
+
+const statusClass = (value) => (value === props.filters.status ? CHIP_ACTIVE : CHIP_IDLE);
+const typeClass = (value) => (value === props.filters.type ? CHIP_ACTIVE : CHIP_IDLE);
+
+// A page change must not carry stale selections into the new result set.
+watch(() => props.notifications?.data, () => {
+    selected.value = [];
+});
 </script>
 
 <template>
@@ -53,24 +142,119 @@ const notificationIcon = (type) => {
                 </button>
             </div>
 
+            <!-- Filters -->
+            <div class="flex flex-wrap items-center gap-2 mb-4">
+                <button
+                    v-for="option in STATUS_OPTIONS"
+                    :key="option.value"
+                    type="button"
+                    @click="setStatus(option.value)"
+                    class="rounded-full px-3 py-1 text-xs font-medium transition-colors"
+                    :class="statusClass(option.value)"
+                >
+                    {{ option.label }}
+                </button>
+
+                <span v-if="availableTypes.length" class="mx-1 h-4 w-px bg-gray-200 dark:bg-gray-700" />
+
+                <button
+                    v-for="option in availableTypes"
+                    :key="option.value"
+                    type="button"
+                    @click="setType(option.value)"
+                    class="rounded-full px-3 py-1 text-xs font-medium transition-colors"
+                    :class="typeClass(option.value)"
+                >
+                    {{ option.label }}
+                </button>
+
+                <button
+                    v-if="hasFilters"
+                    type="button"
+                    @click="clearFilters"
+                    class="text-xs text-gray-500 hover:text-gray-700 underline dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                    Clear
+                </button>
+
+                <span class="ml-auto text-xs text-gray-500 dark:text-gray-400">
+                    Showing {{ statusCounts.from }}–{{ statusCounts.to }} of {{ statusCounts.total }}
+                </span>
+            </div>
+
+            <!-- Bulk action bar -->
+            <div
+                v-if="selected.length > 0"
+                class="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 mb-3 dark:border-amber-700 dark:bg-amber-900/20"
+            >
+                <span class="text-sm font-medium text-amber-800 dark:text-amber-300">
+                    {{ selected.length }} selected
+                </span>
+                <div class="ml-auto flex items-center gap-2">
+                    <button
+                        type="button"
+                        @click="markSelectedRead"
+                        class="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-700"
+                    >
+                        Mark read
+                    </button>
+                    <button
+                        type="button"
+                        @click="deleteSelected"
+                        class="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20"
+                    >
+                        Delete
+                    </button>
+                    <button
+                        type="button"
+                        @click="selected = []"
+                        class="px-2 py-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
             <!-- Notifications list -->
             <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <!-- Empty state -->
-                <div v-if="!notifications.data.length" class="px-6 py-16 text-center">
-                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span class="text-3xl">🔔</span>
-                    </div>
-                    <p class="text-gray-500 dark:text-gray-400 font-medium">No notifications</p>
-                    <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">You're all caught up.</p>
-                </div>
+                <EmptyState
+                    v-if="!rows.length"
+                    type="notification"
+                    :title="hasFilters ? 'No notifications match these filters' : 'No notifications'"
+                    :description="hasFilters
+                        ? 'Try a different status or type.'
+                        : \"You're all caught up.\"
+                />
 
-                <!-- List -->
                 <div v-else class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <!-- Select-all header row -->
+                    <div class="flex items-center gap-3 px-6 py-2.5 bg-gray-50 dark:bg-gray-700/50">
+                        <input
+                            type="checkbox"
+                            :checked="allSelected"
+                            :indeterminate.prop="someSelected"
+                            @change="toggleAll"
+                            class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-700 dark:border-gray-600"
+                            aria-label="Select all notifications"
+                        />
+                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ allSelected ? 'Deselect all' : 'Select all on this page' }}
+                        </span>
+                    </div>
+
                     <div
-                        v-for="notification in notifications.data"
+                        v-for="notification in rows"
                         :key="notification.id"
                         class="px-6 py-4 flex items-start gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                         :class="{ 'bg-amber-50/50 dark:bg-amber-900/20': !notification.read_at }">
+
+                        <input
+                            type="checkbox"
+                            :checked="isSelected(notification.id)"
+                            @change="toggleOne(notification.id)"
+                            class="mt-1 rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:bg-gray-700 dark:border-gray-600"
+                            :aria-label="`Select notification ${notification.id}`"
+                        />
 
                         <!-- Icon -->
                         <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center text-lg flex-shrink-0 mt-0.5">
@@ -101,7 +285,7 @@ const notificationIcon = (type) => {
 
             <!-- Pagination -->
             <Pagination
-                v-if="notifications.data.length > 0"
+                v-if="rows.length > 0"
                 :links="notifications.links"
                 :meta="notifications.meta"
                 class="mt-4" />

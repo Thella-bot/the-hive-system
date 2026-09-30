@@ -8,6 +8,8 @@ use App\Models\Invoice;
 use App\Models\Programme;
 use App\Models\User;
 use App\Services\AuditService;
+use App\Services\CsvExporter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,11 +21,63 @@ class InvoiceController extends Controller
 
     public function __construct(
         protected AuditService $audit,
+        protected CsvExporter $csv,
     ) {
         $this->authorizeResource(Invoice::class, 'invoice');
     }
 
     public function index(Request $request): Response
+    {
+        return Inertia::render('Hive/Finance/Invoice/Index', [
+            'invoices' => $this->filteredQuery($request)->paginate(20)->withQueryString(),
+            'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'search']),
+            'statuses' => ['pending', 'partial', 'paid', 'overdue', 'cancelled'],
+            'academicYears' => Invoice::distinct()->pluck('academic_year')->filter()->sort()->reverse()->values(),
+        ]);
+    }
+
+    /**
+     * Export the filtered invoice list to CSV.
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', Invoice::class);
+
+        $invoices = $this->filteredQuery($request)->get();
+
+        $this->audit->log('exported', $request->user(), [
+            'resource' => 'invoices',
+            'row_count' => $invoices->count(),
+        ]);
+
+        return $this->csv->download(
+            $invoices->map(fn (Invoice $invoice) => [
+                'invoice_number' => $invoice->invoice_number,
+                'student' => $invoice->user?->name,
+                'student_number' => $invoice->user?->student_number,
+                'programme' => $invoice->programme?->name,
+                'type' => $invoice->type,
+                'description' => $invoice->description,
+                'amount' => $this->csv->money($invoice->amount),
+                'paid' => $this->csv->money($invoice->total_paid),
+                'balance' => $this->csv->money($invoice->balance),
+                'status' => $invoice->status,
+                'academic_year' => $invoice->academic_year,
+                'due_date' => $this->csv->date($invoice->due_date),
+                'created_at' => $this->csv->date($invoice->created_at, 'Y-m-d H:i'),
+            ]),
+            [
+                'Invoice Number', 'Student', 'Student Number', 'Programme', 'Type', 'Description',
+                'Amount', 'Paid', 'Balance', 'Status', 'Academic Year', 'Due Date', 'Created',
+            ],
+            'invoices'
+        );
+    }
+
+    /**
+     * The invoice list narrowed by the index filters.
+     */
+    protected function filteredQuery(Request $request): Builder
     {
         $query = Invoice::with(['user', 'programme'])
             ->orderByDesc('created_at');
@@ -44,12 +98,7 @@ class InvoiceController extends Controller
             });
         }
 
-        return Inertia::render('Hive/Finance/Invoice/Index', [
-            'invoices' => $query->paginate(20)->withQueryString(),
-            'filters' => $this->getFilterInputs($request, ['status', 'academic_year', 'search']),
-            'statuses' => ['pending', 'partial', 'paid', 'overdue', 'cancelled'],
-            'academicYears' => Invoice::distinct()->pluck('academic_year')->filter()->sort()->reverse()->values(),
-        ]);
+        return $query;
     }
 
     public function create(Request $request): Response

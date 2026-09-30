@@ -26,7 +26,9 @@ class AlumniDashboardData implements DashboardData
         $profile = $user->profile;
 
         return [
-            'programme' => $user->programme?->name,
+            // Named distinctly from the student's programme relation, which is
+            // a model rather than a string.
+            'programmeName' => $user->programme?->name,
             'graduationDate' => $profile?->graduation_date,
             'studentNumber' => $profile?->student_number,
 

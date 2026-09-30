@@ -95,7 +95,7 @@ class SearchController extends Controller
                     'id' => $announcement->id,
                     'title' => $announcement->title,
                     'meta' => $announcement->category ?: 'Announcement',
-                    'url' => route('hive.announcements.index'),
+                    'url' => route('hive.announcements.show', $announcement),
                 ]);
 
             $results['events'] = Event::query()
@@ -110,7 +110,7 @@ class SearchController extends Controller
                     'id' => $event->id,
                     'title' => $event->title,
                     'meta' => $event->start?->format('M j, Y g:i A') ?: 'Event',
-                    'url' => route('hive.events.index'),
+                    'url' => route('hive.events.show', $event),
                 ]);
 
             $results['assessments'] = Gradable::query()
@@ -148,7 +148,7 @@ class SearchController extends Controller
                     'id' => $module->id,
                     'title' => $module->code ? "{$module->code} - {$module->name}" : $module->name,
                     'meta' => $module->programme?->name ?: 'Module',
-                    'url' => route('hive.modules.index'),
+                    'url' => route('hive.modules.show', $module),
                 ]);
         }
 

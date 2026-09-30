@@ -7,9 +7,11 @@ use App\Http\Controllers\Concerns\HasFilters;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AuditService;
+use App\Services\CsvExporter;
 use App\Services\NumberToWords;
 use App\Services\SignatoryService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,11 +24,60 @@ class PaymentController extends Controller
     public function __construct(
         protected SignatoryService $signatory,
         protected AuditService $audit,
+        protected CsvExporter $csv,
     ) {
         $this->authorizeResource(Payment::class, 'payment');
     }
 
     public function index(Request $request): Response
+    {
+        return Inertia::render('Hive/Finance/Payment/Index', [
+            'payments' => $this->filteredQuery($request)->paginate(20)->withQueryString(),
+            'filters' => $this->getFilterInputs($request, ['status', 'payment_method', 'search', 'date_from', 'date_to']),
+            'statuses' => ['pending', 'completed', 'failed', 'refunded'],
+            'methods' => ['cash', 'bank_transfer', 'mobile_money', 'card', 'other'],
+        ]);
+    }
+
+    /**
+     * Export the filtered payment list to CSV.
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', Payment::class);
+
+        $payments = $this->filteredQuery($request)->get();
+
+        $this->audit->log('exported', $request->user(), [
+            'resource' => 'payments',
+            'row_count' => $payments->count(),
+        ]);
+
+        return $this->csv->download(
+            $payments->map(fn (Payment $payment) => [
+                'reference' => $payment->reference ?? $payment->payment_number,
+                'student' => $payment->user?->name,
+                'student_number' => $payment->user?->student_number,
+                'invoice' => $payment->invoice?->invoice_number,
+                'amount' => $this->csv->money($payment->amount),
+                'method' => $payment->payment_method,
+                'status' => $payment->status,
+                'payment_date' => $this->csv->date($payment->payment_date),
+                'recorded_by' => $payment->recorder?->name,
+                'created_at' => $this->csv->date($payment->created_at, 'Y-m-d H:i'),
+            ]),
+            [
+                'Reference', 'Student', 'Student Number', 'Invoice', 'Amount', 'Method',
+                'Status', 'Payment Date', 'Recorded By', 'Recorded At',
+            ],
+            'payments'
+        );
+    }
+
+    /**
+     * The payment list narrowed by the index filters.
+     */
+    protected function filteredQuery(Request $request): Builder
     {
         $query = Payment::query()
             ->with(['user', 'invoice', 'recorder'])
@@ -54,12 +105,7 @@ class PaymentController extends Controller
             'dateColumn' => 'payment_date',
         ]);
 
-        return Inertia::render('Hive/Finance/Payment/Index', [
-            'payments' => $query->paginate(20)->withQueryString(),
-            'filters' => $this->getFilterInputs($request, ['status', 'payment_method', 'search', 'date_from', 'date_to']),
-            'statuses' => ['pending', 'completed', 'failed', 'refunded'],
-            'methods' => ['cash', 'bank_transfer', 'mobile_money', 'card', 'other'],
-        ]);
+        return $query;
     }
 
     public function create(Request $request): Response

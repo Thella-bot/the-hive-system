@@ -73,6 +73,12 @@ class StudentController extends Controller
 
         $filters = $this->validatedFilters($request);
 
+        // "Export selected" narrows the same filtered query to the ticked rows.
+        $selectedIds = $this->validatedSelection($request);
+        if ($selectedIds !== []) {
+            $filters['ids'] = $selectedIds;
+        }
+
         $columns = $this->validatedColumns($request, $exports);
         $definitions = $exports->columns();
         $headers = array_map(fn (string $column) => $definitions[$column]['label'], $columns);
@@ -87,6 +93,7 @@ class StudentController extends Controller
             'resource' => 'student-register',
             'columns' => $columns,
             'filters' => $filters,
+            'selected_count' => count($selectedIds),
             'row_count' => $rows->count(),
         ]);
 
@@ -121,10 +128,36 @@ class StudentController extends Controller
             'programme_id' => ['nullable', 'integer', 'exists:programmes,id'],
             'cohort_id' => ['nullable', 'integer', 'exists:cohorts,id'],
             'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'sort' => ['nullable', 'string', 'max:40'],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
         ]);
 
         // Drop empties so the export URL stays clean and cache-friendly.
         return array_filter($validated, fn ($value) => $value !== null && $value !== '');
+    }
+
+    /**
+     * The explicitly ticked student ids, if the request narrowed to a selection.
+     *
+     * @return array<int, int>
+     */
+    protected function validatedSelection(Request $request): array
+    {
+        $validated = $request->validate([
+            'ids' => ['nullable'],
+        ]);
+
+        $raw = $validated['ids'] ?? null;
+
+        if (is_string($raw)) {
+            $raw = array_filter(explode(',', $raw));
+        }
+
+        if (! is_array($raw) || $raw === []) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(array_map('intval', $raw))));
     }
 
     /**

@@ -210,6 +210,106 @@
 
     <!-- Academic Management Dashboard -->
     <div v-if="isAcademicStaff" class="space-y-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Link :href="route('hive.students.index')" class="bg-gradient-to-br from-amber-50 to-amber-100 p-5 rounded-xl block hover:shadow-lg transition-shadow dark:from-amber-900/20 dark:to-amber-800/20">
+          <div class="flex items-center">
+            <div class="p-2 bg-amber-600 rounded-lg">
+              <UsersIcon class="h-5 w-5 text-white"/>
+            </div>
+            <div class="ml-3">
+              <p class="text-2xl font-bold text-amber-700 dark:text-amber-400">{{ totalStudents || 0 }}</p>
+              <p class="text-xs text-amber-600 dark:text-amber-400">Students on Register</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link :href="route('hive.applications.index')" class="bg-gradient-to-br from-orange-50 to-orange-100 p-5 rounded-xl block hover:shadow-lg transition-shadow dark:from-orange-900/20 dark:to-orange-800/20">
+          <div class="flex items-center">
+            <div class="p-2 bg-orange-600 rounded-lg">
+              <UserPlusIcon class="h-5 w-5 text-white"/>
+            </div>
+            <div class="ml-3">
+              <p class="text-2xl font-bold text-orange-700 dark:text-orange-400">{{ pendingApplications || 0 }}</p>
+              <p class="text-xs text-orange-600 dark:text-orange-400">Pending Applications</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link :href="route('hive.registrations.index')" class="bg-gradient-to-br from-red-50 to-red-100 p-5 rounded-xl block hover:shadow-lg transition-shadow dark:from-red-900/20 dark:to-red-800/20">
+          <div class="flex items-center">
+            <div class="p-2 bg-red-600 rounded-lg">
+              <ClipboardDocumentCheckIcon class="h-5 w-5 text-white"/>
+            </div>
+            <div class="ml-3">
+              <p class="text-2xl font-bold text-red-700 dark:text-red-400">{{ pendingRegistrations || 0 }}</p>
+              <p class="text-xs text-red-600 dark:text-red-400">Registrations Submitted</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link :href="route('hive.grades.index')" class="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-xl block hover:shadow-lg transition-shadow dark:from-green-900/20 dark:to-green-800/20">
+          <div class="flex items-center">
+            <div class="p-2 bg-green-600 rounded-lg">
+              <ChartBarIcon class="h-5 w-5 text-white"/>
+            </div>
+            <div class="ml-3">
+              <p class="text-2xl font-bold text-green-700 dark:text-green-400">{{ pendingGrades || 0 }}</p>
+              <p class="text-xs text-green-600 dark:text-green-400">Ungraded Submissions</p>
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Results release blockers -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Awaiting Results</h3>
+            <span v-if="activeAcademicYear" class="text-xs text-gray-500 dark:text-gray-400">
+              {{ activeAcademicYear }} · Semester {{ currentSemester }}
+            </span>
+          </div>
+          <p v-if="studentsAwaitingResults && studentsAwaitingResults.count > 0" class="text-sm text-gray-600 mb-4 dark:text-gray-400">
+            {{ studentsAwaitingResults.count }} student(s) have ungraded work blocking a results release.
+          </p>
+          <div v-if="studentsAwaitingResults && studentsAwaitingResults.students.length" class="space-y-2">
+            <Link
+              v-for="student in studentsAwaitingResults.students"
+              :key="student.id"
+              :href="route('hive.grades.index')"
+              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              <div>
+                <p class="text-sm font-medium text-gray-800 dark:text-white">{{ student.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ student.profile?.student_number || student.email }}</p>
+              </div>
+            </Link>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No students are blocked on results.</p>
+        </div>
+
+        <!-- Recent applications -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Recent Applications</h3>
+            <Link :href="route('hive.applications.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium dark:text-amber-400">View all</Link>
+          </div>
+          <div v-if="recentApplications && recentApplications.length" class="space-y-2">
+            <div v-for="application in recentApplications" :key="application.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+              <div>
+                <p class="text-sm font-medium text-gray-800 dark:text-white">{{ application.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ application.programme?.name }}</p>
+              </div>
+              <span class="px-2 py-1 text-xs rounded-full" :class="getApplicationStatusClass(application.status)">
+                {{ application.status }}
+              </span>
+            </div>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No applications received.</p>
+        </div>
+      </div>
+
+      <!-- Register access + export -->
       <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -720,13 +820,9 @@
       <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Fees &amp; Balance</h3>
-          <Link
-            v-if="currentUser?.programme_id"
-            :href="route('hive.finance.invoices.index')"
-            class="text-sm text-amber-600 hover:text-amber-700 font-medium dark:text-amber-400"
-          >
-            View all invoices
-          </Link>
+          <span v-if="outstandingBalance > 0" class="text-sm text-red-600 dark:text-red-400">
+            {{ formatMoney(outstandingBalance) }} outstanding
+          </span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
@@ -769,8 +865,15 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-              <tr v-for="invoice in invoices" :key="invoice.id">
-                <td class="py-2 pr-4 font-medium text-gray-800 dark:text-gray-100">{{ invoice.invoice_number }}</td>
+              <tr v-for="invoice in invoices" :key="invoice.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td class="py-2 pr-4 font-medium">
+                  <Link
+                    :href="route('hive.finance.invoices.show', { invoice: invoice.id })"
+                    class="text-gray-800 dark:text-gray-100 hover:text-amber-600 dark:hover:text-amber-400"
+                  >
+                    {{ invoice.invoice_number }}
+                  </Link>
+                </td>
                 <td class="py-2 pr-4 text-gray-600 dark:text-gray-300">{{ invoice.description || '—' }}</td>
                 <td class="py-2 pr-4 text-gray-600 dark:text-gray-300">{{ formatMoney(invoice.amount) }}</td>
                 <td class="py-2 pr-4 text-gray-600 dark:text-gray-300">{{ formatMoney(invoice.balance) }}</td>
@@ -788,6 +891,195 @@
 
       <!-- Recent Activity -->
       <RecentActivity :activities="recentActivities || []" />
+    </div>
+
+    <!-- Parent / Guardian Dashboard -->
+    <div v-if="isParentGuardian" class="space-y-6">
+      <div v-if="wardCount === 0" class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center dark:bg-gray-800 dark:border-gray-700">
+        <p class="text-lg font-semibold text-gray-800 dark:text-white">No students linked to your account</p>
+        <p class="text-sm text-gray-500 mt-2 dark:text-gray-400">
+          Ask the registrar's office to link your account to your child or ward to view their academic progress.
+        </p>
+      </div>
+
+      <template v-else>
+        <!-- Wards -->
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">My Students</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              v-for="ward in wards"
+              :key="ward.id"
+              class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+            >
+              <div class="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <p class="font-semibold text-gray-800 dark:text-white">{{ ward.name }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ ward.student_number || '—' }}
+                    <span v-if="ward.relationship"> · {{ ward.relationship }}</span>
+                  </p>
+                  <p v-if="ward.programme" class="text-xs text-gray-500 dark:text-gray-400">{{ ward.programme }}</p>
+                </div>
+                <span
+                  class="px-2 py-1 text-xs rounded-full"
+                  :class="ward.average_grade !== null ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"
+                >
+                  {{ ward.average_grade !== null ? `${ward.average_grade}% avg` : 'No grades yet' }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ ward.pending_submissions }} assignment(s) outstanding
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fee summary, only when the link grants visibility -->
+        <div v-if="feeSummary" class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Fees</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
+              <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Billed</p>
+              <p class="text-xl font-bold text-gray-800 dark:text-white">{{ formatMoney(feeSummary.totalFees) }}</p>
+            </div>
+            <div
+              class="p-4 rounded-lg"
+              :class="feeSummary.outstanding > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-green-50 dark:bg-green-900/20'"
+            >
+              <p
+                class="text-xs uppercase tracking-wide"
+                :class="feeSummary.outstanding > 0 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'"
+              >
+                Outstanding
+              </p>
+              <p
+                class="text-xl font-bold"
+                :class="feeSummary.outstanding > 0 ? 'text-red-800 dark:text-red-300' : 'text-green-800 dark:text-green-300'"
+              >
+                {{ formatMoney(feeSummary.outstanding) }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Recent grades -->
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Recent Grades</h3>
+            <div v-if="recentGrades && recentGrades.length" class="space-y-3">
+              <div v-for="grade in recentGrades" :key="grade.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+                <div>
+                  <p class="text-sm font-medium text-gray-800 dark:text-white">{{ grade.gradable?.title }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ grade.student?.name }} · {{ formatDate(grade.graded_at) }}</p>
+                </div>
+                <span class="font-bold text-gray-800 dark:text-white">{{ grade.grade }}%</span>
+              </div>
+            </div>
+            <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No grades published yet.</p>
+          </div>
+
+          <!-- Upcoming assessments -->
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Upcoming Deadlines</h3>
+            <div v-if="upcomingAssessments && upcomingAssessments.length" class="space-y-3">
+              <div v-for="assessment in upcomingAssessments" :key="assessment.id" class="p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+                <p class="text-sm font-medium text-gray-800 dark:text-white">{{ assessment.title }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ assessment.module?.name }} · Due {{ formatDate(assessment.due_date) }}</p>
+              </div>
+            </div>
+            <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No upcoming deadlines.</p>
+          </div>
+        </div>
+
+        <!-- Announcements -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Announcements</h3>
+          <div v-if="announcements && announcements.length" class="space-y-3">
+            <div v-for="announcement in announcements" :key="announcement.id" class="border-b border-gray-100 pb-3 last:border-0 dark:border-gray-700">
+              <p class="text-sm font-medium text-gray-800 dark:text-white">{{ announcement.title }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ formatDate(announcement.published_at || announcement.created_at) }}</p>
+            </div>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No announcements.</p>
+        </div>
+      </template>
+    </div>
+
+    <!-- Alumni Dashboard -->
+    <div v-if="isAlumni" class="space-y-6">
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-xl dark:from-amber-900/20 dark:to-amber-800/20">
+        <h2 class="text-xl font-bold text-amber-800 dark:text-amber-300">Welcome back</h2>
+        <p class="text-sm text-amber-700 mt-1 dark:text-amber-400">
+          <template v-if="programmeName">{{ programmeName }}<span v-if="graduationDate"> · Graduated {{ graduationDate }}</span></template>
+          <template v-else>Your alumni record is active.</template>
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Final Average</p>
+          <p class="text-2xl font-bold text-amber-700 dark:text-amber-400">
+            {{ finalAverage !== null ? `${finalAverage}%` : '—' }}
+          </p>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Modules Completed</p>
+          <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ modulesCompleted || 0 }}</p>
+        </div>
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Student Number</p>
+          <p class="text-lg font-bold text-gray-800 dark:text-white">{{ studentNumber || '—' }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Placements -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Placement History</h3>
+          <div v-if="placements && placements.length" class="space-y-3">
+            <div v-for="placement in placements" :key="placement.id" class="p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+              <p class="text-sm font-medium text-gray-800 dark:text-white">{{ placement.company_name || placement.position || 'Placement' }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ placement.position || '' }}<span v-if="placement.position && placement.company_name"> · </span>{{ placement.company_name || '' }}
+              </p>
+            </div>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No placement records.</p>
+        </div>
+
+        <!-- Documents -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Alumni Documents</h3>
+          <div v-if="availableDocuments && availableDocuments.length" class="space-y-3">
+            <div v-for="document in availableDocuments" :key="document.id" class="p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+              <p class="text-sm font-medium text-gray-800 dark:text-white">{{ document.title }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(document.published_at || document.created_at) }}</p>
+            </div>
+          </div>
+          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No documents available.</p>
+        </div>
+      </div>
+
+      <!-- Announcements -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Announcements</h3>
+        <div v-if="announcements && announcements.length" class="space-y-3">
+          <div v-for="announcement in announcements" :key="announcement.id" class="border-b border-gray-100 pb-3 last:border-0 dark:border-gray-700">
+            <p class="text-sm font-medium text-gray-800 dark:text-white">{{ announcement.title }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ formatDate(announcement.published_at || announcement.created_at) }}</p>
+          </div>
+        </div>
+        <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No announcements.</p>
+      </div>
+    </div>
+
+    <!-- No dashboard for this account -->
+    <div v-if="hasNoDashboard" class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center dark:bg-gray-800 dark:border-gray-700">
+      <p class="text-lg font-semibold text-gray-800 dark:text-white">No dashboard available</p>
+      <p class="text-sm text-gray-500 mt-2 dark:text-gray-400">
+        Your account does not currently have a role with dashboard access. Contact the registrar's office if you believe this is a mistake.
+      </p>
     </div>
   </HiveLayout>
 </template>
@@ -872,6 +1164,12 @@ const props = defineProps({
     classAverage: Number,
     classAverages: Object,
 
+    // Academic management
+    currentSemester: String,
+    enrolledThisYear: Number,
+    studentsAwaitingResults: Object,
+    gradablesCount: Number,
+
     // Non-academic staff
     leaveRequestsByType: Object,
     staffLeaveBalance: Number,
@@ -934,6 +1232,29 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+
+    // Parent / guardian
+    wards: {
+        type: Array,
+        default: () => [],
+    },
+    wardCount: Number,
+    feeSummary: Object,
+
+    // Alumni
+    programmeName: String,
+    graduationDate: String,
+    studentNumber: String,
+    modulesCompleted: Number,
+    finalAverage: Number,
+    placements: {
+        type: Array,
+        default: () => [],
+    },
+    availableDocuments: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const formatDate = (date) => dayjs(date).fromNow();
@@ -946,6 +1267,9 @@ const {
   isInstructor,
   isNonAcademicStaff,
   isStudent,
+  isParentGuardian,
+  isAlumni,
+  hasNoDashboard,
   canManageStudents,
   canExportStudents,
 } = useUser();
@@ -996,6 +1320,14 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 });
 
 const formatMoney = (amount) => currencyFormatter.format(Number(amount) || 0);
+
+// Derived rather than prop'd so the banner always matches the invoice table.
+const outstandingBalance = computed(() =>
+  (props.invoices || []).reduce((sum, invoice) => {
+    if (invoice?.is_paid) return sum;
+    return sum + (Number(invoice?.balance) || 0);
+  }, 0)
+);
 
 const getInvoiceStatusClass = (invoice) => {
     if (invoice?.is_paid) {
