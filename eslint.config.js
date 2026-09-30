@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import pluginVue from 'eslint-plugin-vue';
+import vueParser from 'vue-eslint-parser';
 import pluginPrettier from 'eslint-config-prettier';
 
 export default [
@@ -12,8 +13,10 @@ export default [
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
+            parser: vueParser,
             parserOptions: {
-                parser: pluginVue.parsers.vue-eslint-parser,
+                ecmaVersion: 2022,
+                sourceType: 'module',
             },
             globals: {
                 window: 'readonly',
@@ -21,6 +24,13 @@ export default [
                 console: 'readonly',
                 axios: 'readonly',
                 toast: 'readonly',
+                route: 'readonly',
+                Ziggy: 'readonly',
+                usePage: 'readonly',
+                Head: 'readonly',
+                Link: 'readonly',
+                router: 'readonly',
+                shared: 'readonly',
             },
         },
         rules: {

@@ -69,6 +69,11 @@ class InstructorDashboardData implements DashboardData
             // Class Performance Snapshot
             'classAverage' => $this->calculateClassAverage($user),
             'classAverages' => $this->getClassAverages($user),
+
+            // Modules the instructor is assigned to teach
+            'myModules' => $user->instructedModules()
+                ->orderBy('modules.name')
+                ->get(['modules.id', 'modules.name', 'modules.code']),
         ];
     }
 

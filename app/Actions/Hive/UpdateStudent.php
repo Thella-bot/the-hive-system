@@ -7,11 +7,41 @@ namespace App\Actions\Hive;
 use App\Models\Cohort;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\ProgrammeTransferService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class UpdateStudent
 {
+    /**
+     * Set when a programme change forced a student number to be reissued.
+     *
+     * @var array{student_number_from: ?string, student_number_to: ?string, cohort_from: ?int, cohort_to: ?int, department_from: ?int, department_to: ?int, department_changed: bool}|null
+     */
+    protected ?array $transferSummary = null;
+
+    /**
+     * The programme the student held before this update. Captured before the
+     * user row is rewritten, because the transfer logic needs to compare the
+     * old and new departments.
+     */
+    protected ?Programme $previousProgramme = null;
+
+    public function __construct(
+        protected ProgrammeTransferService $transfers,
+    ) {}
+
+    /**
+     * A summary of the department-bound changes made by the last update, so the
+     * caller can tell the administrator their student number changed.
+     *
+     * @return array{student_number_from: ?string, student_number_to: ?string, cohort_from: ?int, cohort_to: ?int, department_from: ?int, department_to: ?int, department_changed: bool}|null
+     */
+    public function transferSummary(): ?array
+    {
+        return $this->transferSummary;
+    }
+
     public function update(User $student, array $input, bool $canManageAllFields): User
     {
         $this->validateBaseFields($input);
@@ -21,6 +51,10 @@ class UpdateStudent
         } else {
             $this->sanitizeNonAdminInput($input);
         }
+
+        $student->loadMissing(['programme', 'profile.cohort']);
+        $this->previousProgramme = $student->programme;
+        $this->transferSummary = null;
 
         $this->updateUserAccount($student, $canManageAllFields, $input);
 
@@ -213,20 +247,34 @@ class UpdateStudent
         }
     }
 
+    /**
+     * Apply a programme change through the transfer service so the student
+     * number, cohort and module list stay consistent with the new department.
+     */
     private function syncModuleEnrollments(User $student, bool $canManageAllFields, array $input): void
     {
         if (! $canManageAllFields || ! array_key_exists('programme_id', $input)) {
             return;
         }
 
-        if (! empty($input['programme_id'])) {
-            $programme = Programme::find($input['programme_id']);
-            if ($programme) {
-                $moduleIds = $programme->modules()->pluck('id');
-                $student->modules()->sync($moduleIds);
-            }
-        } else {
-            $student->modules()->sync([]);
+        $programme = empty($input['programme_id'])
+            ? null
+            : Programme::with('modules.department')->find($input['programme_id']);
+
+        $result = $this->transfers->transfer($student, $programme, $input, $this->previousProgramme);
+
+        $student->loadMissing(['profile', 'programme']);
+
+        if (($result['student_number_from'] ?? null) !== ($result['student_number_to'] ?? null)) {
+            $this->transferSummary = [
+                'student_number_from' => $result['student_number_from'],
+                'student_number_to' => $result['student_number_to'],
+                'cohort_from' => $result['cohort_from'],
+                'cohort_to' => $result['cohort_to'],
+                'department_from' => $result['previous_department_id'],
+                'department_to' => $result['department_id'],
+                'department_changed' => $result['previous_department_id'] !== $result['department_id'],
+            ];
         }
     }
 }

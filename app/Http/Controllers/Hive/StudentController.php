@@ -14,12 +14,14 @@ use App\Models\User;
 use App\Services\AuditService;
 use App\Services\ReferenceDataService;
 use App\Services\SignatoryService;
+use App\Services\StudentExportService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -34,67 +36,119 @@ class StudentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request, StudentExportService $exports)
     {
         $this->authorize('viewAny', User::class);
-        $students = User::role(['student', 'parent-guardian', 'alumni'])
-            ->with(['profile', 'profile.cohort', 'programme'])
-            ->paginate(15);
+
+        $filters = $this->validatedFilters($request);
+        $options = $exports->filterOptions();
+
+        $students = $exports->query($filters)->paginate(15)->withQueryString();
 
         return Inertia::render('Hive/Students/Index', [
             'students' => $students,
+            'filters' => $filters,
+            'canExport' => $request->user()?->canExportStudents() ?? false,
+            'exportUrl' => route('hive.students.export'),
+            'filterOptions' => [
+                'programmes' => $options['programmes'],
+                'cohorts' => $options['cohorts'],
+                'departments' => $options['departments'],
+                'statuses' => $exports->statuses(),
+            ],
         ]);
     }
 
     /**
-     * Export students to CSV.
+     * Export the student register to CSV.
+     *
+     * Honours the same filters as the listing, so the file contains exactly the
+     * rows the administrator was looking at.
      */
-    public function export()
+    public function export(Request $request, StudentExportService $exports)
     {
         $this->authorize('viewAny', User::class);
 
-        $students = User::role(['student', 'parent-guardian', 'alumni'])
-            ->with(['profile', 'programme'])
-            ->get();
+        abort_unless($request->user()?->canExportStudents(), 403, 'You are not allowed to export the student register.');
 
-        $filename = 'students_'.date('Y-m-d_His').'.csv';
+        $filters = $this->validatedFilters($request);
 
-        $headers = [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-        ];
+        $columns = $this->validatedColumns($request, $exports);
+        $definitions = $exports->columns();
+        $headers = array_map(fn (string $column) => $definitions[$column]['label'], $columns);
 
-        $callback = function () use ($students) {
+        $rows = $exports->rows($exports->query($filters)->get(), $columns);
+
+        $filename = 'student_register_'.now()->format('Y-m-d_His').'.csv';
+
+        // The register holds contact details and national ID numbers, so every
+        // download is recorded.
+        $this->audit->log('exported', $request->user(), [
+            'resource' => 'student-register',
+            'columns' => $columns,
+            'filters' => $filters,
+            'row_count' => $rows->count(),
+        ]);
+
+        return Response::streamDownload(function () use ($rows, $headers) {
             $file = fopen('php://output', 'w');
 
-            // BOM for UTF-8
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            // Byte order mark, so Excel opens UTF-8 names correctly.
+            fwrite($file, "\xEF\xBB\xBF");
 
-            // Header row
-            fputcsv($file, [
-                'ID', 'Name', 'Email', 'Student Number', 'Programme',
-                'Status', 'Phone', 'Enrollment Date', 'Created At',
-            ]);
+            fputcsv($file, $headers);
 
-            // Data rows
-            foreach ($students as $student) {
-                fputcsv($file, [
-                    $student->id,
-                    $student->name,
-                    $student->email,
-                    $student->profile?->student_number ?? 'N/A',
-                    $student->programme?->name ?? 'N/A',
-                    $student->profile?->status ?? 'N/A',
-                    $student->profile?->phone ?? 'N/A',
-                    $student->profile?->enrollment_date ?? 'N/A',
-                    $student->created_at?->format('Y-m-d H:i:s') ?? 'N/A',
-                ]);
+            foreach ($rows as $row) {
+                fputcsv($file, array_values($row));
             }
 
             fclose($file);
-        };
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+        ]);
+    }
 
-        return Response::stream($callback, 200, $headers);
+    /**
+     * The filters shared by the listing and the export.
+     *
+     * @return array<string, mixed>
+     */
+    protected function validatedFilters(Request $request): array
+    {
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'status' => ['nullable', 'string', Rule::in(['active', 'graduated', 'on_leave', 'suspended', 'withdrawn'])],
+            'programme_id' => ['nullable', 'integer', 'exists:programmes,id'],
+            'cohort_id' => ['nullable', 'integer', 'exists:cohorts,id'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+        ]);
+
+        // Drop empties so the export URL stays clean and cache-friendly.
+        return array_filter($validated, fn ($value) => $value !== null && $value !== '');
+    }
+
+    /**
+     * The requested columns, falling back to the full register.
+     *
+     * @return array<int, string>
+     */
+    protected function validatedColumns(Request $request, StudentExportService $exports): array
+    {
+        $available = $exports->defaultColumns();
+
+        $requested = $request->input('columns');
+
+        if (is_string($requested)) {
+            $requested = array_filter(explode(',', $requested));
+        }
+
+        if (! is_array($requested) || $requested === []) {
+            return $available;
+        }
+
+        $selected = array_values(array_intersect($available, $requested));
+
+        return $selected === [] ? $available : $selected;
     }
 
     /**
@@ -222,12 +276,30 @@ class StudentController extends Controller
 
         $updater->update($student, $validated, $request->user()->canManageStudents());
 
+        $transfer = $updater->transferSummary();
+
         // Log audit trail
         $student->refresh();
         $this->audit->logUpdated($student, $oldValues);
 
+        $message = 'Student updated successfully.';
+
+        if ($transfer && $transfer['student_number_from'] !== $transfer['student_number_to']) {
+            $message .= $transfer['department_changed']
+                ? sprintf(
+                    ' Student number changed from %s to %s because the programme belongs to a different department.',
+                    $transfer['student_number_from'] ?? 'none',
+                    $transfer['student_number_to'] ?? 'none',
+                )
+                : sprintf(
+                    ' Student number changed from %s to %s.',
+                    $transfer['student_number_from'] ?? 'none',
+                    $transfer['student_number_to'] ?? 'none',
+                );
+        }
+
         return redirect()->route('hive.students.index')
-            ->with('success', 'Student updated successfully.');
+            ->with('success', $message);
     }
 
     /**

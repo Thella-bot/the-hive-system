@@ -142,11 +142,17 @@ class ImportUsersJob implements ShouldQueue
                         $this->seenStudentNumbers[] = $csvStudentNumber;
                     }
 
-                    $existingUser = User::where('email', $email)->first();
+                    $existingUser = User::withTrashed()->where('email', $email)->first();
+
+                    if (! $existingUser && $nationalId) {
+                        $existingUser = User::withTrashed()->where('national_id_number', $nationalId)->first();
+                    }
 
                     if ($existingUser) {
                         $this->applyStudentData($existingUser, $fullName, $email, $gender, $nationalId, $dateOfBirth, $cellPhone, $address, $emergencyContactName, $emergencyContactPhone, $programmeName, $intakeDate, $csvStudentNumber, $index + 2);
-                        $this->seenNationalIdUsers[$nationalId] = $existingUser;
+                        if ($nationalId) {
+                            $this->seenNationalIdUsers[$nationalId] = $existingUser;
+                        }
                         $this->successCount++;
                     } else {
                         $password = Str::random(10);
@@ -184,7 +190,14 @@ class ImportUsersJob implements ShouldQueue
                 }
             });
 
-            Storage::delete($this->filePath);
+            try {
+                Storage::delete($this->filePath);
+            } catch (\Exception $deleteError) {
+                Log::warning('import_users.delete_failed', [
+                    'file_path' => $this->filePath,
+                    'error' => $deleteError->getMessage(),
+                ]);
+            }
         } catch (\Exception $e) {
             $jobError = $e->getMessage();
             Log::error('import_users.failed', [
@@ -226,7 +239,12 @@ class ImportUsersJob implements ShouldQueue
         }
 
         if ($nationalId) {
-            $user->national_id_number = $nationalId;
+            $conflictingUser = User::withTrashed()->where('national_id_number', $nationalId)
+                ->where('id', '<>', $user->id)
+                ->first();
+            if (! $conflictingUser) {
+                $user->national_id_number = $nationalId;
+            }
         }
 
         $user->save();
@@ -244,6 +262,9 @@ class ImportUsersJob implements ShouldQueue
         $departmentId = null;
         if ($programmeName) {
             $programme = Programme::where('name', $programmeName)->first();
+            if (! $programme) {
+                $programme = Programme::where('name', 'like', '%'.str_replace('Cheffing', 'Chef', $programmeName).'%')->first();
+            }
             if ($programme) {
                 $departmentId = $programme->department_id;
                 $user->programme()->associate($programme);
@@ -255,11 +276,18 @@ class ImportUsersJob implements ShouldQueue
         $enrollmentDate = null;
         if ($intakeDate) {
             try {
-                $enrollmentDate = Carbon::createFromFormat('m/d/Y', $intakeDate);
-                $cohort = $this->findCohortForDate($enrollmentDate, $departmentId);
+                $enrollmentDate = $this->parseDate($intakeDate);
+                if ($enrollmentDate) {
+                    $cohort = $this->findCohortForDate($enrollmentDate, $departmentId);
+                } else {
+                    Log::warning('import_users.invalid_intake_date', [
+                        'row' => $rowIndex + 2,
+                        'date' => $intakeDate,
+                    ]);
+                }
             } catch (\Exception $e) {
                 Log::warning('import_users.invalid_intake_date', [
-                    'row' => $index + 2,
+                    'row' => $rowIndex + 2,
                     'date' => $intakeDate,
                 ]);
             }
@@ -300,6 +328,20 @@ class ImportUsersJob implements ShouldQueue
         }
 
         return $query->first();
+    }
+
+    private function parseDate(string $dateString): ?Carbon
+    {
+        $formats = ['m/d/Y', 'Y-m-d', 'd/m/Y', 'Y/m/d'];
+        foreach ($formats as $format) {
+            try {
+                return Carbon::createFromFormat($format, $dateString);
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        return null;
     }
 
     private function validateRows(array $rows): void

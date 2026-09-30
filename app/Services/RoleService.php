@@ -17,6 +17,17 @@ class RoleService
         'academic-director',
     ];
 
+    /**
+     * Academic management roles: they own the register, timetables and results
+     * but do not teach. They get their own dashboard rather than the generic
+     * staff one, which useUser.isAcademicStaff() already assumes.
+     */
+    private const ACADEMIC_MANAGEMENT_ROLES = [
+        'program-coordinator',
+        'registrar',
+        'examination-cell',
+    ];
+
     private const NON_ACADEMIC_STAFF_ROLES = [
         'finance',
         'hr-manager',
@@ -27,9 +38,11 @@ class RoleService
         'events-pr-manager',
         'cafeteria-manager',
         'admissions-officer',
-        'registrar',
-        'examination-cell',
-        'program-coordinator',
+    ];
+
+    private const EXTERNAL_ROLES = [
+        'parent-guardian',
+        'alumni',
     ];
 
     public function isAdmin(User $user): bool
@@ -55,6 +68,26 @@ class RoleService
     public function isNonAcademicStaff(User $user): bool
     {
         return $user->hasAnyRole(self::NON_ACADEMIC_STAFF_ROLES) && !$this->isFaculty($user);
+    }
+
+    public function isAcademicManagement(User $user): bool
+    {
+        return $user->hasAnyRole(self::ACADEMIC_MANAGEMENT_ROLES);
+    }
+
+    public function isParentGuardian(User $user): bool
+    {
+        return $user->hasRole('parent-guardian');
+    }
+
+    public function isAlumni(User $user): bool
+    {
+        return $user->hasRole('alumni');
+    }
+
+    public function isExternal(User $user): bool
+    {
+        return $user->hasAnyRole(self::EXTERNAL_ROLES);
     }
 
     public function canAccessFinance(User $user): bool
@@ -89,9 +122,16 @@ class RoleService
 
     public function canAccessDashboard(User $user): bool
     {
-        return $this->isAdmin($user) || $this->isFaculty($user) || $this->isNonAcademicStaff($user) || $this->isStudent($user);
+        return $this->getDashboardDataType($user) !== null;
     }
 
+    /**
+     * Resolve which dashboard data set a user should receive.
+     *
+     * The ordering here must stay in step with the mutually exclusive blocks in
+     * resources/js/Pages/Hive/Dashboard.vue, otherwise a user gets data that the
+     * template never renders.
+     */
     public function getDashboardDataType(User $user): ?string
     {
         if ($this->isAdmin($user)) {
@@ -102,12 +142,24 @@ class RoleService
             return 'instructor';
         }
 
+        if ($this->isAcademicManagement($user)) {
+            return 'academic_staff';
+        }
+
         if ($this->isNonAcademicStaff($user)) {
             return 'non_academic_staff';
         }
 
         if ($this->isStudent($user)) {
             return 'student';
+        }
+
+        if ($this->isParentGuardian($user)) {
+            return 'parent_guardian';
+        }
+
+        if ($this->isAlumni($user)) {
+            return 'alumni';
         }
 
         return null;

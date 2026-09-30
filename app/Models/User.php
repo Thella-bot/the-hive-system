@@ -116,6 +116,11 @@ class User extends Authenticatable
         return $this->hasMany(Submission::class, 'student_id');
     }
 
+    public function grades(): HasMany
+    {
+        return $this->hasMany(StudentGrade::class, 'student_id');
+    }
+
     public function placements(): HasMany
     {
         return $this->hasMany(Placement::class, 'student_id');
@@ -134,6 +139,26 @@ class User extends Authenticatable
     public function instructedModules(): BelongsToMany
     {
         return $this->belongsToMany(Module::class, 'module_instructor', 'user_id', 'module_id');
+    }
+
+    /**
+     * Students this user is a parent/guardian of.
+     */
+    public function wards(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'student_guardians', 'guardian_id', 'student_id')
+            ->withPivot(['relationship', 'is_primary', 'can_view_fees'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Parent/guardian accounts linked to this student.
+     */
+    public function guardians(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'student_guardians', 'student_id', 'guardian_id')
+            ->withPivot(['relationship', 'is_primary', 'can_view_fees'])
+            ->withTimestamps();
     }
 
     // --- Helpers ---
@@ -212,6 +237,20 @@ class User extends Authenticatable
             'registrar',
             'examination-cell',
         ]);
+    }
+
+    /**
+     * Check if user can export register data.
+     *
+     * The register export carries contact details and national ID numbers, so
+     * it is limited to the roles that can already manage students plus anyone
+     * holding the explicit export-data permission.
+     */
+    public function canExportStudents(): bool
+    {
+        return $this->canManageStudents()
+            || $this->hasAnyRole(['it-support', 'finance'])
+            || $this->hasPermissionTo('export-data');
     }
 
     /**

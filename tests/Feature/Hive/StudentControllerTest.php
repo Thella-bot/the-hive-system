@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Hive;
 
 use App\Models\Cohort;
 use App\Models\Department;
+use App\Models\Profile;
 use App\Models\Programme;
 use App\Models\User;
+use App\Services\IdGenerator;
+use App\Services\StudentNumberService;
 
 class StudentControllerTest extends HiveTestCase
 {
@@ -250,5 +255,136 @@ class StudentControllerTest extends HiveTestCase
         $response = $this->getJson(route('hive.students.generate-reference', $student));
 
         $response->assertStatus(403);
+    }
+
+    public function test_updating_the_programme_reissues_the_student_number(): void
+    {
+        $this->actingAsRegistrar();
+
+        $pastry = Department::factory()->create(['name' => 'Pastry & Bakery']);
+        $chef = Department::factory()->create(['name' => 'Culinary Arts']);
+
+        $from = Programme::factory()->create(['department_id' => $pastry->id]);
+        $to = Programme::factory()->create(['department_id' => $chef->id, 'duration_months' => 36]);
+
+        $oldNumber = 'S2026'.IdGenerator::departmentSegment($pastry->id).'02';
+
+        $student = User::factory()->create(['approved_at' => now()]);
+        $student->assignRole('student');
+        $student->update(['programme_id' => $from->id, 'student_number' => $oldNumber]);
+
+        Profile::factory()->forUser($student)->create([
+            'student_number' => $oldNumber,
+            'status' => 'active',
+        ]);
+
+        $response = $this->patch(route('hive.students.update', $student), [
+            'name' => $student->name,
+            'email' => $student->email,
+            'programme_id' => $to->id,
+        ]);
+
+        $response->assertRedirect(route('hive.students.index'));
+
+        $student->refresh();
+
+        $this->assertNotSame($oldNumber, $student->student_number);
+        $this->assertSame(
+            $chef->id,
+            (new StudentNumberService)->departmentIdFor($student->student_number),
+        );
+        $this->assertSame($student->student_number, $student->profile->student_number);
+    }
+
+    public function test_the_administrator_is_told_when_the_number_changes(): void
+    {
+        $this->actingAsRegistrar();
+
+        $pastry = Department::factory()->create();
+        $chef = Department::factory()->create();
+
+        $from = Programme::factory()->create(['department_id' => $pastry->id]);
+        $to = Programme::factory()->create(['department_id' => $chef->id, 'duration_months' => 36]);
+
+        $oldNumber = 'S2026'.IdGenerator::departmentSegment($pastry->id).'02';
+
+        $student = User::factory()->create(['approved_at' => now()]);
+        $student->assignRole('student');
+        $student->update(['programme_id' => $from->id, 'student_number' => $oldNumber]);
+
+        Profile::factory()->forUser($student)->create([
+            'student_number' => $oldNumber,
+            'status' => 'active',
+        ]);
+
+        $response = $this->patch(route('hive.students.update', $student), [
+            'name' => $student->name,
+            'email' => $student->email,
+            'programme_id' => $to->id,
+        ]);
+
+        $response->assertSessionHas('success');
+        $this->assertStringContainsString(
+            $oldNumber,
+            session('success'),
+            'the old number should be named in the confirmation',
+        );
+    }
+
+    public function test_updating_the_programme_within_one_department_keeps_the_number(): void
+    {
+        $this->actingAsRegistrar();
+
+        $department = Department::factory()->create();
+
+        $from = Programme::factory()->create(['department_id' => $department->id]);
+        $to = Programme::factory()->create(['department_id' => $department->id, 'duration_months' => 36]);
+
+        $number = 'S2026'.IdGenerator::departmentSegment($department->id).'07';
+
+        $student = User::factory()->create(['approved_at' => now()]);
+        $student->assignRole('student');
+        $student->update(['programme_id' => $from->id, 'student_number' => $number]);
+
+        Profile::factory()->forUser($student)->create([
+            'student_number' => $number,
+            'status' => 'active',
+        ]);
+
+        $this->patch(route('hive.students.update', $student), [
+            'name' => $student->name,
+            'email' => $student->email,
+            'programme_id' => $to->id,
+        ])->assertRedirect(route('hive.students.index'));
+
+        $this->assertSame($number, $student->refresh()->student_number);
+    }
+
+    public function test_editing_the_student_number_alone_keeps_both_records_in_step(): void
+    {
+        $this->actingAsRegistrar();
+
+        $programme = Programme::factory()->create();
+
+        $student = User::factory()->create(['approved_at' => now()]);
+        $student->assignRole('student');
+        $student->update(['programme_id' => $programme->id, 'student_number' => 'S20260407']);
+
+        Profile::factory()->forUser($student)->create([
+            'student_number' => 'S20260407',
+            'status' => 'active',
+        ]);
+
+        $this->patch(route('hive.students.update', $student), [
+            'name' => $student->name,
+            'email' => $student->email,
+            'programme_id' => $programme->id,
+            'student_number' => 'S20260421',
+        ])->assertRedirect(route('hive.students.index'));
+
+        $student->refresh();
+
+        $this->assertSame('S20260421', $student->student_number, 'the user row must not keep the old number');
+        $this->assertSame('S20260421', $student->profile->student_number);
     }
 }

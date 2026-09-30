@@ -24,6 +24,32 @@ export function useUser() {
   ));
   const isSuperAdmin = computed(() => userRoles.value.includes('super-admin'));
   const isInstructor = computed(() => isFaculty.value);
+
+  // Roles that own the student register. Mirrors User::canManageStudents().
+  const canManageStudents = computed(() => userRoles.value.some((role) =>
+    ['super-admin', 'academic-director', 'program-coordinator', 'admissions-officer', 'registrar', 'examination-cell'].includes(role)
+  ));
+
+  // The register export carries contact details and national ID numbers.
+  // Mirrors User::canExportStudents().
+  const canExportStudents = computed(() =>
+    canManageStudents.value || userRoles.value.some((role) => ['it-support', 'finance'].includes(role))
+  );
+
+  // Academic management roles that are not admins and not teaching staff.
+  // academic-director is deliberately excluded: it already renders the
+  // instructor dashboard, and the dashboard blocks are mutually exclusive.
+  const isAcademicStaff = computed(() =>
+    !isAdmin.value && userRoles.value.some((role) =>
+      ['program-coordinator', 'registrar', 'examination-cell'].includes(role)
+    )
+  );
+
+  // Everyone else on staff, e.g. admissions, finance, HR, library.
+  const isNonAcademicStaff = computed(() =>
+    isStaff.value && !isAdmin.value && !isFaculty.value && !isAcademicStaff.value
+  );
+
   const needsRegistration = computed(() => currentUser.value?.needs_registration ?? false);
   const isRegisteredStudent = computed(() => isStudent.value && !needsRegistration.value);
 
@@ -49,6 +75,10 @@ export function useUser() {
     isAdmin,
     isStaff,
     canAccessFinance,
+    canManageStudents,
+    canExportStudents,
+    isAcademicStaff,
+    isNonAcademicStaff,
     isSuperAdmin,
     isInstructor,
     needsRegistration,

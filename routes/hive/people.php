@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Http\Controllers\Hive\Admin\ImportUsersController;
+use App\Http\Controllers\Hive\Admin\UserApprovalController;
 use App\Http\Controllers\Hive\StaffController;
 use App\Http\Controllers\Hive\StudentController;
 use App\Http\Controllers\Hive\UserController;
-use App\Http\Controllers\Hive\Admin\UserApprovalController;
-use App\Http\Controllers\Hive\Admin\ImportUsersController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,14 +30,15 @@ Route::middleware(['role:super-admin|it-support'])->name('admin.')->prefix('admi
     Route::post('import-users', [ImportUsersController::class, 'import'])->name('import-users.store');
 
     // Log Viewer
-    Route::get('logs', fn() => redirect('/log-viewer'))->name('logs');
+    Route::get('logs', fn () => redirect('/log-viewer'))->name('logs');
 });
 
 // Student management (super-admin, admissions-officer, registrar, program-coordinator)
-Route::resource('students', StudentController::class)
-    ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
+// Registered before the resource route so "export" is not captured as a student id.
 Route::get('students/export', [StudentController::class, 'export'])
     ->name('students.export')
+    ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
+Route::resource('students', StudentController::class)
     ->middleware('role:super-admin|admissions-officer|registrar|program-coordinator');
 Route::get('students/{student}/generate-proof', [StudentController::class, 'generateProof'])
     ->name('students.generate-proof')

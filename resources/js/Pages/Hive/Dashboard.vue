@@ -161,6 +161,14 @@
               <BookOpenIcon class="h-5 w-5 text-amber-600 mr-3 dark:text-amber-400"/>
               <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Create Assessment</span>
             </Link>
+            <a
+              v-if="canExportStudents"
+              :href="route('hive.students.export')"
+              class="flex items-center p-4 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30"
+            >
+              <ArrowDownTrayIcon class="h-5 w-5 text-emerald-600 mr-3 dark:text-emerald-400"/>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Export Students</span>
+            </a>
             <Link v-if="isSuperAdmin" :href="route('log-viewer')" target="_blank" class="flex items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition dark:bg-orange-900/20 dark:hover:bg-orange-900/30">
               <RectangleStackIcon class="h-5 w-5 text-orange-600 mr-3 dark:text-orange-400"/>
               <span class="text-sm font-medium text-gray-700 dark:text-gray-200">View System Logs</span>
@@ -192,8 +200,42 @@
           </div>
           <p v-else class="text-gray-500 text-sm dark:text-gray-400">No recent activity</p>
         </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm dark:bg-gray-800">
+          <NewStudentsChart v-if="newStudentsByMonth" :new-students-by-month="newStudentsByMonth" />
+        </div>
       </div>
 
+    </div>
+
+    <!-- Academic Management Dashboard -->
+    <div v-if="isAcademicStaff" class="space-y-6">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Student Register</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+              Search and filter the register, or download it as CSV for reporting.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <a
+              v-if="canExportStudents"
+              :href="route('hive.students.export')"
+              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+            >
+              <ArrowDownTrayIcon class="w-4 h-4" />
+              Export CSV
+            </a>
+            <Link
+              :href="route('hive.students.index')"
+              class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              Open Register
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Instructor Dashboard -->
@@ -218,7 +260,7 @@
               <UsersIcon class="h-5 w-5 text-white"/>
             </div>
             <div class="ml-3">
-              <p class="text-2xl font-bold text-orange-700">{{ myStudents || 0 }}</p>
+              <p class="text-2xl font-bold text-orange-700">{{ totalStudents || 0 }}</p>
               <p class="text-xs text-orange-600">Students</p>
             </div>
           </div>
@@ -278,24 +320,24 @@
           <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No upcoming assessments.</p>
         </div>
 
-        <!-- Recent Grades -->
+        <!-- Recently Graded -->
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Recent Grades</h3>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Recently Graded</h3>
             <Link :href="route('hive.grades.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium dark:text-amber-400">View all</Link>
           </div>
-          <div v-if="recentGrades && recentGrades.length" class="space-y-3">
-            <div v-for="submission in recentGrades" :key="submission.id" class="p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
+          <div v-if="recentlyGraded && recentlyGraded.length" class="space-y-3">
+            <div v-for="submission in recentlyGraded" :key="submission.id" class="p-3 bg-gray-50 rounded-lg dark:bg-gray-700">
               <div class="flex justify-between items-center">
                 <div>
-                  <p class="font-medium text-gray-800 text-sm dark:text-white">{{ submission.gradable.title }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ submission.gradable.module.name }}</p>
+                  <p class="font-medium text-gray-800 text-sm dark:text-white">{{ submission.gradable?.title }}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ submission.gradable?.module?.name }} — {{ submission.student?.name }}</p>
                 </div>
                 <span class="font-bold text-gray-800 dark:text-white">{{ submission.grade }}%</span>
               </div>
             </div>
           </div>
-          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No recent grades.</p>
+          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No grades issued yet.</p>
         </div>
 
         <!-- My Modules -->
@@ -304,14 +346,43 @@
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white">My Modules</h3>
             <Link :href="route('hive.modules.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium dark:text-amber-400">View all</Link>
           </div>
-          <div v-if="moduleProgress && moduleProgress.length" class="space-y-3">
-            <Link v-for="module in moduleProgress" :key="module.id" :href="route('hive.modules.show', { module: module.id })" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
+          <div v-if="myModules && myModules.length" class="space-y-3">
+            <Link v-for="module in myModules" :key="module.id" :href="route('hive.modules.show', { module: module.id })" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600">
               <p class="font-medium text-gray-800 text-sm dark:text-white">{{ module.name }}</p>
               <p class="text-xs text-gray-500 dark:text-gray-400">{{ module.code }}</p>
             </Link>
           </div>
-          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">You are not enrolled in any modules.</p>
+          <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">You are not assigned to any modules.</p>
         </div>
+      </div>
+
+      <!-- Ungraded Submissions Queue -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Submissions Awaiting Grading</h3>
+          <Link :href="route('hive.grades.index')" class="text-sm text-amber-600 hover:text-amber-700 font-medium dark:text-amber-400">Open Gradebook</Link>
+        </div>
+        <div v-if="recentSubmissions && recentSubmissions.length" class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <th class="py-2 pr-4 font-medium">Student</th>
+                <th class="py-2 pr-4 font-medium">Assessment</th>
+                <th class="py-2 pr-4 font-medium">Module</th>
+                <th class="py-2 font-medium">Submitted</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+              <tr v-for="submission in recentSubmissions" :key="submission.id">
+                <td class="py-2 pr-4 text-gray-800 dark:text-gray-100">{{ submission.student?.name }}</td>
+                <td class="py-2 pr-4 text-gray-600 dark:text-gray-300">{{ submission.gradable?.title }}</td>
+                <td class="py-2 pr-4 text-gray-500 dark:text-gray-400">{{ submission.gradable?.module?.name }}</td>
+                <td class="py-2 text-gray-500 dark:text-gray-400">{{ formatDate(submission.submitted_at) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">Nothing waiting to be graded.</p>
       </div>
 
       <!-- Quick Actions -->
@@ -339,6 +410,34 @@
 
     <!-- Non-Academic Staff Dashboard -->
     <div v-if="isNonAcademicStaff" class="space-y-6">
+      <div
+        v-if="canManageStudents || canExportStudents"
+        class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+      >
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-white">Student Register</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Search, filter and download the register of every student.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a
+            v-if="canExportStudents"
+            :href="route('hive.students.export')"
+            class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          >
+            <ArrowDownTrayIcon class="w-4 h-4" />
+            Export CSV
+          </a>
+          <Link
+            :href="route('hive.students.index')"
+            class="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition-colors"
+          >
+            Open Register
+          </Link>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Link :href="route('hive.applications.index')" class="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-xl block hover:shadow-lg transition-shadow dark:from-amber-900/20 dark:to-amber-800/20">
           <div class="flex items-center">
@@ -617,6 +716,76 @@
         </div>
       </div>
 
+      <!-- Fee Summary -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Fees &amp; Balance</h3>
+          <Link
+            v-if="currentUser?.programme_id"
+            :href="route('hive.finance.invoices.index')"
+            class="text-sm text-amber-600 hover:text-amber-700 font-medium dark:text-amber-400"
+          >
+            View all invoices
+          </Link>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div class="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
+            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Fees</p>
+            <p class="text-xl font-bold text-gray-800 dark:text-white">{{ formatMoney(totalFees) }}</p>
+          </div>
+          <div class="p-4 bg-green-50 rounded-lg dark:bg-green-900/20">
+            <p class="text-xs uppercase tracking-wide text-green-700 dark:text-green-400">Paid</p>
+            <p class="text-xl font-bold text-green-800 dark:text-green-300">{{ formatMoney(totalPaid) }}</p>
+          </div>
+          <div
+            class="p-4 rounded-lg"
+            :class="remainingBalance > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-700'"
+          >
+            <p
+              class="text-xs uppercase tracking-wide"
+              :class="remainingBalance > 0 ? 'text-red-700 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'"
+            >
+              Balance
+            </p>
+            <p
+              class="text-xl font-bold"
+              :class="remainingBalance > 0 ? 'text-red-800 dark:text-red-300' : 'text-gray-800 dark:text-white'"
+            >
+              {{ formatMoney(remainingBalance) }}
+            </p>
+          </div>
+        </div>
+
+        <div v-if="invoices && invoices.length" class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <th class="py-2 pr-4 font-medium">Invoice</th>
+                <th class="py-2 pr-4 font-medium">Description</th>
+                <th class="py-2 pr-4 font-medium">Amount</th>
+                <th class="py-2 pr-4 font-medium">Balance</th>
+                <th class="py-2 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+              <tr v-for="invoice in invoices" :key="invoice.id">
+                <td class="py-2 pr-4 font-medium text-gray-800 dark:text-gray-100">{{ invoice.invoice_number }}</td>
+                <td class="py-2 pr-4 text-gray-600 dark:text-gray-300">{{ invoice.description || '—' }}</td>
+                <td class="py-2 pr-4 text-gray-600 dark:text-gray-300">{{ formatMoney(invoice.amount) }}</td>
+                <td class="py-2 pr-4 text-gray-600 dark:text-gray-300">{{ formatMoney(invoice.balance) }}</td>
+                <td class="py-2">
+                  <span class="px-2 py-1 text-xs rounded-full" :class="getInvoiceStatusClass(invoice)">
+                    {{ invoice.is_paid ? 'Paid' : (invoice.is_overdue ? 'Overdue' : 'Pending') }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p v-else class="text-gray-500 text-sm text-center py-4 dark:text-gray-400">No invoices issued.</p>
+      </div>
+
       <!-- Recent Activity -->
       <RecentActivity :activities="recentActivities || []" />
     </div>
@@ -630,6 +799,7 @@ import HiveLayout from '@/Layouts/HiveLayout.vue';
 import { useUser } from '@/composables/useUser';
 const LeaveRequestsChart = defineAsyncComponent(() => import('./LeaveRequestsChart.vue'));
 const ClassAveragesChart = defineAsyncComponent(() => import('./ClassAveragesChart.vue'));
+const NewStudentsChart = defineAsyncComponent(() => import('./NewStudentsChart.vue'));
 import ProgressTracker from '@/Components/ProgressTracker.vue';
 import GradeAnalytics from '@/Components/GradeAnalytics.vue';
 import AcademicCalendar from '@/Components/AcademicCalendar.vue';
@@ -651,6 +821,7 @@ import {
     ChartBarIcon,
     PlusIcon,
     ChatBubbleLeftIcon,
+    ArrowDownTrayIcon,
 } from '@heroicons/vue/24/outline';
 
 dayjs.extend(relativeTime);
@@ -671,19 +842,32 @@ const props = defineProps({
     pendingApplications: Number,
     totalUsers: Number,
     newStudentsThisMonth: Number,
+    newStudentsByMonth: Object,
     pendingGrades: Number,
     recentUsers: Array,
     recentSubmissions: Array,
+    studentsEligibleForEnrollment: Object,
+    pendingRegistrations: Number,
+    activeAcademicYear: String,
 
     // Instructor
     myModulesCount: Number,
-    myStudents: Number,
+    totalStudents: Number,
     totalAssessments: Number,
+    pendingGrades: Number,
     upcomingAssessments: {
         type: Array,
         default: () => [],
     },
+    recentSubmissions: {
+        type: Array,
+        default: () => [],
+    },
     recentlyGraded: Array,
+    myModules: {
+        type: Array,
+        default: () => [],
+    },
     recentDocuments: Array,
     classAverage: Number,
     classAverages: Object,
@@ -705,6 +889,13 @@ const props = defineProps({
     pendingSubmissions: Number,
     averageGrade: Number,
     completedModules: Number,
+    invoices: {
+        type: Array,
+        default: () => [],
+    },
+    totalFees: Number,
+    totalPaid: Number,
+    remainingBalance: Number,
     moduleProgress: {
         type: Array,
         default: () => [],
@@ -755,6 +946,8 @@ const {
   isInstructor,
   isNonAcademicStaff,
   isStudent,
+  canManageStudents,
+  canExportStudents,
 } = useUser();
 
 const welcomeMessage = computed(() => {
@@ -794,5 +987,23 @@ const getTypeClass = (type) => {
         final_exam: 'bg-amber-300 text-amber-900 dark:bg-amber-900/60 dark:text-amber-100',
     };
     return classes[type] || 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+};
+
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'BWP',
+    minimumFractionDigits: 2,
+});
+
+const formatMoney = (amount) => currencyFormatter.format(Number(amount) || 0);
+
+const getInvoiceStatusClass = (invoice) => {
+    if (invoice?.is_paid) {
+        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
+    }
+    if (invoice?.is_overdue) {
+        return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+    }
+    return 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300';
 };
 </script>
