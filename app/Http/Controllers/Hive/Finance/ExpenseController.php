@@ -9,6 +9,8 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Supplier;
 use App\Services\AuditService;
+use App\Services\CsvExporter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,6 +22,7 @@ class ExpenseController extends Controller
 
     public function __construct(
         protected AuditService $audit,
+        protected CsvExporter $csv,
     ) {}
 
     /**
@@ -48,6 +51,57 @@ class ExpenseController extends Controller
     {
         $this->authorize('viewAny', Expense::class);
 
+        return Inertia::render('Hive/Finance/Expense/Index', [
+            'expenses' => $this->filteredQuery($request)->paginate(20)->withQueryString(),
+            'filters' => $this->getFilterInputs($request, ['status', 'category_id', 'budget_id', 'search', 'date_from', 'date_to']),
+            'statuses' => ['pending', 'approved', 'rejected', 'paid', 'cancelled'],
+            'categories' => ExpenseCategory::active()->orderBy('name')->get(),
+            'budgets' => Budget::where('status', 'active')->orderBy('name')->get(),
+        ]);
+    }
+
+    /**
+     * Export the filtered expense list to CSV.
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', Expense::class);
+
+        $expenses = $this->filteredQuery($request)->get();
+
+        $this->audit->log('exported', $request->user(), [
+            'resource' => 'expenses',
+            'row_count' => $expenses->count(),
+        ]);
+
+        return $this->csv->download(
+            $expenses->map(fn (Expense $expense) => [
+                'expense_number' => $expense->expense_number,
+                'date' => $this->csv->date($expense->expense_date),
+                'description' => $expense->description,
+                'category' => $expense->category?->name,
+                'vendor' => $expense->vendor?->name,
+                'budget' => $expense->budget?->name,
+                'amount' => $this->csv->money($expense->amount),
+                'payment_method' => $expense->payment_method,
+                'reference_number' => $expense->reference_number,
+                'status' => $expense->status,
+                'requested_by' => $expense->user?->name,
+                'approved_by' => $expense->approver?->name,
+            ]),
+            [
+                'Expense Number', 'Date', 'Description', 'Category', 'Vendor', 'Budget',
+                'Amount', 'Payment Method', 'Reference', 'Status', 'Requested By', 'Approved By',
+            ],
+            'expenses'
+        );
+    }
+
+    /**
+     * The expense list narrowed by the index filters.
+     */
+    protected function filteredQuery(Request $request): Builder
+    {
         $query = Expense::with(['user', 'category', 'vendor', 'budget', 'approver'])
             ->orderByDesc('created_at');
 
@@ -63,13 +117,7 @@ class ExpenseController extends Controller
             'budget_id' => true,
         ]);
 
-        return Inertia::render('Hive/Finance/Expense/Index', [
-            'expenses' => $query->paginate(20)->withQueryString(),
-            'filters' => $this->getFilterInputs($request, ['status', 'category_id', 'budget_id', 'search', 'date_from', 'date_to']),
-            'statuses' => ['pending', 'approved', 'rejected', 'paid', 'cancelled'],
-            'categories' => ExpenseCategory::active()->orderBy('name')->get(),
-            'budgets' => Budget::where('status', 'active')->orderBy('name')->get(),
-        ]);
+        return $query;
     }
 
     public function create(): Response

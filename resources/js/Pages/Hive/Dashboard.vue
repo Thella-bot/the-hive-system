@@ -1137,21 +1137,18 @@ const props = defineProps({
     newStudentsByMonth: Object,
     pendingGrades: Number,
     recentUsers: Array,
-    recentSubmissions: Array,
+    recentSubmissions: {
+        type: Array,
+        default: () => [],
+    },
     studentsEligibleForEnrollment: Object,
     pendingRegistrations: Number,
     activeAcademicYear: String,
 
     // Instructor
     myModulesCount: Number,
-    totalStudents: Number,
     totalAssessments: Number,
-    pendingGrades: Number,
     upcomingAssessments: {
-        type: Array,
-        default: () => [],
-    },
-    recentSubmissions: {
         type: Array,
         default: () => [],
     },

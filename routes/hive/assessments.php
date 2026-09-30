@@ -63,6 +63,8 @@ Route::post('submissions/{submission}/grade', [SubmissionController::class, 'upd
 // Grades
 Route::get('grades', [GradeController::class, 'index'])->name('grades.index')
     ->middleware('registered');
+Route::get('grades/export', [GradeController::class, 'export'])->name('grades.export')
+    ->middleware('registered');
 Route::get('modules/{module}/grades', [GradeController::class, 'manage'])->name('grades.manage')
     ->middleware('registered');
 

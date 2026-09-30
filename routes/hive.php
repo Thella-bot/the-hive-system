@@ -323,6 +323,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
         Route::post('keys/{key}/report-lost', [KeyController::class, 'reportLost'])->name('keys.report-lost');
 
         // Attendance / QR check-in
+        Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index')
+            ->middleware('registered');
+        Route::get('attendance/export', [AttendanceController::class, 'export'])->name('attendance.export')
+            ->middleware('registered');
         Route::get('attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan')
             ->middleware('role:super-admin|it-support|academic-director|program-coordinator|chef-instructor|pastry-instructor|sous-chef|examination-cell|registrar');
         Route::post('attendance/checkin', [AttendanceController::class, 'checkin'])->name('attendance.checkin')

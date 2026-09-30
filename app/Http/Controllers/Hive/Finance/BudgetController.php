@@ -8,6 +8,8 @@ use App\Models\Budget;
 use App\Models\Department;
 use App\Models\ExpenseCategory;
 use App\Services\AuditService;
+use App\Services\CsvExporter;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,6 +21,7 @@ class BudgetController extends Controller
 
     public function __construct(
         protected AuditService $audit,
+        protected CsvExporter $csv,
     ) {}
 
     /**
@@ -45,22 +48,7 @@ class BudgetController extends Controller
     {
         $this->authorize('viewAny', Budget::class);
 
-        $query = Budget::with(['category', 'department'])
-            ->orderByDesc('created_at');
-
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->has('academic_year') && $request->academic_year) {
-            $query->where('academic_year', $request->academic_year);
-        }
-
-        if ($request->has('department_id') && $request->department_id) {
-            $query->where('department_id', $request->department_id);
-        }
-
-        $budgets = $query->paginate(20)->withQueryString();
+        $budgets = $this->filteredQuery($request)->paginate(20)->withQueryString();
 
         // Add computed attributes
         $budgets->getCollection()->transform(function ($budget) {
@@ -79,6 +67,66 @@ class BudgetController extends Controller
             'categories' => ExpenseCategory::active()->orderBy('name')->get(),
             'academicYears' => Budget::distinct()->pluck('academic_year')->filter()->sort()->reverse()->values(),
         ]);
+    }
+
+    /**
+     * Export the filtered budget list to CSV.
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', Budget::class);
+
+        $budgets = $this->filteredQuery($request)->get();
+
+        $this->audit->log('exported', $request->user(), [
+            'resource' => 'budgets',
+            'row_count' => $budgets->count(),
+        ]);
+
+        return $this->csv->download(
+            $budgets->map(fn (Budget $budget) => [
+                'name' => $budget->name,
+                'academic_year' => $budget->academic_year,
+                'semester' => $budget->semester,
+                'department' => $budget->department?->name,
+                'category' => $budget->category?->name,
+                'allocated' => $this->csv->money($budget->allocated_amount ?? $budget->amount),
+                'spent' => $this->csv->money($budget->spent_amount),
+                'available' => $this->csv->money($budget->available_amount),
+                'percent_used' => $budget->percent_used === null ? '' : number_format((float) $budget->percent_used, 2),
+                'status' => $budget->status,
+                'start_date' => $this->csv->date($budget->start_date),
+                'end_date' => $this->csv->date($budget->end_date),
+            ]),
+            [
+                'Budget', 'Academic Year', 'Semester', 'Department', 'Category', 'Allocated',
+                'Spent', 'Available', 'Percent Used', 'Status', 'Start Date', 'End Date',
+            ],
+            'budgets'
+        );
+    }
+
+    /**
+     * The budget list narrowed by the index filters.
+     */
+    protected function filteredQuery(Request $request): Builder
+    {
+        $query = Budget::with(['category', 'department'])
+            ->orderByDesc('created_at');
+
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('academic_year') && $request->academic_year) {
+            $query->where('academic_year', $request->academic_year);
+        }
+
+        if ($request->has('department_id') && $request->department_id) {
+            $query->where('department_id', $request->department_id);
+        }
+
+        return $query;
     }
 
     public function store(Request $request): RedirectResponse

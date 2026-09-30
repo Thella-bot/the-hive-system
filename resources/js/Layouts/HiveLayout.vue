@@ -204,7 +204,6 @@ import { useUser } from '@/composables/useUser';
 import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
-  BellIcon,
   CheckCircleIcon,
   ChevronDownIcon,
   ExclamationCircleIcon,

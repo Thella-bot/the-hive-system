@@ -223,7 +223,7 @@ watch(() => props.notifications?.data, () => {
                     :title="hasFilters ? 'No notifications match these filters' : 'No notifications'"
                     :description="hasFilters
                         ? 'Try a different status or type.'
-                        : \"You're all caught up.\"
+                        : 'You are all caught up.'"
                 />
 
                 <div v-else class="divide-y divide-gray-100 dark:divide-gray-700">

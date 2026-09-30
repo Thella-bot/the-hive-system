@@ -63,7 +63,15 @@ class ImportUsersJob implements ShouldQueue
                 'user_id' => $this->user->id,
             ]);
 
+            if (! Storage::exists($this->filePath)) {
+                throw new \RuntimeException('Import file not found: '.$this->filePath);
+            }
+
             $contents = Storage::get($this->filePath);
+
+            if (! is_string($contents) || $contents === '') {
+                throw new \RuntimeException('Import file is empty or unreadable: '.$this->filePath);
+            }
 
             $rows = [];
             $handle = fopen('php://memory', 'r+');

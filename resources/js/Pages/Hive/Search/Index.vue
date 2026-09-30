@@ -156,8 +156,6 @@ const filteredSections = computed(() => {
   return sections.value.filter((s) => activeTypes.value.includes(s.key) && s.items.length > 0);
 });
 
-const visibleSections = computed(() => sections.value.filter((section) => section.items.length > 0));
-
 const toggleType = (key) => {
   activeTypes.value = activeTypes.value.includes(key)
     ? activeTypes.value.filter((k) => k !== key)

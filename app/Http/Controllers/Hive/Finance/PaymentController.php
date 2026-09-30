@@ -55,7 +55,7 @@ class PaymentController extends Controller
 
         return $this->csv->download(
             $payments->map(fn (Payment $payment) => [
-                'reference' => $payment->reference ?? $payment->payment_number,
+                'reference' => $payment->payment_reference,
                 'student' => $payment->user?->name,
                 'student_number' => $payment->user?->student_number,
                 'invoice' => $payment->invoice?->invoice_number,

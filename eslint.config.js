@@ -31,6 +31,8 @@ export default [
                 Link: 'readonly',
                 router: 'readonly',
                 shared: 'readonly',
+                fetch: 'readonly',
+                URLSearchParams: 'readonly',
             },
         },
         rules: {
