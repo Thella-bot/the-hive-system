@@ -1,7 +1,9 @@
 <template>
   <div class="bg-white p-6 rounded-xl shadow-sm">
     <h3 class="text-lg font-semibold text-gray-800 mb-4">New Students This Year</h3>
-    <Bar :data="chartData" :options="chartOptions" />
+    <div class="h-64">
+      <Bar :data="chartData" :options="chartOptions" />
+    </div>
   </div>
 </template>
 
@@ -32,5 +34,17 @@ const chartData = {
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+    },
+    y: {
+      beginAtZero: true,
+      ticks: { precision: 0 },
+    },
+  },
 }
 </script>

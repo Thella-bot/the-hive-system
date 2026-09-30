@@ -281,6 +281,12 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session')])
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
             Route::delete('/admin/{enrollment}', [EnrollmentController::class, 'destroy'])->name('admin.destroy')
                 ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director');
+
+            // Student enrollment/deregistration requests awaiting review
+            Route::get('/requests', [EnrollmentController::class, 'requests'])->name('requests')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director|admissions-officer');
+            Route::patch('/requests/{enrollmentRequest}', [EnrollmentController::class, 'decideRequest'])->name('requests.decide')
+                ->middleware('role:super-admin|it-support|registrar|program-coordinator|academic-director|admissions-officer');
         });
 
         // Search

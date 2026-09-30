@@ -7,6 +7,7 @@ defineProps({
     modules: Array,
     academicYears: Array,
     filters: Object,
+    pendingRequestCount: Number,
 });
 </script>
 
@@ -17,6 +18,13 @@ defineProps({
             <div class="flex justify-between items-center">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">Enrollment Management</h2>
                 <div class="flex gap-2">
+                    <a
+                        :href="route('hive.enrollment.requests')"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md font-semibold text-xs uppercase tracking-widest"
+                        :class="pendingRequestCount > 0 ? 'bg-amber-500 text-white hover:bg-amber-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+                    >
+                        Requests<span v-if="pendingRequestCount > 0">&nbsp;({{ pendingRequestCount }})</span>
+                    </a>
                     <a
                         :href="route('hive.enrollment.bulk')"
                         class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700"

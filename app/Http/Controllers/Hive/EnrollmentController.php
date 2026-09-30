@@ -7,12 +7,16 @@ namespace App\Http\Controllers\Hive;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\Enrollment;
+use App\Models\EnrollmentRequest;
 use App\Models\Module;
 use App\Models\User;
+use App\Notifications\EnrollmentRequestDecided;
+use App\Notifications\EnrollmentRequestSubmitted;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -56,6 +60,7 @@ class EnrollmentController extends Controller
             'modules' => Module::orderBy('name')->get(['id', 'name', 'code']),
             'academicYears' => AcademicYear::orderByDesc('name')->get(),
             'filters' => $request->only('module_id', 'academic_year', 'semester'),
+            'pendingRequestCount' => EnrollmentRequest::pending()->count(),
         ]);
     }
 
@@ -153,9 +158,34 @@ class EnrollmentController extends Controller
                 ->get();
         }
 
+        $enrolledModules = Enrollment::where('user_id', $user->id)
+            ->with('module:id,name,code')
+            ->get()
+            ->map(fn ($e) => [
+                'enrollment_id' => $e->id,
+                'module_id' => $e->module_id,
+                'academic_year' => $e->academic_year,
+                'semester' => (string) $e->semester,
+                'code' => $e->module?->code,
+                'name' => $e->module?->name,
+            ]);
+
+        $pendingRequests = EnrollmentRequest::where('user_id', $user->id)
+            ->where('status', EnrollmentRequest::STATUS_PENDING)
+            ->with('module:id,name,code')
+            ->get()
+            ->map(fn ($r) => [
+                'id' => $r->id,
+                'module_id' => $r->module_id,
+                'type' => $r->type,
+                'module' => $r->module?->name,
+            ]);
+
         return Inertia::render('Enrollment/Index', [
             'modules' => $availableModules,
             'enrolledModuleIds' => $enrolledModuleIds,
+            'enrolledModules' => $enrolledModules,
+            'pendingRequests' => $pendingRequests,
             'semesterContext' => [
                 'year_level' => $yearLevel,
                 'semester' => $semester,
@@ -165,7 +195,8 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Enroll self in a module.
+     * Submit a request to enroll in a module. Creates a pending request only;
+     * an authorised reviewer must approve it before an Enrollment exists.
      */
     public function studentStore(Request $request): RedirectResponse
     {
@@ -174,6 +205,7 @@ class EnrollmentController extends Controller
 
         $data = $request->validate([
             'module_id' => 'required|exists:modules,id',
+            'reason' => 'nullable|string|max:500',
         ]);
 
         $currentYear = AcademicYear::current()->first();
@@ -196,7 +228,7 @@ class EnrollmentController extends Controller
                 $isRepeatingYear = (int) $currentYearName > (int) ($user->profile?->cohort?->academicYear?->name ?? $currentYearName);
 
                 if (! $isRepeatingYear) {
-                    return back()->with('error', 'You cannot enroll in a module outside your current semester.');
+                    return back()->with('error', 'You cannot request a module outside your current semester.');
                 }
             }
         }
@@ -211,22 +243,34 @@ class EnrollmentController extends Controller
             return back()->with('info', 'You are already enrolled in this module.');
         }
 
-        $enrollment = Enrollment::create([
+        $pending = EnrollmentRequest::where('user_id', $user->id)
+            ->where('module_id', $data['module_id'])
+            ->where('type', EnrollmentRequest::TYPE_ENROLLMENT)
+            ->where('status', EnrollmentRequest::STATUS_PENDING)
+            ->exists();
+
+        if ($pending) {
+            return back()->with('info', 'You already have a pending request for this module.');
+        }
+
+        $enrollmentRequest = EnrollmentRequest::create([
             'user_id' => $user->id,
             'module_id' => $data['module_id'],
+            'type' => EnrollmentRequest::TYPE_ENROLLMENT,
             'academic_year' => $currentYearName,
             'semester' => $semester,
+            'reason' => $data['reason'] ?? null,
         ]);
 
-        $user->modules()->syncWithoutDetaching([$data['module_id']]);
+        $this->audit->logCreated($enrollmentRequest);
+        $this->notifyReviewers($enrollmentRequest);
 
-        $this->audit->logCreated($enrollment);
-
-        return back()->with('success', 'Enrolled successfully.');
+        return back()->with('success', 'Enrollment request submitted for approval.');
     }
 
     /**
-     * Drop a module by module_id.
+     * Submit a request to drop a module. Creates a pending request only; the
+     * enrollment is removed once a reviewer approves.
      */
     public function studentDestroy(Request $request, Module $module): RedirectResponse
     {
@@ -241,12 +285,28 @@ class EnrollmentController extends Controller
             return back()->with('info', 'You are not enrolled in this module.');
         }
 
-        $this->audit->logDeleted($enrollment);
-        $enrollment->delete();
+        $pending = EnrollmentRequest::where('user_id', $user->id)
+            ->where('module_id', $module->id)
+            ->where('type', EnrollmentRequest::TYPE_DEREGISTRATION)
+            ->where('status', EnrollmentRequest::STATUS_PENDING)
+            ->exists();
 
-        $user->modules()->detach($module->id);
+        if ($pending) {
+            return back()->with('info', 'You already have a pending deregistration request for this module.');
+        }
 
-        return back()->with('success', 'You have left the module.');
+        $enrollmentRequest = EnrollmentRequest::create([
+            'user_id' => $user->id,
+            'module_id' => $module->id,
+            'type' => EnrollmentRequest::TYPE_DEREGISTRATION,
+            'academic_year' => $enrollment->academic_year,
+            'semester' => (string) $enrollment->semester,
+        ]);
+
+        $this->audit->logCreated($enrollmentRequest);
+        $this->notifyReviewers($enrollmentRequest);
+
+        return back()->with('success', 'Deregistration request submitted for approval.');
     }
 
     /**
@@ -441,5 +501,118 @@ class EnrollmentController extends Controller
             'academicYear' => $currentYear,
             'semester' => $semester,
         ]);
+    }
+
+    /**
+     * List pending student enrollment/deregistration requests for review.
+     */
+    public function requests(Request $request): Response
+    {
+        $this->authorize('viewAny', EnrollmentRequest::class);
+
+        $query = EnrollmentRequest::with(['user', 'module', 'reviewer'])
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status')->toString());
+        } else {
+            $query->where('status', EnrollmentRequest::STATUS_PENDING);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type')->toString());
+        }
+
+        $requests = $query->paginate(25)->withQueryString();
+
+        return Inertia::render('Enrollment/Requests', [
+            'requests' => $requests,
+            'filters' => $request->only('status', 'type'),
+            'pendingCount' => EnrollmentRequest::pending()->count(),
+        ]);
+    }
+
+    /**
+     * Approve or reject a pending request. Approving an enrollment request
+     * creates the real Enrollment; approving a deregistration request removes it.
+     */
+    public function decideRequest(Request $request, EnrollmentRequest $enrollmentRequest): RedirectResponse
+    {
+        $this->authorize('update', $enrollmentRequest);
+
+        $data = $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'review_note' => 'nullable|string|max:500',
+        ]);
+
+        if (! $enrollmentRequest->isPending()) {
+            return back()->with('error', 'This request has already been reviewed.');
+        }
+
+        $oldValues = $enrollmentRequest->getOriginal();
+        $student = $enrollmentRequest->user;
+        $moduleId = $enrollmentRequest->module_id;
+
+        DB::transaction(function () use ($enrollmentRequest, $data, $request, $student, $moduleId) {
+            if ($data['status'] === EnrollmentRequest::STATUS_APPROVED) {
+                if ($enrollmentRequest->isEnrollment()) {
+                    $alreadyEnrolled = Enrollment::where('user_id', $enrollmentRequest->user_id)
+                        ->where('module_id', $moduleId)
+                        ->where('academic_year', $enrollmentRequest->academic_year)
+                        ->where('semester', $enrollmentRequest->semester)
+                        ->exists();
+
+                    if (! $alreadyEnrolled) {
+                        Enrollment::create([
+                            'user_id' => $enrollmentRequest->user_id,
+                            'module_id' => $moduleId,
+                            'academic_year' => $enrollmentRequest->academic_year,
+                            'semester' => $enrollmentRequest->semester,
+                        ]);
+
+                        $student?->modules()->syncWithoutDetaching([$moduleId]);
+                    }
+                } else {
+                    $enrollment = Enrollment::where('user_id', $enrollmentRequest->user_id)
+                        ->where('module_id', $moduleId)
+                        ->first();
+
+                    if ($enrollment) {
+                        $this->audit->logDeleted($enrollment);
+                        $enrollment->delete();
+                        $student?->modules()->detach($moduleId);
+                    }
+                }
+            }
+
+            $enrollmentRequest->update([
+                'status' => $data['status'],
+                'reviewed_by' => $request->user()->id,
+                'reviewed_at' => now(),
+                'review_note' => $data['review_note'] ?? null,
+            ]);
+        });
+
+        $this->audit->logUpdated($enrollmentRequest, $oldValues);
+
+        if ($student) {
+            $student->notify(new EnrollmentRequestDecided($enrollmentRequest->fresh()));
+        }
+
+        return back()->with('success', "Request {$data['status']}.");
+    }
+
+    /**
+     * Notify staff who can review enrollment requests.
+     */
+    private function notifyReviewers(EnrollmentRequest $enrollmentRequest): void
+    {
+        $reviewers = User::role(['super-admin', 'it-support', 'registrar', 'program-coordinator', 'academic-director', 'admissions-officer'])
+            ->whereDoesntHave('enrollmentRequests', fn ($q) => $q->whereKey($enrollmentRequest->user_id))
+            ->get();
+
+        if ($reviewers->isNotEmpty()) {
+            Notification::send($reviewers, new EnrollmentRequestSubmitted($enrollmentRequest));
+        }
     }
 }

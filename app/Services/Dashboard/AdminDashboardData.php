@@ -158,10 +158,13 @@ class AdminDashboardData implements DashboardData
             ->pluck('count', 'month')
             ->toArray();
 
+        // Year-to-date only: months that have not happened yet would render as
+        // empty bars and stretch the chart for no information.
+        $elapsedMonths = (int) now()->month;
         $months = [];
-        for ($i = 1; $i <= 12; $i++) {
+        for ($i = 1; $i <= $elapsedMonths; $i++) {
             $key = $i < 10 ? '0' . $i : (string) $i;
-            $months[Carbon::create(null, $i)->format('F')] = isset($results[$key]) ? (int) $results[$key] : 0;
+            $months[Carbon::create(null, $i)->format('M')] = isset($results[$key]) ? (int) $results[$key] : 0;
         }
 
         return $months;

@@ -111,6 +111,11 @@ class User extends Authenticatable
         return $this->hasMany(Enrollment::class);
     }
 
+    public function enrollmentRequests(): HasMany
+    {
+        return $this->hasMany(EnrollmentRequest::class);
+    }
+
     public function submissions(): HasMany
     {
         return $this->hasMany(Submission::class, 'student_id');
